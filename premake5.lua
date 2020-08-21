@@ -36,8 +36,8 @@ newoption {
 
 dependencies.load()
 
-workspace "iw4x²"
-	startproject "iw4x²"
+workspace "w3x"
+	startproject "w3x"
 	location "./build"
 	objdir "%{wks.location}/obj"
 	targetdir "%{wks.location}/bin/%{cfg.platform}/%{cfg.buildcfg}"
@@ -47,8 +47,8 @@ workspace "iw4x²"
 		"Release",
 	}
 
-	architecture "x32"
-	platforms "x32"
+	architecture "x64"
+	platforms "x64"
 
 	buildoptions "/std:c++latest"
 	systemversion "latest"
@@ -57,7 +57,7 @@ workspace "iw4x²"
 	editandcontinue "Off"
 	warnings "Extra"
 	characterset "ASCII"
-
+	
 	flags {
 		"NoIncrementalLink",
 		"NoMinimalRebuild",
@@ -93,16 +93,12 @@ workspace "iw4x²"
 
 	configuration {}
 
-	project "iw4x²"
-		kind "ConsoleApp"
+	project "w3x"
+		kind "WindowedApp"
 		language "C++"
 
 		pchheader "std_include.hpp"
 		pchsource "src/std_include.cpp"
-		
-		linkoptions "/IGNORE:4254 /DYNAMICBASE:NO /SAFESEH:NO /LARGEADDRESSAWARE"
-		linkoptions "/LAST:.main"
-
 
 		files {
 			"./src/**.rc",
@@ -112,7 +108,8 @@ workspace "iw4x²"
 		}
 
 		includedirs {
-			"./src"
+			"./src",
+			"%{prj.location}/src",
 		}
 
 		resincludedirs {
@@ -129,3 +126,19 @@ workspace "iw4x²"
 
 	group "Dependencies"
 		dependencies.projects()
+
+rule "ProtobufCompiler"
+	display "Protobuf compiler"
+	location "./build"
+	fileExtension ".proto"
+	buildmessage "Compiling %(Identity) with protoc..."
+	buildcommands {
+		'@echo off',
+		'path "$(SolutionDir)\\..\\tools"',
+		'if not exist "$(ProjectDir)\\src\\proto" mkdir "$(ProjectDir)\\src\\proto"',
+		'protoc --error_format=msvs -I=%(RelativeDir) --cpp_out=src\\proto %(Identity)',
+	}
+	buildoutputs {
+		'$(ProjectDir)\\src\\proto\\%(Filename).pb.cc',
+		'$(ProjectDir)\\src\\proto\\%(Filename).pb.h',
+	}

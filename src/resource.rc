@@ -61,13 +61,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName", "IW4x"
-            VALUE "FileDescription", "IW4x²"
+            VALUE "CompanyName", "momo5502 & RektInator"
+            VALUE "FileDescription", "Witcher 3: Online"
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "IW4x²"
+            VALUE "InternalName", "Witcher 3: Online"
             VALUE "LegalCopyright", "All rights reserved."
-            VALUE "OriginalFilename", "iw4x².exe"
-            VALUE "ProductName", "iw4x²"
+            VALUE "OriginalFilename", "w3x.exe"
+            VALUE "ProductName", "w3x"
             VALUE "ProductVersion", "1.0.0.0"
         END
     END
@@ -82,7 +82,9 @@ END
 // Binary Data
 //
 
-102       ICON   "resources/icon.ico"
+102       ICON   "resources/icon_dark.ico"
+
+IMAGE_SPLASH BITMAP "resources/splash.bmp"
 
 
 #endif    // English (United States) resources
