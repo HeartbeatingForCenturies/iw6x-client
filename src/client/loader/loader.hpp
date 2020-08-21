@@ -1,17 +1,22 @@
 #pragma once
 #include "utils/nt.hpp"
+#include "launcher/launcher.hpp"
 
-namespace loader
+class loader final
 {
-	using resolver = std::function<void*(const std::string& module, const std::string & function)>;
-	
-	utils::nt::module get_game_module();
-	utils::nt::module get_main_module();
-	utils::nt::module load(const std::string& name, const resolver& import_resolver = {});
+public:
+	explicit loader(launcher::mode mode);
 
-	size_t reverse_g(size_t val);
-	size_t reverse_g(const void* val);
-}
+	FARPROC load(const utils::nt::module& module) const;
 
-// Outside the namespace for easier use
-size_t operator"" _g(size_t val);
+	void set_import_resolver(const std::function<FARPROC(const std::string&, const std::string&)>& resolver);
+
+private:
+	launcher::mode mode_;
+	std::function<FARPROC(const std::string&, const std::string&)> import_resolver_;
+
+	static void load_section(const utils::nt::module& target, const utils::nt::module& source,
+	                         IMAGE_SECTION_HEADER* section);
+	void load_sections(const utils::nt::module& target, const utils::nt::module& source) const;
+	void load_imports(const utils::nt::module& target, const utils::nt::module& source) const;
+};

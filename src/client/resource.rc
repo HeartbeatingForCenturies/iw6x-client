@@ -82,9 +82,11 @@ END
 // Binary Data
 //
 
-102       ICON   "resources/icon_dark.ico"
+102       ICON   "resources/icon.ico"
 
 IMAGE_SPLASH BITMAP "resources/splash.bmp"
+
+MENU_MAIN     RCDATA "resources/main.html"
 
 
 #endif    // English (United States) resources

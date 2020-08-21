@@ -1,5 +1,6 @@
 #pragma once
 
+#define BINARY_PAYLOAD_SIZE 0x60000000
 #define TLS_PAYLOAD_SIZE 0x2000
 
 #pragma warning(push)
@@ -26,7 +27,16 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-#include <Windows.h>
+#include <windows.h>
+#include <mshtml.h>
+#include <mshtmhst.h>
+#include <ExDisp.h>
+#include <WinSock2.h>
+#include <Ws2tcpip.h>
+#include <corecrt_io.h>
+#include <fcntl.h>
+#include <shellapi.h>
+#include <csetjmp>
 #include <ShlObj.h>
 
 // min and max is required by gdi, therefore NOMINMAX won't work

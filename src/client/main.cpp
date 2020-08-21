@@ -1,9 +1,10 @@
 #include <std_include.hpp>
+#include "launcher/launcher.hpp"
 #include "loader/loader.hpp"
-#include "utils/string.hpp"
 #include "loader/module_loader.hpp"
-#include "utils/hook.hpp"
-
+#include "game/game.hpp"
+#include "utils/string.hpp"
+#include "utils/flags.hpp"
 DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 {
 	module_loader::pre_destroy();
@@ -12,7 +13,7 @@ DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 
 void verify_tls()
 {
-	const auto self = loader::get_main_module();
+	const utils::nt::module self;
 	const auto self_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(self.get_ptr()
 		+ self.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
 
@@ -23,8 +24,51 @@ void verify_tls()
 
 	if (offset != 0 && offset != 16) // Actually 16 is bad, but I think msvc places custom stuff before
 	{
-		throw std::runtime_error(utils::string::va("TLS payload is at offset 0x%X, but should be at 0!", offset));
+		throw std::runtime_error(utils::string::va("TLS payload is at offset 0x%X, but should be at 0!",
+		                                           offset));
 	}
+}
+
+launcher::mode detect_mode_from_arguments()
+{
+	if (utils::flags::has_flag("dedicated"))
+	{
+		return launcher::mode::server;
+	}
+
+	if (utils::flags::has_flag("multiplayer"))
+	{
+		return launcher::mode::multiplayer;
+	}
+
+	if (utils::flags::has_flag("singleplayer"))
+	{
+		return launcher::mode::singleplayer;
+	}
+
+	return launcher::mode::none;
+}
+
+FARPROC load_binary(const launcher::mode mode)
+{
+	loader loader(mode);
+	utils::nt::module self;
+
+	loader.set_import_resolver([self](const std::string& module, const std::string& function) -> FARPROC
+	{
+		if (module == "steam_api.dll")
+		{
+			return self.get_proc<FARPROC>(function);
+		}
+		else if (function == "ExitProcess")
+		{
+			return FARPROC(exit_hook);
+		}
+
+		return FARPROC(module_loader::load_import(module, function));
+	});
+
+	return loader.load(self);
 }
 
 int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
@@ -44,36 +88,39 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
 		try
 		{
+#ifdef GENERATE_DIFFS
+			binary_loader::create();
+			return 0;
+#endif
+
 			verify_tls();
 			if (!module_loader::post_start()) return 0;
 
-			const auto module = loader::load("witcher3.exe", [](const std::string& module, const std::string& function) -> void*
+			auto mode = detect_mode_from_arguments();
+			if (mode == launcher::mode::none)
 			{
-				if (function == "ExitProcess")
-				{
-					return &exit_hook;
-				}
-
-				return module_loader::load_import(module, function);
-			});
-
-			const auto version_sig = "48 FF 42 30 48 8D 05 ? ? ? ?"_sig;
-			if(version_sig.count() != 1 || utils::hook::extract<char*>(version_sig.get(0) + 0x7) != "v 1.32"s)
-			{
-				throw std::runtime_error("Unsupported game version");
+				const launcher launcher;
+				mode = launcher.run();
+				if (mode == launcher::mode::none) return 0;
 			}
-			
-			entry_point = FARPROC(module.get_entry_point());
 
+			entry_point = load_binary(mode);
+			if (!entry_point)
+			{
+				throw std::runtime_error("Unable to load binary into memory");
+			}
+
+			game::initialize(mode);
 			if (!module_loader::post_load()) return 0;
+
 			premature_shutdown = false;
 		}
-		catch (std::exception & e)
+		catch (std::exception& e)
 		{
 			MessageBoxA(nullptr, e.what(), "ERROR", MB_ICONERROR);
 			return 1;
 		}
 	}
 
-	return static_cast<int>(entry_point());
+	return entry_point();
 }
