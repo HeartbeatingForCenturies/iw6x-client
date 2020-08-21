@@ -36,8 +36,8 @@ newoption {
 
 dependencies.load()
 
-workspace "w3x"
-	startproject "w3x"
+workspace "iw6x"
+	startproject "client"
 	location "./build"
 	objdir "%{wks.location}/obj"
 	targetdir "%{wks.location}/bin/%{cfg.platform}/%{cfg.buildcfg}"
@@ -93,22 +93,24 @@ workspace "w3x"
 
 	configuration {}
 
-	project "w3x"
+	project "client"
 		kind "WindowedApp"
 		language "C++"
+		
+		targetname "iw6x"
 
 		pchheader "std_include.hpp"
-		pchsource "src/std_include.cpp"
+		pchsource "src/client/std_include.cpp"
 
 		files {
-			"./src/**.rc",
-			"./src/**.hpp",
-			"./src/**.cpp",
-			"./src/resources/**.*"
+			"./src/client/**.rc",
+			"./src/client/**.hpp",
+			"./src/client/**.cpp",
+			"./src/client/resources/**.*"
 		}
 
 		includedirs {
-			"./src",
+			"./src/client",
 			"%{prj.location}/src",
 		}
 
