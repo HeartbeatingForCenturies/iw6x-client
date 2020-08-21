@@ -45,7 +45,7 @@ void launcher::create_main_menu()
 			return DefWindowProcA(*window, message, w_param, l_param);
 		});
 
-	this->main_window_.create("Open-IW5", 750, 430);
+	this->main_window_.create("IW6x", 750, 430);
 	this->main_window_.load_html(load_content(MENU_MAIN));
 	this->main_window_.show();
 }
@@ -64,7 +64,7 @@ void launcher::select_mode(const mode mode)
 
 std::string launcher::load_content(const int res)
 {
-	const auto resource = FindResource(utils::nt::module(), MAKEINTRESOURCE(res), RT_RCDATA);
+	auto* const resource = FindResource(utils::nt::module(), MAKEINTRESOURCE(res), RT_RCDATA);
 	if (!resource) return {};
 
 	const auto handle = LoadResource(nullptr, resource);

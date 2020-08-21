@@ -61,13 +61,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName", "momo5502 & RektInator"
-            VALUE "FileDescription", "Witcher 3: Online"
+            VALUE "CompanyName", "IW4x Team"
+            VALUE "FileDescription", "IW6x"
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "Witcher 3: Online"
+            VALUE "InternalName", "IW6x"
             VALUE "LegalCopyright", "All rights reserved."
-            VALUE "OriginalFilename", "w3x.exe"
-            VALUE "ProductName", "w3x"
+            VALUE "OriginalFilename", "iw6x.exe"
+            VALUE "ProductName", "iw6x"
             VALUE "ProductVersion", "1.0.0.0"
         END
     END
@@ -85,6 +85,7 @@ END
 102       ICON   "resources/icon.ico"
 
 IMAGE_SPLASH BITMAP "resources/splash.bmp"
+IMAGE_LOGO BITMAP "resources/logo.bmp"
 
 MENU_MAIN     RCDATA "resources/main.html"
 

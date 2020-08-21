@@ -75,6 +75,7 @@
 #include "proto/test.pb.h"
 
 #pragma warning(pop)
+#pragma warning(disable: 4100)
 
 #include "resource.hpp"
 
