@@ -5,6 +5,8 @@
 #include "game/game.hpp"
 #include "utils/string.hpp"
 #include "utils/flags.hpp"
+#include "utils/io.hpp"
+
 DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 {
 	module_loader::pre_destroy();
@@ -51,7 +53,7 @@ launcher::mode detect_mode_from_arguments()
 
 FARPROC load_binary(const launcher::mode mode)
 {
-	loader loader(mode);
+	loader loader;
 	utils::nt::module self;
 
 	loader.set_import_resolver([self](const std::string& module, const std::string& function) -> FARPROC
@@ -68,7 +70,27 @@ FARPROC load_binary(const launcher::mode mode)
 		return FARPROC(module_loader::load_import(module, function));
 	});
 
-	return loader.load(self);
+	std::string binary;
+	switch (mode)
+	{
+	case launcher::multiplayer:
+		binary = "iw6mp64_ship.exe";
+		break;
+	case launcher::singleplayer:
+		binary = "iw6sp64_ship.exe";
+		break;
+	case launcher::server:
+	default:
+		throw std::runtime_error("Invalid game mode!");
+	}
+
+	std::string data;
+	if (!utils::io::read_file(binary, &data))
+	{
+		throw std::runtime_error("Failed to read game binary!");
+	}
+
+	return loader.load(self, data);
 }
 
 int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)

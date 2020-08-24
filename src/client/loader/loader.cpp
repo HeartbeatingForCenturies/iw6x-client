@@ -3,13 +3,8 @@
 //#include "binary_loader.hpp"
 #include "utils/string.hpp"
 
-loader::loader(const launcher::mode mode) : mode_(mode)
+FARPROC loader::load(const utils::nt::module& module, const std::string& buffer) const
 {
-}
-
-FARPROC loader::load(const utils::nt::module& module) const
-{
-	const auto buffer = std::string();//binary_loader::load(this->mode_);
 	if (buffer.empty()) return nullptr;
 
 	const utils::nt::module source(HMODULE(buffer.data()));

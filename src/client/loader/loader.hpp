@@ -5,14 +5,11 @@
 class loader final
 {
 public:
-	explicit loader(launcher::mode mode);
-
-	FARPROC load(const utils::nt::module& module) const;
+	FARPROC load(const utils::nt::module& module, const std::string& buffer) const;
 
 	void set_import_resolver(const std::function<FARPROC(const std::string&, const std::string&)>& resolver);
 
 private:
-	launcher::mode mode_;
 	std::function<FARPROC(const std::string&, const std::string&)> import_resolver_;
 
 	static void load_section(const utils::nt::module& target, const utils::nt::module& source,
