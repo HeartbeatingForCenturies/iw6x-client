@@ -86,6 +86,10 @@ namespace utils::hook
 		void enable() const;
 		void disable() const;
 
+		void create(void* place, void* target);
+		void create(size_t place, void* target);
+		void clear();
+
 		template <typename T>
 		T* get() const
 		{
@@ -105,6 +109,8 @@ namespace utils::hook
 		void* original_{};
 	};
 
+	bool iat(nt::module module, const std::string& target_module, const std::string& process, void* stub);
+	
 	void nop(void* place, size_t length);
 	void nop(size_t place, size_t length);
 

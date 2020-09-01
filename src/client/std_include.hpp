@@ -40,6 +40,7 @@
 #include <ShlObj.h>
 #include <winternl.h>
 #include <versionhelpers.h>
+#include <Psapi.h>
 
 // min and max is required by gdi, therefore NOMINMAX won't work
 #ifdef max
@@ -80,6 +81,7 @@
 #pragma warning(pop)
 #pragma warning(disable: 4100)
 
+#pragma comment(lib, "ntdll.lib")
 #pragma comment(lib, "ws2_32.lib")
 
 #include "resource.hpp"

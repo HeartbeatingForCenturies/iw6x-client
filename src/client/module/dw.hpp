@@ -15,7 +15,6 @@ namespace demonware
 
 		void post_load() override;
 		void pre_destroy() override;
-		void* load_import(const std::string& module, const std::string& function) override;
 
 		template <typename... Args>
 		static std::shared_ptr<service_server> register_server(Args ... args)

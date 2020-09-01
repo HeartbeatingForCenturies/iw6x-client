@@ -128,7 +128,7 @@ namespace demonware
 				host.h_aliases = nullptr;
 				host.h_addrtype = AF_INET;
 				host.h_length = sizeof(in_addr);
-				host.h_addr_list = reinterpret_cast<char **>(addr_list);
+				host.h_addr_list = reinterpret_cast<char**>(addr_list);
 
 				return &host;
 			}
@@ -140,6 +140,16 @@ namespace demonware
 			return gethostbyname(name);
 
 #pragma warning(pop)
+		}
+
+		bool register_hook(const std::string& process, void* stub)
+		{
+			const utils::nt::module main;
+
+			auto result = false;
+			result = result || utils::hook::iat(main, "wsock32.dll", process, stub);
+			result = result || utils::hook::iat(main, "WS2_32.dll", process, stub);
+			return result;
 		}
 	}
 }
@@ -355,20 +365,6 @@ namespace demonware
 		datagram_packets_.clear();
 	}
 
-	void* dw::load_import(const std::string& module, const std::string& function)
-	{
-		if(function == "send") return io::send;
-		if(function == "recv") return io::recv;
-		if(function == "sendto") return io::send_to;
-		if(function == "recvfrom") return io::recv_from;
-		if(function == "connect") return io::connect;
-		if(function == "closesocket") return io::close_socket;
-		if(function == "ioctlsocket") return io::ioctl_socket;
-		if(function == "gethostbyname") return io::get_host_by_name;
-
-		return nullptr;
-	}
-
 	dw::dw()
 	{
 		register_stun_server("ghosts-stun.us.demonware.net");
@@ -397,6 +393,15 @@ namespace demonware
 	void dw::post_load()
 	{
 		message_thread_ = std::thread(server_thread);
+
+		io::register_hook("send", io::send);
+		io::register_hook("recv", io::recv);
+		io::register_hook("sendto", io::send_to);
+		io::register_hook("recvfrom", io::recv_from);
+		io::register_hook("connect", io::connect);
+		io::register_hook("closesocket", io::close_socket);
+		io::register_hook("ioctlsocket", io::ioctl_socket);
+		io::register_hook("gethostbyname", io::get_host_by_name);
 
 		//utils::hook(SELECT_VALUE(0x6F40A0, 0x6EE1C0, 0x611310), bd_logger_stub, HOOK_JUMP).install()->quick();
 	}
