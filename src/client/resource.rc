@@ -82,12 +82,19 @@ END
 // Binary Data
 //
 
-102       ICON   "resources/icon.ico"
+ID_ICON               ICON   "resources/icon.ico"
 
-IMAGE_SPLASH BITMAP "resources/splash.bmp"
-IMAGE_LOGO BITMAP "resources/logo.bmp"
+IMAGE_SPLASH          BITMAP "resources/splash.bmp"
+IMAGE_LOGO            BITMAP "resources/logo.bmp"
 
-MENU_MAIN     RCDATA "resources/main.html"
+DW_ENTITLEMENT_CONFIG RCDATA "resources/dw/entitlement_config_tu14.info"
+DW_SOCIAL_CONFIG      RCDATA "resources/dw/social_tu14.cfg"
+DW_MM_CONFIG          RCDATA "resources/dw/mm.cfg"
+DW_MOTD               RCDATA "resources/dw/motd.txt"
+DW_NEWSFEED           RCDATA "resources/dw/newsfeed.txt"
+DW_PLAYLISTS          RCDATA "resources/dw/playlists_tu14.aggr"
+
+MENU_MAIN             RCDATA "resources/main.html"
 
 
 #endif    // English (United States) resources

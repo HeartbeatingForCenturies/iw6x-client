@@ -66,6 +66,7 @@
 #include <gsl/gsl>
 #include <udis86.h>
 #include <MinHook.h>
+#include <tomcrypt.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
@@ -78,6 +79,8 @@
 
 #pragma warning(pop)
 #pragma warning(disable: 4100)
+
+#pragma comment(lib, "ws2_32.lib")
 
 #include "resource.hpp"
 

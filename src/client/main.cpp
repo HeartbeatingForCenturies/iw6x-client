@@ -58,7 +58,7 @@ FARPROC load_binary(const launcher::mode mode)
 
 	loader.set_import_resolver([self](const std::string& module, const std::string& function) -> FARPROC
 	{
-		if (module == "steam_api.dll")
+		if (module == "steam_api64.dll")
 		{
 			return self.get_proc<FARPROC>(function);
 		}
