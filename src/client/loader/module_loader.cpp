@@ -71,6 +71,7 @@ void module_loader::pre_destroy()
 void* module_loader::load_import(const std::string& module, const std::string& function)
 {
 	void* function_ptr = nullptr;
+	if (!modules_) return function_ptr;
 
 	for (const auto& module_ : *modules_)
 	{

@@ -102,6 +102,14 @@ workspace "iw6x"
 		pchheader "std_include.hpp"
 		pchsource "src/client/std_include.cpp"
 
+		linkoptions {
+			"/IGNORE:4254",
+			"/DYNAMICBASE:NO",
+			"/SAFESEH:NO",
+			"/LARGEADDRESSAWARE",
+			"/LAST:.main"
+		}
+
 		files {
 			"./src/client/**.rc",
 			"./src/client/**.hpp",

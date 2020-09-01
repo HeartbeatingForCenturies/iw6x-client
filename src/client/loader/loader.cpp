@@ -1,6 +1,6 @@
 #include <std_include.hpp>
 #include "loader.hpp"
-//#include "binary_loader.hpp"
+#include "seh.hpp"
 #include "utils/string.hpp"
 
 FARPROC loader::load(const utils::nt::module& module, const std::string& buffer) const
@@ -15,16 +15,10 @@ FARPROC loader::load(const utils::nt::module& module, const std::string& buffer)
 
 	if (source.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size)
 	{
-		const auto target_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + module
-		                                                                                  .get_optional_header()
-		                                                                                  ->
-		                                                                                  DataDirectory
-			[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
-		const auto source_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + source
-		                                                                                  .get_optional_header()
-		                                                                                  ->
-		                                                                                  DataDirectory
-			[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
+		auto* const target_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + module.get_optional_header()
+			->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
+		auto* const source_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + source.get_optional_header()
+			->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
 
 		const auto tls_size = source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData;
 		const auto tls_index = *reinterpret_cast<DWORD*>(target_tls->AddressOfIndex);
@@ -41,7 +35,7 @@ FARPROC loader::load(const utils::nt::module& module, const std::string& buffer)
 		               source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData, PAGE_READWRITE,
 		               &old_protect);
 
-		const auto tls_base = *reinterpret_cast<LPVOID*>(__readgsqword(0x58) + 4 * tls_index);
+		auto* const tls_base = *reinterpret_cast<LPVOID*>(__readgsqword(0x58) + 4 * tls_index);
 		std::memmove(tls_base, PVOID(source_tls->StartAddressOfRawData), tls_size);
 		std::memmove(PVOID(target_tls->StartAddressOfRawData), PVOID(source_tls->StartAddressOfRawData), tls_size);
 	}
@@ -50,8 +44,8 @@ FARPROC loader::load(const utils::nt::module& module, const std::string& buffer)
 	VirtualProtect(module.get_nt_headers(), 0x1000, PAGE_EXECUTE_READWRITE, &oldProtect);
 
 	module.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT] = source
-	                                                                            .get_optional_header()->DataDirectory[
-		IMAGE_DIRECTORY_ENTRY_IMPORT];
+		.get_optional_header()->DataDirectory[
+			IMAGE_DIRECTORY_ENTRY_IMPORT];
 	std::memmove(module.get_nt_headers(), source.get_nt_headers(),
 	             sizeof(IMAGE_NT_HEADERS) + source.get_nt_headers()->FileHeader.NumberOfSections * sizeof(
 		             IMAGE_SECTION_HEADER));
@@ -77,11 +71,10 @@ void loader::load_section(const utils::nt::module& target, const utils::nt::modu
 
 	if (section->SizeOfRawData > 0)
 	{
-		const auto size_of_data = std::min(section->SizeOfRawData, section->Misc.VirtualSize);
-		std::memmove(target_ptr, source_ptr, size_of_data);
+		std::memmove(target_ptr, source_ptr, section->SizeOfRawData);
 
 		DWORD old_protect;
-		VirtualProtect(target_ptr, size_of_data, PAGE_EXECUTE_READWRITE, &old_protect);
+		VirtualProtect(target_ptr, section->Misc.VirtualSize, PAGE_EXECUTE_READWRITE, &old_protect);
 	}
 }
 
@@ -95,16 +88,16 @@ void loader::load_sections(const utils::nt::module& target, const utils::nt::mod
 
 void loader::load_imports(const utils::nt::module& target, const utils::nt::module& source) const
 {
-	const auto import_directory = &source.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
+	auto* const import_directory = &source.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
 
-	auto descriptor = PIMAGE_IMPORT_DESCRIPTOR(target.get_ptr() + import_directory->VirtualAddress);
+	auto* descriptor = PIMAGE_IMPORT_DESCRIPTOR(target.get_ptr() + import_directory->VirtualAddress);
 
 	while (descriptor->Name)
 	{
 		std::string name = LPSTR(target.get_ptr() + descriptor->Name);
 
-		auto name_table_entry = reinterpret_cast<uintptr_t*>(target.get_ptr() + descriptor->OriginalFirstThunk);
-		auto address_table_entry = reinterpret_cast<uintptr_t*>(target.get_ptr() + descriptor->FirstThunk);
+		auto* name_table_entry = reinterpret_cast<uintptr_t*>(target.get_ptr() + descriptor->OriginalFirstThunk);
+		auto* address_table_entry = reinterpret_cast<uintptr_t*>(target.get_ptr() + descriptor->FirstThunk);
 
 		if (!descriptor->OriginalFirstThunk)
 		{
@@ -129,7 +122,7 @@ void loader::load_imports(const utils::nt::module& target, const utils::nt::modu
 			}
 			else
 			{
-				auto import = PIMAGE_IMPORT_BY_NAME(target.get_ptr() + *name_table_entry);
+				auto* import = PIMAGE_IMPORT_BY_NAME(target.get_ptr() + *name_table_entry);
 				function_name = import->Name;
 
 				if (this->import_resolver_) function = this->import_resolver_(name, function_name);
@@ -157,4 +150,40 @@ void loader::load_imports(const utils::nt::module& target, const utils::nt::modu
 
 		descriptor++;
 	}
+}
+
+void loader::load_exception_table(const utils::nt::module& target, const utils::nt::module& source) const
+{
+	auto* exception_directory = &source.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXCEPTION];
+
+	auto* function_list = PRUNTIME_FUNCTION(target.get_ptr() + exception_directory->VirtualAddress);
+	const auto entry_count = ULONG(exception_directory->Size / sizeof(RUNTIME_FUNCTION));
+
+	if (!RtlAddFunctionTable(function_list, entry_count, DWORD64(target.get_ptr())))
+	{
+		MessageBoxA(nullptr, "Setting exception handlers failed.", "Error", MB_OK | MB_ICONERROR);
+	}
+
+	{
+		const utils::nt::module ntdll("ntdll.dll");
+
+		auto* const table_list_head = ntdll.invoke_pascal<PLIST_ENTRY>("RtlGetFunctionTableListHead");
+		auto* table_list_entry = table_list_head->Flink;
+
+		while (table_list_entry != table_list_head)
+		{
+			auto* const function_table = CONTAINING_RECORD(table_list_entry, DYNAMIC_FUNCTION_TABLE, Links);
+
+			if (function_table->BaseAddress == ULONG_PTR(target.get_handle()))
+			{
+				function_table->EntryCount = entry_count;
+				function_table->FunctionTable = function_list;
+			}
+
+			table_list_entry = function_table->Links.Flink;
+		}
+	}
+
+	seh::setup_handler(target.get_ptr(), target.get_ptr() + source.get_optional_header()->SizeOfImage, function_list,
+	                   entry_count);
 }

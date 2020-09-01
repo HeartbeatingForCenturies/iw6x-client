@@ -73,13 +73,14 @@ FARPROC load_binary(const launcher::mode mode)
 	std::string binary;
 	switch (mode)
 	{
-	case launcher::multiplayer:
+	case launcher::mode::multiplayer:
 		binary = "iw6mp64_ship.exe";
 		break;
-	case launcher::singleplayer:
+	case launcher::mode::singleplayer:
 		binary = "iw6sp64_ship.exe";
 		break;
-	case launcher::server:
+	case launcher::mode::server:
+	case launcher::mode::none:
 	default:
 		throw std::runtime_error("Invalid game mode!");
 	}
@@ -110,11 +111,6 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
 		try
 		{
-#ifdef GENERATE_DIFFS
-			binary_loader::create();
-			return 0;
-#endif
-
 			verify_tls();
 			if (!module_loader::post_start()) return 0;
 
@@ -144,5 +140,5 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 		}
 	}
 
-	return entry_point();
+	return static_cast<int>(entry_point());
 }

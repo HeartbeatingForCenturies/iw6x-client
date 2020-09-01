@@ -4,7 +4,7 @@
 class launcher final
 {
 public:
-	enum mode
+	enum class mode
 	{
 		none,
 		singleplayer,
@@ -17,7 +17,7 @@ public:
 	mode run() const;
 
 private:
-	mode mode_ = none;
+	mode mode_ = mode::none;
 
 	html_window main_window_;
 

@@ -16,4 +16,5 @@ private:
 	                         IMAGE_SECTION_HEADER* section);
 	void load_sections(const utils::nt::module& target, const utils::nt::module& source) const;
 	void load_imports(const utils::nt::module& target, const utils::nt::module& source) const;
+	void load_exception_table(const utils::nt::module& target, const utils::nt::module& source) const;
 };

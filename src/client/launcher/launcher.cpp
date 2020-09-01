@@ -27,8 +27,8 @@ void launcher::create_main_menu()
 		const auto param = params->arguments[0];
 		if (!param.is_number()) return;
 
-		const auto number = param.get_number();
-		if (number == singleplayer || number == multiplayer)
+		const auto number = static_cast<mode>(param.get_number());
+		if (number == mode::singleplayer || number == mode::multiplayer)
 		{
 			this->select_mode(static_cast<mode>(number));
 		}
@@ -67,7 +67,7 @@ std::string launcher::load_content(const int res)
 	auto* const resource = FindResource(utils::nt::module(), MAKEINTRESOURCE(res), RT_RCDATA);
 	if (!resource) return {};
 
-	const auto handle = LoadResource(nullptr, resource);
+	auto* const handle = LoadResource(nullptr, resource);
 	if (!handle) return {};
 
 	return std::string(LPSTR(LockResource(handle)), SizeofResource(nullptr, resource));
