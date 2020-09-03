@@ -76,6 +76,7 @@ namespace utils::string
 
 	std::string to_lower(std::string text);
 	std::string to_upper(std::string text);
+	bool starts_with(const std::string& text, const std::string& substring);
 
 	std::string dump_hex(const std::string& data, const std::string& separator = " ");
 }

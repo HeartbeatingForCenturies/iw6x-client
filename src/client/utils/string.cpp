@@ -36,6 +36,11 @@ namespace utils::string
 		return text;
 	}
 
+	bool starts_with(const std::string& text, const std::string& substring)
+	{
+		return text.find(substring) == 0;
+	}
+
 	std::string dump_hex(const std::string& data, const std::string& separator)
 	{
 		std::string result;
