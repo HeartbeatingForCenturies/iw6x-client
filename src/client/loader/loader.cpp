@@ -12,6 +12,7 @@ FARPROC loader::load(const utils::nt::module& module, const std::string& buffer)
 
 	this->load_sections(module, source);
 	this->load_imports(module, source);
+	this->load_exception_table(module, source);
 
 	if (source.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size)
 	{
