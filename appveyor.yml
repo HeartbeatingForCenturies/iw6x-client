@@ -11,7 +11,7 @@ configuration:
   - Debug
   - Release
 
-platform: Win32
+platform: x64
 
 install:
   - git submodule update --init --recursive
