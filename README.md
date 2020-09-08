@@ -8,6 +8,13 @@
 
 # IW6x: Client
 
+![iw4x](src/client/resources/logo.bmp?raw=true)
+
+## Download
+
+- Grab the latest build from <a href="https://ci.appveyor.com/api/buildjobs/cbtepl32gx9fy1nk/artifacts/build%2Fbin%2Fx64%2FRelease%2Fiw6x.exe">here</a> and drop it in your Call of Duty: Ghosts installation folder.
+- The client is still in an early alpha stage. It is far from being usable and will have bugs!  
+
 ## How to compile
 
 - Run `premake5 vs2019` or use the delivered `generate.bat`.
