@@ -31,9 +31,9 @@ namespace demonware
 		auth_ticket.m_titleID = title_id;
 		auth_ticket.m_userID = steam::SteamUser()->GetSteamID().bits;
 
-		auto key = utils::cryptography::tiger::compute("Open-IW5");
+		auto key = utils::cryptography::tiger::compute("IW6x");
 
-		strcpy_s(auth_ticket.m_username, "Open-IW5 User");
+		strcpy_s(auth_ticket.m_username, "IW6x User");
 		std::memcpy(auth_ticket.m_sessionKey, key.data(), 24);
 		auth_ticket.m_timeIssued = static_cast<uint32_t>(time(nullptr));
 

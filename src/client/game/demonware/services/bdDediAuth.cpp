@@ -33,7 +33,7 @@ namespace demonware
 
 		auto key = utils::cryptography::tiger::compute(SERVER_CD_KEY);
 
-		strcpy_s(auth_ticket.m_username, "Open-IW5 Server");
+		strcpy_s(auth_ticket.m_username, "IW6x Server");
 		std::memcpy(auth_ticket.m_sessionKey, key.data(), 24);
 		auth_ticket.m_timeIssued = static_cast<uint32_t>(time(nullptr));
 
