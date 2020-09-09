@@ -12,7 +12,7 @@
 
 ## Download
 
-- Grab the latest build from <a href="https://ci.appveyor.com/api/buildjobs/cbtepl32gx9fy1nk/artifacts/build%2Fbin%2Fx64%2FRelease%2Fiw6x.exe">here</a> and drop it in your Call of Duty: Ghosts installation folder.
+- Grab the latest build from <a href="https://ci.appveyor.com/api/projects/momo5502/iw6x-client/artifacts/build%2Fbin%2Fx64%2FRelease%2Fiw6x.exe?branch=master&job=%20Environment%3A%20APPVEYOR_BUILD_WORKER_IMAGE%3DVisual%20Studio%202019%2C%20PREMAKE_ACTION%3Dvs2019%3B%20Configuration%3A%20Release">here</a> and drop it in your Call of Duty: Ghosts installation folder.
 - The client is still in an early alpha stage. It is far from being usable and will have bugs!  
 
 ## How to compile
