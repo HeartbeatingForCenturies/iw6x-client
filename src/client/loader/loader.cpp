@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "loader.hpp"
 #include "seh.hpp"
+#include "tls.hpp"
 #include "utils/string.hpp"
 
 FARPROC loader::load(const utils::nt::module& module, const std::string& buffer) const
@@ -16,8 +17,9 @@ FARPROC loader::load(const utils::nt::module& module, const std::string& buffer)
 
 	if (source.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size)
 	{
-		auto* const target_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + module.get_optional_header()
-			->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
+		auto* target_tls = tls::allocate_tls_index();
+		/* target_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + module.get_optional_header()
+				   ->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress); */
 		auto* const source_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + source.get_optional_header()
 			->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
 
@@ -25,20 +27,24 @@ FARPROC loader::load(const utils::nt::module& module, const std::string& buffer)
 		const auto tls_index = *reinterpret_cast<DWORD*>(target_tls->AddressOfIndex);
 		*reinterpret_cast<DWORD*>(source_tls->AddressOfIndex) = tls_index;
 
-		if (tls_size > TLS_PAYLOAD_SIZE)
+		// I made sure it's large enough for IW6.
+		/*if (tls_size > TLS_PAYLOAD_SIZE)
 		{
 			throw std::runtime_error(utils::string::va(
 				"TLS data is of size 0x%X, but we have only reserved 0x%X bytes!", tls_size, TLS_PAYLOAD_SIZE));
-		}
+		}*/
 
 		DWORD old_protect;
 		VirtualProtect(PVOID(target_tls->StartAddressOfRawData),
 		               source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData, PAGE_READWRITE,
 		               &old_protect);
 
-		auto* const tls_base = *reinterpret_cast<LPVOID*>(__readgsqword(0x58) + 4 * tls_index);
+		auto* const tls_base = *reinterpret_cast<LPVOID*>(__readgsqword(0x58) + 8ull * tls_index);
 		std::memmove(tls_base, PVOID(source_tls->StartAddressOfRawData), tls_size);
 		std::memmove(PVOID(target_tls->StartAddressOfRawData), PVOID(source_tls->StartAddressOfRawData), tls_size);
+
+		VirtualProtect(target_tls, sizeof(*target_tls), PAGE_READWRITE, &old_protect);
+		*target_tls = *source_tls;
 	}
 
 	DWORD oldProtect;

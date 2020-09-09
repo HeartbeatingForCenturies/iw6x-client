@@ -14,3 +14,5 @@
 #define DW_HEATMAP            308
 
 #define MENU_MAIN             309
+
+#define TLS_DLL               310

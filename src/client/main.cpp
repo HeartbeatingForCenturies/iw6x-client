@@ -13,24 +13,6 @@ DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 	exit(code);
 }
 
-void verify_tls()
-{
-	const utils::nt::module self;
-	const auto self_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(self.get_ptr()
-		+ self.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
-
-	const auto ref = DWORD64(&tls_data);
-	const auto tls_index = *reinterpret_cast<PDWORD>(self_tls->AddressOfIndex);
-	const auto tls_vector = *reinterpret_cast<PDWORD64>(__readgsqword(0x58) + 8ull * tls_index);
-	const auto offset = ref - tls_vector;
-
-	if (offset != 0 && offset != 16) // Actually 16 is bad, but I think msvc places custom stuff before
-	{
-		throw std::runtime_error(utils::string::va("TLS payload is at offset 0x%X, but should be at 0!",
-		                                           offset));
-	}
-}
-
 launcher::mode detect_mode_from_arguments()
 {
 	if (utils::flags::has_flag("dedicated"))
@@ -111,7 +93,6 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
 		try
 		{
-			verify_tls();
 			if (!module_loader::post_start()) return 0;
 
 			auto mode = detect_mode_from_arguments();

@@ -1,7 +1,6 @@
 #pragma once
 
 #define BINARY_PAYLOAD_SIZE 0x60000000
-#define TLS_PAYLOAD_SIZE 0x2000
 
 #pragma warning(push)
 #pragma warning(disable: 4100)
@@ -88,5 +87,3 @@
 #include "resource.hpp"
 
 using namespace std::literals;
-
-extern __declspec(thread) char tls_data[TLS_PAYLOAD_SIZE];

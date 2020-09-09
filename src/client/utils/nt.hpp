@@ -46,7 +46,7 @@ namespace utils::nt
 		template <typename T>
 		std::function<T> get(const std::string& process) const
 		{
-			if (!this->is_valid()) std::function<T>();
+			if (!this->is_valid()) return std::function<T>();
 			return static_cast<T*>(this->get_proc<void*>(process));
 		}
 

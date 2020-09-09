@@ -1,4 +1,4 @@
-﻿#include <std_include.hpp>
+#include <std_include.hpp>
 #include "utils/nt.hpp"
 #include "utils/hook.hpp"
 #include "seh.hpp"

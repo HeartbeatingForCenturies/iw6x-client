@@ -125,6 +125,10 @@ workspace "iw6x"
 		resincludedirs {
 			"$(ProjectDir)src"
 		}
+		
+		dependson {
+			"tlsdll"
+		}
 
 		if _OPTIONS["copy-to"] then
 			postbuildcommands {
@@ -133,6 +137,32 @@ workspace "iw6x"
 		end
 
 		dependencies.imports()
+
+
+	project "tlsdll"
+		kind "SharedLib"
+		language "C++"
+		
+		buildoptions {
+			"/Zc:threadSafeInit-",
+			"/GS-"
+		}
+
+		files {
+			"./src/tlsdll/**.rc",
+			"./src/tlsdll/**.hpp",
+			"./src/tlsdll/**.cpp",
+			"./src/tlsdll/resources/**.*"
+		}
+
+		includedirs {
+			"./src/tlsdll",
+			"%{prj.location}/src",
+		}
+
+		resincludedirs {
+			"$(ProjectDir)src"
+		}
 
 	group "Dependencies"
 		dependencies.projects()
