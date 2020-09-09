@@ -48,9 +48,9 @@ namespace tls
 			const auto dll_path = temp + "tlsdll.dll";
 
 			std::string dll_data;
-			if(!utils::io::read_file(dll_path, &dll_data))
+			if (!utils::io::read_file(dll_path, &dll_data))
 			{
-				if(!utils::io::write_file(dll_path, tls_dll))
+				if (!utils::io::write_file(dll_path, tls_dll))
 				{
 					throw std::runtime_error("Failed to write TLS DLL");
 				}
@@ -58,7 +58,7 @@ namespace tls
 				return dll_path;
 			}
 
-			if(dll_data == tls_dll || utils::io::write_file(dll_path, tls_dll))
+			if (dll_data == tls_dll || utils::io::write_file(dll_path, tls_dll))
 			{
 				return dll_path;
 			}
@@ -80,7 +80,7 @@ namespace tls
 
 		const auto dll_path = write_tls_dll();
 		const auto tls_dll = utils::nt::module::load(dll_path);
-		if(!tls_dll)
+		if (!tls_dll)
 		{
 			throw std::runtime_error("Failed to load TLS DLL");
 		}

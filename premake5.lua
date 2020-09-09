@@ -144,8 +144,7 @@ workspace "iw6x"
 		language "C++"
 		
 		buildoptions {
-			"/Zc:threadSafeInit-",
-			"/GS-"
+			"/Zc:threadSafeInit-"
 		}
 
 		files {
