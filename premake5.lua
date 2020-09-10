@@ -94,7 +94,7 @@ workspace "iw6x"
 	configuration {}
 
 	project "client"
-		kind "WindowedApp"
+		kind "ConsoleApp"
 		language "C++"
 		
 		targetname "iw6x"

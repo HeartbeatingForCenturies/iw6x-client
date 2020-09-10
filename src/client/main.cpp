@@ -76,8 +76,10 @@ FARPROC load_binary(const launcher::mode mode)
 	return loader.load(self, data);
 }
 
-int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
+int main()
 {
+	ShowWindow(GetConsoleWindow(), SW_HIDE);
+
 	FARPROC entry_point;
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
@@ -122,4 +124,9 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 	}
 
 	return static_cast<int>(entry_point());
+}
+
+int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
+{
+	return main();
 }
