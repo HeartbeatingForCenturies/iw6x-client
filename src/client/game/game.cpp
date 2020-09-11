@@ -5,7 +5,8 @@ namespace game
 {
 	namespace native
 	{
-		
+		Sys_ShowConsole_t Sys_ShowConsole;
+		Conbuf_AppendText_t Conbuf_AppendText;
 	}
 
 	launcher::mode mode = launcher::mode::none;
@@ -38,5 +39,8 @@ namespace game
 	void initialize(const launcher::mode _mode)
 	{
 		mode = _mode;
+
+		native::Sys_ShowConsole = native::Sys_ShowConsole_t(SELECT_VALUE(0, 0x140503130));
+		native::Conbuf_AppendText = native::Conbuf_AppendText_t(SELECT_VALUE(0, 0x140502870));
 	}
 }
