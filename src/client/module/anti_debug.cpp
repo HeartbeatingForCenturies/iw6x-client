@@ -180,7 +180,7 @@ namespace
 
 			do_log = true;
 
-			// Enable single step execution
+			// Disable single step execution
 			if (!did_use_single_step)
 			{
 				info->ContextRecord->EFlags &= ~0x100;
@@ -266,15 +266,15 @@ public:
 		nt_query_information_process.create(ntdll.get_proc<void*>("NtQueryInformationProcess"),
 		                                    nt_query_information_process_stub);
 
-		virtual_protect_hook.create(VirtualProtect, virtual_protect_stub);
+		//virtual_protect_hook.create(VirtualProtect, virtual_protect_stub);
 
-		AddVectoredExceptionHandler(1, analysis_filter);
-		//AddVectoredExceptionHandler(1, exception_filter);
+		//AddVectoredExceptionHandler(1, analysis_filter);
+		AddVectoredExceptionHandler(1, exception_filter);
 
 		log_text_segment_change();
 
-		DWORD old_protection;
-		original_virtual_protect(text_start_ptr, text_size, PAGE_EXECUTE_READ, &old_protection);
+		//DWORD old_protection;
+		//original_virtual_protect(text_start_ptr, text_size, PAGE_EXECUTE_READ, &old_protection);
 	}
 };
 
