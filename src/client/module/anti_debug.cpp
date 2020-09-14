@@ -266,7 +266,7 @@ public:
 		nt_query_information_process.create(ntdll.get_proc<void*>("NtQueryInformationProcess"),
 		                                    nt_query_information_process_stub);
 
-#ifdef DEV_BUILD
+#if defined(DEV_BUILD) && 0
 		virtual_protect_hook.create(VirtualProtect, virtual_protect_stub);
 		AddVectoredExceptionHandler(1, analysis_filter);
 
