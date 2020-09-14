@@ -34,6 +34,11 @@ newoption {
 	value = "PATH"
 }
 
+newoption {
+	trigger = "dev-build",
+	description = "Enable development builds of the client.",
+}
+
 dependencies.load()
 
 workspace "iw6x"
@@ -57,6 +62,12 @@ workspace "iw6x"
 	editandcontinue "Off"
 	warnings "Extra"
 	characterset "ASCII"
+	
+	if _OPTIONS["dev-build"] then
+		defines {
+			"DEV_BUILD",
+		}
+	end
 	
 	flags {
 		"NoIncrementalLink",

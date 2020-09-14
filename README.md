@@ -25,6 +25,7 @@
 | Argument                    | Description                                    |
 |:----------------------------|:-----------------------------------------------|
 | `--copy-to=PATH`            | Optional, copy the EXE to a custom folder after build, define the path here if wanted. |
+| `--dev-build`               | Enable development builds of the client. |
 ## Disclaimer
 
 This software has been created purely for the purposes of

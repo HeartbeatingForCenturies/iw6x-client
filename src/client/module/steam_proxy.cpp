@@ -176,4 +176,6 @@ std::filesystem::path steam_proxy::get_steam_install_directory()
 	return path;
 }
 
-//REGISTER_MODULE(steam_proxy)
+#ifndef DEV_BUILD
+REGISTER_MODULE(steam_proxy)
+#endif
