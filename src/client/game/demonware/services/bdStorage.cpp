@@ -31,14 +31,7 @@ namespace demonware
 
 	void bdStorage::map_publisher_resource(const std::string& expression, const INT id)
 	{
-		const auto res = FindResource(::utils::nt::module(), MAKEINTRESOURCE(id), RT_RCDATA);
-		if (!res) return;
-
-		const auto handle = LoadResource(nullptr, res);
-		if (!handle) return;
-
-		std::string data(LPSTR(LockResource(handle)), SizeofResource(nullptr, res));
-
+		auto data = utils::nt::load_resource(id);
 		publisher_resources_.emplace_back(std::regex{expression}, data);
 	}
 

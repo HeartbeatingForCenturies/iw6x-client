@@ -16,3 +16,4 @@
 #define MENU_MAIN             309
 
 #define TLS_DLL               310
+#define RUNNER                311

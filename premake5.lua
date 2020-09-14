@@ -138,7 +138,8 @@ workspace "iw6x"
 		}
 		
 		dependson {
-			"tlsdll"
+			"tlsdll",
+			"runner"
 		}
 
 		if _OPTIONS["copy-to"] then
@@ -167,6 +168,30 @@ workspace "iw6x"
 
 		includedirs {
 			"./src/tlsdll",
+			"%{prj.location}/src",
+		}
+
+		resincludedirs {
+			"$(ProjectDir)src"
+		}
+		
+	project "runner"
+		kind "WindowedApp"
+		language "C++"
+		
+		buildoptions {
+			"/Zc:threadSafeInit-"
+		}
+
+		files {
+			"./src/runner/**.rc",
+			"./src/runner/**.hpp",
+			"./src/runner/**.cpp",
+			"./src/runner/resources/**.*"
+		}
+
+		includedirs {
+			"./src/runner",
 			"%{prj.location}/src",
 		}
 
