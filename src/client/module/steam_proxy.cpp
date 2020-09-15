@@ -23,7 +23,7 @@ void steam_proxy::post_load()
 
 	try
 	{
-		this->start_mod("\xF0\x9F\x91\xBB" " IW6x: "s + (game::is_sp() ? "Singleplayer" : "Multiplayer"),
+		this->start_mod("\xF0\x9F\x90\x8D" " IW6x: "s + (game::is_sp() ? "Singleplayer" : "Multiplayer"),
 		                game::is_sp() ? 209160 : 209170);
 	}
 	catch (std::exception& e)
