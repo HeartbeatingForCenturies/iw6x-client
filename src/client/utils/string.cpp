@@ -16,6 +16,20 @@ namespace utils::string
 		return result;
 	}
 
+	std::vector<std::string> split(std::string& s, char delim)
+	{
+		std::stringstream ss(s);
+		std::string item;
+		std::vector<std::string> elems;
+
+		while (std::getline(ss, item, delim))
+		{
+			elems.push_back(item); // elems.push_back(std::move(item)); // if C++11 (based on comment from @mchiasson)
+		}
+
+		return elems;
+	}
+
 	std::string to_lower(std::string text)
 	{
 		std::transform(text.begin(), text.end(), text.begin(), [](const char input)

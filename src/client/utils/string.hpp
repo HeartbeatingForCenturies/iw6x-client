@@ -74,6 +74,8 @@ namespace utils::string
 
 	const char* va(const char* fmt, ...);
 
+	std::vector<std::string> split(std::string& s, char delim);
+
 	std::string to_lower(std::string text);
 	std::string to_upper(std::string text);
 	bool starts_with(const std::string& text, const std::string& substring);
