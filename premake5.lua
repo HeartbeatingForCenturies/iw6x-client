@@ -48,14 +48,14 @@ newaction {
 		proc:close()
 		
 		local oldCommit = "(none)"
-		local oldCommitFile = io.open(wks.location .. "/src/version.txt", "r")
+		local oldCommitFile = io.open(wks.location .. "/version.txt", "r")
 		if oldCommitFile ~= nil then
 			oldCommit = assert(oldCommitFile:read('*a'))
 			oldCommitFile:close()
 		end
 		
 		if oldCommit ~= commithash then
-			local versionFile = assert(io.open(wks.location .. "/src/version.txt", "w"))
+			local versionFile = assert(io.open(wks.location .. "/version.txt", "w"))
 			versionFile:write(commithash)
 			versionFile:close()
 
