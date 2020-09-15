@@ -54,7 +54,7 @@ namespace
 	bool is_update_available()
 	{
 		const auto version = download_file_sync(APPVEYOR_VERSION_TXT);
-		return version != GIT_HASH;
+		return !version.empty() && version != GIT_HASH;
 	}
 
 	void relaunch_self()
