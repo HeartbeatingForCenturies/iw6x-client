@@ -21,7 +21,7 @@ html_frame::html_frame() : in_place_frame_(this), in_place_site_(this), ui_handl
 		throw std::runtime_error("Unable to initialize the OLE library");
 	}
 
-	set_browser_feature("FEATURE_BROWSER_EMULATION", 12000);
+	set_browser_feature("FEATURE_BROWSER_EMULATION", 11000);
 	set_browser_feature("FEATURE_GPU_RENDERING", 1);
 }
 
@@ -165,10 +165,18 @@ void html_frame::set_browser_feature(const std::string& feature, DWORD value)
 	const auto registry_path = R"(SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\)" + feature;
 
 	HKEY key = nullptr;
+	if (RegCreateKeyA(HKEY_CURRENT_USER, registry_path.data(), &key) == ERROR_SUCCESS)
+	{
+		RegCloseKey(key);
+	}
+
+	key = nullptr;
 	if (RegOpenKeyExA(
 		HKEY_CURRENT_USER, registry_path.data(), 0,
 		KEY_ALL_ACCESS, &key) != ERROR_SUCCESS)
+	{
 		return;
+	}
 
 	const utils::nt::module self;
 	const auto name = self.get_name();

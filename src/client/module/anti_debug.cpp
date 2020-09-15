@@ -252,7 +252,9 @@ class anti_debug final : public module
 public:
 	~anti_debug()
 	{
+#if defined(DEV_BUILD) && 0
 		log_text_segment_change(true);
+#endif
 	}
 
 	void post_load() override
