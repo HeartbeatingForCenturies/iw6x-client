@@ -12,16 +12,16 @@
 
 #define APPVEYOR_ARTIFACT_URL(artifact) (APPVEYOR_ARTIFACT_BASE artifact APPVEYOR_ARTIFACT_SUFFIX)
 
-#define APPVEYOR_IW6X_EXE		APPVEYOR_ARTIFACT_URL("build/bin/x64/Release/iw6x.exe")
-#define APPVEYOR_VERSION_TXT	APPVEYOR_ARTIFACT_URL("build/version.txt")
+#define APPVEYOR_IW6X_EXE    APPVEYOR_ARTIFACT_URL("build/bin/x64/Release/iw6x.exe")
+#define APPVEYOR_VERSION_TXT APPVEYOR_ARTIFACT_URL("build/version.txt")
 
 namespace
 {
-	std::string download_file_sync(const std::string url)
+	std::string download_file_sync(const std::string& url)
 	{
 		CComPtr<IStream> stream;
 
-		if (FAILED(URLOpenBlockingStreamA( nullptr, url.data(), &stream, 0, nullptr )))
+		if (FAILED(URLOpenBlockingStreamA(nullptr, url.data(), &stream, 0, nullptr)))
 		{
 			return {};
 		}
