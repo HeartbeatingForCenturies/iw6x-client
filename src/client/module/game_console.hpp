@@ -5,68 +5,43 @@
 #define console_font game::native::R_RegisterFont("fonts/consolefont")
 #define material_white game::native::Material_RegisterHandle("white")
 
-enum ConsoleType
+enum console_type
 {
-	CON_TYPE_ERROR = 1,
-	CON_TYPE_WARN = 3,
-	CON_TYPE_INFO = 7
+	con_type_error = 1,
+	con_type_warning = 3,
+	con_type_info = 7
 };
 
-struct ConsoleGlobals
+struct console_globals
 {
 	float x;
 	float y;
-	float leftX;
-	float fontHeight;
-	bool mayAutoComplete;
-	char autoCompleteChoice[64];
-	int infoLineCount;
-
-	inline void initialize()
-	{
-		this->x = 0.0f;
-		this->y = 0.0f;
-		this->leftX = 0.0f;
-		this->fontHeight = 0.0f;
-		this->mayAutoComplete = false;
-		strncpy(this->autoCompleteChoice, "", 64);
-		this->infoLineCount = 0;
-	}
+	float left_x;
+	float font_height;
+	bool may_auto_complete;
+	char auto_complete_choice[64];
+	int info_line_count;
 };
 
-struct GameConsole
+struct ingame_console
 {
 	char buffer[256];
 	int cursor;
-	int fontHeight;
-	int visibleLineCount;
-	int visiblePixelWidth;
-	float screenMin[2]; //left & top
-	float screenMax[2]; //right & bottom
-	ConsoleGlobals* globals;
-	bool outputVisible;
-	int displayLineOffset;
-	int lineCount;
+	int font_height;
+	int visible_line_count;
+	int visible_pixel_width;
+	float screen_min[2]; //left & top
+	float screen_max[2]; //right & bottom
+	console_globals globals;
+	bool output_visible;
+	int display_line_offset;
+	int line_count;
 	std::deque<std::string> output;
-
-	inline void initialize()
-	{
-		strncpy(this->buffer, "", 256);
-		this->cursor = 0;
-		this->visibleLineCount = 0;
-		this->globals = new ConsoleGlobals();
-		this->globals->initialize();
-		this->outputVisible = false;
-		this->displayLineOffset = 0;
-		this->lineCount = 0;
-	}
 };
 
 class game_console final : public module
 {	
 public:
-	game_console();
-
 	void* load_import(const std::string& module, const std::string& function) override;
 
 	static void initialize();
@@ -76,7 +51,7 @@ public:
 	static std::string fixed_input;
 	static std::vector<std::string> matches;
 
-	static GameConsole* con;
+	static ingame_console con;
 
 private:
 
@@ -92,7 +67,7 @@ private:
 	static utils::hook::detour r_end_frame_hook;
 	static void r_end_frame_stub();
 
-	static void print(std::string& data);
+	static void print(const std::string& data);
 
 	static void clear();
 	static void toggle_console();
@@ -106,7 +81,7 @@ private:
 	static void draw_output_scrollbar(float x, float y, float width, float height);
 	static void draw_output_window();
 
-	static bool match_compare(std::string& input, std::string& text, bool exact);
+	static bool match_compare(const std::string& input, std::string& text, bool exact);
 	static void find_matches(const std::string input, std::vector<std::string>& suggestions, bool exact);
 	
 	static void draw_hint_box(int lines, float* color, float offset_x = 0.0f, float offset_y = 0.0f);

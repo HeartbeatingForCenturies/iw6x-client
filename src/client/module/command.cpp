@@ -3,6 +3,7 @@
 
 #include "game/game.hpp"
 #include "utils/string.hpp"
+#include "utils/memory.hpp"
 
 std::unordered_map<std::string, std::function<void(command::params&)>> command::handlers;
 
@@ -30,12 +31,12 @@ std::string command::params::join(int index)
 
 void command::add_raw(const char* name, void(*callback)())
 {
-    game::native::Cmd_AddCommandInternal(name, callback, new game::native::cmd_function_s);
+    game::native::Cmd_AddCommandInternal(name, callback, utils::memory::get_allocator()->allocate<game::native::cmd_function_s>());
 }
 
 void command::add(const char* name, std::function<void(params&)> callback)
 {
-    std::string command = utils::string::to_lower(name);
+    const auto command = utils::string::to_lower(name);
 
     if (handlers.find(command) == handlers.end())
         add_raw(name, main_handler);
@@ -43,25 +44,11 @@ void command::add(const char* name, std::function<void(params&)> callback)
     handlers[command] = callback;
 }
 
-void command::execute(std::string input, bool sync)
-{
-    input.append("\n");
-
-    if (sync)
-    {
-        game::native::Cmd_ExecuteSingleCommand(0, 0, input.data());
-    }
-    else
-    {
-        game::native::Cbuf_AddText(0, input.data());
-    }
-}
-
 void command::main_handler()
 {
     params params = {};
 
-    std::string command = utils::string::to_lower(params[0]);
+    const auto command = utils::string::to_lower(params[0]);
     if (handlers.find(command) != handlers.end())
     {
         handlers[command](params);

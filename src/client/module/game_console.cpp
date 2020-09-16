@@ -8,7 +8,7 @@
 
 #include "utils/string.hpp"
 
-GameConsole* game_console::con = new GameConsole;
+ingame_console game_console::con;
 
 std::int32_t game_console::history_index = -1;
 std::deque<std::string> game_console::history;
@@ -25,27 +25,27 @@ float color_iw6[4] = { 0.0f, 0.7f, 1.0f, 1.0f };
 
 void game_console::clear()
 {
-	strncpy_s(con->buffer, "", 256);
-	con->cursor = 0;
+	strncpy_s(con.buffer, "", 256);
+	con.cursor = 0;
 
 	fixed_input = "";
 	matches.clear();
 }
 
-void game_console::print(std::string& data)
+void game_console::print(const std::string& data)
 {
-	if (con->visibleLineCount > 0 && con->displayLineOffset == (con->output.size() - con->visibleLineCount))
+	if (con.visible_line_count > 0 && con.display_line_offset == (con.output.size() - con.visible_line_count))
 	{
-		con->displayLineOffset++;
+		con.display_line_offset++;
 	}
 
-	con->output.push_back(data);
+	con.output.push_back(data);
 
 	printf("%s\n", data.data());
 
-	if (con->output.size() > 256)
+	if (con.output.size() > 256)
 	{
-		con->output.pop_front();
+		con.output.pop_front();
 	}
 }
 
@@ -58,12 +58,12 @@ void game_console::print(int type, const char* fmt, ...)
 	vsprintf_s(va_buffer, fmt, ap);
 	va_end(ap);
 
-	auto formatted = std::string(va_buffer);
-	auto lines = utils::string::split(formatted, '\n');
+	const auto formatted = std::string(va_buffer);
+	const auto lines = utils::string::split(formatted, '\n');
 
 	for (auto& line : lines)
 	{
-		print(type == CON_TYPE_INFO ? line : "^"s.append(std::to_string(type)).append(line));
+		print(type == con_type_info ? line : "^"s.append(std::to_string(type)).append(line));
 	}
 }
 
@@ -71,33 +71,33 @@ void game_console::toggle_console()
 {
 	clear();
 
-	con->outputVisible = 0;
+	con.output_visible = 0;
 	game::native::clientUIActives->keyCatchers ^= 1;
 }
 
 void game_console::toggle_console_output()
 {
-	con->outputVisible = con->outputVisible == 0;
+	con.output_visible = con.output_visible == 0;
 }
 
 void game_console::check_resize()
 {
-	con->screenMin[0] = 6.0f;
-	con->screenMin[1] = 6.0f;
-	con->screenMax[0] = game::native::ScrPlace_GetViewPlacement()->realViewportSize[0] - 6.0f;
-	con->screenMax[1] = game::native::ScrPlace_GetViewPlacement()->realViewportSize[1] - 6.0f;
+	con.screen_min[0] = 6.0f;
+	con.screen_min[1] = 6.0f;
+	con.screen_max[0] = game::native::ScrPlace_GetViewPlacement()->realViewportSize[0] - 6.0f;
+	con.screen_max[1] = game::native::ScrPlace_GetViewPlacement()->realViewportSize[1] - 6.0f;
 
 	if (console_font)
 	{
-		con->fontHeight = console_font->pixelHeight;
-		con->visibleLineCount = static_cast<int>((con->screenMax[1] - con->screenMin[1] - (con->fontHeight * 2)) - 24.0f) / con->fontHeight;
-		con->visiblePixelWidth = static_cast<int>(((con->screenMax[0] - con->screenMin[0]) - 10.0f) - 18.0f);
+		con.font_height = console_font->pixelHeight;
+		con.visible_line_count = static_cast<int>((con.screen_max[1] - con.screen_min[1] - (con.font_height * 2)) - 24.0f) / con.font_height;
+		con.visible_pixel_width = static_cast<int>(((con.screen_max[0] - con.screen_min[0]) - 10.0f) - 18.0f);
 	}
 	else
 	{
-		con->fontHeight = 0;
-		con->visibleLineCount = 0;
-		con->visiblePixelWidth = 0;
+		con.font_height = 0;
+		con.visible_line_count = 0;
+		con.visible_pixel_width = 0;
 	}
 }
 
@@ -120,36 +120,36 @@ void game_console::draw_box(float x, float y, float w, float h, float* color)
 void game_console::draw_input_box([[maybe_unused]] int lines, float* color)
 {
 	draw_box(
-		con->globals->x - 6.0f,
-		con->globals->y - 6.0f,
-		(con->screenMax[0] - con->screenMin[0]) - ((con->globals->x - 6.0f) - con->screenMin[0]),
-		(lines * con->globals->fontHeight) + 12.0f,
+		con.globals.x - 6.0f,
+		con.globals.y - 6.0f,
+		(con.screen_max[0] - con.screen_min[0]) - ((con.globals.x - 6.0f) - con.screen_min[0]),
+		(lines * con.globals.font_height) + 12.0f,
 		color);
 }
 
 void game_console::draw_input_text_and_over(const char* str, float* color)
 {
-	game::native::R_AddCmdDrawText(str, 0x7FFFFFFF, console_font, con->globals->x, con->globals->y + con->globals->fontHeight, 1.0f, 1.0f, 0.0, color, 0);
-	con->globals->x = game::native::R_TextWidth(str, 0, console_font) + con->globals->x + 6.0f;
+	game::native::R_AddCmdDrawText(str, 0x7FFFFFFF, console_font, con.globals.x, con.globals.y + con.globals.font_height, 1.0f, 1.0f, 0.0, color, 0);
+	con.globals.x = game::native::R_TextWidth(str, 0, console_font) + con.globals.x + 6.0f;
 }
 
 void game_console::draw_hint_box(int lines, float* color, float offset_x, float offset_y)
 {
-	float _h = lines * con->globals->fontHeight + 12.0f;
-	float _y = con->globals->y - 3.0f + con->globals->fontHeight + 12.0f;
-	float _w = (con->screenMax[0] - con->screenMin[0]) - ((con->globals->x - 6.0f) - con->screenMin[0]);
+	float _h = lines * con.globals.font_height + 12.0f;
+	float _y = con.globals.y - 3.0f + con.globals.font_height + 12.0f;
+	float _w = (con.screen_max[0] - con.screen_min[0]) - ((con.globals.x - 6.0f) - con.screen_min[0]);
 
-	draw_box(con->globals->x - 6.0f, _y, _w, _h, color);
+	draw_box(con.globals.x - 6.0f, _y, _w, _h, color);
 }
 
 void game_console::draw_hint_text(int line, const char* text, float* color, float offset)
 {
-	float _y = con->globals->fontHeight + con->globals->y + (con->globals->fontHeight * (line + 1)) + 15.0f;
+	float _y = con.globals.font_height + con.globals.y + (con.globals.font_height * (line + 1)) + 15.0f;
 
-	game::native::R_AddCmdDrawText(text, 0x7FFFFFFF, console_font, con->globals->x + offset, _y, 1.0f, 1.0f, 0.0f, color, 0);
+	game::native::R_AddCmdDrawText(text, 0x7FFFFFFF, console_font, con.globals.x + offset, _y, 1.0f, 1.0f, 0.0f, color, 0);
 }
 
-bool game_console::match_compare(std::string& input, std::string& text, bool exact)
+bool game_console::match_compare(const std::string& input, std::string& text, bool exact)
 {
 	if (exact && text == input) return true;
 	if (!exact && text.find(input) != std::string::npos) return true;
@@ -158,7 +158,7 @@ bool game_console::match_compare(std::string& input, std::string& text, bool exa
 
 void game_console::find_matches(std::string input, std::vector<std::string>& suggestions, bool exact)
 {
-	std::string _input = utils::string::to_lower(input);
+	input = utils::string::to_lower(input);
 
 	for (int i = 0; i < *game::native::dvarCount; i++)
 	{
@@ -166,7 +166,7 @@ void game_console::find_matches(std::string input, std::vector<std::string>& sug
 		{
 			std::string name = utils::string::to_lower(game::native::sortedDvars[i]->name);
 
-			if (match_compare(_input, name, exact))
+			if (match_compare(input, name, exact))
 			{
 				suggestions.push_back(game::native::sortedDvars[i]->name);
 			}
@@ -186,7 +186,7 @@ void game_console::find_matches(std::string input, std::vector<std::string>& sug
 		{
 			std::string name = utils::string::to_lower(cmd->name);
 
-			if (match_compare(_input, name, exact))
+			if (match_compare(input, name, exact))
 			{
 				suggestions.push_back(cmd->name);
 			}
@@ -202,21 +202,21 @@ void game_console::find_matches(std::string input, std::vector<std::string>& sug
 
 void game_console::draw_input()
 {
-	con->globals->fontHeight = static_cast<float>(console_font->pixelHeight);
-	con->globals->x = con->screenMin[0] + 6.0f;
-	con->globals->y = con->screenMin[1] + 6.0f;
-	con->globals->leftX = con->screenMin[0] + 6.0f;
+	con.globals.font_height = static_cast<float>(console_font->pixelHeight);
+	con.globals.x = con.screen_min[0] + 6.0f;
+	con.globals.y = con.screen_min[1] + 6.0f;
+	con.globals.left_x = con.screen_min[0] + 6.0f;
 
 	draw_input_box(1, dvars::con_inputBoxColor->current.vector);
 	draw_input_text_and_over("IW6x >", color_iw6);
 
-	con->globals->leftX = con->globals->x;
-	con->globals->autoCompleteChoice[0] = 0;
+	con.globals.left_x = con.globals.x;
+	con.globals.auto_complete_choice[0] = 0;
 
-	game::native::R_AddCmdDrawTextWithCursor(con->buffer, 0x7FFFFFFF, console_font, con->globals->x, con->globals->y + con->globals->fontHeight, 1.0f, 1.0f, 0.0f, color_white, 0, con->cursor, '|');
+	game::native::R_AddCmdDrawTextWithCursor(con.buffer, 0x7FFFFFFF, console_font, con.globals.x, con.globals.y + con.globals.font_height, 1.0f, 1.0f, 0.0f, color_white, 0, con.cursor, '|');
 
 	// check if using a prefixed '/' or not
-	std::string input = con->buffer[1] && (con->buffer[0] == '/' || con->buffer[0] == '\\') ? std::string(con->buffer).substr(1) : std::string(con->buffer);
+	std::string input = con.buffer[1] && (con.buffer[0] == '/' || con.buffer[0] == '\\') ? std::string(con.buffer).substr(1) : std::string(con.buffer);
 
 	if (!input.length())
 	{
@@ -239,7 +239,7 @@ void game_console::draw_input()
 		fixed_input = input;
 	}
 
-	con->globals->mayAutoComplete = false;
+	con.globals.may_auto_complete = false;
 	if (matches.size() > 24)
 	{
 		draw_hint_box(1, dvars::con_inputHintBoxColor->current.vector);
@@ -255,21 +255,21 @@ void game_console::draw_input()
 
 		if (dvar)
 		{
-			auto offset = (con->screenMax[0] - con->globals->x) / 2.5f;
+			auto offset = (con.screen_max[0] - con.globals.x) / 2.5f;
 
 			draw_hint_text(0, game::native::Dvar_ValueToString(dvar, dvar->current), dvars::con_inputDvarValueColor->current.vector, offset);
 			draw_hint_text(1, "  default", dvars::con_inputDvarInactiveValueColor->current.vector);
 			draw_hint_text(1, game::native::Dvar_ValueToString(dvar, dvar->reset), dvars::con_inputDvarInactiveValueColor->current.vector, offset);
 		}
 
-		strncpy(con->globals->autoCompleteChoice, matches[0].data(), 64);
-		con->globals->mayAutoComplete = true;
+		strncpy(con.globals.auto_complete_choice, matches[0].data(), 64);
+		con.globals.may_auto_complete = true;
 	}
 	else if (matches.size() > 1)
 	{
 		draw_hint_box(static_cast<int>(matches.size()), dvars::con_inputHintBoxColor->current.vector);
 
-		auto offset = (con->screenMax[0] - con->globals->x) / 2.5f;
+		auto offset = (con.screen_max[0] - con.globals.x) / 2.5f;
 
 		for (int i = 0; i < static_cast<int>(matches.size()); i++)
 		{
@@ -283,8 +283,8 @@ void game_console::draw_input()
 			}
 		}
 
-		strncpy(con->globals->autoCompleteChoice, matches[0].data(), 64);
-		con->globals->mayAutoComplete = true;
+		strncpy(con.globals.auto_complete_choice, matches[0].data(), 64);
+		con.globals.may_auto_complete = true;
 	}
 }
 
@@ -294,13 +294,13 @@ void game_console::draw_output_scrollbar(float x, float y, float width, float he
 	draw_box(_x, y, 10.0f, height, dvars::con_outputBarColor->current.vector);
 
 	float _height = height;
-	if (con->output.size() > con->visibleLineCount)
+	if (con.output.size() > con.visible_line_count)
 	{
-		float percentage = static_cast<float>(con->visibleLineCount) / con->output.size();
+		float percentage = static_cast<float>(con.visible_line_count) / con.output.size();
 		_height *= percentage;
 
 		float remainingSpace = height - _height;
-		float percentageAbove = static_cast<float>(con->displayLineOffset) / (con->output.size() - con->visibleLineCount);
+		float percentageAbove = static_cast<float>(con.display_line_offset) / (con.output.size() - con.visible_line_count);
 
 		y = y + (remainingSpace * percentageAbove);
 	}
@@ -310,30 +310,30 @@ void game_console::draw_output_scrollbar(float x, float y, float width, float he
 
 void game_console::draw_output_text(float x, float y)
 {
-	float offset = con->output.size() >= con->visibleLineCount ? 0.0f : (con->fontHeight * (con->visibleLineCount - con->output.size()));
+	float offset = con.output.size() >= con.visible_line_count ? 0.0f : (con.font_height * (con.visible_line_count - con.output.size()));
 
-	for (int i = 0; i < con->visibleLineCount; i++)
+	for (int i = 0; i < con.visible_line_count; i++)
 	{
 		y = console_font->pixelHeight + y;
 
-		int index = i + con->displayLineOffset;
-		if (index >= con->output.size())
+		int index = i + con.display_line_offset;
+		if (index >= con.output.size())
 		{
 			break;
 		}
 
-		game::native::R_AddCmdDrawText(con->output.at(index).c_str(), 0x7FFF, console_font, x, y + offset, 1.0f, 1.0f, 0.0, color_white, 0);
+		game::native::R_AddCmdDrawText(con.output.at(index).c_str(), 0x7FFF, console_font, x, y + offset, 1.0f, 1.0f, 0.0, color_white, 0);
 	}
 }
 
 void game_console::draw_output_window()
 {
-	draw_box(con->screenMin[0], con->screenMin[1] + 32.0f, con->screenMax[0] - con->screenMin[0], (con->screenMax[1] - con->screenMin[1]) - 32.0f, dvars::con_outputWindowColor->current.vector);
+	draw_box(con.screen_min[0], con.screen_min[1] + 32.0f, con.screen_max[0] - con.screen_min[0], (con.screen_max[1] - con.screen_min[1]) - 32.0f, dvars::con_outputWindowColor->current.vector);
 
-	float x = con->screenMin[0] + 6.0f;
-	float y = (con->screenMin[1] + 32.0f) + 6.0f;
-	float width = (con->screenMax[0] - con->screenMin[0]) - 12.0f;
-	float height = ((con->screenMax[1] - con->screenMin[1]) - 32.0f) - 12.0f;
+	float x = con.screen_min[0] + 6.0f;
+	float y = (con.screen_min[1] + 32.0f) + 6.0f;
+	float width = (con.screen_max[0] - con.screen_min[0]) - 12.0f;
+	float height = ((con.screen_max[1] - con.screen_min[1]) - 32.0f) - 12.0f;
 
 	game::native::R_AddCmdDrawText("IW6 MP 3.15 build 2 Sat Sep 14 2013 03:58:30PM win64", 0x7FFFFFFF, console_font, x, ((height - 16.0f) + y) + console_font->pixelHeight, 1.0f, 1.0f, 0.0, color_iw6, 0);
 
@@ -349,10 +349,10 @@ void game_console::draw_console()
 	{
 		if (!(game::native::clientUIActives->keyCatchers & 1))
 		{
-			con->outputVisible = 0;
+			con.output_visible = 0;
 		}
 
-		if (con->outputVisible)
+		if (con.output_visible)
 		{
 			draw_output_window();
 		}
@@ -372,51 +372,50 @@ void game_console::cl_char_event_stub(int localClientNum, int key)
 	{
 		if (key == game::native::keyNum_t::K_TAB) // tab (auto complete) 
 		{
-			if (con->globals->mayAutoComplete)
+			if (con.globals.may_auto_complete)
 			{
-				char firstChar = con->buffer[0];
+				char firstChar = con.buffer[0];
 
 				clear();
 
 				if (firstChar == '\\' || firstChar == '/')
 				{
-					con->buffer[0] = firstChar;
-					con->buffer[1] = '\0';
+					con.buffer[0] = firstChar;
+					con.buffer[1] = '\0';
 				}
 
-				strncat_s(con->buffer, con->globals->autoCompleteChoice, 64);
-				con->cursor = static_cast<int>(std::string(con->buffer).length());
+				strncat_s(con.buffer, con.globals.auto_complete_choice, 64);
+				con.cursor = static_cast<int>(std::string(con.buffer).length());
 
-				if (con->cursor != 254)
+				if (con.cursor != 254)
 				{
-					con->buffer[con->cursor++] = ' ';
-					con->buffer[con->cursor] = '\0';
+					con.buffer[con.cursor++] = ' ';
+					con.buffer[con.cursor] = '\0';
 				}
 			}
 		}
 
 		if (key == 'v' - 'a' + 1) // paste
 		{
-			char* clipboard = game::native::Sys_GetClipboardData();
-			if (!clipboard)
+			const auto clipboard = utils::string::get_clipboard_data();
+			if (clipboard.empty())
 			{
 				return;
 			}
 
-			for (int i = 0; i < strlen(clipboard); i++)
+			for (int i = 0; i < clipboard.length(); i++)
 			{
 				cl_char_event_stub(localClientNum, clipboard[i]);
 			}
 
-			free(clipboard);
 			return;
 		}
 
 		if (key == 'c' - 'a' + 1) // clear
 		{
 			clear();
-			con->lineCount = 0;
-			con->output.clear();
+			con.line_count = 0;
+			con.output.clear();
 			history_index = -1;
 			history.clear();
 
@@ -425,10 +424,10 @@ void game_console::cl_char_event_stub(int localClientNum, int key)
 
 		if (key == 'h' - 'a' + 1) // backspace
 		{
-			if (con->cursor > 0)
+			if (con.cursor > 0)
 			{
-				memmove(con->buffer + con->cursor - 1, con->buffer + con->cursor, strlen(con->buffer) + 1 - con->cursor);
-				con->cursor--;
+				memmove(con.buffer + con.cursor - 1, con.buffer + con.cursor, strlen(con.buffer) + 1 - con.cursor);
+				con.cursor--;
 			}
 
 			return;
@@ -439,18 +438,18 @@ void game_console::cl_char_event_stub(int localClientNum, int key)
 			return;
 		}
 
-		if (con->cursor == 256 - 1)
+		if (con.cursor == 256 - 1)
 		{
 			return;
 		}
 
-		memmove(con->buffer + con->cursor + 1, con->buffer + con->cursor, strlen(con->buffer) + 1 - con->cursor);
-		con->buffer[con->cursor] = static_cast<char>(key);
-		con->cursor++;
+		memmove(con.buffer + con.cursor + 1, con.buffer + con.cursor, strlen(con.buffer) + 1 - con.cursor);
+		con.buffer[con.cursor] = static_cast<char>(key);
+		con.cursor++;
 
-		if (con->cursor == strlen(con->buffer) + 1)
+		if (con.cursor == strlen(con.buffer) + 1)
 		{
-			con->buffer[con->cursor] = 0;
+			con.buffer[con.cursor] = 0;
 		}
 	}
 
@@ -494,8 +493,8 @@ void game_console::cl_key_event_stub(int localClientNum, int key, int down)
 
 				if (history_index != -1)
 				{
-					strncpy_s(con->buffer, history.at(history_index).c_str(), 0x100);
-					con->cursor = static_cast<int>(strlen(con->buffer));
+					strncpy_s(con.buffer, history.at(history_index).c_str(), 0x100);
+					con.cursor = static_cast<int>(strlen(con.buffer));
 				}
 			}
 			else if (key == game::native::keyNum_t::K_DOWNARROW)
@@ -509,16 +508,16 @@ void game_console::cl_key_event_stub(int localClientNum, int key, int down)
 
 				if (history_index != -1)
 				{
-					strncpy_s(con->buffer, history.at(history_index).c_str(), 0x100);
-					con->cursor = static_cast<int>(strlen(con->buffer));
+					strncpy_s(con.buffer, history.at(history_index).c_str(), 0x100);
+					con.cursor = static_cast<int>(strlen(con.buffer));
 				}
 			}
 
 			if (key == game::native::keyNum_t::K_RIGHTARROW)
 			{
-				if (con->cursor < strlen(con->buffer))
+				if (con.cursor < strlen(con.buffer))
 				{
-					con->cursor++;
+					con.cursor++;
 				}
 
 				return;
@@ -526,9 +525,9 @@ void game_console::cl_key_event_stub(int localClientNum, int key, int down)
 
 			if (key == game::native::keyNum_t::K_LEFTARROW)
 			{
-				if (con->cursor > 0)
+				if (con.cursor > 0)
 				{
-					con->cursor--;
+					con.cursor--;
 				}
 
 				return;
@@ -537,36 +536,36 @@ void game_console::cl_key_event_stub(int localClientNum, int key, int down)
 			//scroll through output
 			if (key == game::native::keyNum_t::K_MWHEELUP)
 			{
-				if (con->output.size() > con->visibleLineCount && con->displayLineOffset > 0)
+				if (con.output.size() > con.visible_line_count && con.display_line_offset > 0)
 				{
-					con->displayLineOffset--;
+					con.display_line_offset--;
 				}
 			}
 			else if (key == game::native::keyNum_t::K_MWHEELDOWN)
 			{
-				if (con->output.size() > con->visibleLineCount && con->displayLineOffset < (con->output.size() - con->visibleLineCount))
+				if (con.output.size() > con.visible_line_count && con.display_line_offset < (con.output.size() - con.visible_line_count))
 				{
-					con->displayLineOffset++;
+					con.display_line_offset++;
 				}
 			}
 
 			if (key == game::native::keyNum_t::K_ENTER)
 			{
-				game::native::Cbuf_AddText(0, utils::string::va("%s \n", &con->buffer[0]));
+				game::native::Cbuf_AddText(0, utils::string::va("%s \n", &con.buffer[0]));
 
 				if (history_index != -1)
 				{
 					auto itr = history.begin() + history_index;
 
-					if (*itr == con->buffer)
+					if (*itr == con.buffer)
 					{
 						history.erase(history.begin() + history_index);
 					}
 				}
 
-				history.push_front(con->buffer);
+				history.push_front(con.buffer);
 
-				print("]"s.append(con->buffer));
+				print("]"s.append(con.buffer));
 
 				if (history.size() > 10)
 				{
@@ -592,7 +591,21 @@ void game_console::r_end_frame_stub()
 
 void game_console::initialize()
 {
-	con->initialize();
+	// initialize our structs
+	con.cursor = 0;
+	con.visible_line_count = 0;
+	con.output_visible = false;
+	con.display_line_offset = 0;
+	con.line_count = 0;
+	strncpy(con.buffer, "", 256);
+
+	con.globals.x = 0.0f;
+	con.globals.y = 0.0f;
+	con.globals.left_x = 0.0f;
+	con.globals.font_height = 0.0f;
+	con.globals.may_auto_complete = false;
+	con.globals.info_line_count = 0;
+	strncpy(con.globals.auto_complete_choice, "", 64);
 
 	// setup our hooks
 	cl_char_event_hook.create(SELECT_VALUE(0x14023CE50, 0x1402C2AE0), cl_char_event_stub);
@@ -603,8 +616,8 @@ void game_console::initialize()
 	command::add("clear", [&]([[maybe_unused]] command::params& params)
 	{
 		clear();
-		con->lineCount = 0;
-		con->output.clear();
+		con.line_count = 0;
+		con.output.clear();
 		history_index = -1;
 		history.clear();
 	});
@@ -627,11 +640,6 @@ ATOM register_class_ex_a(const WNDCLASSEXA* Arg1)
 	game_console::initialize();
 
 	return RegisterClassExA(Arg1);
-}
-
-game_console::game_console()
-{
-
 }
 
 void* game_console::load_import(const std::string& module, const std::string& function)

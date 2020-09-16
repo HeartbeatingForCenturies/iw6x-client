@@ -89,9 +89,6 @@ namespace game
 
 		int Cmd_Argc();
 		const char* Cmd_Argv(int index);
-
-		void* z_malloc(int size);
-		char* Sys_GetClipboardData();
 	}
 
 	bool is_mp();

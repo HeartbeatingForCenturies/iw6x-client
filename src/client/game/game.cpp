@@ -53,44 +53,6 @@ namespace game
 		{
 			return native::cmd_args->argv[native::cmd_args->nesting][index];
 		}
-
-		void* z_malloc(int size)
-		{
-			void* _size = malloc(size);
-		
-			if (!_size)
-			{
-				__debugbreak();
-			}
-		
-			memset(_size, 0, size);
-		
-			return _size;
-		}
-
-		char* Sys_GetClipboardData()
-		{
-			char* data = 0;
-			if (OpenClipboard(0))
-			{
-				HANDLE hClipboardData = GetClipboardData(1u);
-				if (hClipboardData)
-				{
-					char* cliptext = (char*)GlobalLock(hClipboardData);
-					if (cliptext)
-					{
-						SIZE_T _size = GlobalSize(hClipboardData);
-						data = reinterpret_cast<char*>(z_malloc(static_cast<int>(_size) + 1));
-						size_t _count = GlobalSize(hClipboardData);
-						strncpy(data, cliptext, _count);
-						GlobalUnlock(hClipboardData);
-						strtok(data, "\n\r\b");
-					}
-				}
-				CloseClipboard();
-			}
-			return data;
-		}
 	}
 
 	launcher::mode mode = launcher::mode::none;

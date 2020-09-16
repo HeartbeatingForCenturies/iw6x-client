@@ -16,7 +16,7 @@ namespace utils::string
 		return result;
 	}
 
-	std::vector<std::string> split(std::string& s, char delim)
+	std::vector<std::string> split(const std::string& s, char delim)
 	{
 		std::stringstream ss(s);
 		std::string item;
@@ -70,5 +70,28 @@ namespace utils::string
 		}
 
 		return result;
+	}
+
+	std::string get_clipboard_data()
+	{
+		if (OpenClipboard(0))
+		{
+			std::string data;
+
+			HANDLE clipboard_data = GetClipboardData(1u);
+			if (clipboard_data)
+			{
+				auto cliptext = reinterpret_cast<char*>(GlobalLock(clipboard_data));
+				if (cliptext)
+				{
+					data.append(cliptext);
+					GlobalUnlock(clipboard_data);
+				}
+			}
+			CloseClipboard();
+
+			return data;
+		}
+		return {};
 	}
 }
