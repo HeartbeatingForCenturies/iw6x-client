@@ -105,9 +105,9 @@ void game_console::draw_box(float x, float y, float w, float h, float* color)
 {
 	game::vec4_t dark_color;
 
-	dark_color[0] = color[0] * 0.5;
-	dark_color[1] = color[1] * 0.5;
-	dark_color[2] = color[2] * 0.5;
+	dark_color[0] = color[0] * 0.5f;
+	dark_color[1] = color[1] * 0.5f;
+	dark_color[2] = color[2] * 0.5f;
 	dark_color[3] = color[3];
 
 	game::native::R_AddCmdDrawStretchPic(x, y, w, h, 0.0f, 0.0f, 0.0f, 0.0f, color, material_white);
@@ -262,7 +262,7 @@ void game_console::draw_input()
 			draw_hint_text(1, game::native::Dvar_ValueToString(dvar, dvar->reset), dvars::con_inputDvarInactiveValueColor->current.vector, offset);
 		}
 
-		strncpy(con.globals.auto_complete_choice, matches[0].data(), 64);
+		strncpy_s(con.globals.auto_complete_choice, matches[0].data(), 64);
 		con.globals.may_auto_complete = true;
 	}
 	else if (matches.size() > 1)
@@ -283,7 +283,7 @@ void game_console::draw_input()
 			}
 		}
 
-		strncpy(con.globals.auto_complete_choice, matches[0].data(), 64);
+		strncpy_s(con.globals.auto_complete_choice, matches[0].data(), 64);
 		con.globals.may_auto_complete = true;
 	}
 }
@@ -597,7 +597,7 @@ void game_console::initialize()
 	con.output_visible = false;
 	con.display_line_offset = 0;
 	con.line_count = 0;
-	strncpy(con.buffer, "", 256);
+	strncpy_s(con.buffer, "", 256);
 
 	con.globals.x = 0.0f;
 	con.globals.y = 0.0f;
@@ -605,7 +605,7 @@ void game_console::initialize()
 	con.globals.font_height = 0.0f;
 	con.globals.may_auto_complete = false;
 	con.globals.info_line_count = 0;
-	strncpy(con.globals.auto_complete_choice, "", 64);
+	strncpy_s(con.globals.auto_complete_choice, "", 64);
 
 	// setup our hooks
 	cl_char_event_hook.create(SELECT_VALUE(0x14023CE50, 0x1402C2AE0), cl_char_event_stub);
