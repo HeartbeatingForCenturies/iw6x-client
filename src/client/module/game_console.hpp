@@ -5,11 +5,6 @@
 #define console_font game::native::R_RegisterFont("fonts/consolefont")
 #define material_white game::native::Material_RegisterHandle("white")
 
-#define color_white new float[4] { 1.0f, 1.0f, 1.0f, 1.0f }
-#define color_iw6 new float[4] { 0.0f, 0.7f, 1.0f, 1.0f }
-
-#define DARK_COLOR(color) new float[4] { 0.5f * color[0], 0.5f * color[1], 0.5f * color[2], 1.0f }
-
 enum ConsoleType
 {
 	CON_TYPE_ERROR = 1,
@@ -114,9 +109,6 @@ private:
 	static bool match_compare(std::string& input, std::string& text, bool exact);
 	static void find_matches(const std::string input, std::vector<std::string>& suggestions, bool exact);
 	
-	//static std::string dvar_get_vector_domain(int components, const game::DvarLimits& domain);
-	//static std::string dvar_get_domain(game::dvar_type type, const game::DvarLimits& domain, int* outLineCount);
-
 	static void draw_hint_box(int lines, float* color, float offset_x = 0.0f, float offset_y = 0.0f);
 	static void draw_hint_text(int line, const char* text, float* color, float offset = 0.0f);
 	static void draw_input_box(int lines, float* color);

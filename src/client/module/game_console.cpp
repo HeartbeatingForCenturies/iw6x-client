@@ -20,6 +20,9 @@ utils::hook::detour game_console::cl_char_event_hook;
 utils::hook::detour game_console::cl_key_event_hook;
 utils::hook::detour game_console::r_end_frame_hook;
 
+float color_white[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+float color_iw6[4] = { 0.0f, 0.7f, 1.0f, 1.0f };
+
 void game_console::clear()
 {
 	strncpy_s(con->buffer, "", 256);
@@ -100,11 +103,18 @@ void game_console::check_resize()
 
 void game_console::draw_box(float x, float y, float w, float h, float* color)
 {
+	game::vec4_t dark_color;
+
+	dark_color[0] = color[0] * 0.5;
+	dark_color[1] = color[1] * 0.5;
+	dark_color[2] = color[2] * 0.5;
+	dark_color[3] = color[3];
+
 	game::native::R_AddCmdDrawStretchPic(x, y, w, h, 0.0f, 0.0f, 0.0f, 0.0f, color, material_white);
-	game::native::R_AddCmdDrawStretchPic(x, y, 2.0f, h, 0.0f, 0.0f, 0.0f, 0.0f, DARK_COLOR(color), material_white);
-	game::native::R_AddCmdDrawStretchPic((x + w) - 2.0f, y, 2.0f, h, 0.0f, 0.0f, 0.0f, 0.0f, DARK_COLOR(color), material_white);
-	game::native::R_AddCmdDrawStretchPic(x, y, w, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, DARK_COLOR(color), material_white);
-	game::native::R_AddCmdDrawStretchPic(x, (y + h) - 2.0f, w, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, DARK_COLOR(color), material_white);
+	game::native::R_AddCmdDrawStretchPic(x, y, 2.0f, h, 0.0f, 0.0f, 0.0f, 0.0f, dark_color, material_white);
+	game::native::R_AddCmdDrawStretchPic((x + w) - 2.0f, y, 2.0f, h, 0.0f, 0.0f, 0.0f, 0.0f, dark_color, material_white);
+	game::native::R_AddCmdDrawStretchPic(x, y, w, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, dark_color, material_white);
+	game::native::R_AddCmdDrawStretchPic(x, (y + h) - 2.0f, w, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, dark_color, material_white);
 }
 
 void game_console::draw_input_box([[maybe_unused]] int lines, float* color)
