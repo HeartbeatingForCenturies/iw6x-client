@@ -6,7 +6,6 @@
 class steam_proxy final : public module
 {
 public:
-	void post_start() override;
 	void post_load() override;
 	void pre_destroy() override;
 
@@ -23,7 +22,6 @@ private:
 	void* steam_pipe_ = nullptr;
 	void* global_user_ = nullptr;
 
-	void run_mod() const;
 	void* load_client_engine() const;
 	void load_client();
 	void start_mod(const std::string& title, size_t app_id);

@@ -87,4 +87,5 @@ namespace utils::nt
 	};
 
 	void raise_hard_exception();
+	std::string load_resource(int id);
 }

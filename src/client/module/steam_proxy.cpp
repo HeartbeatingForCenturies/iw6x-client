@@ -2,12 +2,13 @@
 #include "steam_proxy.hpp"
 #include "scheduler.hpp"
 #include "utils/string.hpp"
+#include "utils/binary_resource.hpp"
 #include "loader/loader.hpp"
 #include "game/game.hpp"
 
-void steam_proxy::post_start()
+namespace
 {
-	this->run_mod();
+	utils::binary_resource runner_file(RUNNER, "runner.exe");
 }
 
 void steam_proxy::post_load()
@@ -22,7 +23,7 @@ void steam_proxy::post_load()
 
 	try
 	{
-		this->start_mod("\xF0\x9F\x91\xBB" " IW6x: "s + (game::is_sp() ? "Singleplayer" : "Multiplayer"),
+		this->start_mod("\xF0\x9F\x90\x8D" " IW6x: "s + (game::is_sp() ? "Singleplayer" : "Multiplayer"),
 		                game::is_sp() ? 209160 : 209170);
 	}
 	catch (std::exception& e)
@@ -44,25 +45,6 @@ void steam_proxy::pre_destroy()
 
 			this->steam_client_module_.invoke<bool>("Steam_BReleaseSteamPipe", this->steam_pipe_);
 		}
-	}
-}
-
-void steam_proxy::run_mod() const
-{
-	auto* const command = "-proc ";
-	const char* parent_proc = strstr(GetCommandLineA(), command);
-
-	if (parent_proc)
-	{
-		const auto pid = atoi(parent_proc + strlen(command));
-		auto* const process_handle = OpenProcess(SYNCHRONIZE, FALSE, pid);
-		if (process_handle && process_handle != INVALID_HANDLE_VALUE)
-		{
-			WaitForSingleObject(process_handle, INFINITE);
-			CloseHandle(process_handle);
-		}
-
-		TerminateProcess(GetCurrentProcess(), 0);
 	}
 }
 
@@ -112,13 +94,10 @@ void steam_proxy::start_mod(const std::string& title, size_t app_id)
 
 	this->client_utils_.invoke<void>("SetAppIDForCurrentPipe", app_id, false);
 
-	const utils::nt::module self;
-	const auto path = self.get_path();
-
 	char our_directory[MAX_PATH] = {0};
 	GetCurrentDirectoryA(sizeof(our_directory), our_directory);
 
-
+	const auto path = runner_file.get_extracted_file();
 	const std::string cmdline = utils::string::va("\"%s\" -proc %d", path.data(), GetCurrentProcessId());
 
 	steam::game_id game_id;
@@ -128,7 +107,7 @@ void steam_proxy::start_mod(const std::string& title, size_t app_id)
 	const auto* mod_id = "IW6x";
 	game_id.raw.mod_id = *reinterpret_cast<const unsigned int*>(mod_id) | 0x80000000;
 
-	this->client_user_.invoke<bool>("SpawnProcess", self.get_path().data(), cmdline.data(), our_directory,
+	this->client_user_.invoke<bool>("SpawnProcess", path.data(), cmdline.data(), our_directory,
 	                                &game_id.bits, title.data(), 0, 0, 0);
 }
 
@@ -176,4 +155,6 @@ std::filesystem::path steam_proxy::get_steam_install_directory()
 	return path;
 }
 
-//REGISTER_MODULE(steam_proxy)
+#ifndef DEV_BUILD
+REGISTER_MODULE(steam_proxy)
+#endif

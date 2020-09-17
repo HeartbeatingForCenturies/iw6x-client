@@ -41,6 +41,8 @@
 #include <winternl.h>
 #include <versionhelpers.h>
 #include <Psapi.h>
+#include <Urlmon.h>
+#include <atlbase.h>
 
 // min and max is required by gdi, therefore NOMINMAX won't work
 #ifdef max
@@ -65,6 +67,7 @@
 #include <functional>
 #include <sstream>
 
+#include <zlib.h>
 #include <gsl/gsl>
 #include <udis86.h>
 #include <MinHook.h>
@@ -84,6 +87,7 @@
 
 #pragma comment(lib, "ntdll.lib")
 #pragma comment(lib, "ws2_32.lib")
+#pragma comment( lib, "Urlmon.lib" )
 
 #include "resource.hpp"
 

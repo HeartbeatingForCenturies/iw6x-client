@@ -4,7 +4,6 @@
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 #include "module/command.hpp"
-#include "module/scheduler.hpp"
 
 #include "utils/string.hpp"
 
@@ -71,7 +70,7 @@ void game_console::toggle_console()
 {
 	clear();
 
-	con.output_visible = 0;
+	con.output_visible = false;
 	game::native::clientUIActives->keyCatchers ^= 1;
 }
 
@@ -133,30 +132,30 @@ void game_console::draw_input_text_and_over(const char* str, float* color)
 	con.globals.x = game::native::R_TextWidth(str, 0, console_font) + con.globals.x + 6.0f;
 }
 
-void game_console::draw_hint_box(int lines, float* color, float offset_x, float offset_y)
+void game_console::draw_hint_box(const int lines, float* color, [[maybe_unused]] float offset_x, [[maybe_unused]] float offset_y)
 {
-	float _h = lines * con.globals.font_height + 12.0f;
-	float _y = con.globals.y - 3.0f + con.globals.font_height + 12.0f;
-	float _w = (con.screen_max[0] - con.screen_min[0]) - ((con.globals.x - 6.0f) - con.screen_min[0]);
+	const auto _h = lines * con.globals.font_height + 12.0f;
+	const auto _y = con.globals.y - 3.0f + con.globals.font_height + 12.0f;
+	const auto _w = (con.screen_max[0] - con.screen_min[0]) - ((con.globals.x - 6.0f) - con.screen_min[0]);
 
 	draw_box(con.globals.x - 6.0f, _y, _w, _h, color);
 }
 
-void game_console::draw_hint_text(int line, const char* text, float* color, float offset)
+void game_console::draw_hint_text(const int line, const char* text, float* color, const float offset)
 {
-	float _y = con.globals.font_height + con.globals.y + (con.globals.font_height * (line + 1)) + 15.0f;
+	const auto _y = con.globals.font_height + con.globals.y + (con.globals.font_height * (line + 1)) + 15.0f;
 
 	game::native::R_AddCmdDrawText(text, 0x7FFFFFFF, console_font, con.globals.x + offset, _y, 1.0f, 1.0f, 0.0f, color, 0);
 }
 
-bool game_console::match_compare(const std::string& input, std::string& text, bool exact)
+bool game_console::match_compare(const std::string& input, const std::string& text, const bool exact)
 {
 	if (exact && text == input) return true;
 	if (!exact && text.find(input) != std::string::npos) return true;
 	return false;
 }
 
-void game_console::find_matches(std::string input, std::vector<std::string>& suggestions, bool exact)
+void game_console::find_matches(std::string input, std::vector<std::string>& suggestions, const bool exact)
 {
 	input = utils::string::to_lower(input);
 
@@ -216,7 +215,7 @@ void game_console::draw_input()
 	game::native::R_AddCmdDrawTextWithCursor(con.buffer, 0x7FFFFFFF, console_font, con.globals.x, con.globals.y + con.globals.font_height, 1.0f, 1.0f, 0.0f, color_white, 0, con.cursor, '|');
 
 	// check if using a prefixed '/' or not
-	std::string input = con.buffer[1] && (con.buffer[0] == '/' || con.buffer[0] == '\\') ? std::string(con.buffer).substr(1) : std::string(con.buffer);
+	const auto input = con.buffer[1] && (con.buffer[0] == '/' || con.buffer[0] == '\\') ? std::string(con.buffer).substr(1) : std::string(con.buffer);
 
 	if (!input.length())
 	{
@@ -247,15 +246,15 @@ void game_console::draw_input()
 	}
 	else if (matches.size() == 1)
 	{
-		auto dvar = game::native::Dvar_FindVar(matches[0].data());
-		int line_count = dvar ? 2 : 1;
+		const auto dvar = game::native::Dvar_FindVar(matches[0].data());
+		const auto line_count = dvar ? 2 : 1;
 
 		draw_hint_box(line_count, dvars::con_inputHintBoxColor->current.vector);
 		draw_hint_text(0, matches[0].data(), dvar ? dvars::con_inputDvarMatchColor->current.vector : dvars::con_inputCmdMatchColor->current.vector);
 
 		if (dvar)
 		{
-			auto offset = (con.screen_max[0] - con.globals.x) / 2.5f;
+			const auto offset = (con.screen_max[0] - con.globals.x) / 2.5f;
 
 			draw_hint_text(0, game::native::Dvar_ValueToString(dvar, dvar->current), dvars::con_inputDvarValueColor->current.vector, offset);
 			draw_hint_text(1, "  default", dvars::con_inputDvarInactiveValueColor->current.vector);
@@ -269,11 +268,11 @@ void game_console::draw_input()
 	{
 		draw_hint_box(static_cast<int>(matches.size()), dvars::con_inputHintBoxColor->current.vector);
 
-		auto offset = (con.screen_max[0] - con.globals.x) / 2.5f;
+		const auto offset = (con.screen_max[0] - con.globals.x) / 2.5f;
 
-		for (int i = 0; i < static_cast<int>(matches.size()); i++)
+		for (auto i = 0; i < static_cast<int>(matches.size()); i++)
 		{
-			auto dvar = game::native::Dvar_FindVar(matches[i].data());
+			const auto dvar = game::native::Dvar_FindVar(matches[i].data());
 
 			draw_hint_text(i, matches[i].data(), dvar ? dvars::con_inputDvarMatchColor->current.vector : dvars::con_inputCmdMatchColor->current.vector);
 
@@ -288,19 +287,19 @@ void game_console::draw_input()
 	}
 }
 
-void game_console::draw_output_scrollbar(float x, float y, float width, float height)
+void game_console::draw_output_scrollbar(const float x, float y, const float width, const float height)
 {
-	float _x = (x + width) - 10.0f;
+	const auto _x = (x + width) - 10.0f;
 	draw_box(_x, y, 10.0f, height, dvars::con_outputBarColor->current.vector);
 
-	float _height = height;
+	auto _height = height;
 	if (con.output.size() > con.visible_line_count)
 	{
-		float percentage = static_cast<float>(con.visible_line_count) / con.output.size();
+		const auto percentage = static_cast<float>(con.visible_line_count) / con.output.size();
 		_height *= percentage;
 
-		float remainingSpace = height - _height;
-		float percentageAbove = static_cast<float>(con.display_line_offset) / (con.output.size() - con.visible_line_count);
+		const auto remainingSpace = height - _height;
+		const auto percentageAbove = static_cast<float>(con.display_line_offset) / (con.output.size() - con.visible_line_count);
 
 		y = y + (remainingSpace * percentageAbove);
 	}
@@ -308,15 +307,15 @@ void game_console::draw_output_scrollbar(float x, float y, float width, float he
 	draw_box(_x, y, 10.0f, _height, dvars::con_outputSliderColor->current.vector);
 }
 
-void game_console::draw_output_text(float x, float y)
+void game_console::draw_output_text(const float x, float y)
 {
-	float offset = con.output.size() >= con.visible_line_count ? 0.0f : (con.font_height * (con.visible_line_count - con.output.size()));
+	const auto offset = con.output.size() >= con.visible_line_count ? 0.0f : (con.font_height * (con.visible_line_count - con.output.size()));
 
-	for (int i = 0; i < con.visible_line_count; i++)
+	for (auto i = 0; i < con.visible_line_count; i++)
 	{
 		y = console_font->pixelHeight + y;
 
-		int index = i + con.display_line_offset;
+		const auto index = i + con.display_line_offset;
 		if (index >= con.output.size())
 		{
 			break;
@@ -330,10 +329,10 @@ void game_console::draw_output_window()
 {
 	draw_box(con.screen_min[0], con.screen_min[1] + 32.0f, con.screen_max[0] - con.screen_min[0], (con.screen_max[1] - con.screen_min[1]) - 32.0f, dvars::con_outputWindowColor->current.vector);
 
-	float x = con.screen_min[0] + 6.0f;
-	float y = (con.screen_min[1] + 32.0f) + 6.0f;
-	float width = (con.screen_max[0] - con.screen_min[0]) - 12.0f;
-	float height = ((con.screen_max[1] - con.screen_min[1]) - 32.0f) - 12.0f;
+	const auto x = con.screen_min[0] + 6.0f;
+	const auto y = (con.screen_min[1] + 32.0f) + 6.0f;
+	const auto width = (con.screen_max[0] - con.screen_min[0]) - 12.0f;
+	const auto height = ((con.screen_max[1] - con.screen_min[1]) - 32.0f) - 12.0f;
 
 	game::native::R_AddCmdDrawText("IW6 MP 3.15 build 2 Sat Sep 14 2013 03:58:30PM win64", 0x7FFFFFFF, console_font, x, ((height - 16.0f) + y) + console_font->pixelHeight, 1.0f, 1.0f, 0.0, color_iw6, 0);
 
@@ -349,7 +348,7 @@ void game_console::draw_console()
 	{
 		if (!(game::native::clientUIActives->keyCatchers & 1))
 		{
-			con.output_visible = 0;
+			con.output_visible = false;
 		}
 
 		if (con.output_visible)
@@ -361,7 +360,7 @@ void game_console::draw_console()
 	}
 }
 
-void game_console::cl_char_event_stub(int localClientNum, int key)
+void game_console::cl_char_event_stub(const int localClientNum, const int key)
 {
 	if (key == game::native::keyNum_t::K_GRAVE || key == game::native::keyNum_t::K_TILDE)
 	{
@@ -374,7 +373,7 @@ void game_console::cl_char_event_stub(int localClientNum, int key)
 		{
 			if (con.globals.may_auto_complete)
 			{
-				char firstChar = con.buffer[0];
+				const auto firstChar = con.buffer[0];
 
 				clear();
 
@@ -555,7 +554,7 @@ void game_console::cl_key_event_stub(int localClientNum, int key, int down)
 
 				if (history_index != -1)
 				{
-					auto itr = history.begin() + history_index;
+					const auto itr = history.begin() + history_index;
 
 					if (*itr == con.buffer)
 					{
@@ -634,12 +633,12 @@ void game_console::initialize()
 	dvars::con_inputCmdMatchColor = game::native::Dvar_RegisterVec4("con_inputCmdMatchColor", 0.80f, 0.80f, 1.0f, 1.0f, 0.0f, 1.0f, 1, "color of console matched command");
 }
 
-ATOM register_class_ex_a(const WNDCLASSEXA* Arg1)
+ATOM register_class_ex_a(const WNDCLASSEXA* arg)
 {
 	// doing this from in here since we cant hook until game is fully unpacked
 	game_console::initialize();
 
-	return RegisterClassExA(Arg1);
+	return RegisterClassExA(arg);
 }
 
 void* game_console::load_import(const std::string& module, const std::string& function)

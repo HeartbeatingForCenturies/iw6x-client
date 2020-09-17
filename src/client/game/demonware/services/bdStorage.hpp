@@ -25,5 +25,6 @@ namespace demonware
 		bool load_publisher_resource(const std::string& name, std::string& buffer);
 
 		static std::string get_user_file_path(const std::string& name);
+		static std::string generate_heatmap();
 	};
 }

@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "bdStorage.hpp"
 #include "../data_types.hpp"
+#include "utils/compression.hpp"
 #include "utils/cryptography.hpp"
 #include "utils/nt.hpp"
 #include "utils/io.hpp"
@@ -20,25 +21,19 @@ namespace demonware
 		this->register_service(11, &bdStorage::delete_user_file);
 		this->register_service(12, &bdStorage::get_user_file);
 
-		this->map_publisher_resource("heatmap\\.raw", DW_HEATMAP);
 		this->map_publisher_resource("motd-.*\\.txt", DW_MOTD);
 		this->map_publisher_resource("newsfeed-.*\\.txt", DW_NEWSFEED);
 		this->map_publisher_resource("mm\\.cfg", DW_MM_CONFIG);
 		this->map_publisher_resource("playlists(_.+)?\\.aggr", DW_PLAYLISTS);
 		this->map_publisher_resource("social_[Tt][Uu][0-9]+\\.cfg", DW_SOCIAL_CONFIG);
 		this->map_publisher_resource("entitlement_config_[Tt][Uu][0-9]+\\.info", DW_ENTITLEMENT_CONFIG);
+
+		publisher_resources_.emplace_back(std::regex{"heatmap\\.raw"}, generate_heatmap());
 	}
 
 	void bdStorage::map_publisher_resource(const std::string& expression, const INT id)
 	{
-		const auto res = FindResource(::utils::nt::module(), MAKEINTRESOURCE(id), RT_RCDATA);
-		if (!res) return;
-
-		const auto handle = LoadResource(nullptr, res);
-		if (!handle) return;
-
-		std::string data(LPSTR(LockResource(handle)), SizeofResource(nullptr, res));
-
+		auto data = utils::nt::load_resource(id);
 		publisher_resources_.emplace_back(std::regex{expression}, data);
 	}
 
@@ -61,6 +56,31 @@ namespace demonware
 	std::string bdStorage::get_user_file_path(const std::string& name)
 	{
 		return "players2/user/" + name;
+	}
+
+	std::string bdStorage::generate_heatmap()
+	{
+		uint8_t map[256][256];
+
+		for (auto y = 0; y < 256; ++y)
+		{
+			for (auto x = 0; x < 256; ++x)
+			{
+				auto data = uint8_t(rand());
+				if (data % 15 == 0)
+				{
+					data = 0xF | ((data & 0x7) << 4) | 0x10;
+				}
+				else
+				{
+					data = 0;
+				}
+
+				map[y][x] = data;
+			}
+		}
+
+		return utils::compression::zlib::compress(std::string(LPSTR(map), sizeof map));
 	}
 
 	void bdStorage::set_legacy_user_file(i_server* server, byte_buffer* buffer) const

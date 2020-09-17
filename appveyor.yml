@@ -26,5 +26,6 @@ build:
   verbosity: minimal
 
 artifacts:
+  - path: build/version.txt
   - path: build/bin/**/*.exe
   - path: build/bin/**/*.pdb

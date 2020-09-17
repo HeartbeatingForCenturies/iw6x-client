@@ -214,4 +214,15 @@ namespace utils::nt
 		ntdll.invoke_pascal<void>("RtlAdjustPrivilege", 19, true, false, &data);
 		ntdll.invoke_pascal<void>("NtRaiseHardError", 0xC000007B, 0, nullptr, nullptr, 6, &data);
 	}
+
+	std::string load_resource(const int id)
+	{
+		auto* const res = FindResource(module(), MAKEINTRESOURCE(id), RT_RCDATA);
+		if (!res) return {};
+
+		auto* const handle = LoadResource(nullptr, res);
+		if (!handle) return {};
+
+		return std::string(LPSTR(LockResource(handle)), SizeofResource(nullptr, res));
+	}
 }

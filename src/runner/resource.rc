@@ -8,7 +8,6 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #include "windows.h"
-#include "resource.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -62,12 +61,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "IW4x Team"
-            VALUE "FileDescription", "IW6x"
+            VALUE "FileDescription", "Steam mod runner"
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "IW6x"
+            VALUE "InternalName", "Runner"
             VALUE "LegalCopyright", "All rights reserved."
-            VALUE "OriginalFilename", "iw6x.exe"
-            VALUE "ProductName", "iw6x"
+            VALUE "OriginalFilename", "runner.exe"
+            VALUE "ProductName", "runner"
             VALUE "ProductVersion", "1.0.0.0"
         END
     END
@@ -82,31 +81,7 @@ END
 // Binary Data
 //
 
-ID_ICON               ICON   "resources/icon.ico"
-
-IMAGE_SPLASH          BITMAP "resources/splash.bmp"
-IMAGE_LOGO            BITMAP "resources/logo.bmp"
-
-DW_ENTITLEMENT_CONFIG RCDATA "resources/dw/entitlement_config_tu14.info"
-DW_SOCIAL_CONFIG      RCDATA "resources/dw/social_tu14.cfg"
-DW_MM_CONFIG          RCDATA "resources/dw/mm.cfg"
-DW_MOTD               RCDATA "resources/dw/motd.txt"
-DW_NEWSFEED           RCDATA "resources/dw/newsfeed.txt"
-DW_PLAYLISTS          RCDATA "resources/dw/playlists_tu14.aggr"
-
-MENU_MAIN             RCDATA "resources/main.html"
-
-#ifdef _DEBUG
-TLS_DLL               RCDATA "../../build/bin/x64/Debug/tlsdll.dll"
-#else
-TLS_DLL               RCDATA "../../build/bin/x64/Release/tlsdll.dll"
-#endif
-
-#ifdef _DEBUG
-RUNNER                RCDATA "../../build/bin/x64/Debug/runner.exe"
-#else
-RUNNER                RCDATA "../../build/bin/x64/Release/runner.exe"
-#endif
+102               ICON   "../client/resources/icon.ico"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

@@ -202,13 +202,13 @@ namespace
 			continue_ = false;
 			const auto address = info->ExceptionRecord->ExceptionInformation[1];
 
-			if(address == last_address + 1)
+			if (address == last_address + 1)
 			{
 				do_log = false;
 			}
-			
+
 			last_address = address;
-			
+
 			if (!is_in_text(address))
 			{
 				return EXCEPTION_CONTINUE_SEARCH;
@@ -252,7 +252,9 @@ class anti_debug final : public module
 public:
 	~anti_debug()
 	{
+#if defined(DEV_BUILD) && 0
 		log_text_segment_change(true);
+#endif
 	}
 
 	void post_load() override
@@ -266,15 +268,17 @@ public:
 		nt_query_information_process.create(ntdll.get_proc<void*>("NtQueryInformationProcess"),
 		                                    nt_query_information_process_stub);
 
-		//virtual_protect_hook.create(VirtualProtect, virtual_protect_stub);
-
-		//AddVectoredExceptionHandler(1, analysis_filter);
-		AddVectoredExceptionHandler(1, exception_filter);
+#if defined(DEV_BUILD) && 0
+		virtual_protect_hook.create(VirtualProtect, virtual_protect_stub);
+		AddVectoredExceptionHandler(1, analysis_filter);
 
 		log_text_segment_change();
 
-		//DWORD old_protection;
-		//original_virtual_protect(text_start_ptr, text_size, PAGE_EXECUTE_READ, &old_protection);
+		DWORD old_protection;
+		original_virtual_protect(text_start_ptr, text_size, PAGE_EXECUTE_READ, &old_protection);
+#else
+		AddVectoredExceptionHandler(1, exception_filter);
+#endif
 	}
 };
 
