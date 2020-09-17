@@ -65,6 +65,7 @@
 #include <utility>
 #include <filesystem>
 #include <functional>
+#include <sstream>
 
 #include <gsl/gsl>
 #include <udis86.h>

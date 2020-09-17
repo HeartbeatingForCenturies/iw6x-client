@@ -16,6 +16,20 @@ namespace utils::string
 		return result;
 	}
 
+	std::vector<std::string> split(const std::string& s, char delim)
+	{
+		std::stringstream ss(s);
+		std::string item;
+		std::vector<std::string> elems;
+
+		while (std::getline(ss, item, delim))
+		{
+			elems.push_back(item); // elems.push_back(std::move(item)); // if C++11 (based on comment from @mchiasson)
+		}
+
+		return elems;
+	}
+
 	std::string to_lower(std::string text)
 	{
 		std::transform(text.begin(), text.end(), text.begin(), [](const char input)
@@ -56,5 +70,28 @@ namespace utils::string
 		}
 
 		return result;
+	}
+
+	std::string get_clipboard_data()
+	{
+		if (OpenClipboard(0))
+		{
+			std::string data;
+
+			HANDLE clipboard_data = GetClipboardData(1u);
+			if (clipboard_data)
+			{
+				auto cliptext = reinterpret_cast<char*>(GlobalLock(clipboard_data));
+				if (cliptext)
+				{
+					data.append(cliptext);
+					GlobalUnlock(clipboard_data);
+				}
+			}
+			CloseClipboard();
+
+			return data;
+		}
+		return {};
 	}
 }

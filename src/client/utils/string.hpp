@@ -74,9 +74,13 @@ namespace utils::string
 
 	const char* va(const char* fmt, ...);
 
+	std::vector<std::string> split(const std::string& s, char delim);
+
 	std::string to_lower(std::string text);
 	std::string to_upper(std::string text);
 	bool starts_with(const std::string& text, const std::string& substring);
 
 	std::string dump_hex(const std::string& data, const std::string& separator = " ");
+
+	std::string get_clipboard_data();
 }
