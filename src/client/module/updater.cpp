@@ -135,6 +135,6 @@ public:
 	}
 };
 
-#if !defined(DEV_BUILD) || 1
+#if !defined(DEV_BUILD) && 0
 REGISTER_MODULE(updater)
 #endif
