@@ -81,8 +81,8 @@ private:
 	static void draw_output_scrollbar(float x, float y, float width, float height);
 	static void draw_output_window();
 
-	static bool match_compare(const std::string& input, std::string& text, bool exact);
-	static void find_matches(const std::string input, std::vector<std::string>& suggestions, bool exact);
+	static bool match_compare(const std::string& input, const std::string& text, bool exact);
+	static void find_matches(std::string input, std::vector<std::string>& suggestions, bool exact);
 	
 	static void draw_hint_box(int lines, float* color, float offset_x = 0.0f, float offset_y = 0.0f);
 	static void draw_hint_text(int line, const char* text, float* color, float offset = 0.0f);
