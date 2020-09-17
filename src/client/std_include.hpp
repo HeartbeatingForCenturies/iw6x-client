@@ -67,6 +67,7 @@
 #include <functional>
 #include <sstream>
 
+#include <zlib.h>
 #include <gsl/gsl>
 #include <udis86.h>
 #include <MinHook.h>
