@@ -42,9 +42,8 @@ struct ingame_console
 class game_console final : public module
 {	
 public:
-	void* load_import(const std::string& module, const std::string& function) override;
+	void post_unpack() override;
 
-	static void initialize();
 	static void print(int type, const char* fmt, ...);
 	static void draw_console();
 
