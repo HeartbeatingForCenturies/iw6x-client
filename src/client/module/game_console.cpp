@@ -633,22 +633,9 @@ void game_console::initialize()
 	dvars::con_inputCmdMatchColor = game::native::Dvar_RegisterVec4("con_inputCmdMatchColor", 0.80f, 0.80f, 1.0f, 1.0f, 0.0f, 1.0f, 1, "color of console matched command");
 }
 
-ATOM register_class_ex_a(const WNDCLASSEXA* arg)
+void game_console::post_unpack()
 {
-	// doing this from in here since we cant hook until game is fully unpacked
 	game_console::initialize();
-
-	return RegisterClassExA(arg);
-}
-
-void* game_console::load_import(const std::string& module, const std::string& function)
-{
-	if (module == "USER32.dll" && function == "RegisterClassExA")
-	{
-		return register_class_ex_a;
-	}
-
-	return nullptr;
 }
 
 REGISTER_MODULE(game_console);

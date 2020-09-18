@@ -56,6 +56,18 @@ bool module_loader::post_load()
 	return true;
 }
 
+void module_loader::post_unpack()
+{
+	static auto handled = false;
+	if (handled || !modules_) return;
+	handled = true;
+
+	for (const auto& module_ : *modules_)
+	{
+		module_->post_unpack();
+	}
+}
+
 void module_loader::pre_destroy()
 {
 	static auto handled = false;
