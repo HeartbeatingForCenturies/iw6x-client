@@ -7,6 +7,7 @@
 
 #include "utils/string.hpp"
 #include "utils/hook.hpp"
+#include "utils/nt.hpp"
 
 utils::hook::detour live_get_local_client_name_hook;
 const char* live_get_local_client_name()
@@ -40,6 +41,15 @@ game::native::dvar_t* dvar_register_int(const char* dvarName, int value, int min
 
 void patches::post_unpack()
 {
+	//Patch r_znear "does not like being forced to be set at its default value fucks with rendering"
+	//game::native::Dvar_RegisterInt("r_znear", 4, 0, 4, 0x1, "near Z clip plane distance"); // keeping it at for as it can be used as wall hacks if set more
+
+	// Patch bg_compassshowenemies
+	game::native::Dvar_RegisterInt("bg_compassshowenemies", 0, 0, 0, 0x1, "always on uav"); // Keeping it so it cant be used for uav cheats for people
+
+	// igs_announcer
+	game::native::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x1, "dlc voice announcers"); // set it to 3 to display both voice dlc announcers did only show 1
+
 	// patch com_maxfps
 	game::native::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, 0x1, "Cap frames per second"); // changed max value from 85 -> 1000
 
@@ -97,6 +107,12 @@ void patches::mp()
 	{
 		utils::hook::invoke<void>(0x140414920);
 	});
+
+	// add quit_hard command
+	command::add("quit_hard", [](command::params&)
+		{
+			utils::nt::raise_hard_exception();
+		});
 
 	// Use name dvar and add "saved" flags to it
 	utils::hook::set<uint8_t>(0x1402C836D, 0x01);
