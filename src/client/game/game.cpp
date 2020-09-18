@@ -34,7 +34,7 @@ namespace game
 
 		ScrPlace_GetViewPlacement_t ScrPlace_GetViewPlacement;
 
-		clientUIActive_t* clientUIActives;
+		int* keyCatchers;
 
 		CmdArgs* cmd_args;
 		cmd_function_s** cmd_functions;
@@ -115,7 +115,7 @@ namespace game
 
 		native::ScrPlace_GetViewPlacement = native::ScrPlace_GetViewPlacement_t(SELECT_VALUE(0x14024D150, 0x1402F6D40));
 
-		native::clientUIActives = reinterpret_cast<native::clientUIActive_t*>(SELECT_VALUE(0x1417CF6E0, 0x1419E1AD8));
+		native::keyCatchers = reinterpret_cast<int*>(SELECT_VALUE(0x1417CF6E0, 0x1419E1ADC));
 
 		native::cmd_args = reinterpret_cast<native::CmdArgs*>(SELECT_VALUE(0x144CE7F70, 0x144518480));
 		native::cmd_functions = reinterpret_cast<native::cmd_function_s**>(SELECT_VALUE(0x144CE80C8, 0x1445185D8));
