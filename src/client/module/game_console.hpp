@@ -44,7 +44,6 @@ class game_console final : public module
 public:
 	void post_unpack() override;
 
-	static void initialize();
 	static void print(int type, const char* fmt, ...);
 	static void draw_console();
 

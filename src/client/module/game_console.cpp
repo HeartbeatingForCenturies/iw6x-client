@@ -588,7 +588,7 @@ void game_console::r_end_frame_stub()
 	r_end_frame_hook.invoke<void>();
 }
 
-void game_console::initialize()
+void game_console::post_unpack()
 {
 	// initialize our structs
 	con.cursor = 0;
@@ -631,11 +631,6 @@ void game_console::initialize()
 	dvars::con_inputDvarValueColor = game::native::Dvar_RegisterVec4("con_inputDvarValueColor", 1.0f, 1.0f, 0.8f, 1.0f, 0.0f, 1.0f, 1, "color of console matched dvar value");
 	dvars::con_inputDvarInactiveValueColor = game::native::Dvar_RegisterVec4("con_inputDvarInactiveValueColor", 0.8f, 0.8f, 0.8f, 1.0f, 0.0f, 1.0f, 1, "color of console inactive dvar value");
 	dvars::con_inputCmdMatchColor = game::native::Dvar_RegisterVec4("con_inputCmdMatchColor", 0.80f, 0.80f, 1.0f, 1.0f, 0.0f, 1.0f, 1, "color of console matched command");
-}
-
-void game_console::post_unpack()
-{
-	game_console::initialize();
 }
 
 REGISTER_MODULE(game_console);
