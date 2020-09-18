@@ -9,9 +9,14 @@
 #include "game/demonware/services/bdStorage.hpp"        // 10
 #include "game/demonware/services/bdDediAuth.hpp"       // 12
 #include "game/demonware/services/bdTitleUtilities.hpp" // 12
-#include "game/demonware/services/bdDML.hpp"            // 27
+#include "game/demonware/services/bdBandwidthTest.hpp"  // 18
+#include "game/demonware/services/bdMatchMaking.hpp"    // 21
 #include "game/demonware/services/bdDediRSAAuth.hpp"    // 26
+#include "game/demonware/services/bdDML.hpp"            // 27
+#include "game/demonware/services/bdGroup.hpp"          // 28
 #include "game/demonware/services/bdSteamAuth.hpp"      // 28
+#include "game/demonware/services/bdAnticheat.hpp"      // 38
+#include "game/demonware/services/bdRelayService.hpp"   // 86
 
 namespace demonware
 {
@@ -383,11 +388,11 @@ namespace demonware
 		lsg_server->register_service<bdStorage>();
 		lsg_server->register_service<bdTitleUtilities>();
 		lsg_server->register_service<bdDML>();
-		/*lsg_server->register_service<bdMatchMaking>();
+		lsg_server->register_service<bdMatchMaking>();
 		lsg_server->register_service<bdBandwidthTest>();
 		lsg_server->register_service<bdGroup>();
 		lsg_server->register_service<bdAnticheat>();
-		lsg_server->register_service<bdRelayService>();*/
+		lsg_server->register_service<bdRelayService>();
 	}
 
 	void dw::post_load()
