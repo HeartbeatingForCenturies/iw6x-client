@@ -77,7 +77,7 @@ namespace game
 		typedef ScreenPlacement* (*ScrPlace_GetViewPlacement_t)();
 		extern ScrPlace_GetViewPlacement_t ScrPlace_GetViewPlacement;
 
-		extern clientUIActive_t* clientUIActives;
+		extern int* keyCatchers;
 
 		extern CmdArgs* cmd_args;
 		extern cmd_function_s** cmd_functions;

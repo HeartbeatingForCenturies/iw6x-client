@@ -71,7 +71,7 @@ void game_console::toggle_console()
 	clear();
 
 	con.output_visible = false;
-	game::native::clientUIActives->keyCatchers ^= 1;
+	*game::native::keyCatchers ^= 1;
 }
 
 void game_console::toggle_console_output()
@@ -344,9 +344,9 @@ void game_console::draw_console()
 {
 	check_resize();
 
-	if (game::native::clientUIActives->keyCatchers & 1)
+	if (*game::native::keyCatchers & 1)
 	{
-		if (!(game::native::clientUIActives->keyCatchers & 1))
+		if (!(*game::native::keyCatchers & 1))
 		{
 			con.output_visible = false;
 		}
@@ -367,7 +367,7 @@ void game_console::cl_char_event_stub(const int localClientNum, const int key)
 		return;
 	}
 
-	if (game::native::clientUIActives->keyCatchers & 1)
+	if (*game::native::keyCatchers & 1)
 	{
 		if (key == game::native::keyNum_t::K_TAB) // tab (auto complete) 
 		{
@@ -466,7 +466,7 @@ void game_console::cl_key_event_stub(int localClientNum, int key, int down)
 
 		if (game::native::playerKeys[localClientNum].keys[game::native::keyNum_t::K_SHIFT].down)
 		{
-			if (!(game::native::clientUIActives->keyCatchers & 1))
+			if (!(*game::native::keyCatchers & 1))
 				toggle_console();
 
 			toggle_console_output();
@@ -477,7 +477,7 @@ void game_console::cl_key_event_stub(int localClientNum, int key, int down)
 		return;
 	}
 
-	if (game::native::clientUIActives->keyCatchers & 1)
+	if (*game::native::keyCatchers & 1)
 	{
 		if (down)
 		{

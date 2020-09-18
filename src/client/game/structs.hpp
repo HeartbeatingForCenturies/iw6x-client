@@ -561,16 +561,6 @@ namespace game
 			CA_ACTIVE = 0xA,
 		};
 
-		struct clientUIActive_t
-		{
-			bool active;
-			bool isRunning;
-			bool cgameInitialized;
-			bool cgameInitCalled;
-			int keyCatchers;
-			connstate_t connectionState;
-		};
-
 		enum dvar_type : std::int8_t
 		{
 			boolean = 0,
