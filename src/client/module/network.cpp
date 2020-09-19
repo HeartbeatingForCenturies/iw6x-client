@@ -60,7 +60,7 @@ std::map<std::string, network::network_callback>& network::get_callbacks()
 
 void network::run_frame()
 {
-	static char buffer[0x2000];
+	char buffer[0x2000];
 
 	sockaddr_in addr;
 	int addr_len = sizeof(addr);
@@ -125,8 +125,6 @@ network::network()
 	WSAData data;
 	WSAStartup(MAKEWORD(2, 2), &data);
 
-	scheduler::loop(network::run_frame);
-
 	network::socket_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 	int broadcast_on = 1;
@@ -158,6 +156,11 @@ network::~network()
 	network::get_callbacks().clear();
 	closesocket(network::socket_);
 	WSACleanup();
+}
+
+void network::post_start()
+{
+	scheduler::loop(network::run_frame);
 }
 
 REGISTER_MODULE(network)

@@ -7,6 +7,8 @@ public:
 	network();
 	~network();
 
+	void post_start() override;
+
 	class address
 	{
 	public:
