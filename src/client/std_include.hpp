@@ -80,7 +80,7 @@
 #include <asmjit/core/jitruntime.h>
 #include <asmjit/x86/x86assembler.h>
 
-#include "proto/test.pb.h"
+#include "proto/network.pb.h"
 
 #pragma warning(pop)
 #pragma warning(disable: 4100)

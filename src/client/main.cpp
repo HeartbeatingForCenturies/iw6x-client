@@ -103,6 +103,7 @@ int main()
 	FARPROC entry_point;
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
+	srand(uint32_t(time(nullptr)));
 	remove_crash_file();
 
 	{

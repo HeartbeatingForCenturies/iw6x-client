@@ -3,7 +3,17 @@
 
 namespace steam
 {
-	std::string auth_ticket;
+	namespace
+	{
+		std::string auth_ticket;
+
+		steam_id generate_steam_id()
+		{
+			steam_id id;
+			id.bits = 0x110000100000000 | (rand() & ~0x80000000);
+			return id;
+		}
+	}
 
 	int user::GetHSteamUser()
 	{
@@ -17,8 +27,7 @@ namespace steam
 
 	steam_id user::GetSteamID()
 	{
-		steam_id id;
-		id.bits = 0x110000100000000 | (0x1377 & ~0x80000000);
+		static auto id = generate_steam_id();
 		return id;
 	}
 
