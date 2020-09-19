@@ -14,4 +14,7 @@ namespace dvars
 	extern game::native::dvar_t* con_inputDvarValueColor;
 	extern game::native::dvar_t* con_inputDvarInactiveValueColor;
 	extern game::native::dvar_t* con_inputCmdMatchColor;
+
+	extern game::native::dvar_t* g_gravity;
+	extern game::native::dvar_t* g_speed;
 }

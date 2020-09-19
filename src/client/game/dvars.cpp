@@ -12,4 +12,7 @@ namespace dvars
 	game::native::dvar_t* con_inputDvarValueColor = nullptr;
 	game::native::dvar_t* con_inputDvarInactiveValueColor = nullptr;
 	game::native::dvar_t* con_inputCmdMatchColor = nullptr;
+
+	game::native::dvar_t* g_gravity = nullptr;
+	game::native::dvar_t* g_speed = nullptr;
 }
