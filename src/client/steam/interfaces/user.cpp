@@ -9,6 +9,8 @@ namespace steam
 
 		steam_id generate_steam_id()
 		{
+			srand(uint32_t(time(nullptr)));
+
 			steam_id id;
 			id.bits = 0x110000100000000 | (rand() & ~0x80000000);
 			return id;

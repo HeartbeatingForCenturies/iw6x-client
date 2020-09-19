@@ -122,7 +122,7 @@ network::network()
 {
 	network::id_ = steam::SteamUser()->GetSteamID().bits;
 
-	WSAData data;
+	WSAData data{};
 	WSAStartup(MAKEWORD(2, 2), &data);
 
 	network::socket_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -133,7 +133,7 @@ network::network()
 	unsigned long non_blocking = 1;
 	ioctlsocket(network::socket_, FIONBIO, &non_blocking);
 
-	sockaddr_in addr;
+	sockaddr_in addr{};
 	ZeroMemory(&addr, sizeof(addr));
 
 	addr.sin_family = AF_INET;
@@ -153,7 +153,6 @@ network::network()
 
 network::~network()
 {
-	network::get_callbacks().clear();
 	closesocket(network::socket_);
 	WSACleanup();
 }
