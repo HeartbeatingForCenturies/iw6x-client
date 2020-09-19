@@ -3,6 +3,7 @@
 #include "command.hpp"
 #include "game_console.hpp"
 #include "game/game.hpp"
+#include "game/dvars.hpp"
 
 #include "utils/hook.hpp"
 #include "utils/nt.hpp"
@@ -41,6 +42,35 @@ namespace
 
 		return dvar_register_int_hook.invoke<game::native::dvar_t*>(dvarName, value, min, max, flags, description);
 	}
+
+	const auto g_gravity_stub = utils::hook::assemble([](utils::hook::assembler& a)
+	{
+		a.push(rax);
+
+		a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::g_gravity)));
+		a.mov(rax, dword_ptr(rax, 0x10));
+		a.mov(dword_ptr(rbx, 0x5C), eax);
+		a.mov(eax, ptr(rbx, 0x33E8));
+		a.mov(ptr(rbx, 0x25C), eax);
+
+		a.pop(rax);
+
+		a.jmp(0x1403828D5);
+	});
+
+	const auto g_speed_stub = utils::hook::assemble([](utils::hook::assembler& a)
+	{
+		a.push(rax);
+
+		a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::g_speed)));
+		a.mov(rax, dword_ptr(rax, 0x10));
+		a.mov(dword_ptr(rdi, 0x60), eax);
+		a.add(eax, ptr(rdi, 0xEA0));
+
+		a.pop(rax);
+
+		a.jmp(0x140383796);
+	});
 }
 
 class patches final : public module
@@ -146,6 +176,16 @@ public:
 
 		// Enable DLC items, extra loadouts and map selection in extinction
 		dvar_register_int_hook.create(0x1404EE270, &dvar_register_int);
+
+		// Implement gravity dvar
+		utils::hook::nop(0x1403828C8, 13);
+		utils::hook::jump(0x1403828C8, g_gravity_stub, true);
+		dvars::g_gravity = game::native::Dvar_RegisterInt("g_gravity", 800, 0, 1000, 0, "Game gravity in inches per second per second");
+
+		// Implement speed dvar
+		utils::hook::nop(0x140383789, 13);
+		utils::hook::jump(0x140383789, g_speed_stub, true);
+		dvars::g_speed = game::native::Dvar_RegisterInt("g_speed", 190, 0, 999, 0, "Maximum player speed");
 	}
 
 	void patch_sp() const
