@@ -113,7 +113,7 @@ void steam_proxy::start_mod(const std::string& title, size_t app_id)
 
 void steam_proxy::clean_up_on_error()
 {
-	scheduler::frame([this]()
+	scheduler::schedule([this]()
 	{
 		if (this->steam_client_module_
 			&& this->steam_pipe_

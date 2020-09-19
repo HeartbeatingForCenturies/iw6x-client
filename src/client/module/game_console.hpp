@@ -63,9 +63,6 @@ private:
 	static utils::hook::detour cl_key_event_hook;
 	static void cl_key_event_stub(int localClientNum, int key, int down);
 
-	static utils::hook::detour r_end_frame_hook;
-	static void r_end_frame_stub();
-
 	static void print(const std::string& data);
 
 	static void clear();

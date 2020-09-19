@@ -20,10 +20,9 @@ public:
 
 	void post_start() override
 	{
-		scheduler::frame([this]()
+		scheduler::loop([this]()
 		{
 			this->log_messages();
-			return scheduler::cond_continue;
 		});
 
 		this->console_runner_ = std::thread([this]
@@ -58,12 +57,8 @@ public:
 		// Async console is not ready yet :/
 		//this->initialize();
 
+		std::lock_guard _(this->mutex_);
 		this->console_initialized_ = true;
-		scheduler::frame([this]()
-		{
-			this->log_messages();
-			return scheduler::cond_continue;
-		});
 	}
 
 private:
