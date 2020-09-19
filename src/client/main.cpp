@@ -87,12 +87,23 @@ FARPROC load_binary(const launcher::mode mode)
 	return loader.load(self, data);
 }
 
+void remove_crash_file()
+{
+	const utils::nt::module self;
+	auto name = self.get_name();
+	name = std::filesystem::path(name).replace_extension("").generic_string();
+
+	utils::io::remove_file("__" + name);
+}
+
 int main()
 {
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
 
 	FARPROC entry_point;
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
+	remove_crash_file();
 
 	{
 		auto premature_shutdown = true;
