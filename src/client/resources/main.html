@@ -44,6 +44,7 @@
 
         p {
             font-weight: 200;
+            font-size: 1.2em;
         }
 
         a {
@@ -60,7 +61,7 @@
         }
 
         p a:hover {
-            color: #B86B3F;
+            color: #20c5ff;
         }
 
         nav {
@@ -236,7 +237,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.5);
+            box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
             transition: all 0.5s ease;
         }
 
@@ -375,18 +376,18 @@
             <nav class="sticky">
                 <ul>
                     <li>
-                        <a class="nav-link _home" onClick="showMenu('home')">
-                            Home
+                        <a class="nav-link _play" onClick="showMenu('play')">
+                            Play
                         </a>
                     </li>
-                    <li>
+                    <!--<li>
                         <a class="nav-link _settings" onClick="showMenu('settings')">
                             Settings
                         </a>
-                    </li>
+                    </li>-->
                     <li>
-                        <a onClick="window.external.openUrl('https://github.com/IW4x/iw6x-client');" class="nav-link">
-                            GitHub
+                        <a class="nav-link _about" onClick="showMenu('about')">
+                            About
                         </a>
                     </li>
                 </ul>
@@ -394,7 +395,7 @@
 
             <div class="menus">
 
-                <div class="_home">
+                <div class="_play">
                     <div class="container full full-row">
                         <div class="card" onClick="window.external.selectMode(1)">
                             <div class="card-container">
@@ -440,6 +441,23 @@
 
                 </div>
 
+                <div class="_about">
+
+                    <div class="container full full-row">
+                        <div style="text-align: center; width: 100%;">
+                            <h1>IW6x: Pre-Release</h1>
+                            <p>Developed by the IW4x Team.<br>Big thanks to all the contributors.</p>
+                            <p>
+                                Join us on <a
+                                onClick="window.external.openUrl('https://discord.gg/sKeVmR3');">Discord</a>.<br>
+                                Follow the project on <a
+                                    onClick="window.external.openUrl('https://github.com/IW4x/iw6x-client');">GitHub</a>.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
 
         </div>
@@ -476,7 +494,7 @@
         }
 
         window.onload = function () {
-            showMenu("home");
+            showMenu("play");
         };
     </script>
 </body>
