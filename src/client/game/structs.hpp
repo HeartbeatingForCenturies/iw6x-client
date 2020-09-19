@@ -671,5 +671,404 @@ namespace game
 			vec2_t realAdjustableMax;
 			vec2_t subScreenLeft;
 		};
+
+		struct Bounds
+		{
+			vec3_t midPoint;
+			vec3_t halfSize;
+		};
+
+		enum PlayerHandIndex
+		{
+			WEAPON_HAND_RIGHT = 0x0,
+			WEAPON_HAND_LEFT = 0x1,
+			NUM_WEAPON_HANDS = 0x2,
+			WEAPON_HAND_DEFAULT = 0x0,
+		};
+
+		struct usercmd_s
+		{
+			int serverTime;
+			unsigned int buttons;
+			int angles[3];
+			int weapon;
+			int offHand;
+			char forwardmove;
+			char rightmove;
+			unsigned short airburstMarkDistance;
+			unsigned short meleeChargeEnt;
+			char meleeChargeDist;
+			char selectedLoc[2];
+			char selectedLocAngle;
+			char remoteControlAngles[2];
+			char remoteControlMove[3];
+			unsigned int sightedClientsMask;
+			unsigned __int16 spawnTraceEntIndex;
+			unsigned int sightedSpawnsMask;
+			unsigned int partialSightedSpawnsMask;
+		};
+
+		struct EntityEvent
+		{
+			int eventType;
+			int eventParm;
+		};
+
+		struct playerEvents_t
+		{
+			int eventSequence;
+			EntityEvent events[4];
+			int oldEventSequence;
+			int timeADSCameUp;
+		};
+
+		struct PlayerVehicleState
+		{
+			int entity;
+			int flags;
+			int targetEntity;
+			vec3_t origin;
+			vec3_t angles;
+			vec3_t velocity;
+			vec3_t angVelocity;
+			vec2_t tilt;
+			vec2_t tiltVelocity;
+			vec2_t gunAngles;
+			unsigned int splineId;
+			unsigned int splineNodeIndex;
+			float splineLambda;
+			vec2_t corridorSpeeds;
+		};
+
+		struct PlayerActiveWeaponState
+		{
+			int weapAnim;
+			int weaponTime;
+			int weaponDelay;
+			int weaponRestrictKickTime;
+			int weaponState;
+			int weapHandFlags;
+			unsigned int weaponShotCount;
+		};
+
+		struct PlayerEquippedWeaponState
+		{
+			bool usedBefore;
+			bool dualWielding;
+			bool inAltMode;
+			bool needsRechamber[2];
+			int zoomLevelIndex;
+			bool thermalEnabled;
+			bool hybridScope;
+		};
+
+		struct compressedAnimData_s
+		{
+			int flags;
+			int animRate;
+			int distanceIn2D;
+			int distanceOut2D;
+			int distanceInZ;
+			int distanceOutZ;
+			int endScriptAnimTableIndex;
+		};
+
+		struct MantleState
+		{
+			float yaw;
+			int startPitch;
+			int transIndex;
+			int flags;
+			int startTime;
+			float startPosition[3];
+			compressedAnimData_s compressedAnimData;
+		};
+
+		struct SlideState
+		{
+			int flags;
+			int noFricTime;
+		};
+
+		struct SprintState_s
+		{
+			int sprintButtonUpRequired;
+			int sprintDelay;
+			int lastSprintStart;
+			int lastSprintEnd;
+			int sprintStartMaxLength;
+		};
+
+		struct GlobalAmmo
+		{
+			uint64_t ammoType;
+			int ammoCount;
+			int pad;
+		};
+
+		struct ClipAmmo
+		{
+			uint64_t clipIndex;
+			int ammoCount[2];
+		};
+
+		struct trajectory_t
+		{
+			int type;
+			int time;
+			int duration;
+			vec3_t vBase;
+			vec3_t vDelta;
+		};
+
+		namespace sp
+		{
+			// very shit structures for the moment cuz i cba mapping the whole thing out right now...
+			struct gclient_s
+			{
+				char __0x00[0xB6DC];
+				int flags;
+			};
+			
+			struct gentity_s
+			{
+				char __0x00[0x110];
+				gclient_s* client;
+			};
+		}
+
+		namespace mp
+		{
+#pragma pack(push, 4)
+			struct playerState_s
+			{
+				int commandTime;
+				int pm_type;
+				int pm_time;
+				int pm_flags;
+				int otherFlags;
+				int linkFlags;
+				int bobCycle;
+				vec3_t origin;
+				vec3_t velocity;
+				int grenadeTimeLeft;
+				int throwbackGrenadeOwner;
+				int throwbackGrenadeTimeLeft;
+				int throwbackWeapon;
+				int movingPlatformEntity;
+				int remoteEyesEnt;
+				int remoteEyesTagname;
+				int remoteControlEnt;
+				int remoteTurretEnt;
+				int foliageSoundTime;
+				int gravity;
+				int speed;
+				vec3_t delta_angles;
+				int groundEntityNum;
+				vec3_t vLadderVec;
+				int jumpTime;
+				float jumpOriginZ;
+				int legsTimer;
+				int legsAnim;
+				int torsoTimer;
+				int torsoAnim;
+				int animMoveType;
+				int damageTimer;
+				int damageDuration;
+				int flinch;
+				int movementDir;
+				int turnStartTime;
+				int turnDirection;
+				int turnRemaining;
+				int corpseIndex;
+				PlayerVehicleState vehicleState;
+				int eFlags;
+				playerEvents_t pe;
+				int unpredictableEventSequence;
+				int unpredictableEventSequenceOld;
+				EntityEvent unpredictableEvents[4];
+				int clientNum;
+				int viewmodelIndex;
+				vec3_t viewangles;
+				char _0x190[0xAC];
+				int locationSelectionInfo;
+				SprintState_s sprintState;
+				float holdBreathScale;
+				int holdBreathTimer;
+				float moveSpeedScaleMultiplier;
+				float grenadeCookScale;
+				MantleState mantleState;
+				SlideState slideState;
+				float leanf;
+				PlayerActiveWeaponState weapState[2];
+				int weaponsEquipped[15];
+				PlayerEquippedWeaponState weapEquippedData[15];
+				int offHand;
+				int offhandPrimaryClass;
+				int offhandSecondaryClass;
+				int weapon;
+				int weapFlags;
+				float fWeaponPosFrac;
+				float aimSpreadScale;
+				int adsDelayTime;
+				int spreadOverride;
+				int spreadOverrideState;
+				float fAimSpreadMovementScale;
+				PlayerHandIndex lastWeaponHand;
+				GlobalAmmo ammoNotInClip[15];
+				ClipAmmo ammoInClip[15];
+				int weapLockFlags;
+				int weapLockedEntnum;
+				vec3_t weapLockedPos;
+				int weaponIdleTime;
+				int lastStowedWeapon;
+				char __0x638[0x2CE8];
+			};
+#pragma pack(pop)
+
+			struct ClientCustomizationInfo
+			{
+				unsigned int modelIndex[3];
+			};
+
+			struct ScoreInfo
+			{
+				unsigned short ping;
+				char status;
+				char pad;
+				unsigned short score;
+				unsigned short kills;
+				unsigned short deaths;
+				unsigned short assists;
+				unsigned short extrascore0;
+				unsigned short extrascore1;
+				unsigned short adrenaline;
+			};
+
+			union OmnvarValue
+			{
+				bool enabled;
+				int integer;
+				unsigned int time;
+				float value;
+				unsigned int ncsString;
+			};
+
+			struct OmnvarData
+			{
+				unsigned int timeModified;
+				OmnvarValue current;
+			};
+
+			enum team_t
+			{
+				TEAM_FREE = 0x0,
+				TEAM_BAD = 0x0,
+				TEAM_AXIS = 0x1,
+				TEAM_ALLIES = 0x2,
+				TEAM_SPECTATOR = 0x3,
+				TEAM_NUM_TEAMS = 0x4,
+			};
+
+			struct clientState_s
+			{
+				int clientIndex;
+				team_t team;
+				int modelindex;
+				int dualWielding;
+				char _0x10[0x30];
+				char name[0x10];
+				int rank;
+				int prestige;
+				char _0x00[0x10];
+				int nameplateFriendlyIndex;
+				int nameplateEnemyIndex;
+				unsigned int perks[2];
+				char _0x78[0x80];
+			};
+
+			struct clientSession_t
+			{
+				int sessionState;
+				int forceSpectatorClient;
+				int killCamEntity;
+				int isInKillcam;
+				char __0x332C[0x14];
+				usercmd_s cmd;
+				usercmd_s oldcmd;
+				int localClient;
+				char __0x33C4[0x24];
+				float moveSpeedScaleMultiplier;
+				int viewmodelIndex;
+				int noSpectate;
+				clientState_s cs;
+				ScoreInfo scores;
+				char __pad[0x1B0];
+			};
+
+			struct gclient_s
+			{
+				playerState_s ps;
+				clientSession_t sess;
+				int flags;
+				int spectatorClient;
+				char __0x36B4[0x3B0];
+			};
+
+			struct LerpEntityState
+			{
+				int entFlags;
+				trajectory_t positionTrajectory;
+				trajectory_t angleTrajectory;
+				char _0x4C[0x10];
+				int primaryWeapon;
+				int secondaryWeapon;
+				char _0x64[0x4];
+			};
+
+			struct EntityState
+			{
+				int entityNum;
+				int entityType;
+				LerpEntityState lerpEntityState;
+				char _0x70[0x8];
+				int otherEntityNum;
+				int attackerEntityNum;
+				int groundEntityNum;
+				char _0x84[0xC];
+				int clientNum;
+				char _0x94[0x4];
+				int solid;
+				int eventParam;
+				int eventSequence;
+				EntityEvent entityEvent[4];
+				int weapon;
+				int inAltWeaponMode;
+				char _0xCC[0x8];
+				int eventParam2;
+				char _0xD8[0x30];
+			};
+
+			struct EntityShared
+			{
+				char _0x108[0x38];
+				vec3_t origin;
+				vec3_t angles;
+				char _0x14C[0xC];
+			};
+
+			struct gentity_s
+			{
+				EntityState s;
+				EntityShared r;
+				gclient_s* client;
+				char _0x170[0x50];
+				int flags;
+				char _0x1C4[0x18];
+				int health;
+				int maxHealth;
+				char _0x1E4[0x10C];
+			};
+		}
 	}
 }
