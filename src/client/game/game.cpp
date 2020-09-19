@@ -86,8 +86,8 @@ namespace game
 	{
 		mode = _mode;
 
-		native::Sys_ShowConsole = native::Sys_ShowConsole_t(SELECT_VALUE(0, 0x140503130));
-		native::Conbuf_AppendText = native::Conbuf_AppendText_t(SELECT_VALUE(0, 0x140502870));
+		native::Sys_ShowConsole = native::Sys_ShowConsole_t(SELECT_VALUE(0x14043E650, 0x140503130));
+		native::Conbuf_AppendText = native::Conbuf_AppendText_t(SELECT_VALUE(0x14043DDE0, 0x1405028C0));
 
 		native::Cbuf_AddText = native::Cbuf_AddText_t(SELECT_VALUE(0x1403B3050, 0x1403F6B50));
 

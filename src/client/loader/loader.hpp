@@ -7,10 +7,10 @@ class loader final
 public:
 	FARPROC load(const utils::nt::module& module, const std::string& buffer) const;
 
-	void set_import_resolver(const std::function<FARPROC(const std::string&, const std::string&)>& resolver);
+	void set_import_resolver(const std::function<void*(const std::string&, const std::string&)>& resolver);
 
 private:
-	std::function<FARPROC(const std::string&, const std::string&)> import_resolver_;
+	std::function<void*(const std::string&, const std::string&)> import_resolver_;
 
 	static void load_section(const utils::nt::module& target, const utils::nt::module& source,
 	                         IMAGE_SECTION_HEADER* section);

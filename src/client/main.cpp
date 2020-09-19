@@ -13,23 +13,27 @@ DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 	exit(code);
 }
 
-ATOM register_class_ex_a(const WNDCLASSEXA* arg)
+
+BOOL WINAPI system_parameters_info_a(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni)
 {
 	module_loader::post_unpack();
-	return RegisterClassExA(arg);
+	return SystemParametersInfoA(uiAction, uiParam, pvParam, fWinIni);
 }
 
 launcher::mode detect_mode_from_arguments()
 {
-	if (utils::flags::has_flag("dedicated")) {
+	if (utils::flags::has_flag("dedicated"))
+	{
 		return launcher::mode::server;
 	}
 
-	if (utils::flags::has_flag("multiplayer")) {
+	if (utils::flags::has_flag("multiplayer"))
+	{
 		return launcher::mode::multiplayer;
 	}
 
-	if (utils::flags::has_flag("singleplayer")) {
+	if (utils::flags::has_flag("singleplayer"))
+	{
 		return launcher::mode::singleplayer;
 	}
 
@@ -41,22 +45,27 @@ FARPROC load_binary(const launcher::mode mode)
 	loader loader;
 	utils::nt::module self;
 
-	loader.set_import_resolver([self](const std::string& module, const std::string& function) -> FARPROC {
-		if (module == "steam_api64.dll") {
+	loader.set_import_resolver([self](const std::string& module, const std::string& function) -> void*
+	{
+		if (module == "steam_api64.dll")
+		{
 			return self.get_proc<FARPROC>(function);
 		}
-		else if (function == "ExitProcess") {
-			return FARPROC(exit_hook);
+		else if (function == "ExitProcess")
+		{
+			return exit_hook;
 		}
-		else if (module == "USER32.dll" && function == "RegisterClassExA") {
-			return FARPROC(register_class_ex_a);
+		else if (function == "SystemParametersInfoA")
+		{
+			return system_parameters_info_a;
 		}
 
-		return FARPROC(module_loader::load_import(module, function));
+		return module_loader::load_import(module, function);
 	});
 
 	std::string binary;
-	switch (mode) {
+	switch (mode)
+	{
 	case launcher::mode::multiplayer:
 		binary = "iw6mp64_ship.exe";
 		break;
@@ -70,7 +79,8 @@ FARPROC load_binary(const launcher::mode mode)
 	}
 
 	std::string data;
-	if (!utils::io::read_file(binary, &data)) {
+	if (!utils::io::read_file(binary, &data))
+	{
 		throw std::runtime_error("Failed to read game binary!");
 	}
 
@@ -86,24 +96,29 @@ int main()
 
 	{
 		auto premature_shutdown = true;
-		const auto _ = gsl::finally([&premature_shutdown]() {
-			if (premature_shutdown) {
+		const auto _ = gsl::finally([&premature_shutdown]()
+		{
+			if (premature_shutdown)
+			{
 				module_loader::pre_destroy();
 			}
 		});
 
-		try {
+		try
+		{
 			if (!module_loader::post_start()) return 0;
 
 			auto mode = detect_mode_from_arguments();
-			if (mode == launcher::mode::none) {
+			if (mode == launcher::mode::none)
+			{
 				const launcher launcher;
 				mode = launcher.run();
 				if (mode == launcher::mode::none) return 0;
 			}
 
 			entry_point = load_binary(mode);
-			if (!entry_point) {
+			if (!entry_point)
+			{
 				throw std::runtime_error("Unable to load binary into memory");
 			}
 
@@ -112,7 +127,8 @@ int main()
 
 			premature_shutdown = false;
 		}
-		catch (std::exception& e) {
+		catch (std::exception& e)
+		{
 			MessageBoxA(nullptr, e.what(), "ERROR", MB_ICONERROR);
 			return 1;
 		}

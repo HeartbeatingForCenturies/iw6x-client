@@ -14,6 +14,7 @@ namespace demonware
 		dw();
 
 		void post_load() override;
+		void post_unpack() override;
 		void pre_destroy() override;
 
 		template <typename... Args>

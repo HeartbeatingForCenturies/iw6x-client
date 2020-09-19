@@ -60,7 +60,7 @@ FARPROC loader::load(const utils::nt::module& module, const std::string& buffer)
 	return FARPROC(module.get_ptr() + source.get_relative_entry_point());
 }
 
-void loader::set_import_resolver(const std::function<FARPROC(const std::string&, const std::string&)>& resolver)
+void loader::set_import_resolver(const std::function<void*(const std::string&, const std::string&)>& resolver)
 {
 	this->import_resolver_ = resolver;
 }
@@ -132,7 +132,7 @@ void loader::load_imports(const utils::nt::module& target, const utils::nt::modu
 				auto* import = PIMAGE_IMPORT_BY_NAME(target.get_ptr() + *name_table_entry);
 				function_name = import->Name;
 
-				if (this->import_resolver_) function = this->import_resolver_(name, function_name);
+				if (this->import_resolver_) function = FARPROC(this->import_resolver_(name, function_name));
 				if (!function)
 				{
 					auto module = utils::nt::module::load(name);

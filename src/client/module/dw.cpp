@@ -407,8 +407,11 @@ namespace demonware
 		io::register_hook("closesocket", io::close_socket);
 		io::register_hook("ioctlsocket", io::ioctl_socket);
 		io::register_hook("gethostbyname", io::get_host_by_name);
+	}
 
-		//utils::hook(SELECT_VALUE(0x6F40A0, 0x6EE1C0, 0x611310), bd_logger_stub, HOOK_JUMP).install()->quick();
+	void dw::post_unpack()
+	{
+		utils::hook::jump(SELECT_VALUE(0x140602230, 0x1406F54D0), bd_logger_stub);
 	}
 
 	void dw::bd_logger_stub(int /*type*/, const char* const /*channelName*/, const char*, const char* const /*file*/,

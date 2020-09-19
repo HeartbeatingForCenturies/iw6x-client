@@ -48,18 +48,20 @@ public:
 		}
 	}
 
-	void post_load() override
+	void post_unpack() override
 	{
-		if (!game::is_mp()) return;
+		game::native::Sys_ShowConsole();
 
+		// Hide that shit
+		ShowWindow(*reinterpret_cast<HWND*>((SELECT_VALUE(0x145A7B490, 0x147AD1DB0))), SW_MINIMIZE);
+
+		// Async console is not ready yet :/
+		//this->initialize();
+
+		this->console_initialized_ = true;
 		scheduler::frame([this]()
 		{
-			if (*reinterpret_cast<DWORD*>(game::native::Sys_ShowConsole) == 0x28EC8348)
-			{
-				this->initialize();
-				return scheduler::cond_end;
-			}
-
+			this->log_messages();
 			return scheduler::cond_continue;
 		});
 	}
@@ -98,7 +100,7 @@ private:
 				}
 				else
 				{
-					//log_messages();
+					log_messages();
 					std::this_thread::sleep_for(1ms);
 				}
 			}
@@ -160,4 +162,4 @@ private:
 	}
 };
 
-//REGISTER_MODULE(console)
+REGISTER_MODULE(console)
