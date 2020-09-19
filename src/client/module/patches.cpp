@@ -78,6 +78,15 @@ class patches final : public module
 public:
 	void post_unpack() override
 	{
+
+		// add Unlock all Command - only does level for squad member 1 if people want level 60 on all squad members let me know and I can just add the rest of the squad members
+		command::add("unlockall", [](command::params&)
+		{
+			utils::hook::set<BYTE>(0x1445A3798, 0x0A);
+			utils::hook::set<float>(0x1445A34A0, 50000); 
+			utils::hook::set<short>(0x14459F857, 4805);
+		});
+		
 		// add quit command
 		command::add("quit", [](command::params&)
 		{
