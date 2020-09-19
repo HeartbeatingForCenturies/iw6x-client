@@ -9,8 +9,6 @@
 uint64_t network::id_;
 SOCKET network::socket_;
 
-std::map<std::string, std::function<void(const network::address&, const std::string&)>> network::callbacks_;
-
 void network::address::set_ipv4(const ULONG addr)
 {
 	this->address_.sin_family = AF_INET;
@@ -54,6 +52,12 @@ void network::address::resolve(const std::string& hostname)
 	}
 }
 
+std::map<std::string, network::network_callback>& network::get_callbacks()
+{
+	static std::map<std::string, network::network_callback> callbacks;
+	return callbacks;
+}
+
 void network::run_frame()
 {
 	static char buffer[0x2000];
@@ -72,9 +76,10 @@ void network::run_frame()
 		proto::network::unique_packet packet;
 		if (packet.ParseFromArray(buffer, len) && packet.id() != network::id_)
 		{
-			if (network::callbacks_.find(packet.packet().command()) != network::callbacks_.end())
+			auto& callbacks = network::get_callbacks();
+			if (callbacks.find(packet.packet().command()) != callbacks.end())
 			{
-				network::callbacks_[packet.packet().command()](address, packet.packet().payload());
+				callbacks[packet.packet().command()](address, packet.packet().payload());
 			}
 		}
 	}
@@ -108,9 +113,9 @@ void network::broadcast(const std::string& command, const std::string& data)
 	}
 }
 
-void network::on(const std::string& command, const std::function<void(const address&, const std::string&)>& handler)
+void network::on(const std::string& command, const network_callback& handler)
 {
-	network::callbacks_[command] = handler;
+	network::get_callbacks()[command] = handler;
 }
 
 network::network()
@@ -150,7 +155,7 @@ network::network()
 
 network::~network()
 {
-	network::callbacks_.clear();
+	network::get_callbacks().clear();
 	closesocket(network::socket_);
 	WSACleanup();
 }

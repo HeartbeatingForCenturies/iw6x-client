@@ -40,7 +40,7 @@ public:
 
 		sockaddr* get_sock_addr() { return reinterpret_cast<sockaddr*>(&this->address_); }
 		const sockaddr* get_sock_addr() const { return reinterpret_cast<const sockaddr*>(&this->address_); }
-		
+
 		int size() const { return sizeof(this->address_); }
 
 	private:
@@ -50,17 +50,18 @@ public:
 		sockaddr_in address_{};
 	};
 
+	using network_callback = std::function<void(const network::address&, const std::string&)>;
+
 	static SOCKET get_socket();
 
 	static void broadcast(const std::string& command, const std::string& data = "");
 	static void send(const network::address& address, const std::string& command, const std::string& data = "");
-	static void on(const std::string& command, const std::function<void(const network::address&, const std::string&)>& handler);
+	static void on(const std::string& command, const network_callback& handler);
 
 private:
 	static uint64_t id_;
 	static SOCKET socket_;
 
-	static std::map<std::string, std::function<void(const network::address&, const std::string&)>> callbacks_;
-
+	static std::map<std::string, network_callback>& get_callbacks();
 	static void run_frame();
 };
