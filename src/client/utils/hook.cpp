@@ -130,26 +130,58 @@ namespace utils::hook
 		copy(reinterpret_cast<void*>(place), data, length);
 	}
 
-	void jump(void* pointer, void* data)
+	bool is_relatively_far(void* pointer, void* data)
+	{
+		const int64_t diff = size_t(data) - (size_t(pointer) + 5);
+		const auto small_diff = int32_t(diff);
+		return diff != int64_t(small_diff);
+	}
+
+	void call(void* pointer, void* data)
+	{
+		if (is_relatively_far(pointer, data))
+		{
+			throw std::runtime_error("Too far away to create 32bit relative branch");
+		}
+
+		auto* patch_pointer = PBYTE(pointer);
+		set<uint8_t>(patch_pointer, 0xE8);
+		set<int32_t>(patch_pointer + 1, int32_t(size_t(data) - (size_t(pointer) + 5)));
+	}
+
+	void call(const size_t pointer, void* data)
+	{
+		return call(reinterpret_cast<void*>(pointer), data);
+	}
+
+	void jump(void* pointer, void* data, const bool use_far)
 	{
 		static const unsigned char jump_data[] = {
 			0x48, 0xb8, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0xff, 0xe0
 		};
 
+		if (!use_far && is_relatively_far(pointer, data))
+		{
+			throw std::runtime_error("Too far away to create 32bit relative branch");
+		}
+
 		auto* patch_pointer = PBYTE(pointer);
 
-		DWORD old_protect{};
-		VirtualProtect(patch_pointer, sizeof(jump_data), PAGE_EXECUTE_READWRITE, &old_protect);
-
-		std::memmove(patch_pointer, jump_data, sizeof(jump_data));
-		std::memmove(patch_pointer + 2, &data, sizeof(data));
-
-		VirtualProtect(patch_pointer, sizeof(jump_data), old_protect, &old_protect);
+		if (use_far)
+		{
+			copy(patch_pointer, jump_data, sizeof(jump_data));
+			copy(patch_pointer + 2, &data, sizeof(data));
+		}
+		else
+		{
+			set<uint8_t>(patch_pointer, 0xE9);
+			set<int32_t>(patch_pointer + 1, int32_t(size_t(data) - (size_t(pointer) + 5)));
+		}
 	}
 
-	void jump(const size_t pointer, void* data)
+	void jump(const size_t pointer, void* data, const bool use_far)
 	{
-		return jump(reinterpret_cast<void*>(pointer), data);
+		return jump(reinterpret_cast<void*>(pointer), data, use_far);
 	}
 
 	void* assemble(const std::function<void(assembler&)>& asm_function)

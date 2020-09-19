@@ -117,8 +117,13 @@ namespace utils::hook
 	void copy(void* place, const void* data, size_t length);
 	void copy(size_t place, const void* data, size_t length);
 
-	void jump(void* pointer, void* data);
-	void jump(size_t pointer, void* data);
+	bool is_relatively_far(void* pointer, void* data);
+
+	void call(void* pointer, void* data);
+	void call(size_t pointer, void* data);
+
+	void jump(void* pointer, void* data, bool use_far = false);
+	void jump(size_t pointer, void* data, bool use_far = false);
 
 	void* assemble(const std::function<void(assembler&)>& asm_function);
 
