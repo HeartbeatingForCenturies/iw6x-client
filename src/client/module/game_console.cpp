@@ -582,6 +582,11 @@ void game_console::cl_key_event_stub(int localClientNum, int key, int down)
 	cl_key_event_hook.invoke<void>(localClientNum, key, down);
 }
 
+void game_console::post_load()
+{
+	scheduler::loop(draw_console, scheduler::pipeline::renderer);
+}
+
 void game_console::post_unpack()
 {
 	// initialize our structs
@@ -603,8 +608,6 @@ void game_console::post_unpack()
 	// setup our hooks
 	cl_char_event_hook.create(SELECT_VALUE(0x14023CE50, 0x1402C2AE0), cl_char_event_stub);
 	cl_key_event_hook.create(SELECT_VALUE(0x14023D070, 0x1402C2CE0), cl_key_event_stub);
-
-	scheduler::loop(draw_console, scheduler::pipeline::renderer);
 
 	// add clear command
 	command::add("clear", [&]([[maybe_unused]] command::params& params)

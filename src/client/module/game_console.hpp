@@ -42,6 +42,7 @@ struct ingame_console
 class game_console final : public module
 {	
 public:
+	void post_load() override;
 	void post_unpack() override;
 
 	static void print(int type, const char* fmt, ...);
