@@ -154,3 +154,5 @@ network::~network()
 	closesocket(network::socket_);
 	WSACleanup();
 }
+
+REGISTER_MODULE(network)
