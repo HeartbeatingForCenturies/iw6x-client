@@ -10,6 +10,8 @@ namespace game
 
 		Cbuf_AddText_t Cbuf_AddText;
 
+		CG_GameMessage_t CG_GameMessage;
+
 		Cmd_AddCommandInternal_t Cmd_AddCommandInternal;
 		Cmd_ExecuteSingleCommand_t Cmd_ExecuteSingleCommand;
 
@@ -34,15 +36,29 @@ namespace game
 
 		ScrPlace_GetViewPlacement_t ScrPlace_GetViewPlacement;
 
+		SV_GameSendServerCommand_t SV_GameSendServerCommand;
+		SV_Loaded_t SV_Loaded;
+
 		int* keyCatchers;
 
 		CmdArgs* cmd_args;
+		CmdArgs* sv_cmd_args;
 		cmd_function_s** cmd_functions;
 
 		int* dvarCount;
 		dvar_t** sortedDvars;
 
 		PlayerKeyState* playerKeys;
+
+		namespace sp
+		{
+			gentity_s* g_entities;
+		}
+
+		namespace mp
+		{
+			gentity_s* g_entities;
+		}
 
 		int Cmd_Argc()
 		{
@@ -52,6 +68,16 @@ namespace game
 		const char* Cmd_Argv(int index)
 		{
 			return native::cmd_args->argv[native::cmd_args->nesting][index];
+		}
+
+		int SV_Cmd_Argc()
+		{
+			return native::sv_cmd_args->argc[native::sv_cmd_args->nesting];
+		}
+
+		const char* SV_Cmd_Argv(int index)
+		{
+			return native::sv_cmd_args->argv[native::sv_cmd_args->nesting][index];
 		}
 	}
 
@@ -91,6 +117,8 @@ namespace game
 
 		native::Cbuf_AddText = native::Cbuf_AddText_t(SELECT_VALUE(0x1403B3050, 0x1403F6B50));
 
+		native::CG_GameMessage = native::CG_GameMessage_t(SELECT_VALUE(0x1401F2E20, 0x140271320));
+
 		native::Cmd_AddCommandInternal = native::Cmd_AddCommandInternal_t(SELECT_VALUE(0x1403B3570, 0x1403F7070));
 		native::Cmd_ExecuteSingleCommand = native::Cmd_ExecuteSingleCommand_t(SELECT_VALUE(0x1403B3B10, 0x1403F7680));
 
@@ -115,14 +143,27 @@ namespace game
 
 		native::ScrPlace_GetViewPlacement = native::ScrPlace_GetViewPlacement_t(SELECT_VALUE(0x14024D150, 0x1402F6D40));
 
+		native::SV_GameSendServerCommand = native::SV_GameSendServerCommand_t(SELECT_VALUE(0x140490F40, 0x1404758C0));
+		native::SV_Loaded = native::SV_Loaded_t(SELECT_VALUE(0x140491820, 0x1404770C0));
+
 		native::keyCatchers = reinterpret_cast<int*>(SELECT_VALUE(0x1417CF6E0, 0x1419E1ADC));
 
 		native::cmd_args = reinterpret_cast<native::CmdArgs*>(SELECT_VALUE(0x144CE7F70, 0x144518480));
+		native::sv_cmd_args = reinterpret_cast<native::CmdArgs*>(SELECT_VALUE(0x144CE8020, 0x144518530));
 		native::cmd_functions = reinterpret_cast<native::cmd_function_s**>(SELECT_VALUE(0x144CE80C8, 0x1445185D8));
 
 		native::dvarCount = reinterpret_cast<int*>(SELECT_VALUE(0x1458CBA3C, 0x1478EADF4));
 		native::sortedDvars = reinterpret_cast<native::dvar_t**>(SELECT_VALUE(0x1458CBA60, 0x1478EAE10));
 
 		native::playerKeys = reinterpret_cast<native::PlayerKeyState*>(SELECT_VALUE(0x14164138C, 0x1419DEABC));
+
+		if (is_sp())
+		{
+			native::sp::g_entities = reinterpret_cast<native::sp::gentity_s*>(0x143C91600);
+		}
+		else if (is_mp())
+		{
+			native::mp::g_entities = reinterpret_cast<native::mp::gentity_s*>(0x14427A0E0);
+		}
 	}
 }

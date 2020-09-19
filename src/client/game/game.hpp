@@ -20,6 +20,9 @@ namespace game
 		typedef void (*Cbuf_AddText_t)(int localClientNum, const char* text);
 		extern Cbuf_AddText_t Cbuf_AddText;
 
+		typedef void (*CG_GameMessage_t)(int localClientNum, const char* message);
+		extern CG_GameMessage_t CG_GameMessage;
+
 		typedef void (*Cmd_AddCommandInternal_t)(const char* cmdName, void(*function)(), cmd_function_s* allocedCmd);
 		extern Cmd_AddCommandInternal_t Cmd_AddCommandInternal;
 
@@ -77,6 +80,11 @@ namespace game
 		typedef ScreenPlacement* (*ScrPlace_GetViewPlacement_t)();
 		extern ScrPlace_GetViewPlacement_t ScrPlace_GetViewPlacement;
 
+		typedef void (*SV_GameSendServerCommand_t)(int, int, const char*);
+		extern SV_GameSendServerCommand_t SV_GameSendServerCommand;
+		typedef bool (*SV_Loaded_t)();
+		extern SV_Loaded_t SV_Loaded;
+
 		extern int* keyCatchers;
 
 		extern CmdArgs* cmd_args;
@@ -87,8 +95,21 @@ namespace game
 
 		extern PlayerKeyState* playerKeys;
 
+		namespace sp
+		{
+			extern gentity_s* g_entities;
+		}
+
+		namespace mp
+		{
+			extern gentity_s* g_entities;
+		}
+
 		int Cmd_Argc();
 		const char* Cmd_Argv(int index);
+
+		int SV_Cmd_Argc();
+		const char* SV_Cmd_Argv(int index);
 	}
 
 	bool is_mp();

@@ -19,7 +19,7 @@ namespace
 	utils::hook::detour dvar_register_int_hook;
 
 	game::native::dvar_t* dvar_register_int(const char* dvarName, int value, int min, int max, unsigned int flags,
-	                                        const char* description)
+		const char* description)
 	{
 		// enable map selection in extinction
 		if (!strcmp(dvarName, "extinction_map_selection_enabled"))
@@ -27,13 +27,13 @@ namespace
 			value = true;
 		}
 
-			// enable extra loadouts
+		// enable extra loadouts
 		else if (!strcmp(dvarName, "extendedLoadoutsEnable"))
 		{
 			value = true;
 		}
 
-			// show all in-game store items
+		// show all in-game store items
 		else if (strstr(dvarName, "igs_"))
 		{
 			value = true;
@@ -48,16 +48,28 @@ class patches final : public module
 public:
 	void post_unpack() override
 	{
+		// add quit command
+		command::add("quit", [](command::params&)
+		{
+			utils::hook::invoke<void>(SELECT_VALUE(0x1403BDDD0, 0x140414920));
+		});
+
+		// add quit_hard command
+		command::add("quit_hard", [](command::params&)
+		{
+			utils::nt::raise_hard_exception();
+		});
+
 		//Patch r_znear "does not like being forced to be set at its default value fucks with rendering"
 		//game::native::Dvar_RegisterInt("r_znear", 4, 0, 4, 0x1, "near Z clip plane distance"); // keeping it at for as it can be used as wall hacks if set more
 
 		// Patch bg_compassshowenemies
 		// Keeping it so it cant be used for uav cheats for people
-		game::native::Dvar_RegisterInt("bg_compassshowenemies", 0, 0, 0, 0x1, "always on uav");
+		game::native::Dvar_RegisterInt("bg_compassShowEnemies", 0, 0, 0, 0x1, "Whether enemies are visible on the compass at all times");
 
 		// igs_announcer
 		// set it to 3 to display both voice dlc announcers did only show 1
-		game::native::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x1, "dlc voice announcers");
+		game::native::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x1, "Show Announcer Packs. (Bitfield representing which announcer paks to show)");
 
 		// patch com_maxfps
 		// changed max value from 85 -> 1000
@@ -70,7 +82,7 @@ public:
 		// patch r_vsync
 		// changed default value from true -> false. There are some fps issues with vsync at least on 144hz monitors.
 		game::native::Dvar_RegisterBool("r_vsync", false, 0x1,
-		                                "Enable v-sync before drawing the next frame to avoid 'tearing' artifacts.");
+			"Enable v-sync before drawing the next frame to avoid 'tearing' artifacts.");
 
 		// add dvarDump command
 		command::add("dvarDump", [](command::params&)
@@ -123,18 +135,6 @@ public:
 
 	void patch_mp() const
 	{
-		// add quit command
-		command::add("quit", [](command::params&)
-		{
-			utils::hook::invoke<void>(0x140414920);
-		});
-
-		// add quit_hard command
-		command::add("quit_hard", [](command::params&)
-		{
-			utils::nt::raise_hard_exception();
-		});
-
 		// Use name dvar and add "saved" flags to it
 		utils::hook::set<uint8_t>(0x1402C836D, 0x01);
 		live_get_local_client_name_hook.create(0x1404FDAA0, &live_get_local_client_name);
