@@ -1,7 +1,10 @@
 #include <std_include.hpp>
 #include "network.hpp"
+
+#include "command.hpp"
 #include "scheduler.hpp"
 #include "steam/steam.hpp"
+#include "utils/string.hpp"
 
 #define DISCOVERY_PORT 9000
 #define DISCOVERY_RANGE 100
@@ -103,13 +106,15 @@ SOCKET network::get_socket()
 
 void network::broadcast(const std::string& command, const std::string& data)
 {
-	network::address address;
-	address.set_ipv4(INADDR_BROADCAST);
+	auto addresses = network::get_broadcast_addresses();
 
-	for (unsigned short i = 0; i < DISCOVERY_RANGE; ++i)
+	for (auto& address : addresses)
 	{
-		address.set_port(i + DISCOVERY_PORT);
-		network::send(address, command, data);
+		for (unsigned short i = 0; i < DISCOVERY_RANGE; ++i)
+		{
+			address.set_port(i + DISCOVERY_PORT);
+			network::send(address, command, data);
+		}
 	}
 }
 
@@ -118,7 +123,77 @@ void network::on(const std::string& command, const network_callback& handler)
 	network::get_callbacks()[command] = handler;
 }
 
-network::network()
+bool network::calculate_broadcast_address(IP_ADAPTER_INFO& adapter, network::address& address)
+{
+	network::address ip(adapter.IpAddressList.IpAddress.String);
+	network::address mask(adapter.IpAddressList.IpMask.String);
+
+	if (ip.get()->sin_family != AF_INET || mask.get()->sin_family != AF_INET)
+	{
+		return false;
+	}
+
+	const auto ip_value = ip.get()->sin_addr.S_un.S_addr;
+	const auto mask_value = mask.get()->sin_addr.S_un.S_addr;
+	const auto network_value = ip_value & mask_value;
+	const auto broadcast_value = network_value | ~mask_value;
+
+	address.set_ipv4(broadcast_value);
+
+	return true;
+}
+
+std::vector<IP_ADAPTER_INFO> network::get_adapter_infos()
+{
+	std::vector<IP_ADAPTER_INFO> result;
+
+	utils::memory::allocator allocator;
+	PIP_ADAPTER_INFO adapter_infos = allocator.allocate<IP_ADAPTER_INFO>();
+	DWORD size = sizeof(IP_ADAPTER_INFO);
+
+	if (GetAdaptersInfo(adapter_infos, &size) == ERROR_BUFFER_OVERFLOW)
+	{
+		allocator.free(adapter_infos);
+		adapter_infos = PIP_ADAPTER_INFO(allocator.allocate_array<char>(size));
+	}
+
+	if (GetAdaptersInfo(adapter_infos, &size) == NO_ERROR)
+	{
+		while (adapter_infos)
+		{
+			result.push_back(*adapter_infos);
+			adapter_infos = adapter_infos->Next;
+		}
+	}
+
+	return result;
+}
+
+std::vector<network::address> network::get_broadcast_addresses()
+{
+	std::vector<network::address> result;
+
+	auto adapter_infos = get_adapter_infos();
+
+	for (auto& adapter_info : adapter_infos)
+	{
+		network::address broadcast;
+		if (calculate_broadcast_address(adapter_info, broadcast))
+		{
+			result.push_back(broadcast);
+		}
+	}
+
+	return result;
+}
+
+network::~network()
+{
+	closesocket(network::socket_);
+	WSACleanup();
+}
+
+void network::post_start()
 {
 	network::id_ = steam::SteamUser()->GetSteamID().bits;
 
@@ -149,17 +224,37 @@ network::network()
 			break;
 		}
 	}
-}
 
-network::~network()
-{
-	closesocket(network::socket_);
-	WSACleanup();
-}
-
-void network::post_start()
-{
 	scheduler::loop(network::run_frame);
+
+	scheduler::once([]()
+	{
+		command::add("echo", [](command::params& params)
+		{
+			if (params.size() == 2)
+			{
+				printf("Sending echo ping to target...\n");
+				const network::address address(params[1]);
+				network::send(address, "echo", "test");
+			}
+			else
+			{
+				printf("Sending echo ping...\n");
+				network::broadcast("echo", "test");
+			}
+		});
+	}, scheduler::pipeline::renderer);
+
+	network::on("echo", [](const network::address& address, const std::string& data)
+	{
+		printf("Received echo ping. Sending reply...\n");
+		network::send(address, "echo_reply", data);
+	});
+
+	network::on("echo_reply", [](const network::address& address, const std::string& data)
+	{
+		printf("Received echo reply!\n");
+	});
 }
 
 REGISTER_MODULE(network)

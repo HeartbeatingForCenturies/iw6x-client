@@ -43,6 +43,7 @@
 #include <Psapi.h>
 #include <Urlmon.h>
 #include <atlbase.h>
+#include <iphlpapi.h>
 
 // min and max is required by gdi, therefore NOMINMAX won't work
 #ifdef max
@@ -88,6 +89,7 @@
 #pragma comment(lib, "ntdll.lib")
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment( lib, "Urlmon.lib" )
+#pragma comment(lib, "IPHLPAPI.lib")
 
 #include "resource.hpp"
 

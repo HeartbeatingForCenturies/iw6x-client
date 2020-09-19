@@ -4,7 +4,6 @@
 class network final : public module
 {
 public:
-	network();
 	~network();
 
 	void post_start() override;
@@ -59,6 +58,10 @@ public:
 	static void broadcast(const std::string& command, const std::string& data = "");
 	static void send(const network::address& address, const std::string& command, const std::string& data = "");
 	static void on(const std::string& command, const network_callback& handler);
+
+	static bool calculate_broadcast_address(IP_ADAPTER_INFO& adapter, network::address& address);
+	static std::vector<IP_ADAPTER_INFO> get_adapter_infos();
+	static std::vector<network::address> get_broadcast_addresses();
 
 private:
 	static uint64_t id_;
