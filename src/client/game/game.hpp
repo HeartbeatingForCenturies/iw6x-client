@@ -20,6 +20,9 @@ namespace game
 		typedef void (*Cbuf_AddText_t)(int localClientNum, const char* text);
 		extern Cbuf_AddText_t Cbuf_AddText;
 
+		typedef bool (*CL_IsCgameInitialized_t)();
+		extern CL_IsCgameInitialized_t CL_IsCgameInitialized;
+
 		typedef void (*CG_GameMessage_t)(int localClientNum, const char* message);
 		extern CG_GameMessage_t CG_GameMessage;
 
