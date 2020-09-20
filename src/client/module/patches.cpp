@@ -8,8 +8,6 @@
 #include "utils/hook.hpp"
 #include "utils/nt.hpp"
 
-#define PLAYERS2_FOLDER "iw6x/players2"
-
 namespace
 {
 	utils::hook::detour live_get_local_client_name_hook;
@@ -128,9 +126,6 @@ class patches final : public module
 public:
 	void post_unpack() override
 	{
-		// rename players2 -> iw6x/players2
-		strcpy_s(reinterpret_cast<char*>SELECT_VALUE(0x140728880, 0x140855190), sizeof(PLAYERS2_FOLDER), PLAYERS2_FOLDER);
-
 		// add quit command
 		command::add("quit", [](command::params&)
 		{
