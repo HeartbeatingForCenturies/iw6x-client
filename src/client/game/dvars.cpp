@@ -15,4 +15,6 @@ namespace dvars
 
 	game::native::dvar_t* g_gravity = nullptr;
 	game::native::dvar_t* g_speed = nullptr;
+
+	game::native::dvar_t* pm_bouncing = nullptr;
 }
