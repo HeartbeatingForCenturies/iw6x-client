@@ -32,7 +32,7 @@ namespace
 
 	cg_perf_data cg_perf = cg_perf_data();
 
-	void perf_calc_fps(cg_perf_data* data, std::int32_t value)
+	void perf_calc_fps(cg_perf_data* data, const std::int32_t value)
 	{
 		data->history[data->index % 32] = value;
 		data->instant = value;
@@ -44,7 +44,7 @@ namespace
 
 		for (auto i = 0; i < data->count; ++i)
 		{
-			std::int32_t idx = (data->index - i) % 32;
+			const std::int32_t idx = (data->index - i) % 32;
 
 			if (idx < 0)
 			{
@@ -83,14 +83,14 @@ namespace
 
 	void cg_draw_fps()
 	{
-		if (game::native::Dvar_FindVar("cg_drawFPS")->current.integer != 0 && game::native::CL_IsCgameInitialized())
+		if (game::native::Dvar_FindVar("cg_drawFPS")->current.integer != 0 /*&& game::native::CL_IsCgameInitialized()*/)
 		{
-			auto fps = static_cast<std::int32_t>(static_cast<float>(1000.0f / static_cast<float>(cg_perf.average)) + 9.313225746154785e-10);
+			const auto fps = static_cast<std::int32_t>(static_cast<float>(1000.0f / static_cast<float>(cg_perf.average)) + 9.313225746154785e-10);
 
 			auto* font = game::native::R_RegisterFont("fonts/normalfont");
 			if (!font) return;
 
-			const auto fps_string = utils::string::va("%i", fps);
+			auto* const fps_string = utils::string::va("%i", fps);
 
 			const auto scale = 1.0f;
 
@@ -101,7 +101,7 @@ namespace
 		}
 	}
 
-	void cg_draw_fps_register_stub(const char* name, const char** _enum, int value, unsigned int flags, const char* desc)
+	void cg_draw_fps_register_stub(const char* name, const char** _enum, const int value, unsigned int flags, const char* desc)
 	{
 		game::native::Dvar_RegisterEnum(name, _enum, value, 0x1, desc);
 	}
