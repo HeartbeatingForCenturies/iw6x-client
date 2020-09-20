@@ -17,4 +17,6 @@ namespace dvars
 
 	extern game::native::dvar_t* g_gravity;
 	extern game::native::dvar_t* g_speed;
+
+	extern game::native::dvar_t* pm_bouncing;
 }
