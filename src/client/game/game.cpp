@@ -28,6 +28,8 @@ namespace game
 		Dvar_Sort_t Dvar_Sort;
 		Dvar_ValueToString_t Dvar_ValueToString;
 
+		LUI_OpenMenu_t LUI_OpenMenu;
+
 		Material_RegisterHandle_t Material_RegisterHandle;
 
 		R_AddCmdDrawStretchPic_t R_AddCmdDrawStretchPic;
@@ -37,6 +39,8 @@ namespace game
 		R_TextWidth_t R_TextWidth;
 
 		ScrPlace_GetViewPlacement_t ScrPlace_GetViewPlacement;
+
+		SEH_StringEd_GetString_t SEH_StringEd_GetString;
 
 		SV_GameSendServerCommand_t SV_GameSendServerCommand;
 		SV_Loaded_t SV_Loaded;
@@ -139,6 +143,8 @@ namespace game
 		native::Dvar_Sort = native::Dvar_Sort_t(SELECT_VALUE(0x14042DEF0, 0x1404F1210));
 		native::Dvar_ValueToString = native::Dvar_ValueToString_t(SELECT_VALUE(0x14042E710, 0x1404F1A30));
 
+		native::LUI_OpenMenu = native::LUI_OpenMenu_t(SELECT_VALUE(0x0, 0x1404B3610));
+
 		native::Material_RegisterHandle = native::Material_RegisterHandle_t(SELECT_VALUE(0x140523D90, 0x1405F0E20));
 
 		native::R_AddCmdDrawStretchPic = native::R_AddCmdDrawStretchPic_t(SELECT_VALUE(0x140234460, 0x140600BE0));
@@ -148,6 +154,8 @@ namespace game
 		native::R_TextWidth = native::R_TextWidth_t(SELECT_VALUE(0x140513390, 0x1405DFDB0));
 
 		native::ScrPlace_GetViewPlacement = native::ScrPlace_GetViewPlacement_t(SELECT_VALUE(0x14024D150, 0x1402F6D40));
+
+		native::SEH_StringEd_GetString = native::SEH_StringEd_GetString_t(SELECT_VALUE(0x0, 0x1404A5F60));
 
 		native::SV_GameSendServerCommand = native::SV_GameSendServerCommand_t(SELECT_VALUE(0x140490F40, 0x1404758C0));
 		native::SV_Loaded = native::SV_Loaded_t(SELECT_VALUE(0x140491820, 0x1404770C0));

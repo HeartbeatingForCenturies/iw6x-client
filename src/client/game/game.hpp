@@ -69,6 +69,9 @@ namespace game
 		typedef const char* (*Dvar_ValueToString_t)(dvar_t* dvar, dvar_value value);
 		extern Dvar_ValueToString_t Dvar_ValueToString;
 
+		typedef void (*LUI_OpenMenu_t)(int clientNum, const char* menu, int a3, int a4, unsigned int a5);
+		extern LUI_OpenMenu_t LUI_OpenMenu;
+
 		typedef Material* (*Material_RegisterHandle_t)(const char* material);
 		extern Material_RegisterHandle_t Material_RegisterHandle;
 
@@ -91,6 +94,9 @@ namespace game
 
 		typedef ScreenPlacement* (*ScrPlace_GetViewPlacement_t)();
 		extern ScrPlace_GetViewPlacement_t ScrPlace_GetViewPlacement;
+
+		typedef const char* (*SEH_StringEd_GetString_t)(const char*);
+		extern SEH_StringEd_GetString_t SEH_StringEd_GetString;
 
 		typedef void (*SV_GameSendServerCommand_t)(int, int, const char*);
 		extern SV_GameSendServerCommand_t SV_GameSendServerCommand;
