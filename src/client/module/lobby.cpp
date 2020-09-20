@@ -74,7 +74,7 @@ lobby::lobby()
 
 lobby::~lobby()
 {
-	lobby::data_.clear();
+
 }
 
 REGISTER_MODULE(lobby)

@@ -517,12 +517,12 @@ namespace game
 			K_LAST_KEY = 0xDF
 		};
 
-		struct Material 
+		struct Material
 		{
 			const char* name;
 		};
 
-		struct Glyph 
+		struct Glyph
 		{
 			unsigned short letter;
 			char x0;
@@ -604,7 +604,7 @@ namespace game
 			float max;
 		};
 
-		union dvar_limits 
+		union dvar_limits
 		{
 			$A37BA207B3DDD6345C554D4661813EDD enumeration;
 			$9CA192F9DB66A3CB7E01DE78A0DEA53D integer;
@@ -637,7 +637,7 @@ namespace game
 		{
 			cmd_function_s* next;
 			const char* name;
-			void(__cdecl* function)();
+			void (__cdecl* function)();
 		};
 
 		struct KeyState
@@ -821,6 +821,33 @@ namespace game
 			vec3_t vDelta;
 		};
 
+		enum netadrtype_t
+		{
+			NA_BOT = 0x0,
+			NA_BAD = 0x1,
+			NA_LOOPBACK = 0x2,
+			NA_BROADCAST = 0x3,
+			NA_IP = 0x4,
+		};
+
+		enum netsrc_t
+		{
+			NS_CLIENT1 = 0x0,
+			NS_MAXCLIENTS = 0x1,
+			NS_SERVER = 0x2,
+			NS_PACKET = 0x3,
+			NS_INVALID_NETSRC = 0x4,
+		};
+
+		struct netadr_s
+		{
+			netadrtype_t type;
+			char ip[4];
+			unsigned __int16 port;
+			netsrc_t localNetID;
+			unsigned int addrHandleIndex;
+		};
+
 		namespace sp
 		{
 			// very shit structures for the moment cuz i cba mapping the whole thing out right now...
@@ -829,7 +856,7 @@ namespace game
 				char __0x00[0xB6DC];
 				int flags;
 			};
-			
+
 			struct gentity_s
 			{
 				char __0x00[0x110];

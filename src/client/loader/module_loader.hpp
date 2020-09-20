@@ -27,7 +27,7 @@ public:
 	template <typename T>
 	static T* get()
 	{
-		for (const auto& module_ : *modules_)
+		for (const auto& module_ : get_modules())
 		{
 			if (typeid(*module_.get()) == typeid(T))
 			{
@@ -50,9 +50,7 @@ public:
 	static void trigger_premature_shutdown();
 
 private:
-	static std::vector<std::unique_ptr<module>>* modules_;
-
-	static void destroy_modules();
+	static std::vector<std::unique_ptr<module>>& get_modules();
 };
 
 #define REGISTER_MODULE(name)                       \

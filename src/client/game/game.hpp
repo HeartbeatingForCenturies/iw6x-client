@@ -26,7 +26,7 @@ namespace game
 		typedef void (*CG_GameMessage_t)(int localClientNum, const char* message);
 		extern CG_GameMessage_t CG_GameMessage;
 
-		typedef void (*Cmd_AddCommandInternal_t)(const char* cmdName, void(*function)(), cmd_function_s* allocedCmd);
+		typedef void (*Cmd_AddCommandInternal_t)(const char* cmdName, void (*function)(), cmd_function_s* allocedCmd);
 		extern Cmd_AddCommandInternal_t Cmd_AddCommandInternal;
 
 		typedef void (*Cmd_ExecuteSingleCommand_t)(int localClientNum, int controllerIndex, const char* text);
@@ -35,25 +35,32 @@ namespace game
 		typedef dvar_t* (*Dvar_FindVar_t)(const char* name);
 		extern Dvar_FindVar_t Dvar_FindVar;
 
-		typedef dvar_t* (*Dvar_RegisterBool_t)(const char* dvarName, bool value, unsigned int flags, const char* description);
+		typedef dvar_t* (*Dvar_RegisterBool_t)(const char* dvarName, bool value, unsigned int flags,
+		                                       const char* description);
 		extern Dvar_RegisterBool_t Dvar_RegisterBool;
 
-		typedef dvar_t* (*Dvar_RegisterEnum_t)(const char* dvarName, const char** valueList, int defaultIndex, unsigned int flags, const char* description);
+		typedef dvar_t* (*Dvar_RegisterEnum_t)(const char* dvarName, const char** valueList, int defaultIndex,
+		                                       unsigned int flags, const char* description);
 		extern Dvar_RegisterEnum_t Dvar_RegisterEnum;
 
-		typedef dvar_t* (*Dvar_RegisterFloat_t)(const char* dvarName, float value, float min, float max, unsigned int flags, const char* description);
+		typedef dvar_t* (*Dvar_RegisterFloat_t)(const char* dvarName, float value, float min, float max,
+		                                        unsigned int flags, const char* description);
 		extern Dvar_RegisterFloat_t Dvar_RegisterFloat;
 
-		typedef dvar_t* (*Dvar_RegisterInt_t)(const char* dvarName, int value, int min, int max, unsigned int flags, const char* desc);
+		typedef dvar_t* (*Dvar_RegisterInt_t)(const char* dvarName, int value, int min, int max, unsigned int flags,
+		                                      const char* desc);
 		extern Dvar_RegisterInt_t Dvar_RegisterInt;
 
-		typedef dvar_t* (*Dvar_RegisterString_t)(const char* dvarName, const char* value, unsigned int flags, const char* description);
+		typedef dvar_t* (*Dvar_RegisterString_t)(const char* dvarName, const char* value, unsigned int flags,
+		                                         const char* description);
 		extern Dvar_RegisterString_t Dvar_RegisterString;
 
-		typedef dvar_t* (*Dvar_RegisterVec2_t)(const char* dvarName, float x, float y, float min, float max, unsigned int flags, const char* description);
+		typedef dvar_t* (*Dvar_RegisterVec2_t)(const char* dvarName, float x, float y, float min, float max,
+		                                       unsigned int flags, const char* description);
 		extern Dvar_RegisterVec2_t Dvar_RegisterVec2;
 
-		typedef dvar_t* (*Dvar_RegisterVec4_t)(const char* dvarName, float x, float y, float z, float w, float min, float max, unsigned int flags, const char* description);
+		typedef dvar_t* (*Dvar_RegisterVec4_t)(const char* dvarName, float x, float y, float z, float w, float min,
+		                                       float max, unsigned int flags, const char* description);
 		extern Dvar_RegisterVec4_t Dvar_RegisterVec4;
 
 		typedef void (*Dvar_Sort_t)();
@@ -65,13 +72,15 @@ namespace game
 		typedef Material* (*Material_RegisterHandle_t)(const char* material);
 		extern Material_RegisterHandle_t Material_RegisterHandle;
 
-		typedef void (*R_AddCmdDrawStretchPic_t)(float x, float y, float width, float height, float s0, float t0, float s1, float t1, float* color, Material* material);
+		typedef void (*R_AddCmdDrawStretchPic_t)(float x, float y, float width, float height, float s0, float t0,
+		                                         float s1, float t1, float* color, Material* material);
 		extern R_AddCmdDrawStretchPic_t R_AddCmdDrawStretchPic;
 
 		typedef void (*R_AddCmdDrawText_t)(const char*, int, Font_s*, float, float, float, float, float, float*, int);
 		extern R_AddCmdDrawText_t R_AddCmdDrawText;
 
-		typedef void (*R_AddCmdDrawTextWithCursor_t)(const char*, int, Font_s*, float, float, float, float, float, const float*, int, int, char);
+		typedef void (*R_AddCmdDrawTextWithCursor_t)(const char*, int, Font_s*, float, float, float, float, float,
+		                                             const float*, int, int, char);
 		extern R_AddCmdDrawTextWithCursor_t R_AddCmdDrawTextWithCursor;
 
 		typedef Font_s* (*R_RegisterFont_t)(const char* font);
@@ -87,6 +96,9 @@ namespace game
 		extern SV_GameSendServerCommand_t SV_GameSendServerCommand;
 		typedef bool (*SV_Loaded_t)();
 		extern SV_Loaded_t SV_Loaded;
+
+		typedef bool (*Sys_SendPacket_t)(netsrc_t, int, void const*, netadr_s);
+		extern Sys_SendPacket_t Sys_SendPacket;
 
 		extern int* keyCatchers;
 
