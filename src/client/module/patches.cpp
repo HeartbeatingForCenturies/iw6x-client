@@ -247,6 +247,15 @@ public:
 			utils::hook::set<BYTE>(0x1445A3798, 0x0A);	// Prestige
 			utils::hook::set<float>(0x1445A34A0, 50000); // squad points
 			utils::hook::set<short>(0x14459F857, 4805);	// squad member 1 level 
+			utils::hook::set<int64_t>(0x14459FDB7, 0x000012C500000000); // squad member 2 level 1
+			utils::hook::set<short>(0x1445A031F, 4805); // squad member 3 Level
+			utils::hook::set<int64_t>(0x1445A087F, 0x000012C500000000); //squad member 4 level
+			utils::hook::set<short>(0x1445A0DE7, 4805); // squad member 5 level
+			utils::hook::set<int64_t>(0x1445A1347, 0x000012C500000000); //squad member 6
+			utils::hook::set<short>(0x1445A18AF, 4805); // squad member 7
+			utils::hook::set<int64_t>(0x1445A1E0F, 0x000012C500000000); // squad member 8
+			utils::hook::set<short>(0x1445A2377, 4805); // squad member 9
+			utils::hook::set<int64_t>(0x1445A28d7, 0x000012C500000000); // squad member 10
 			//only Extinction
 			utils::hook::set<short>(0x1445A6B62, 9999);	// Teeth
 			utils::hook::set<BYTE>(0x1445A5F96, 25);	// Prestige
