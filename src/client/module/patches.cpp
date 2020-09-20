@@ -126,6 +126,7 @@ class patches final : public module
 public:
 	void post_unpack() override
 	{
+		
 		// add quit command
 		command::add("quit", [](command::params&)
 		{
@@ -238,6 +239,19 @@ public:
 		utils::hook::nop(0x140383789, 13);
 		utils::hook::jump(0x140383789, g_speed_stub, true);
 		dvars::g_speed = game::native::Dvar_RegisterInt("g_speed", 190, 0, 999, 0, "Maximum player speed");
+
+		// add Unlock all Command - only does level for squad member 1 if people want level 60 on all squad members let me know and I can just add the rest of the squad members
+		command::add("unlockall", [](command::params&)
+		{
+			//only Mp
+			utils::hook::set<BYTE>(0x1445A3798, 0x0A);	// Prestige
+			utils::hook::set<float>(0x1445A34A0, 50000); // squad points
+			utils::hook::set<short>(0x14459F857, 4805);	// squad member 1 level 
+			//only Extinction
+			utils::hook::set<short>(0x1445A6B62, 9999);	// Teeth
+			utils::hook::set<BYTE>(0x1445A5F96, 25);	// Prestige
+			utils::hook::set<short>(0x1445A5F90, 27);	// level
+		});
 	}
 
 	void patch_sp() const
