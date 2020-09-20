@@ -43,6 +43,7 @@
 #include <Psapi.h>
 #include <Urlmon.h>
 #include <atlbase.h>
+#include <iphlpapi.h>
 
 // min and max is required by gdi, therefore NOMINMAX won't work
 #ifdef max
@@ -80,7 +81,7 @@
 #include <asmjit/core/jitruntime.h>
 #include <asmjit/x86/x86assembler.h>
 
-#include "proto/test.pb.h"
+#include "proto/network.pb.h"
 
 #pragma warning(pop)
 #pragma warning(disable: 4100)
@@ -88,6 +89,7 @@
 #pragma comment(lib, "ntdll.lib")
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment( lib, "Urlmon.lib" )
+#pragma comment(lib, "IPHLPAPI.lib")
 
 #include "resource.hpp"
 

@@ -179,11 +179,11 @@ namespace demonware
 	class bdMatchmakingInfo : public i_serializable
 	{
 	public:
-		bdSessionID session_id;
-		std::string host_addr;
-		uint32_t game_type;
-		uint32_t max_players;
-		uint32_t num_players;
+		bdSessionID session_id{};
+		std::string host_addr{};
+		uint32_t game_type{};
+		uint32_t max_players{};
+		uint32_t num_players{};
 
 		bool symmetric = false;
 
@@ -212,22 +212,22 @@ namespace demonware
 	class MatchMakingInfo final : public bdMatchmakingInfo
 	{
 	public:
-		int32_t playlist_number;
-		int32_t playlist_version;
-		int32_t netcode_version;
-		int32_t map_packs;
-		int32_t slots_needed_on_team;
-		int32_t skill;
-		uint32_t country_code;
-		uint32_t asn;
-		float latitude;
-		float longitude;
-		int32_t max_reserved_slots;
-		int32_t used_reserved_slots;
-		std::string game_security_key; // 16 bytes.
-		std::string platform_session_id; // 16 bytes.
-		uint32_t data_centres;
-		uint32_t coop_state;
+		int32_t playlist_number{};
+		int32_t playlist_version{};
+		int32_t netcode_version{};
+		int32_t map_packs{};
+		int32_t slots_needed_on_team{};
+		int32_t skill{};
+		uint32_t country_code{};
+		uint32_t asn{};
+		float latitude{};
+		float longitude{};
+		int32_t max_reserved_slots{};
+		int32_t used_reserved_slots{};
+		std::string game_security_key{}; // 16 bytes.
+		std::string platform_session_id{}; // 16 bytes.
+		uint32_t data_centres{};
+		uint32_t coop_state{};
 
 		void serialize(byte_buffer* buffer) override
 		{

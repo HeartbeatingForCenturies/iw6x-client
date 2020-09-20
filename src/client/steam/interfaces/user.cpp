@@ -3,7 +3,19 @@
 
 namespace steam
 {
-	std::string auth_ticket;
+	namespace
+	{
+		std::string auth_ticket;
+
+		steam_id generate_steam_id()
+		{
+			srand(uint32_t(time(nullptr)));
+
+			steam_id id;
+			id.bits = 0x110000100000000 | (rand() & ~0x80000000);
+			return id;
+		}
+	}
 
 	int user::GetHSteamUser()
 	{
@@ -17,8 +29,7 @@ namespace steam
 
 	steam_id user::GetSteamID()
 	{
-		steam_id id;
-		id.bits = 0x110000100000000 | (0x1377 & ~0x80000000);
+		static auto id = generate_steam_id();
 		return id;
 	}
 
@@ -76,7 +87,16 @@ namespace steam
 
 	unsigned int user::GetAuthSessionTicket(void* pTicket, int cbMaxTicket, unsigned int* pcbTicket)
 	{
-		return 0;
+		static uint32_t ticket = 0;
+		*pcbTicket = 1;
+
+		const auto result = callbacks::register_call();
+		auto* response = static_cast<get_auth_session_ticket_response*>(calloc(1, sizeof(get_auth_session_ticket_response)));
+		response->m_h_auth_ticket = ++ticket;
+		response->m_e_result = 1; // k_EResultOK;
+
+		callbacks::return_call(response, sizeof(get_auth_session_ticket_response), get_auth_session_ticket_response::callback_id, result);
+		return response->m_h_auth_ticket;
 	}
 
 	int user::BeginAuthSession(const void* pAuthTicket, int cbAuthTicket, steam_id steamID)

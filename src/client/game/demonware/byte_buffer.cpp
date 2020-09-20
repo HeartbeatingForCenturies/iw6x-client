@@ -128,6 +128,11 @@ namespace demonware
 
 		char type;
 		this->read(1, &type);
+		if (type != expected)
+		{
+			//throw std::runtime_error("Data type mismatch!");
+		}
+
 		return type == expected;
 	}
 

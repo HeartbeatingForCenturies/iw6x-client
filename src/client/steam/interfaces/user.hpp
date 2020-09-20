@@ -9,6 +9,14 @@ namespace steam
 		int m_e_result;
 	};
 
+	struct get_auth_session_ticket_response
+	{
+		enum { callback_id = 163 };
+		
+		unsigned int m_h_auth_ticket;
+		int m_e_result;
+	};
+
 	class user
 	{
 	public:

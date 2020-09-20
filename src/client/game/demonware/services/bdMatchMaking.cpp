@@ -1,7 +1,8 @@
 #include <std_include.hpp>
 #include "bdMatchMaking.hpp"
 #include "../data_types.hpp"
-#include "Steam/Steam.hpp"
+#include "module/network.hpp"
+#include "steam/steam.hpp"
 
 namespace demonware
 {
@@ -41,11 +42,8 @@ namespace demonware
 		this->register_service(10, &bdMatchMaking::get_performance);
 		this->register_service(16, &bdMatchMaking::find_sessions_two_pass);
 
-		//Components::Network::On("sessionUpdate", [](Components::Network::Address, std::string data) { UpdateSession(data); });
-		//Components::IRCBridge::On("sessionUpdate", [](std::string, std::string data) { UpdateSession(data); });
-
-		//Components::Network::On("sessionDelete", [](Components::Network::Address, std::string data) { DeleteSession(data); });
-		//Components::IRCBridge::On("sessionDelete", [](std::string, std::string data) { DeleteSession(data); });
+		network::on("sessionUpdate", [](const network::address&, const std::string& data) { UpdateSession(data); });
+		network::on("sessionDelete", [](const network::address&, const std::string& data) { DeleteSession(data); });
 	}
 
 	void bdMatchMaking::create_session(i_server* server, byte_buffer* /*buffer*/) const
@@ -72,10 +70,7 @@ namespace demonware
 		bdCommonAddr addr;
 		addr.deserialize(&addr_buf);
 
-		//Components::DHT::SetPort(addr.m_publicAddr.m_port);
-
-		//Components::Network::Broadcast("sessionUpdate", outData.getBuffer());
-		//Components::IRCBridge::Broadcast("sessionUpdate", outData.getBuffer());
+		network::broadcast("sessionUpdate", out_data.get_buffer());
 
 		auto reply = server->create_reply(this->get_sub_type());
 		reply->send();
@@ -89,7 +84,7 @@ namespace demonware
 		byte_buffer out_data;
 		id.serialize(&out_data);
 
-		//Components::Network::Broadcast("sessionDelete", outData.getBuffer());
+		network::broadcast("sessionDelete", out_data.get_buffer());
 
 		auto reply = server->create_reply(this->get_sub_type());
 		reply->send();
@@ -97,7 +92,7 @@ namespace demonware
 
 	void bdMatchMaking::get_performance(i_server* server, byte_buffer* /*buffer*/) const
 	{
-		bdPerformanceValue* result = new bdPerformanceValue;
+		auto* result = new bdPerformanceValue;
 		result->user_id = steam::SteamUser()->GetSteamID().bits;
 		result->performance = 10;
 

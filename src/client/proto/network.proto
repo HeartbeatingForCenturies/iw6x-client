@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package proto.network;
+
+message packet
+{
+	bytes command = 1;
+	bytes payload = 2;
+}
+
+message unique_packet
+{
+	uint64 id = 1;
+	packet packet = 2;
+}
+
+/*
+message node
+{
+	bytes id = 1;
+	bytes address = 2;
+}
+
+message nodes
+{
+	repeated node nodes = 1;
+}
+*/

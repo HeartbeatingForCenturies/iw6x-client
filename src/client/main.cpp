@@ -3,7 +3,6 @@
 #include "loader/loader.hpp"
 #include "loader/module_loader.hpp"
 #include "game/game.hpp"
-#include "utils/string.hpp"
 #include "utils/flags.hpp"
 #include "utils/io.hpp"
 
@@ -103,6 +102,7 @@ int main()
 	FARPROC entry_point;
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
+	srand(uint32_t(time(nullptr)));
 	remove_crash_file();
 
 	{
