@@ -71,6 +71,30 @@ namespace
 
 		a.jmp(0x140383796);
 	});
+
+	const auto pm_bouncing_stub = utils::hook::assemble([](utils::hook::assembler& a)
+	{
+		const auto bounce = a.newLabel();
+		const auto loc_140228FB8 = a.newLabel();
+
+		a.push(rax);
+
+		a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::pm_bouncing)));
+		a.mov(al, byte_ptr(rax, 0x10));
+		a.cmp(byte_ptr(rbp, -0x38), al);
+
+		a.pop(rax);
+		a.jz(bounce);
+		a.jmp(0x140229019);
+
+		a.bind(bounce);
+		a.cmp(dword_ptr(rbp, 0x70), 0);
+		a.jnz(loc_140228FB8);
+		a.jmp(0x14022900B);
+
+		a.bind(loc_140228FB8);
+		a.jmp(0x140228FB8);
+	});
 }
 
 class patches final : public module
@@ -186,6 +210,10 @@ public:
 		utils::hook::nop(0x140383789, 13);
 		utils::hook::jump(0x140383789, g_speed_stub, true);
 		dvars::g_speed = game::native::Dvar_RegisterInt("g_speed", 190, 0, 999, 0, "Maximum player speed");
+
+		// Implement bouncing dvar
+		utils::hook::jump(0x140228FFF, pm_bouncing_stub, true);
+		dvars::pm_bouncing = game::native::Dvar_RegisterBool("pm_bouncing", 0, 0x1, "Enable bouncing");
 	}
 
 	void patch_sp() const
