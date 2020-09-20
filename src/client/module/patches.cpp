@@ -139,15 +139,15 @@ public:
 		});
 
 		//Patch r_znear "does not like being forced to be set at its default value fucks with rendering"
-		//game::native::Dvar_RegisterInt("r_znear", 4, 0, 4, 0x1, "near Z clip plane distance"); // keeping it at for as it can be used as wall hacks if set more
+		//game::native::Dvar_RegisterInt("r_znear", 4, 0, 4, 0x44, "near Z clip plane distance"); // keeping it at for as it can be used as wall hacks if set more
 
 		// Patch bg_compassshowenemies
 		// Keeping it so it cant be used for uav cheats for people
-		game::native::Dvar_RegisterInt("bg_compassShowEnemies", 0, 0, 0, 0x1, "Whether enemies are visible on the compass at all times");
+		game::native::Dvar_RegisterInt("bg_compassShowEnemies", 0, 0, 0, 0x8C, "Whether enemies are visible on the compass at all times");
 
 		// igs_announcer
 		// set it to 3 to display both voice dlc announcers did only show 1
-		game::native::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x1, "Show Announcer Packs. (Bitfield representing which announcer paks to show)");
+		game::native::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0, "Show Announcer Packs. (Bitfield representing which announcer paks to show)");
 
 		// patch com_maxfps
 		// changed max value from 85 -> 1000
@@ -156,11 +156,6 @@ public:
 		// patch cg_fov
 		// changed max value from 80.0f -> 120.f
 		game::native::Dvar_RegisterFloat("cg_fov", 65.0f, 65.0f, 120.0f, 0x1, "The field of view angle in degrees");
-
-		// patch r_vsync
-		// changed default value from true -> false. There are some fps issues with vsync at least on 144hz monitors.
-		game::native::Dvar_RegisterBool("r_vsync", false, 0x1,
-			"Enable v-sync before drawing the next frame to avoid 'tearing' artifacts.");
 
 		// add dvarDump command
 		command::add("dvarDump", [](command::params&)
