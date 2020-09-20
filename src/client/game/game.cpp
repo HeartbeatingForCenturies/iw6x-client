@@ -12,6 +12,8 @@ namespace game
 
 		CG_GameMessage_t CG_GameMessage;
 
+		CL_IsCgameInitialized_t CL_IsCgameInitialized;
+
 		Cmd_AddCommandInternal_t Cmd_AddCommandInternal;
 		Cmd_ExecuteSingleCommand_t Cmd_ExecuteSingleCommand;
 
@@ -118,6 +120,8 @@ namespace game
 		native::Cbuf_AddText = native::Cbuf_AddText_t(SELECT_VALUE(0x1403B3050, 0x1403F6B50));
 
 		native::CG_GameMessage = native::CG_GameMessage_t(SELECT_VALUE(0x1401F2E20, 0x140271320));
+
+		native::CL_IsCgameInitialized = native::CL_IsCgameInitialized_t(SELECT_VALUE(0x140234DA0, 0x1402B9A70));
 
 		native::Cmd_AddCommandInternal = native::Cmd_AddCommandInternal_t(SELECT_VALUE(0x1403B3570, 0x1403F7070));
 		native::Cmd_ExecuteSingleCommand = native::Cmd_ExecuteSingleCommand_t(SELECT_VALUE(0x1403B3B10, 0x1403F7680));
