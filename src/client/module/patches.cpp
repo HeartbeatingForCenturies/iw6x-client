@@ -180,7 +180,7 @@ public:
 		// Implement gravity dvar
 		utils::hook::nop(0x1403828C8, 13);
 		utils::hook::jump(0x1403828C8, g_gravity_stub, true);
-		dvars::g_gravity = game::native::Dvar_RegisterInt("g_gravity", 800, 0, 1000, 0, "Game gravity in inches per second per second");
+		dvars::g_gravity = game::native::Dvar_RegisterInt("g_gravity", 800, 0, 1000, 0, "Game gravity in inches per second squared");
 
 		// Implement speed dvar
 		utils::hook::nop(0x140383789, 13);
