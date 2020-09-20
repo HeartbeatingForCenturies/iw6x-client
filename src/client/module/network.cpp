@@ -90,6 +90,7 @@ void network::run_frame()
 
 void network::send(const network::address& address, const std::string& command, const std::string& data)
 {
+	/*
 	proto::network::unique_packet packet;
 	packet.mutable_packet()->set_command(command);
 	packet.mutable_packet()->set_payload(data);
@@ -97,6 +98,7 @@ void network::send(const network::address& address, const std::string& command, 
 
 	const auto buffer = packet.SerializeAsString();
 	sendto(network::socket_, buffer.data(), INT(buffer.size()), 0, address.get_sock_addr(), address.size());
+	*/
 }
 
 SOCKET network::get_socket()
@@ -106,6 +108,7 @@ SOCKET network::get_socket()
 
 void network::broadcast(const std::string& command, const std::string& data)
 {
+	/*	
 	auto addresses = network::get_broadcast_addresses();
 
 	for (auto& address : addresses)
@@ -116,6 +119,7 @@ void network::broadcast(const std::string& command, const std::string& data)
 			network::send(address, command, data);
 		}
 	}
+	*/
 }
 
 void network::on(const std::string& command, const network_callback& handler)
