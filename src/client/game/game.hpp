@@ -103,7 +103,8 @@ namespace game
 		typedef bool (*SV_Loaded_t)();
 		extern SV_Loaded_t SV_Loaded;
 
-		typedef bool (*Sys_SendPacket_t)(netsrc_t, int, void const*, netadr_s);
+		//typedef bool (*Sys_SendPacket_t)(netsrc_t, int, void const*, netadr_s); // Actual
+		typedef bool (*Sys_SendPacket_t)(int, void const*, const netadr_s*); // Compiler-optimized
 		extern Sys_SendPacket_t Sys_SendPacket;
 
 		extern int* keyCatchers;
@@ -115,6 +116,8 @@ namespace game
 		extern dvar_t** sortedDvars;
 
 		extern PlayerKeyState* playerKeys;
+		
+		extern SOCKET* query_socket;
 
 		namespace sp
 		{
