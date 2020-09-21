@@ -112,7 +112,7 @@ namespace
 		a.jmp(0x140229019);
 
 		a.bind(no_bounce);
-		a.cmp(dword_ptr(rbp, 0x70), 0);
+		a.cmp(dword_ptr(rbp, -0x70), 0);
 		a.jnz(loc_140228FB8);
 		a.jmp(0x14022900B);
 
