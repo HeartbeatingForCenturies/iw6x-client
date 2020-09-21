@@ -1,7 +1,6 @@
 #include <std_include.hpp>
 #include "bdMatchMaking.hpp"
 #include "../data_types.hpp"
-#include "module/network.hpp"
 #include "steam/steam.hpp"
 
 namespace demonware
@@ -41,9 +40,6 @@ namespace demonware
 		this->register_service(3, &bdMatchMaking::delete_session);
 		this->register_service(10, &bdMatchMaking::get_performance);
 		this->register_service(16, &bdMatchMaking::find_sessions_two_pass);
-
-		network::on("sessionUpdate", [](const network::address&, const std::string& data) { UpdateSession(data); });
-		network::on("sessionDelete", [](const network::address&, const std::string& data) { DeleteSession(data); });
 	}
 
 	void bdMatchMaking::create_session(i_server* server, byte_buffer* /*buffer*/) const
@@ -70,8 +66,6 @@ namespace demonware
 		bdCommonAddr addr;
 		addr.deserialize(&addr_buf);
 
-		network::broadcast("sessionUpdate", out_data.get_buffer());
-
 		auto reply = server->create_reply(this->get_sub_type());
 		reply->send();
 	}
@@ -83,8 +77,6 @@ namespace demonware
 
 		byte_buffer out_data;
 		id.serialize(&out_data);
-
-		network::broadcast("sessionDelete", out_data.get_buffer());
 
 		auto reply = server->create_reply(this->get_sub_type());
 		reply->send();

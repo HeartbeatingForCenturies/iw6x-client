@@ -58,6 +58,8 @@ namespace game
 
 		PlayerKeyState* playerKeys;
 
+		SOCKET* query_socket;
+
 		namespace sp
 		{
 			gentity_s* g_entities;
@@ -172,6 +174,8 @@ namespace game
 		native::sortedDvars = reinterpret_cast<native::dvar_t**>(SELECT_VALUE(0x1458CBA60, 0x1478EAE10));
 
 		native::playerKeys = reinterpret_cast<native::PlayerKeyState*>(SELECT_VALUE(0x14164138C, 0x1419DEABC));
+		
+		native::query_socket = reinterpret_cast<SOCKET*>(SELECT_VALUE(0, 0x147AD1A78));
 
 		if (is_sp())
 		{

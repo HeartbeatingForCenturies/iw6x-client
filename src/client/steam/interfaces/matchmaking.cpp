@@ -1,16 +1,10 @@
 #include <std_include.hpp>
 
-#include "module/lobby.hpp"
 #include "steam/steam.hpp"
 #include "utils/string.hpp"
 
 namespace steam
 {
-	namespace
-	{
-		steam_id current_lobby{};
-	}
-
 	int matchmaking::GetFavoriteGameCount()
 	{
 		return 0;
@@ -100,8 +94,6 @@ namespace steam
 
 	unsigned long long matchmaking::JoinLobby(steam_id steamIDLobby)
 	{
-		current_lobby = steamIDLobby;
-
 		const auto result = callbacks::register_call();
 		auto* retvals = static_cast<lobby_enter*>(calloc(1, sizeof(lobby_enter)));
 		//::Utils::Memory::AllocateArray<LobbyEnter>();
@@ -117,8 +109,7 @@ namespace steam
 
 	void matchmaking::LeaveLobby(steam_id steamIDLobby)
 	{
-		current_lobby.bits = 0;
-		lobby::remove(steamIDLobby.bits);
+
 	}
 
 	bool matchmaking::InviteUserToLobby(steam_id steamIDLobby, steam_id steamIDInvitee)
@@ -138,13 +129,11 @@ namespace steam
 
 	const char* matchmaking::GetLobbyData(steam_id steamIDLobby, const char* pchKey)
 	{
-		if (steamIDLobby.bits == 0) steamIDLobby = current_lobby;
-		return ::utils::string::va("%s", lobby::get_data(steamIDLobby.bits, pchKey).data());
+		return "";
 	}
 
 	bool matchmaking::SetLobbyData(steam_id steamIDLobby, const char* pchKey, const char* pchValue)
 	{
-		lobby::set_data(steamIDLobby.bits, pchKey, pchValue);
 		return true;
 	}
 
