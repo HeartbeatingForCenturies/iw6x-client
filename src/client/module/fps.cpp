@@ -101,12 +101,11 @@ namespace
 
 			game::native::R_AddCmdDrawText(fps_string, 0x7FFFFFFF, font, x, y, scale, scale, 0.0f, fps_color, 6);
 
-			if (game::native::mp::g_entities && game::native::Dvar_FindVar("cg_drawFPS")->current.integer == 2 && game::native::SV_Loaded())
+			if (game::native::mp::g_entities && game::native::Dvar_FindVar("cg_drawFPS")->current.integer > 1 && game::native::SV_Loaded())
 			{
 				auto* const origin_string = utils::string::va("%f, %f, %f", game::native::mp::g_entities[0].client->ps.origin[0], game::native::mp::g_entities[0].client->ps.origin[1], game::native::mp::g_entities[0].client->ps.origin[2]);
 				const auto origin_x = (game::native::ScrPlace_GetViewPlacement()->realViewportSize[0] - 10.0f) - game::native::R_TextWidth(origin_string, 0x7FFFFFFF, font) * scale;
 				game::native::R_AddCmdDrawText(origin_string, 0x7FFFFFFF, font, origin_x, y + 50, scale, scale, 0.0f, origin_color, 6);
-
 			}
 
 		}

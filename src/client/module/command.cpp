@@ -159,28 +159,26 @@ void command::add_mp_commands()
 
     command::add_sv("setviewpos", [&](int clientNum, command::params_sv&  params)
     {
-        if (!game::native::SV_Loaded()) return;
-
-        try {
-            game::native::mp::g_entities[clientNum].client->ps.origin[0] = std::stof(params.get(1));
-            game::native::mp::g_entities[clientNum].client->ps.origin[1] = std::stof(params.get(2));
-            game::native::mp::g_entities[clientNum].client->ps.origin[2] = std::stof(params.get(3));
+        if (!game::native::SV_Loaded())
+        {
+            return;
         }
-        catch (...) {}
 
+        game::native::mp::g_entities[clientNum].client->ps.origin[0] = std::atof(params.get(1));
+        game::native::mp::g_entities[clientNum].client->ps.origin[1] = std::atof(params.get(2));
+        game::native::mp::g_entities[clientNum].client->ps.origin[2] = std::atof(params.get(3));
     });
 
     command::add_sv("setviewang", [&](int clientNum, command::params_sv& params)
     {
-        if (!game::native::SV_Loaded()) return;
-
-        try {
-            game::native::mp::g_entities[clientNum].client->ps.delta_angles[0] = std::stof(params.get(1));
-            game::native::mp::g_entities[clientNum].client->ps.delta_angles[1] = std::stof(params.get(2));
-            game::native::mp::g_entities[clientNum].client->ps.delta_angles[2] = std::stof(params.get(3));
+        if (!game::native::SV_Loaded())
+        {
+            return;
         }
-        catch (...) {}
 
+        game::native::mp::g_entities[clientNum].client->ps.delta_angles[0] = std::atof(params.get(1));
+        game::native::mp::g_entities[clientNum].client->ps.delta_angles[1] = std::atof(params.get(2));
+        game::native::mp::g_entities[clientNum].client->ps.delta_angles[2] = std::atof(params.get(3));
     });
 }
 
