@@ -126,36 +126,28 @@ class patches final : public module
 public:
 	void post_unpack() override
 	{
-		
-		// add quit command
 		command::add("quit", [](command::params&)
 		{
 			utils::hook::invoke<void>(SELECT_VALUE(0x1403BDDD0, 0x140414920));
 		});
 
-		// add quit_hard command
 		command::add("quit_hard", [](command::params&)
 		{
 			utils::nt::raise_hard_exception();
 		});
 
-		// Patch bg_compassshowenemies
 		// Keeping it so it cant be used for uav cheats for people
 		game::native::Dvar_RegisterInt("bg_compassShowEnemies", 0, 0, 0, 0x8C, "Whether enemies are visible on the compass at all times");
 
-		// igs_announcer
 		// set it to 3 to display both voice dlc announcers did only show 1
 		game::native::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0, "Show Announcer Packs. (Bitfield representing which announcer paks to show)");
 
-		// patch com_maxfps
 		// changed max value from 85 -> 1000
 		game::native::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, 0x1, "Cap frames per second");
 
-		// patch cg_fov
 		// changed max value from 80.0f -> 120.f
 		game::native::Dvar_RegisterFloat("cg_fov", 65.0f, 65.0f, 120.0f, 0x1, "The field of view angle in degrees");
 
-		// add dvarDump command
 		command::add("dvarDump", [](command::params&)
 		{
 			game_console::print(
@@ -173,7 +165,6 @@ public:
 				7, "================================ END DVAR DUMP ====================================\n");
 		});
 
-		// add commandDump command
 		command::add("commandDump", [](command::params&)
 		{
 			game_console::print(
@@ -202,7 +193,6 @@ public:
 		utils::hook::jump(SELECT_VALUE(0x14046EC5C, 0x140228FFF), SELECT_VALUE(pm_bouncing_stub_sp, pm_bouncing_stub_mp), true);
 		dvars::pm_bouncing = game::native::Dvar_RegisterBool("pm_bouncing", 0, 0x1, "Enable bouncing");
 
-		// apply mode specific patches
 		if (game::is_mp())
 		{
 			patch_mp();
