@@ -12,6 +12,7 @@
 namespace
 {
 	float fps_color[4] = { 0.6f, 1.0f, 0.0f, 1.0f };
+	float origin_color[4] = { 1.0f, 0.67f, 0.13f, 1.0f };
 
 	struct cg_perf_data
 	{
@@ -95,9 +96,18 @@ namespace
 			const auto scale = 1.0f;
 
 			const auto x = (game::native::ScrPlace_GetViewPlacement()->realViewportSize[0] - 10.0f) - game::native::R_TextWidth(fps_string, 0x7FFFFFFF, font) * scale;
+
 			const auto y = font->pixelHeight * 1.2f;
 
 			game::native::R_AddCmdDrawText(fps_string, 0x7FFFFFFF, font, x, y, scale, scale, 0.0f, fps_color, 6);
+
+			if (game::native::mp::g_entities && game::native::Dvar_FindVar("cg_drawFPS")->current.integer > 1 && game::native::SV_Loaded())
+			{
+				auto* const origin_string = utils::string::va("%f, %f, %f", game::native::mp::g_entities[0].client->ps.origin[0], game::native::mp::g_entities[0].client->ps.origin[1], game::native::mp::g_entities[0].client->ps.origin[2]);
+				const auto origin_x = (game::native::ScrPlace_GetViewPlacement()->realViewportSize[0] - 10.0f) - game::native::R_TextWidth(origin_string, 0x7FFFFFFF, font) * scale;
+				game::native::R_AddCmdDrawText(origin_string, 0x7FFFFFFF, font, origin_x, y + 50, scale, scale, 0.0f, origin_color, 6);
+			}
+
 		}
 	}
 

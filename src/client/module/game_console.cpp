@@ -458,6 +458,12 @@ void game_console::cl_char_event_stub(const int localClientNum, const int key)
 
 void game_console::cl_key_event_stub(int localClientNum, int key, int down)
 {
+
+	if (key == game::native::keyNum_t::K_F10) 
+	{
+		game::native::Cmd_ExecuteSingleCommand(localClientNum, 0, "lui_open menu_systemlink_join\n");
+	}
+
 	if (key == game::native::keyNum_t::K_GRAVE || key == game::native::keyNum_t::K_TILDE)
 	{
 		if (!down)
