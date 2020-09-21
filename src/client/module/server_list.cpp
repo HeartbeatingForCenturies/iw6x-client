@@ -6,6 +6,7 @@
 
 #include "command.hpp"
 #include "game_console.hpp"
+#include "localized_strings.hpp"
 #include "scheduler.hpp"
 
 #include "utils/string.hpp"
@@ -18,6 +19,10 @@ void lui_open_menu_stub(int controllerIndex, const char* menu, int a3, int a4, u
 void server_list::post_unpack()
 {
 	if (!game::is_mp()) return;
+
+	localized_strings::override("PLATFORM_SYSTEM_LINK_TITLE", "SERVER LIST");
+	localized_strings::override("LUA_MENU_STORE_CAPS", "SERVER LIST");
+	localized_strings::override("LUA_MENU_STORE_DESC", "Browse available servers.");
 
 	// hook LUI_OpenMenu to show server list
 	utils::hook::call(0x1404FE840, &lui_open_menu_stub);
