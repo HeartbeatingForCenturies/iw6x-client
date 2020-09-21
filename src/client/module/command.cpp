@@ -156,6 +156,32 @@ void command::add_mp_commands()
         game::native::mp::g_entities[clientNum].client->flags ^= 2;
         game::native::SV_GameSendServerCommand(clientNum, 1, utils::string::va("f \"ufo %s\"", game::native::mp::g_entities[clientNum].client->flags & 2 ? "^2on" : "^1off"));
     });
+
+    command::add_sv("setviewpos", [&](int clientNum, command::params_sv&  params)
+    {
+        if (!game::native::SV_Loaded()) return;
+
+        try {
+            game::native::mp::g_entities[clientNum].client->ps.origin[0] = std::stof(params.get(1));
+            game::native::mp::g_entities[clientNum].client->ps.origin[1] = std::stof(params.get(2));
+            game::native::mp::g_entities[clientNum].client->ps.origin[2] = std::stof(params.get(3));
+        }
+        catch (...) {}
+
+    });
+
+    command::add_sv("setviewang", [&](int clientNum, command::params_sv& params)
+    {
+        if (!game::native::SV_Loaded()) return;
+
+        try {
+            game::native::mp::g_entities[clientNum].client->ps.delta_angles[0] = std::stof(params.get(1));
+            game::native::mp::g_entities[clientNum].client->ps.delta_angles[1] = std::stof(params.get(2));
+            game::native::mp::g_entities[clientNum].client->ps.delta_angles[2] = std::stof(params.get(3));
+        }
+        catch (...) {}
+
+    });
 }
 
 void command::post_unpack()
