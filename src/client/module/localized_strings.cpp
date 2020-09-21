@@ -26,7 +26,8 @@ namespace
 		
 		auto& overrides = get_localized_overrides();
 		const auto entry = overrides.find(pszReference);
-		if(entry != overrides.end()) {
+		if(entry != overrides.end())
+		{
 			return utils::string::va("%s", entry->second.data());
 		}
 
