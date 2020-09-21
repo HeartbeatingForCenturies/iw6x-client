@@ -164,9 +164,9 @@ void command::add_mp_commands()
             return;
         }
 
-        game::native::mp::g_entities[clientNum].client->ps.origin[0] = std::atof(params.get(1));
-        game::native::mp::g_entities[clientNum].client->ps.origin[1] = std::atof(params.get(2));
-        game::native::mp::g_entities[clientNum].client->ps.origin[2] = std::atof(params.get(3));
+        game::native::mp::g_entities[clientNum].client->ps.origin[0] = std::strtof(params.get(1), NULL);
+        game::native::mp::g_entities[clientNum].client->ps.origin[1] = std::strtof(params.get(2), NULL);
+        game::native::mp::g_entities[clientNum].client->ps.origin[2] = std::strtof(params.get(3), NULL);
     });
 
     command::add_sv("setviewang", [&](int clientNum, command::params_sv& params)
@@ -176,9 +176,9 @@ void command::add_mp_commands()
             return;
         }
 
-        game::native::mp::g_entities[clientNum].client->ps.delta_angles[0] = std::atof(params.get(1));
-        game::native::mp::g_entities[clientNum].client->ps.delta_angles[1] = std::atof(params.get(2));
-        game::native::mp::g_entities[clientNum].client->ps.delta_angles[2] = std::atof(params.get(3));
+        game::native::mp::g_entities[clientNum].client->ps.delta_angles[0] = std::strtof(params.get(1), NULL);
+        game::native::mp::g_entities[clientNum].client->ps.delta_angles[1] = std::strtof(params.get(2), NULL);
+        game::native::mp::g_entities[clientNum].client->ps.delta_angles[2] = std::strtof(params.get(3), NULL);
     });
 }
 
