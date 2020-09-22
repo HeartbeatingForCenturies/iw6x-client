@@ -45,9 +45,9 @@ void server_list::add_server()
 {
 	server_info server = { 0 };
 
-	strcpy(server.host_name, utils::string::va("^%dIW6x Test Server %d", server_count + 1, server_count));
-	strcpy(server.map_name, "mp_favela_iw6");
-	strcpy(server.game_type, "war");
+	strcpy_s(server.host_name, utils::string::va("^%dIW6x Test Server %d", server_count + 1, server_count));
+	strcpy_s(server.map_name, "mp_favela_iw6");
+	strcpy_s(server.game_type, "war");
 
 	server.clients = 0;
 	server.max_clients = 18;
