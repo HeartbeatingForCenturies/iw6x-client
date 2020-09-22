@@ -11,9 +11,100 @@
 
 #include "utils/string.hpp"
 
+bool server_list::update_server_list;
+int server_list::server_count;
+
+int server_list::display_servers[MAX_SERVERS];
+server_info server_list::servers[MAX_SERVERS];
+
+void server_list::insert_server(server_info* server)
+{
+	int position = server_count;
+
+	if (server_count >= MAX_SERVERS)
+	{
+		position = 0;
+
+		for (int i = 0; i < MAX_SERVERS; i++)
+		{
+			if (servers[i].ping > servers[position].ping)
+			{
+				position = i;
+			}
+		}
+	}
+	else
+	{
+		InterlockedIncrement(reinterpret_cast<long volatile*>(&server_count));
+	}
+
+	memcpy(&servers[position], server, sizeof(server_info));
+}
+
+void server_list::add_server()
+{
+	server_info server = { 0 };
+
+	strcpy_s(server.host_name, utils::string::va("^%dIW6x Test Server %d", server_count + 1, server_count));
+	strcpy_s(server.map_name, "mp_favela_iw6");
+	strcpy_s(server.game_type, "war");
+
+	server.clients = 0;
+	server.max_clients = 18;
+	server.ping = rand() % 999;
+
+	server.in_game = 0;
+
+	insert_server(&server);
+
+	update_server_list = true;
+}
+
 void lui_open_menu_stub(int controllerIndex, const char* menu, int a3, int a4, unsigned int a5)
 {
 	game::native::Cmd_ExecuteSingleCommand(0, 0, "lui_open menu_systemlink_join\n");
+}
+
+void refresh_server_list()
+{
+	// refresh server list here
+}
+
+bool server_list_refresher()
+{
+	if (server_list::update_server_list)
+	{
+		server_list::update_server_list = false;
+	}
+
+	return 0;
+}
+
+int server_list::ui_feeder_count()
+{
+	return server_list::server_count;
+}
+
+const char* server_list::ui_feeder_item_text(int localClientNum, void* a2, void* a3, int index, int column)
+{
+	if (column == 0)
+	{
+		return servers[index].host_name;
+	}
+	else if (column == 1)
+	{
+		return servers[index].map_name;
+	}
+	else if (column == 2)
+	{
+		return utils::string::va("%d/%d", servers[index].clients, servers[index].max_clients);
+	}
+	else if (column == 3)
+	{
+		return servers[index].game_type;
+	}
+
+	return "";
 }
 
 void server_list::post_unpack()
@@ -24,10 +115,35 @@ void server_list::post_unpack()
 	localized_strings::override("LUA_MENU_STORE_CAPS", "SERVER LIST");
 	localized_strings::override("LUA_MENU_STORE_DESC", "Browse available servers.");
 
-	// hook LUI_OpenMenu to show server list
+	// hook LUI_OpenMenu to show server list instead of store popup
 	utils::hook::call(0x1404FE840, &lui_open_menu_stub);
+
+	// refresh server list when needed
+	utils::hook::call(0x1402F7480, &server_list_refresher);
+
+	// replace UI_RunMenuScript call in LUI_CoD_LuaCall_RefreshServerList to our refresh_servers
+	utils::hook::call(0x1401E7171, &refresh_server_list);
+
+	// do feeder stuff
+	utils::hook::call(0x1401E7225, &ui_feeder_count);
+	utils::hook::call(0x1401E7405, &ui_feeder_item_text);
+
+	memset(display_servers, 0, sizeof(display_servers));
+	memset(servers, 0, sizeof(servers));
+
+	command::add("addTestServer", [&](command::params&)
+	{
+		add_server();
+	});
+
+	command::add("clearTestServers", [&](command::params&)
+	{
+		memset(display_servers, 0, sizeof(display_servers));
+		memset(servers, 0, sizeof(servers));
+
+		server_count = 0;
+	});
 	
-	// add lui_open command
 	command::add("lui_open", [](command::params params)
 	{
 		if (params.size() <= 1)
