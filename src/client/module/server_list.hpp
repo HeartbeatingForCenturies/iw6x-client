@@ -27,9 +27,6 @@ public:
     static int server_count;
 
 private:
-    static void refresh_server_list();
-    static bool server_list_refresher();
-
     static int ui_feeder_count();
     static const char* ui_feeder_item_text(int localClientNum, void* a2, void* a3, int index, int column);
 

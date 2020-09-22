@@ -60,6 +60,26 @@ void server_list::add_server()
 	update_server_list = true;
 }
 
+void lui_open_menu_stub(int controllerIndex, const char* menu, int a3, int a4, unsigned int a5)
+{
+	game::native::Cmd_ExecuteSingleCommand(0, 0, "lui_open menu_systemlink_join\n");
+}
+
+void refresh_server_list()
+{
+	// refresh server list here
+}
+
+bool server_list_refresher()
+{
+	if (server_list::update_server_list)
+	{
+		server_list::update_server_list = false;
+	}
+
+	return 0;
+}
+
 int server_list::ui_feeder_count()
 {
 	return server_list::server_count;
@@ -87,26 +107,6 @@ const char* server_list::ui_feeder_item_text(int localClientNum, void* a2, void*
 	return "";
 }
 
-void server_list::refresh_server_list()
-{
-	// refresh server list here
-}
-
-bool server_list::server_list_refresher()
-{
-	if (update_server_list)
-	{
-		update_server_list = false;
-	}
-
-	return 0;
-}
-
-void lui_open_menu_stub(int controllerIndex, const char* menu, int a3, int a4, unsigned int a5)
-{
-	game::native::Cmd_ExecuteSingleCommand(0, 0, "lui_open menu_systemlink_join\n");
-}
-
 void server_list::post_unpack()
 {
 	if (!game::is_mp()) return;
@@ -127,19 +127,6 @@ void server_list::post_unpack()
 	// do feeder stuff
 	utils::hook::call(0x1401E7225, &ui_feeder_count);
 	utils::hook::call(0x1401E7405, &ui_feeder_item_text);
-
-	// setup ping thread
-	std::thread([this]()
-	{
-		std::this_thread::sleep_for(4000ms);
-
-		while (true)
-		{
-			add_server();
-			std::this_thread::sleep_for(2000ms);
-		}
-
-	}).detach();
 
 	memset(display_servers, 0, sizeof(display_servers));
 	memset(servers, 0, sizeof(servers));
