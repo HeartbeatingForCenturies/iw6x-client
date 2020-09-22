@@ -161,7 +161,7 @@ void network::post_unpack()
 		inet_pton(AF_INET, "192.168.10.19", addr.ip);
 
 		// CL_ConnectFromParty
-		((void(*)(int, char*, game::native::netadr_s*, const char*, const char*))0x1402CB6D0)(
+		((void(*)(int, char*, game::native::netadr_s*, const char*, const char*))0x1402C5700)(
 			0, session_info, &addr, "mp_prisonbreak", "war");
 	});
 
