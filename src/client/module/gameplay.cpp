@@ -32,9 +32,11 @@ namespace
 		a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::g_speed)));
 		a.mov(rax, dword_ptr(rax, 0x10));
 		a.mov(dword_ptr(rdi, 0x60), eax);
-		a.add(eax, ptr(rdi, 0xEA0));
 
 		a.pop(rax);
+
+		a.mov(eax, ptr(rdi, 0xEA4));
+		a.add(eax, ptr(rdi, 0xEA0));
 
 		a.jmp(0x140383796);
 	});
