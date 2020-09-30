@@ -3,6 +3,7 @@
 #include "localized_strings.hpp"
 #include "utils/hook.hpp"
 #include "utils/string.hpp"
+#include "game/game.hpp"
 
 namespace
 {
@@ -43,6 +44,7 @@ void localized_strings::override(const std::string& key, const std::string& valu
 
 void localized_strings::post_unpack()
 {
+	if (!game::is_mp()) return;
 	// Change some localized strings
 	seh_string_ed_get_string_hook.create(0x1404A5F60, &seh_string_ed_get_string);
 }

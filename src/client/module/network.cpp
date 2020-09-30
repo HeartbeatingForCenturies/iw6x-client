@@ -103,6 +103,7 @@ void network::send(const game::native::netadr_s& address, const std::string& dat
 
 void network::post_unpack()
 {
+	if (!game::is_mp()) return;
 	// redirect dw_sendto to raw socket
 	utils::hook::jump(0x140501AAA, reinterpret_cast<void*>(0x140501A3A));
 
