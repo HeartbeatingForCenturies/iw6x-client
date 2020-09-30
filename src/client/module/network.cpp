@@ -53,13 +53,7 @@ namespace
 		a.jmp(0x1402C64EE);
 	}
 
-	enum class compare_result : std::int32_t
-	{
-		equal = 1,
-		not_equal = 0,
-	};
-
-	compare_result net_compare_base_address(game::native::netadr_s* a1, game::native::netadr_s* a2)
+	int net_compare_base_address(game::native::netadr_s* a1, game::native::netadr_s* a2)
 	{
 		if (a1->type == a2->type)
 		{
@@ -67,32 +61,23 @@ namespace
 			{
 			case game::native::netadrtype_t::NA_BOT:
 			case game::native::netadrtype_t::NA_LOOPBACK:
-				return (a1->port == a2->port) ? compare_result::equal : compare_result::not_equal;
+				return a1->port == a2->port;
 
 			case game::native::netadrtype_t::NA_IP:
-				return (!memcmp(a1->ip, a2->ip, 4)) ? compare_result::equal : compare_result::not_equal;
+				return !memcmp(a1->ip, a2->ip, 4);
 			case game::native::netadrtype_t::NA_BROADCAST:
-				return compare_result::equal;
+				return true;
 			default:
 				break;
 			}
 		}
 
-		return compare_result::not_equal;
+		return false;
 	}
 
-	compare_result net_compare_address(game::native::netadr_s* a1, game::native::netadr_s* a2)
+	int net_compare_address(game::native::netadr_s* a1, game::native::netadr_s* a2)
 	{
-		if (net_compare_base_address(a1, a2) == compare_result::equal)
-		{
-			if (a1->port == a2->port)
-			{
-				return compare_result::equal;
-			}
-		}
-
-		// not equals
-		return compare_result::not_equal;
+		return net_compare_base_address(a1, a2) && a1->port == a2->port;
 	}
 }
 
@@ -140,6 +125,9 @@ void network::post_unpack()
 	// disable xuid verification
 	utils::hook::set<uint8_t>(0x140154AA9, 0xEB);
 	utils::hook::set<uint8_t>(0x140154AC3, 0xEB);
+
+	// fucked up client state test
+	//utils::hook::nop(0x1404742B0, 6);
 
 	command::add("lul", [](command::params&)
 	{
