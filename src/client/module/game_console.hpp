@@ -2,8 +2,8 @@
 #include "loader/module_loader.hpp"
 #include "utils/hook.hpp"
 
-#define console_font game::native::R_RegisterFont("fonts/consolefont")
-#define material_white game::native::Material_RegisterHandle("white")
+#define console_font game::R_RegisterFont("fonts/consolefont")
+#define material_white game::Material_RegisterHandle("white")
 
 enum console_type
 {

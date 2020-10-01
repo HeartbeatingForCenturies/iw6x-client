@@ -133,7 +133,7 @@ int main()
 				throw std::runtime_error("Unable to load binary into memory");
 			}
 
-			game::initialize(mode);
+			game::environment::initialize(mode);
 			if (!module_loader::post_load()) return 0;
 
 			premature_shutdown = false;

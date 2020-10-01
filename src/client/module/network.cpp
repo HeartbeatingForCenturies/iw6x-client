@@ -13,7 +13,7 @@ namespace
 		return callbacks;
 	}
 
-	bool handle_command(game::native::netadr_s* address, const char* command, game::native::msg_t* message)
+	bool handle_command(game::netadr_s* address, const char* command, game::msg_t* message)
 	{
 		auto& callbacks = get_callbacks();
 		const auto handler = callbacks.find(command);
@@ -53,19 +53,19 @@ namespace
 		a.jmp(0x1402C64EE);
 	}
 
-	int net_compare_base_address(game::native::netadr_s* a1, game::native::netadr_s* a2)
+	int net_compare_base_address(game::netadr_s* a1, game::netadr_s* a2)
 	{
 		if (a1->type == a2->type)
 		{
 			switch (a1->type)
 			{
-			case game::native::netadrtype_t::NA_BOT:
-			case game::native::netadrtype_t::NA_LOOPBACK:
+			case game::netadrtype_t::NA_BOT:
+			case game::netadrtype_t::NA_LOOPBACK:
 				return a1->port == a2->port;
 
-			case game::native::netadrtype_t::NA_IP:
+			case game::netadrtype_t::NA_IP:
 				return !memcmp(a1->ip, a2->ip, 4);
-			case game::native::netadrtype_t::NA_BROADCAST:
+			case game::netadrtype_t::NA_BROADCAST:
 				return true;
 			default:
 				break;
@@ -75,7 +75,7 @@ namespace
 		return false;
 	}
 
-	int net_compare_address(game::native::netadr_s* a1, game::native::netadr_s* a2)
+	int net_compare_address(game::netadr_s* a1, game::netadr_s* a2)
 	{
 		return net_compare_base_address(a1, a2) && a1->port == a2->port;
 	}
@@ -86,7 +86,7 @@ void network::on(const std::string& command, const callback& callback)
 	get_callbacks()[command] = callback;
 }
 
-void network::send(const game::native::netadr_s& address, const std::string& command, const std::string& data)
+void network::send(const game::netadr_s& address, const std::string& command, const std::string& data)
 {
 	std::string packet = "\xFF\xFF\xFF\xFF";
 	packet.append(command);
@@ -96,14 +96,14 @@ void network::send(const game::native::netadr_s& address, const std::string& com
 	network::send(address, packet);
 }
 
-void network::send(const game::native::netadr_s& address, const std::string& data)
+void network::send(const game::netadr_s& address, const std::string& data)
 {
-	game::native::Sys_SendPacket(static_cast<int>(data.size()), data.data(), &address);
+	game::Sys_SendPacket(static_cast<int>(data.size()), data.data(), &address);
 }
 
 void network::post_unpack()
 {
-	if (!game::is_mp()) return;
+	if (!game::environment::is_mp()) return;
 	// redirect dw_sendto to raw socket
 	utils::hook::jump(0x140501AAA, reinterpret_cast<void*>(0x140501A3A));
 
@@ -132,9 +132,9 @@ void network::post_unpack()
 
 	command::add("lul", [](command::params&)
 	{
-		game::native::netadr_s addr{};
+		game::netadr_s addr{};
 		addr.port = htons(27016);
-		addr.type = game::native::NA_IP;
+		addr.type = game::NA_IP;
 		inet_pton(AF_INET, "192.168.10.111", addr.ip);
 
 		network::send(addr, "test_command", "this is a test");
@@ -144,17 +144,17 @@ void network::post_unpack()
 	{
 		char session_info[0x1000] = {};
 
-		game::native::netadr_s addr{};
+		game::netadr_s addr{};
 		addr.port = htons(27016);
-		addr.type = game::native::NA_IP;
+		addr.type = game::NA_IP;
 		inet_pton(AF_INET, "192.168.10.19", addr.ip);
 
 		// CL_ConnectFromParty
-		((void(*)(int, char*, game::native::netadr_s*, const char*, const char*))0x1402C5700)(
+		((void(*)(int, char*, game::netadr_s*, const char*, const char*))0x1402C5700)(
 			0, session_info, &addr, "mp_prisonbreak", "war");
 	});
 
-	network::on("test_command", [](const game::native::netadr_s& address, const std::string_view& data)
+	network::on("test_command", [](const game::netadr_s& address, const std::string_view& data)
 	{
 		printf("YEEEEEEEEEEES: %s\n", std::string(data).data());
 	});

@@ -84,28 +84,28 @@ namespace
 
 	void cg_draw_fps()
 	{
-		if (game::native::Dvar_FindVar("cg_drawFPS")->current.integer != 0 /*&& game::native::CL_IsCgameInitialized()*/)
+		if (game::Dvar_FindVar("cg_drawFPS")->current.integer != 0 /*&& game::CL_IsCgameInitialized()*/)
 		{
 			const auto fps = static_cast<std::int32_t>(static_cast<float>(1000.0f / static_cast<float>(cg_perf.average)) + 9.313225746154785e-10);
 
-			auto* font = game::native::R_RegisterFont("fonts/normalfont");
+			auto* font = game::R_RegisterFont("fonts/normalfont");
 			if (!font) return;
 
 			auto* const fps_string = utils::string::va("%i", fps);
 
 			const auto scale = 1.0f;
 
-			const auto x = (game::native::ScrPlace_GetViewPlacement()->realViewportSize[0] - 10.0f) - game::native::R_TextWidth(fps_string, 0x7FFFFFFF, font) * scale;
+			const auto x = (game::ScrPlace_GetViewPlacement()->realViewportSize[0] - 10.0f) - game::R_TextWidth(fps_string, 0x7FFFFFFF, font) * scale;
 
 			const auto y = font->pixelHeight * 1.2f;
 
-			game::native::R_AddCmdDrawText(fps_string, 0x7FFFFFFF, font, x, y, scale, scale, 0.0f, fps_color, 6);
+			game::R_AddCmdDrawText(fps_string, 0x7FFFFFFF, font, x, y, scale, scale, 0.0f, fps_color, 6);
 
-			if (game::native::mp::g_entities && game::native::Dvar_FindVar("cg_drawFPS")->current.integer > 1 && game::native::SV_Loaded())
+			if (game::mp::g_entities && game::Dvar_FindVar("cg_drawFPS")->current.integer > 1 && game::SV_Loaded())
 			{
-				auto* const origin_string = utils::string::va("%f, %f, %f", game::native::mp::g_entities[0].client->ps.origin[0], game::native::mp::g_entities[0].client->ps.origin[1], game::native::mp::g_entities[0].client->ps.origin[2]);
-				const auto origin_x = (game::native::ScrPlace_GetViewPlacement()->realViewportSize[0] - 10.0f) - game::native::R_TextWidth(origin_string, 0x7FFFFFFF, font) * scale;
-				game::native::R_AddCmdDrawText(origin_string, 0x7FFFFFFF, font, origin_x, y + 50, scale, scale, 0.0f, origin_color, 6);
+				auto* const origin_string = utils::string::va("%f, %f, %f", game::mp::g_entities[0].client->ps.origin[0], game::mp::g_entities[0].client->ps.origin[1], game::mp::g_entities[0].client->ps.origin[2]);
+				const auto origin_x = (game::ScrPlace_GetViewPlacement()->realViewportSize[0] - 10.0f) - game::R_TextWidth(origin_string, 0x7FFFFFFF, font) * scale;
+				game::R_AddCmdDrawText(origin_string, 0x7FFFFFFF, font, origin_x, y + 50, scale, scale, 0.0f, origin_color, 6);
 			}
 
 		}
@@ -113,7 +113,7 @@ namespace
 
 	void cg_draw_fps_register_stub(const char* name, const char** _enum, const int value, unsigned int flags, const char* desc)
 	{
-		game::native::Dvar_RegisterEnum(name, _enum, value, 0x1, desc);
+		game::Dvar_RegisterEnum(name, _enum, value, 0x1, desc);
 	}
 }
 

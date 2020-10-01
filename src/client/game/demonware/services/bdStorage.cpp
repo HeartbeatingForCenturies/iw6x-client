@@ -164,7 +164,7 @@ namespace demonware
 		}
 		else
 		{
-			server->create_reply(this->get_sub_type(), game::native::BD_NO_FILE)->send();
+			server->create_reply(this->get_sub_type(), game::BD_NO_FILE)->send();
 		}
 	}
 
@@ -249,7 +249,7 @@ namespace demonware
 		}
 		else
 		{
-			server->create_reply(this->get_sub_type(), game::native::BD_NO_FILE)->send();
+			server->create_reply(this->get_sub_type(), game::BD_NO_FILE)->send();
 		}
 	}
 
@@ -317,7 +317,7 @@ namespace demonware
 		}
 		else
 		{
-			server->create_reply(this->get_sub_type(), game::native::BD_NO_FILE)->send();
+			server->create_reply(this->get_sub_type(), game::BD_NO_FILE)->send();
 		}
 	}
 }

@@ -62,7 +62,7 @@ void server_list::add_server()
 
 void lui_open_menu_stub(int controllerIndex, const char* menu, int a3, int a4, unsigned int a5)
 {
-	game::native::Cmd_ExecuteSingleCommand(0, 0, "lui_open menu_systemlink_join\n");
+	game::Cmd_ExecuteSingleCommand(0, 0, "lui_open menu_systemlink_join\n");
 }
 
 void refresh_server_list()
@@ -109,7 +109,7 @@ const char* server_list::ui_feeder_item_text(int localClientNum, void* a2, void*
 
 void server_list::post_unpack()
 {
-	if (!game::is_mp()) return;
+	if (!game::environment::is_mp()) return;
 
 	localized_strings::override("PLATFORM_SYSTEM_LINK_TITLE", "SERVER LIST");
 	localized_strings::override("LUA_MENU_STORE_CAPS", "SERVER LIST");
@@ -152,7 +152,7 @@ void server_list::post_unpack()
 			return;
 		}
 
-		game::native::LUI_OpenMenu(0, params[1], 1, 0, 0);
+		game::LUI_OpenMenu(0, params[1], 1, 0, 0);
 	});
 }
 

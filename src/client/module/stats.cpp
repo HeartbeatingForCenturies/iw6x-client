@@ -9,7 +9,7 @@ class stats final : public module
 public:
 	void post_unpack() override
 	{
-		if (game::is_mp())
+		if (game::environment::is_mp())
 		{
 			patch_mp();
 		}

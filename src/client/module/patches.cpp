@@ -14,12 +14,12 @@ namespace
 
 	const char* live_get_local_client_name()
 	{
-		return game::native::Dvar_FindVar("name")->current.string;
+		return game::Dvar_FindVar("name")->current.string;
 	}
 
 	utils::hook::detour dvar_register_int_hook;
 
-	game::native::dvar_t* dvar_register_int(const char* dvarName, int value, int min, int max, unsigned int flags,
+	game::dvar_t* dvar_register_int(const char* dvarName, int value, int min, int max, unsigned int flags,
 		const char* description)
 	{
 		// enable map selection in extinction
@@ -40,7 +40,7 @@ namespace
 			value = true;
 		}
 
-		return dvar_register_int_hook.invoke<game::native::dvar_t*>(dvarName, value, min, max, flags, description);
+		return dvar_register_int_hook.invoke<game::dvar_t*>(dvarName, value, min, max, flags, description);
 	}
 }
 
@@ -60,27 +60,27 @@ public:
 		});
 
 		// Keeping it so it cant be used for uav cheats for people
-		game::native::Dvar_RegisterInt("bg_compassShowEnemies", 0, 0, 0, 0x8C, "Whether enemies are visible on the compass at all times");
+		game::Dvar_RegisterInt("bg_compassShowEnemies", 0, 0, 0, 0x8C, "Whether enemies are visible on the compass at all times");
 
 		// set it to 3 to display both voice dlc announcers did only show 1
-		game::native::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0, "Show Announcer Packs. (Bitfield representing which announcer paks to show)");
+		game::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0, "Show Announcer Packs. (Bitfield representing which announcer paks to show)");
 
 		// changed max value from 85 -> 1000
-		game::native::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, 0x1, "Cap frames per second");
+		game::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, 0x1, "Cap frames per second");
 
 		// changed max value from 80.0f -> 120.f
-		game::native::Dvar_RegisterFloat("cg_fov", 65.0f, 65.0f, 120.0f, 0x1, "The field of view angle in degrees");
+		game::Dvar_RegisterFloat("cg_fov", 65.0f, 65.0f, 120.0f, 0x1, "The field of view angle in degrees");
 
 		command::add("dvarDump", [](command::params&)
 		{
 			game_console::print(
 				7, "================================ DVAR DUMP ========================================\n");
 			int i;
-			for (i = 0; i < *game::native::dvarCount; i++)
+			for (i = 0; i < *game::dvarCount; i++)
 			{
-				if (game::native::sortedDvars[i] && game::native::sortedDvars[i]->name)
+				if (game::sortedDvars[i] && game::sortedDvars[i]->name)
 				{
-					game_console::print(7, "%s\n", game::native::sortedDvars[i]->name);
+					game_console::print(7, "%s\n", game::sortedDvars[i]->name);
 				}
 			}
 			game_console::print(7, "\n%i dvar indexes\n", i);
@@ -92,7 +92,7 @@ public:
 		{
 			game_console::print(
 				7, "================================ COMMAND DUMP =====================================\n");
-			game::native::cmd_function_s* cmd = (*game::native::cmd_functions);
+			game::cmd_function_s* cmd = (*game::cmd_functions);
 			int i = 0;
 			while (cmd)
 			{
@@ -108,11 +108,11 @@ public:
 				7, "================================ END COMMAND DUMP =================================\n");
 		});
 
-		if (game::is_mp())
+		if (game::environment::is_mp())
 		{
 			patch_mp();
 		}
-		else if (game::is_sp())
+		else if (game::environment::is_sp())
 		{
 			patch_sp();
 		}

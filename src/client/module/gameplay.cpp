@@ -96,24 +96,24 @@ public:
 	void post_unpack() override
 	{
 		// Implement bouncing dvar
-		if (game::is_sp())
+		if (game::environment::is_sp())
 		{
 			utils::hook::nop(0x14046EC5C, 16);
 		}
 		utils::hook::jump(SELECT_VALUE(0x14046EC5C, 0x140228FFF), SELECT_VALUE(pm_bouncing_stub_sp, pm_bouncing_stub_mp), true);
-		dvars::pm_bouncing = game::native::Dvar_RegisterBool("pm_bouncing", 0, 0x1, "Enable bouncing");
+		dvars::pm_bouncing = game::Dvar_RegisterBool("pm_bouncing", 0, 0x1, "Enable bouncing");
 
-		if (game::is_sp()) return;
+		if (game::environment::is_sp()) return;
 
 		// Implement gravity dvar
 		utils::hook::nop(0x1403828C8, 13);
 		utils::hook::jump(0x1403828C8, g_gravity_stub, true);
-		dvars::g_gravity = game::native::Dvar_RegisterInt("g_gravity", 800, 0, 1000, 0, "Game gravity in inches per second squared");
+		dvars::g_gravity = game::Dvar_RegisterInt("g_gravity", 800, 0, 1000, 0, "Game gravity in inches per second squared");
 
 		// Implement speed dvar
 		utils::hook::nop(0x140383789, 13);
 		utils::hook::jump(0x140383789, g_speed_stub, true);
-		dvars::g_speed = game::native::Dvar_RegisterInt("g_speed", 190, 0, 999, 0, "Maximum player speed");
+		dvars::g_speed = game::Dvar_RegisterInt("g_speed", 190, 0, 999, 0, "Maximum player speed");
 	}
 };
 

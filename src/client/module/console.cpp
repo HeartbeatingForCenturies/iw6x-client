@@ -49,7 +49,7 @@ public:
 
 	void post_unpack() override
 	{
-		game::native::Sys_ShowConsole();
+		game::Sys_ShowConsole();
 
 		// Hide that shit
 		ShowWindow(*reinterpret_cast<HWND*>((SELECT_VALUE(0x145A7B490, 0x147AD1DB0))), SW_MINIMIZE);
@@ -76,7 +76,7 @@ private:
 		std::thread([this]()
 		{
 			std::this_thread::sleep_for(500ms);
-			game::native::Sys_ShowConsole();
+			game::Sys_ShowConsole();
 
 			{
 				std::lock_guard _(this->mutex_);
@@ -132,7 +132,7 @@ private:
 	static void log_message(const std::string& message)
 	{
 		OutputDebugStringA(message.data());
-		game::native::Conbuf_AppendText(message.data());
+		game::Conbuf_AppendText(message.data());
 	}
 
 	void runner()

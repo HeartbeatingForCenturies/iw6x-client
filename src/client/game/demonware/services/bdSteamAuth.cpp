@@ -23,7 +23,7 @@ namespace demonware
 		uint8_t ticket[1024];
 		buffer.read_bytes(std::min(ticket_size, static_cast<uint32_t>(sizeof(ticket))), ticket);
 
-		game::native::bdAuthTicket auth_ticket{};
+		game::bdAuthTicket auth_ticket{};
 		std::memset(&auth_ticket, 0xA, sizeof auth_ticket);
 
 		auth_ticket.m_magicNumber = 0x0EFBDADDE;

@@ -8,7 +8,7 @@ class branding final : public module
 public:
 	void post_unpack() override
 	{
-		if (game::is_dedi()) return;
+		if (game::environment::is_dedi()) return;
 
 		scheduler::loop([]()
 		{
@@ -18,10 +18,10 @@ public:
 			float color[4] = {1.0f, 1.0f, 1.0f, 0.5f};
 			const auto* text = "IW6x: Pre-Release";
 			
-			auto* font = game::native::R_RegisterFont("fonts/normalfont");
+			auto* font = game::R_RegisterFont("fonts/normalfont");
 			if (!font) return;
 
-			game::native::R_AddCmdDrawText(text, 0x7FFFFFFF, font, x,
+			game::R_AddCmdDrawText(text, 0x7FFFFFFF, font, x,
 			                               y + font->pixelHeight * scale, scale,
 			                               scale, 0.0, color, 0);
 		}, scheduler::pipeline::renderer);

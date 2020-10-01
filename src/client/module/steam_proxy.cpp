@@ -13,7 +13,7 @@ namespace
 
 void steam_proxy::post_load()
 {
-	if (game::is_dedi())
+	if (game::environment::is_dedi())
 	{
 		return;
 	}
@@ -23,8 +23,8 @@ void steam_proxy::post_load()
 
 	try
 	{
-		this->start_mod("\xF0\x9F\x90\x8D" " IW6x: "s + (game::is_sp() ? "Singleplayer" : "Multiplayer"),
-		                game::is_sp() ? 209160 : 209170);
+		this->start_mod("\xF0\x9F\x90\x8D" " IW6x: "s + (game::environment::is_sp() ? "Singleplayer" : "Multiplayer"),
+		                game::environment::is_sp() ? 209160 : 209170);
 	}
 	catch (std::exception& e)
 	{

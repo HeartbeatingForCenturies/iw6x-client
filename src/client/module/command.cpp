@@ -11,12 +11,12 @@ std::unordered_map<std::string, std::function<void(int, command::params_sv&)>> c
 
 int command::params::size()
 {
-    return game::native::Cmd_Argc();
+    return game::Cmd_Argc();
 }
 
 const char* command::params::get(int index)
 {
-    return game::native::Cmd_Argv(index);
+    return game::Cmd_Argv(index);
 }
 
 std::string command::params::join(int index)
@@ -33,12 +33,12 @@ std::string command::params::join(int index)
 
 int command::params_sv::size()
 {
-    return game::native::SV_Cmd_Argc();
+    return game::SV_Cmd_Argc();
 }
 
 const char* command::params_sv::get(int index)
 {
-    return game::native::SV_Cmd_Argv(index);
+    return game::SV_Cmd_Argv(index);
 }
 
 std::string command::params_sv::join(int index)
@@ -55,7 +55,7 @@ std::string command::params_sv::join(int index)
 
 void command::add_raw(const char* name, void(*callback)())
 {
-    game::native::Cmd_AddCommandInternal(name, callback, utils::memory::get_allocator()->allocate<game::native::cmd_function_s>());
+    game::Cmd_AddCommandInternal(name, callback, utils::memory::get_allocator()->allocate<game::cmd_function_s>());
 }
 
 void command::add(const char* name, std::function<void(params&)> callback)
@@ -109,25 +109,25 @@ void command::add_sp_commands()
 {
     command::add("noclip", [&](command::params&)
     {
-        if (!game::native::SV_Loaded())
+        if (!game::SV_Loaded())
         {
             printf("not in game\n");
             return;
         }
 
-        game::native::sp::g_entities[0].client->flags ^= 1;
-        game::native::CG_GameMessage(0, utils::string::va("noclip %s", game::native::sp::g_entities[0].client->flags & 1 ? "^2on" : "^1off"));
+        game::sp::g_entities[0].client->flags ^= 1;
+        game::CG_GameMessage(0, utils::string::va("noclip %s", game::sp::g_entities[0].client->flags & 1 ? "^2on" : "^1off"));
     });
 
     command::add("ufo", [&](command::params&)
     {
-        if (!game::native::SV_Loaded())
+        if (!game::SV_Loaded())
         {
             return;
         }
 
-        game::native::sp::g_entities[0].client->flags ^= 2;
-        game::native::CG_GameMessage(0, utils::string::va("ufo %s", game::native::sp::g_entities[0].client->flags & 2 ? "^2on" : "^1off"));
+        game::sp::g_entities[0].client->flags ^= 2;
+        game::CG_GameMessage(0, utils::string::va("ufo %s", game::sp::g_entities[0].client->flags & 2 ? "^2on" : "^1off"));
     });
 }
 
@@ -137,58 +137,58 @@ void command::add_mp_commands()
 
     command::add_sv("noclip", [&](int clientNum, command::params_sv&)
     {
-        if (!game::native::SV_Loaded())
+        if (!game::SV_Loaded())
         {
             return;
         }
 
-        game::native::mp::g_entities[clientNum].client->flags ^= 1;
-        game::native::SV_GameSendServerCommand(clientNum, 1, utils::string::va("f \"noclip %s\"", game::native::mp::g_entities[clientNum].client->flags & 1 ? "^2on" : "^1off"));
+        game::mp::g_entities[clientNum].client->flags ^= 1;
+        game::SV_GameSendServerCommand(clientNum, 1, utils::string::va("f \"noclip %s\"", game::mp::g_entities[clientNum].client->flags & 1 ? "^2on" : "^1off"));
     });
 
     command::add_sv("ufo", [&](int clientNum, command::params_sv&)
     {
-        if (!game::native::SV_Loaded())
+        if (!game::SV_Loaded())
         {
             return;
         }
 
-        game::native::mp::g_entities[clientNum].client->flags ^= 2;
-        game::native::SV_GameSendServerCommand(clientNum, 1, utils::string::va("f \"ufo %s\"", game::native::mp::g_entities[clientNum].client->flags & 2 ? "^2on" : "^1off"));
+        game::mp::g_entities[clientNum].client->flags ^= 2;
+        game::SV_GameSendServerCommand(clientNum, 1, utils::string::va("f \"ufo %s\"", game::mp::g_entities[clientNum].client->flags & 2 ? "^2on" : "^1off"));
     });
 
     command::add_sv("setviewpos", [&](int clientNum, command::params_sv&  params)
     {
-        if (!game::native::SV_Loaded())
+        if (!game::SV_Loaded())
         {
             return;
         }
 
-        game::native::mp::g_entities[clientNum].client->ps.origin[0] = std::strtof(params.get(1), NULL);
-        game::native::mp::g_entities[clientNum].client->ps.origin[1] = std::strtof(params.get(2), NULL);
-        game::native::mp::g_entities[clientNum].client->ps.origin[2] = std::strtof(params.get(3), NULL);
+        game::mp::g_entities[clientNum].client->ps.origin[0] = std::strtof(params.get(1), NULL);
+        game::mp::g_entities[clientNum].client->ps.origin[1] = std::strtof(params.get(2), NULL);
+        game::mp::g_entities[clientNum].client->ps.origin[2] = std::strtof(params.get(3), NULL);
     });
 
     command::add_sv("setviewang", [&](int clientNum, command::params_sv& params)
     {
-        if (!game::native::SV_Loaded())
+        if (!game::SV_Loaded())
         {
             return;
         }
 
-        game::native::mp::g_entities[clientNum].client->ps.delta_angles[0] = std::strtof(params.get(1), NULL);
-        game::native::mp::g_entities[clientNum].client->ps.delta_angles[1] = std::strtof(params.get(2), NULL);
-        game::native::mp::g_entities[clientNum].client->ps.delta_angles[2] = std::strtof(params.get(3), NULL);
+        game::mp::g_entities[clientNum].client->ps.delta_angles[0] = std::strtof(params.get(1), NULL);
+        game::mp::g_entities[clientNum].client->ps.delta_angles[1] = std::strtof(params.get(2), NULL);
+        game::mp::g_entities[clientNum].client->ps.delta_angles[2] = std::strtof(params.get(3), NULL);
     });
 }
 
 void command::post_unpack()
 {
-    if (game::is_mp())
+    if (game::environment::is_mp())
     {
         add_mp_commands();
     }
-    else if (game::is_sp())
+    else if (game::environment::is_sp())
     {
         add_sp_commands();
     }

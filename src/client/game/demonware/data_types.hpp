@@ -398,7 +398,7 @@ namespace demonware
 	{
 		bdAddr m_local_addrs[5];
 		bdAddr m_public_addr;
-		game::native::bdNATType m_nat_type;
+		game::bdNATType m_nat_type;
 		unsigned int m_hash;
 		bool m_is_loopback;
 
