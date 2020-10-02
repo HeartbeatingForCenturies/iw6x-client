@@ -12,6 +12,9 @@ namespace game
 	typedef void (*Sys_ShowConsole_t)();
 	extern Sys_ShowConsole_t Sys_ShowConsole;
 
+	typedef void (*Com_Frame_Try_Block_Function_t)();
+	extern Com_Frame_Try_Block_Function_t Com_Frame_Try_Block_Function;
+
 	typedef void (*Conbuf_AppendText_t)(const char* message);
 	extern Conbuf_AppendText_t Conbuf_AppendText;
 
@@ -66,6 +69,9 @@ namespace game
 
 	typedef const char* (*Dvar_ValueToString_t)(dvar_t* dvar, dvar_value value);
 	extern Dvar_ValueToString_t Dvar_ValueToString;
+
+	typedef int (*G_RunFrame_t)(int server_time);
+	extern G_RunFrame_t G_RunFrame;
 
 	typedef void (*LUI_OpenMenu_t)(int clientNum, const char* menu, int a3, int a4, unsigned int a5);
 	extern LUI_OpenMenu_t LUI_OpenMenu;

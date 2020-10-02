@@ -4,6 +4,9 @@
 namespace game
 {
 	Sys_ShowConsole_t Sys_ShowConsole;
+
+	Com_Frame_Try_Block_Function_t Com_Frame_Try_Block_Function;
+
 	Conbuf_AppendText_t Conbuf_AppendText;
 
 	Cbuf_AddText_t Cbuf_AddText;
@@ -25,6 +28,8 @@ namespace game
 	Dvar_RegisterVec4_t Dvar_RegisterVec4;
 	Dvar_Sort_t Dvar_Sort;
 	Dvar_ValueToString_t Dvar_ValueToString;
+
+	G_RunFrame_t G_RunFrame;
 
 	LUI_OpenMenu_t LUI_OpenMenu;
 
@@ -124,6 +129,8 @@ namespace game
 			Sys_ShowConsole = Sys_ShowConsole_t(SELECT_VALUE(0x14043E650, 0x140503130));
 			Conbuf_AppendText = Conbuf_AppendText_t(SELECT_VALUE(0x14043DDE0, 0x1405028C0));
 
+			Com_Frame_Try_Block_Function = Com_Frame_Try_Block_Function_t(SELECT_VALUE(0x1403BC980, 0x1404131A0));
+
 			Cbuf_AddText = Cbuf_AddText_t(SELECT_VALUE(0x1403B3050, 0x1403F6B50));
 
 			CG_GameMessage = CG_GameMessage_t(SELECT_VALUE(0x1401F2E20, 0x140271320));
@@ -143,6 +150,8 @@ namespace game
 			Dvar_RegisterVec4 = Dvar_RegisterVec4_t(SELECT_VALUE(0x14042BC10, 0x1404EEA50));
 			Dvar_Sort = Dvar_Sort_t(SELECT_VALUE(0x14042DEF0, 0x1404F1210));
 			Dvar_ValueToString = Dvar_ValueToString_t(SELECT_VALUE(0x14042E710, 0x1404F1A30));
+
+			G_RunFrame = G_RunFrame_t(SELECT_VALUE(0x0, 0x1403A05E0));
 
 			LUI_OpenMenu = LUI_OpenMenu_t(SELECT_VALUE(0x0, 0x1404B3610));
 
