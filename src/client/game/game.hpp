@@ -107,6 +107,9 @@ namespace game
 	typedef bool (*SV_Loaded_t)();
 	extern SV_Loaded_t SV_Loaded;
 
+	typedef int (*Sys_Milliseconds_t)();
+	extern Sys_Milliseconds_t Sys_Milliseconds;
+
 	//typedef bool (*Sys_SendPacket_t)(netsrc_t, int, void const*, netadr_s); // Actual
 	typedef bool (*Sys_SendPacket_t)(int, void const*, const netadr_s*); // Compiler-optimized
 	extern Sys_SendPacket_t Sys_SendPacket;

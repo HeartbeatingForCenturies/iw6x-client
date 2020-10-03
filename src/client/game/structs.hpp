@@ -862,6 +862,13 @@ namespace game
 		int useZlib;
 	};
 
+	struct HsvColor
+	{
+		unsigned char h;
+		unsigned char s;
+		unsigned char v;
+	};
+
 	namespace sp
 	{
 		// very shit structures for the moment cuz i cba mapping the whole thing out right now...
