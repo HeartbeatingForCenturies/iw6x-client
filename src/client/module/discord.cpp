@@ -36,8 +36,15 @@ private:
 		DiscordRichPresence discord_presence;
 		ZeroMemory(&discord_presence, sizeof(discord_presence));
 
-		discord_presence.state = game::environment::is_mp() ? "Multiplayer" : "Singleplayer";
+		discord_presence.details = game::environment::is_mp() ? "Multiplayer" : "Singleplayer";
 		discord_presence.instance = 1;
+		
+#ifdef DEV_BUILD
+		discord_presence.details = "Team Deathmatch";
+		discord_presence.state = "Prison Break";
+		discord_presence.largeImageKey = "mp_prison";
+#endif
+		
 		Discord_UpdatePresence(&discord_presence);
 	}
 
