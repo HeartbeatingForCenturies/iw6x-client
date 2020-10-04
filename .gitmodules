@@ -29,3 +29,6 @@
 	path = deps/zlib
 	url = https://github.com/madler/zlib.git
 	branch = develop
+[submodule "deps/discord-rpc"]
+	path = deps/discord-rpc
+	url = https://github.com/discord/discord-rpc.git
