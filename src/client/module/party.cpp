@@ -21,6 +21,9 @@ namespace
 			return;
 		}
 
+		// This fixes several crashes and impure client stuff
+		game::Cmd_ExecuteSingleCommand(0, 0, "xblive_privatematch 1\n");
+
 		// CL_ConnectFromParty
 		char session_info[0x100] = {};
 		reinterpret_cast<void(*)(int, char*, const game::netadr_s*, const char*, const char*)>(0x1402C5700)(
