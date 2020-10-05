@@ -127,8 +127,12 @@ void network::post_unpack()
 	utils::hook::set<uint8_t>(0x140154AA9, 0xEB);
 	utils::hook::set<uint8_t>(0x140154AC3, 0xEB);
 
-	// fucked up client state test
-	//utils::hook::nop(0x1404742B0, 6);
+	// disable xuid verification
+	utils::hook::nop(0x140474584, 2);
+	utils::hook::set<uint8_t>(0x1404745DB, 0xEB);
+
+	// ignore configstring mismatch
+	utils::hook::set<uint8_t>(0x1402CCCC7, 0xEB);
 
 	command::add("lul", [](command::params&)
 	{
