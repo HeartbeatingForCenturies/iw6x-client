@@ -12,7 +12,7 @@ namespace
 		return callbacks;
 	}
 
-	bool handle_command(game::netadr_s* address, const char* command, game::msg_t* message)
+	int handle_command(game::netadr_s* address, const char* command, game::msg_t* message)
 	{
 		auto& callbacks = get_callbacks();
 		const auto handler = callbacks.find(command);
