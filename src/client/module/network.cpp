@@ -140,6 +140,4 @@ void network::post_unpack()
 	utils::hook::set<uint8_t>(0x1402CCCC7, 0xEB);
 }
 
-#if defined(DEV_BUILD)
 REGISTER_MODULE(network)
-#endif
