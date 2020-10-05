@@ -1,7 +1,10 @@
 ![license](https://img.shields.io/github/license/IW4x/iw6x-client.svg)
+![contributors](https://img.shields.io/github/contributors/IW4x/iw6x-client)
 [![Build status](https://ci.appveyor.com/api/projects/status/a7b3tu814330cdkd/branch/master?svg=true)](https://ci.appveyor.com/project/momo5502/iw6x-client/branch/master)
 [![discord](https://img.shields.io/endpoint?url=https://momo5502.com/iw4x/members-badge.php)](https://discord.gg/sKeVmR3)
+<!---
 [![patreon](https://img.shields.io/badge/patreon-support-blue.svg?logo=patreon)](https://www.patreon.com/iw4x)
+-->
 
 # IW6x: Client
 
