@@ -35,6 +35,8 @@ namespace game
 
 	Material_RegisterHandle_t Material_RegisterHandle;
 
+	NET_StringToAdr_t NET_StringToAdr;
+
 	R_AddCmdDrawStretchPic_t R_AddCmdDrawStretchPic;
 	R_AddCmdDrawText_t R_AddCmdDrawText;
 	R_AddCmdDrawTextWithCursor_t R_AddCmdDrawTextWithCursor;
@@ -157,6 +159,8 @@ namespace game
 			LUI_OpenMenu = LUI_OpenMenu_t(SELECT_VALUE(0x0, 0x1404B3610));
 
 			Material_RegisterHandle = Material_RegisterHandle_t(SELECT_VALUE(0x140523D90, 0x1405F0E20));
+
+			NET_StringToAdr = NET_StringToAdr_t(SELECT_VALUE(0, 0x14041D870));
 
 			R_AddCmdDrawStretchPic = R_AddCmdDrawStretchPic_t(SELECT_VALUE(0x140234460, 0x140600BE0));
 			R_AddCmdDrawText = R_AddCmdDrawText_t(SELECT_VALUE(0x140533E40, 0x140601070));

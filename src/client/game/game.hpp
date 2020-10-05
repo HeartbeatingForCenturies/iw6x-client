@@ -79,6 +79,9 @@ namespace game
 	typedef Material* (*Material_RegisterHandle_t)(const char* material);
 	extern Material_RegisterHandle_t Material_RegisterHandle;
 
+	typedef bool (*NET_StringToAdr_t)(const char* s, game::netadr_s* a);
+	extern NET_StringToAdr_t NET_StringToAdr;
+
 	typedef void (*R_AddCmdDrawStretchPic_t)(float x, float y, float width, float height, float s0, float t0,
 	                                         float s1, float t1, float* color, Material* material);
 	extern R_AddCmdDrawStretchPic_t R_AddCmdDrawStretchPic;

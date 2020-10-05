@@ -2,27 +2,10 @@ syntax = "proto3";
 
 package proto.network;
 
-message packet
+message connect_info
 {
-	bytes command = 1;
-	bytes payload = 2;
+	bool valid = 1;
+	bytes mapname = 2;
+	bytes gametype = 3;
+	bytes challenge = 4;
 }
-
-message unique_packet
-{
-	uint64 id = 1;
-	packet packet = 2;
-}
-
-/*
-message node
-{
-	bytes id = 1;
-	bytes address = 2;
-}
-
-message nodes
-{
-	repeated node nodes = 1;
-}
-*/

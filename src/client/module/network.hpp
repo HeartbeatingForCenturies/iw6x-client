@@ -10,6 +10,8 @@ public:
 	static void on(const std::string& command, const callback& callback);
 	static void send(const game::netadr_s& address, const std::string& command, const std::string& data);
 	static void send(const game::netadr_s& address, const std::string& data);
+
+	static bool are_addresses_equal(const game::netadr_s& a, const game::netadr_s& b);
 	
 	void post_unpack() override;
 };
