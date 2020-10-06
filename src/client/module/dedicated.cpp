@@ -64,7 +64,7 @@ public:
 		//utils::hook::set<std::uint8_t>(0x48FF30, 0xC3);											// CL_CheckForResend, which tries to connect to the local server constantly
 		//utils::hook::set<std::uint8_t>(0x5CC160, 0xC3); 										// function detecting video card, causes Direct3DCreate9 to be called
 		utils::hook::set<uint8_t>(0x1405DAE1F, 0); // r_loadForRenderer default to 0
-		utils::hook::nop(0x1404FFCE2, 0xC3); // recommended settings check - TODO: Check hook
+		utils::hook::set<uint8_t>(0x1404FFCE2, 0xC3); // recommended settings check - TODO: Check hook
 		utils::hook::set<uint8_t>(0x140503420, 0xC3); // some mixer-related function called on shutdown
 		utils::hook::set<uint8_t>(0x1404BEC10, 0xC3); // dont load ui gametype stuff
 		//utils::hook::set<std::uint8_t>(0x611690, 0xC3); 										// some unknown function that seems to fail
