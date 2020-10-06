@@ -107,7 +107,10 @@ bool network::are_addresses_equal(const game::netadr_s& a, const game::netadr_s&
 
 void network::post_unpack()
 {
-	if (!game::environment::is_mp()) return;
+	if (game::environment::is_sp())
+	{
+		return;
+	}
 
 	// redirect dw_sendto to raw socket
 	utils::hook::jump(0x140501AAA, reinterpret_cast<void*>(0x140501A3A));

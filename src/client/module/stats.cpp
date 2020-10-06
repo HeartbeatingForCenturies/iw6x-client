@@ -9,14 +9,11 @@ class stats final : public module
 public:
 	void post_unpack() override
 	{
-		if (game::environment::is_mp())
+		if (!game::environment::is_mp())
 		{
-			patch_mp();
+			return;
 		}
-	}
 
-	void patch_mp() const
-	{
 		command::add("unlockall", [](command::params&)
 		{
 			utils::hook::set<BYTE>(0x1445A3798, 0x0A);	// Prestige

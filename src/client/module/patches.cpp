@@ -108,13 +108,13 @@ public:
 				7, "================================ END COMMAND DUMP =================================\n");
 		});
 
-		if (game::environment::is_mp())
-		{
-			patch_mp();
-		}
-		else if (game::environment::is_sp())
+		if (game::environment::is_sp())
 		{
 			patch_sp();
+		}
+		else
+		{
+			patch_mp();
 		}
 	}
 

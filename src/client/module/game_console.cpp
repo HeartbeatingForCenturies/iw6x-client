@@ -20,8 +20,8 @@ std::vector<std::string> game_console::matches;
 utils::hook::detour game_console::cl_char_event_hook;
 utils::hook::detour game_console::cl_key_event_hook;
 
-float color_white[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-float color_iw6[4] = { 0.0f, 0.7f, 1.0f, 1.0f };
+float color_white[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+float color_iw6[4] = {0.0f, 0.7f, 1.0f, 1.0f};
 
 void game_console::clear()
 {
@@ -51,7 +51,7 @@ void game_console::print(const std::string& data)
 
 void game_console::print(int type, const char* fmt, ...)
 {
-	char va_buffer[0x200] = { 0 };
+	char va_buffer[0x200] = {0};
 
 	va_list ap;
 	va_start(ap, fmt);
@@ -90,7 +90,8 @@ void game_console::check_resize()
 	if (console_font)
 	{
 		con.font_height = console_font->pixelHeight;
-		con.visible_line_count = static_cast<int>((con.screen_max[1] - con.screen_min[1] - (con.font_height * 2)) - 24.0f) / con.font_height;
+		con.visible_line_count = static_cast<int>((con.screen_max[1] - con.screen_min[1] - (con.font_height * 2)) -
+			24.0f) / con.font_height;
 		con.visible_pixel_width = static_cast<int>(((con.screen_max[0] - con.screen_min[0]) - 10.0f) - 18.0f);
 	}
 	else
@@ -129,11 +130,13 @@ void game_console::draw_input_box([[maybe_unused]] int lines, float* color)
 
 void game_console::draw_input_text_and_over(const char* str, float* color)
 {
-	game::R_AddCmdDrawText(str, 0x7FFFFFFF, console_font, con.globals.x, con.globals.y + con.globals.font_height, 1.0f, 1.0f, 0.0, color, 0);
+	game::R_AddCmdDrawText(str, 0x7FFFFFFF, console_font, con.globals.x, con.globals.y + con.globals.font_height, 1.0f,
+	                       1.0f, 0.0, color, 0);
 	con.globals.x = game::R_TextWidth(str, 0, console_font) + con.globals.x + 6.0f;
 }
 
-void game_console::draw_hint_box(const int lines, float* color, [[maybe_unused]] float offset_x, [[maybe_unused]] float offset_y)
+void game_console::draw_hint_box(const int lines, float* color, [[maybe_unused]] float offset_x,
+                                 [[maybe_unused]] float offset_y)
 {
 	const auto _h = lines * con.globals.font_height + 12.0f;
 	const auto _y = con.globals.y - 3.0f + con.globals.font_height + 12.0f;
@@ -174,7 +177,6 @@ void game_console::find_matches(std::string input, std::vector<std::string>& sug
 			if (exact && suggestions.size() > 1)
 			{
 				return;
-
 			}
 		}
 	}
@@ -213,10 +215,14 @@ void game_console::draw_input()
 	con.globals.left_x = con.globals.x;
 	con.globals.auto_complete_choice[0] = 0;
 
-	game::R_AddCmdDrawTextWithCursor(con.buffer, 0x7FFFFFFF, console_font, con.globals.x, con.globals.y + con.globals.font_height, 1.0f, 1.0f, 0.0f, color_white, 0, con.cursor, '|');
+	game::R_AddCmdDrawTextWithCursor(con.buffer, 0x7FFFFFFF, console_font, con.globals.x,
+	                                 con.globals.y + con.globals.font_height, 1.0f, 1.0f, 0.0f, color_white, 0,
+	                                 con.cursor, '|');
 
 	// check if using a prefixed '/' or not
-	const auto input = con.buffer[1] && (con.buffer[0] == '/' || con.buffer[0] == '\\') ? std::string(con.buffer).substr(1) : std::string(con.buffer);
+	const auto input = con.buffer[1] && (con.buffer[0] == '/' || con.buffer[0] == '\\')
+		                   ? std::string(con.buffer).substr(1)
+		                   : std::string(con.buffer);
 
 	if (!input.length())
 	{
@@ -243,7 +249,8 @@ void game_console::draw_input()
 	if (matches.size() > 24)
 	{
 		draw_hint_box(1, dvars::con_inputHintBoxColor->current.vector);
-		draw_hint_text(0, utils::string::va("%i matches (too many to show here)", matches.size()), dvars::con_inputDvarMatchColor->current.vector);
+		draw_hint_text(0, utils::string::va("%i matches (too many to show here)", matches.size()),
+		               dvars::con_inputDvarMatchColor->current.vector);
 	}
 	else if (matches.size() == 1)
 	{
@@ -251,15 +258,20 @@ void game_console::draw_input()
 		const auto line_count = dvar ? 2 : 1;
 
 		draw_hint_box(line_count, dvars::con_inputHintBoxColor->current.vector);
-		draw_hint_text(0, matches[0].data(), dvar ? dvars::con_inputDvarMatchColor->current.vector : dvars::con_inputCmdMatchColor->current.vector);
+		draw_hint_text(0, matches[0].data(),
+		               dvar
+			               ? dvars::con_inputDvarMatchColor->current.vector
+			               : dvars::con_inputCmdMatchColor->current.vector);
 
 		if (dvar)
 		{
 			const auto offset = (con.screen_max[0] - con.globals.x) / 2.5f;
 
-			draw_hint_text(0, game::Dvar_ValueToString(dvar, dvar->current), dvars::con_inputDvarValueColor->current.vector, offset);
+			draw_hint_text(0, game::Dvar_ValueToString(dvar, dvar->current),
+			               dvars::con_inputDvarValueColor->current.vector, offset);
 			draw_hint_text(1, "  default", dvars::con_inputDvarInactiveValueColor->current.vector);
-			draw_hint_text(1, game::Dvar_ValueToString(dvar, dvar->reset), dvars::con_inputDvarInactiveValueColor->current.vector, offset);
+			draw_hint_text(1, game::Dvar_ValueToString(dvar, dvar->reset),
+			               dvars::con_inputDvarInactiveValueColor->current.vector, offset);
 		}
 
 		strncpy_s(con.globals.auto_complete_choice, matches[0].data(), 64);
@@ -275,11 +287,15 @@ void game_console::draw_input()
 		{
 			const auto dvar = game::Dvar_FindVar(matches[i].data());
 
-			draw_hint_text(i, matches[i].data(), dvar ? dvars::con_inputDvarMatchColor->current.vector : dvars::con_inputCmdMatchColor->current.vector);
+			draw_hint_text(i, matches[i].data(),
+			               dvar
+				               ? dvars::con_inputDvarMatchColor->current.vector
+				               : dvars::con_inputCmdMatchColor->current.vector);
 
 			if (dvar)
 			{
-				draw_hint_text(i, game::Dvar_ValueToString(dvar, dvar->current), dvars::con_inputDvarValueColor->current.vector, offset);
+				draw_hint_text(i, game::Dvar_ValueToString(dvar, dvar->current),
+				               dvars::con_inputDvarValueColor->current.vector, offset);
 			}
 		}
 
@@ -300,7 +316,8 @@ void game_console::draw_output_scrollbar(const float x, float y, const float wid
 		_height *= percentage;
 
 		const auto remainingSpace = height - _height;
-		const auto percentageAbove = static_cast<float>(con.display_line_offset) / (con.output.size() - con.visible_line_count);
+		const auto percentageAbove = static_cast<float>(con.display_line_offset) / (con.output.size() - con.
+			visible_line_count);
 
 		y = y + (remainingSpace * percentageAbove);
 	}
@@ -310,7 +327,9 @@ void game_console::draw_output_scrollbar(const float x, float y, const float wid
 
 void game_console::draw_output_text(const float x, float y)
 {
-	const auto offset = con.output.size() >= con.visible_line_count ? 0.0f : (con.font_height * (con.visible_line_count - con.output.size()));
+	const auto offset = con.output.size() >= con.visible_line_count
+		                    ? 0.0f
+		                    : (con.font_height * (con.visible_line_count - con.output.size()));
 
 	for (auto i = 0; i < con.visible_line_count; i++)
 	{
@@ -322,20 +341,23 @@ void game_console::draw_output_text(const float x, float y)
 			break;
 		}
 
-		game::R_AddCmdDrawText(con.output.at(index).c_str(), 0x7FFF, console_font, x, y + offset, 1.0f, 1.0f, 0.0, color_white, 0);
+		game::R_AddCmdDrawText(con.output.at(index).c_str(), 0x7FFF, console_font, x, y + offset, 1.0f, 1.0f, 0.0,
+		                       color_white, 0);
 	}
 }
 
 void game_console::draw_output_window()
 {
-	draw_box(con.screen_min[0], con.screen_min[1] + 32.0f, con.screen_max[0] - con.screen_min[0], (con.screen_max[1] - con.screen_min[1]) - 32.0f, dvars::con_outputWindowColor->current.vector);
+	draw_box(con.screen_min[0], con.screen_min[1] + 32.0f, con.screen_max[0] - con.screen_min[0],
+	         (con.screen_max[1] - con.screen_min[1]) - 32.0f, dvars::con_outputWindowColor->current.vector);
 
 	const auto x = con.screen_min[0] + 6.0f;
 	const auto y = (con.screen_min[1] + 32.0f) + 6.0f;
 	const auto width = (con.screen_max[0] - con.screen_min[0]) - 12.0f;
 	const auto height = ((con.screen_max[1] - con.screen_min[1]) - 32.0f) - 12.0f;
 
-	game::R_AddCmdDrawText(game::Dvar_FindVar("version")->current.string, 0x7FFFFFFF, console_font, x, ((height - 16.0f) + y) + console_font->pixelHeight, 1.0f, 1.0f, 0.0, color_iw6, 0);
+	game::R_AddCmdDrawText(game::Dvar_FindVar("version")->current.string, 0x7FFFFFFF, console_font, x,
+	                       ((height - 16.0f) + y) + console_font->pixelHeight, 1.0f, 1.0f, 0.0, color_iw6, 0);
 
 	draw_output_scrollbar(x, y, width, height);
 	draw_output_text(x, y);
@@ -458,8 +480,7 @@ void game_console::cl_char_event_stub(const int localClientNum, const int key)
 
 void game_console::cl_key_event_stub(int localClientNum, int key, int down)
 {
-
-	if (key == game::keyNum_t::K_F10) 
+	if (key == game::keyNum_t::K_F10)
 	{
 		game::Cmd_ExecuteSingleCommand(localClientNum, 0, "lui_open menu_systemlink_join\n");
 	}
@@ -549,7 +570,8 @@ void game_console::cl_key_event_stub(int localClientNum, int key, int down)
 			}
 			else if (key == game::keyNum_t::K_MWHEELDOWN || key == game::keyNum_t::K_PGDN)
 			{
-				if (con.output.size() > con.visible_line_count && con.display_line_offset < (con.output.size() - con.visible_line_count))
+				if (con.output.size() > con.visible_line_count && con.display_line_offset < (con.output.size() - con.
+					visible_line_count))
 				{
 					con.display_line_offset++;
 				}
@@ -590,11 +612,21 @@ void game_console::cl_key_event_stub(int localClientNum, int key, int down)
 
 void game_console::post_load()
 {
+	if (game::environment::is_dedi())
+	{
+		return;
+	}
+
 	scheduler::loop(draw_console, scheduler::pipeline::renderer);
 }
 
 void game_console::post_unpack()
 {
+	if (game::environment::is_dedi())
+	{
+		return;
+	}
+
 	// initialize our structs
 	con.cursor = 0;
 	con.visible_line_count = 0;
@@ -626,15 +658,25 @@ void game_console::post_unpack()
 	});
 
 	// add our dvars
-	dvars::con_inputBoxColor = game::Dvar_RegisterVec4("con_inputBoxColor", 0.2f, 0.2f, 0.2f, 0.9f, 0.0f, 1.0f, 1, "color of console input box");
-	dvars::con_inputHintBoxColor = game::Dvar_RegisterVec4("con_inputHintBoxColor", 0.3f, 0.3f, 0.3f, 1.0f, 0.0f, 1.0f, 1, "color of console input hint box");
-	dvars::con_outputBarColor = game::Dvar_RegisterVec4("con_outputBarColor", 0.5f, 0.5f, 0.5f, 0.6f, 0.0f, 1.0f, 1, "color of console output bar");
-	dvars::con_outputSliderColor = game::Dvar_RegisterVec4("con_outputSliderColor", 0.0f, 0.7f, 1.0f, 1.00f, 0.0f, 1.0f, 1, "color of console output slider");
-	dvars::con_outputWindowColor = game::Dvar_RegisterVec4("con_outputWindowColor", 0.25f, 0.25f, 0.25f, 0.85f, 0.0f, 1.0f, 1, "color of console output window");
-	dvars::con_inputDvarMatchColor = game::Dvar_RegisterVec4("con_inputDvarMatchColor", 1.0f, 1.0f, 0.8f, 1.0f, 0.0f, 1.0f, 1, "color of console matched dvar");
-	dvars::con_inputDvarValueColor = game::Dvar_RegisterVec4("con_inputDvarValueColor", 1.0f, 1.0f, 0.8f, 1.0f, 0.0f, 1.0f, 1, "color of console matched dvar value");
-	dvars::con_inputDvarInactiveValueColor = game::Dvar_RegisterVec4("con_inputDvarInactiveValueColor", 0.8f, 0.8f, 0.8f, 1.0f, 0.0f, 1.0f, 1, "color of console inactive dvar value");
-	dvars::con_inputCmdMatchColor = game::Dvar_RegisterVec4("con_inputCmdMatchColor", 0.80f, 0.80f, 1.0f, 1.0f, 0.0f, 1.0f, 1, "color of console matched command");
+	dvars::con_inputBoxColor = game::Dvar_RegisterVec4("con_inputBoxColor", 0.2f, 0.2f, 0.2f, 0.9f, 0.0f, 1.0f, 1,
+	                                                   "color of console input box");
+	dvars::con_inputHintBoxColor = game::Dvar_RegisterVec4("con_inputHintBoxColor", 0.3f, 0.3f, 0.3f, 1.0f, 0.0f, 1.0f,
+	                                                       1, "color of console input hint box");
+	dvars::con_outputBarColor = game::Dvar_RegisterVec4("con_outputBarColor", 0.5f, 0.5f, 0.5f, 0.6f, 0.0f, 1.0f, 1,
+	                                                    "color of console output bar");
+	dvars::con_outputSliderColor = game::Dvar_RegisterVec4("con_outputSliderColor", 0.0f, 0.7f, 1.0f, 1.00f, 0.0f, 1.0f,
+	                                                       1, "color of console output slider");
+	dvars::con_outputWindowColor = game::Dvar_RegisterVec4("con_outputWindowColor", 0.25f, 0.25f, 0.25f, 0.85f, 0.0f,
+	                                                       1.0f, 1, "color of console output window");
+	dvars::con_inputDvarMatchColor = game::Dvar_RegisterVec4("con_inputDvarMatchColor", 1.0f, 1.0f, 0.8f, 1.0f, 0.0f,
+	                                                         1.0f, 1, "color of console matched dvar");
+	dvars::con_inputDvarValueColor = game::Dvar_RegisterVec4("con_inputDvarValueColor", 1.0f, 1.0f, 0.8f, 1.0f, 0.0f,
+	                                                         1.0f, 1, "color of console matched dvar value");
+	dvars::con_inputDvarInactiveValueColor = game::Dvar_RegisterVec4("con_inputDvarInactiveValueColor", 0.8f, 0.8f,
+	                                                                 0.8f, 1.0f, 0.0f, 1.0f, 1,
+	                                                                 "color of console inactive dvar value");
+	dvars::con_inputCmdMatchColor = game::Dvar_RegisterVec4("con_inputCmdMatchColor", 0.80f, 0.80f, 1.0f, 1.0f, 0.0f,
+	                                                        1.0f, 1, "color of console matched command");
 }
 
 REGISTER_MODULE(game_console);

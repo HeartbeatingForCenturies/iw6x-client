@@ -13,9 +13,14 @@ public:
 		const utils::nt::module self;
 		image_ = LoadImageA(self, MAKEINTRESOURCE(IMAGE_SPLASH), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR);
 	}
-	
+
 	void post_load() override
 	{
+		if (game::environment::is_dedi())
+		{
+			return;
+		}
+
 		this->show();
 	}
 
@@ -30,7 +35,7 @@ public:
 	void pre_destroy() override
 	{
 		this->destroy();
-		
+
 		MSG msg;
 		while (this->window_ && IsWindow(this->window_))
 		{
@@ -88,14 +93,17 @@ private:
 		{
 			const auto x_pixels = GetSystemMetrics(SM_CXFULLSCREEN);
 			const auto y_pixels = GetSystemMetrics(SM_CYFULLSCREEN);
-			
+
 			if (image_)
 			{
-				this->window_ = CreateWindowExA(WS_EX_APPWINDOW, "IW6x Splash Screen", "IW6x", WS_POPUP | WS_SYSMENU, (x_pixels - 320) / 2, (y_pixels - 100) / 2, 320, 100, nullptr, nullptr, self, nullptr);
+				this->window_ = CreateWindowExA(WS_EX_APPWINDOW, "IW6x Splash Screen", "IW6x", WS_POPUP | WS_SYSMENU,
+				                                (x_pixels - 320) / 2, (y_pixels - 100) / 2, 320, 100, nullptr, nullptr,
+				                                self, nullptr);
 
 				if (this->window_)
 				{
-					auto* const image_window = CreateWindowExA(0, "Static", nullptr, WS_CHILD | WS_VISIBLE | 0xEu, 0, 0, 320, 100, this->window_, nullptr, self, nullptr);
+					auto* const image_window = CreateWindowExA(0, "Static", nullptr, WS_CHILD | WS_VISIBLE | 0xEu, 0, 0,
+					                                           320, 100, this->window_, nullptr, self, nullptr);
 					if (image_window)
 					{
 						RECT rect;
@@ -111,7 +119,8 @@ private:
 						rect.right = rect.left + width;
 						rect.bottom = rect.top + height;
 						AdjustWindowRect(&rect, WS_CHILD | WS_VISIBLE | 0xEu, 0);
-						SetWindowPos(this->window_, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER);
+						SetWindowPos(this->window_, nullptr, rect.left, rect.top, rect.right - rect.left,
+						             rect.bottom - rect.top, SWP_NOZORDER);
 
 						ShowWindow(this->window_, SW_SHOW);
 						UpdateWindow(this->window_);

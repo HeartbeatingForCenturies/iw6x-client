@@ -92,7 +92,7 @@ void scheduler::post_unpack()
 	utils::hook::call(SELECT_VALUE(0x1403BC922, 0x140413142), scheduler::main_frame_stub);
 
 	// Server thread isn't really a thing in SP, at least I couldn't find what would be the equivalent
-	if (game::environment::is_mp())
+	if (!game::environment::is_sp())
 	{
 		utils::hook::call(0x14047A4C2, scheduler::server_frame_stub);
 		utils::hook::call(0x14047B035, scheduler::server_frame_stub);

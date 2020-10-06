@@ -24,10 +24,10 @@ namespace
 	const char* seh_string_ed_get_string(const char* pszReference)
 	{
 		std::lock_guard _(get_synchronization_mutex());
-		
+
 		auto& overrides = get_localized_overrides();
 		const auto entry = overrides.find(pszReference);
-		if(entry != overrides.end())
+		if (entry != overrides.end())
 		{
 			return utils::string::va("%s", entry->second.data());
 		}
@@ -44,7 +44,11 @@ void localized_strings::override(const std::string& key, const std::string& valu
 
 void localized_strings::post_unpack()
 {
-	if (!game::environment::is_mp()) return;
+	if (game::environment::is_sp())
+	{
+		return;
+	}
+
 	// Change some localized strings
 	seh_string_ed_get_string_hook.create(0x1404A5F60, &seh_string_ed_get_string);
 }
