@@ -138,6 +138,10 @@ void network::post_unpack()
 
 	// ignore configstring mismatch
 	utils::hook::set<uint8_t>(0x1402CCCC7, 0xEB);
+
+	// increase cl_maxpackets
+	utils::hook::set<uint8_t>(0x1402C8083, 125);
+	utils::hook::set<uint8_t>(0x1402C808C, 125);
 }
 
 REGISTER_MODULE(network)
