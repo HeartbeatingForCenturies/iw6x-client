@@ -16,7 +16,7 @@ namespace
 
 	void connect_to_party(const game::netadr_s& target, const std::string& mapname, const std::string& gametype)
 	{
-		if (!game::environment::is_mp())
+		if (game::environment::is_sp())
 		{
 			return;
 		}
@@ -33,7 +33,7 @@ namespace
 
 void party::connect(const game::netadr_s& target)
 {
-	if (!game::environment::is_mp())
+	if (game::environment::is_sp())
 	{
 		return;
 	}
@@ -46,7 +46,7 @@ void party::connect(const game::netadr_s& target)
 
 void party::post_unpack()
 {
-	if (!game::environment::is_mp())
+	if (game::environment::is_sp())
 	{
 		return;
 	}

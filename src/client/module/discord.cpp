@@ -9,7 +9,10 @@ class discord final : public module
 public:
 	void post_load() override
 	{
-		if (game::environment::is_dedi()) return;
+		if (game::environment::is_dedi())
+		{
+			return;
+		}
 
 		DiscordEventHandlers handlers;
 		ZeroMemory(&handlers, sizeof(handlers));
@@ -27,6 +30,11 @@ public:
 
 	void pre_destroy() override
 	{
+		if (game::environment::is_dedi())
+		{
+			return;
+		}
+
 		Discord_Shutdown();
 	}
 
@@ -38,13 +46,13 @@ private:
 
 		discord_presence.details = game::environment::is_mp() ? "Multiplayer" : "Singleplayer";
 		discord_presence.instance = 1;
-		
+
 #ifdef DEV_BUILD
 		discord_presence.details = "Team Deathmatch";
 		discord_presence.state = "Prison Break";
 		discord_presence.largeImageKey = "mp_prison";
 #endif
-		
+
 		Discord_UpdatePresence(&discord_presence);
 	}
 

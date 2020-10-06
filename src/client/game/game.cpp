@@ -110,6 +110,11 @@ namespace game
 
 	namespace environment
 	{
+		bool is_dedi()
+		{
+			return get_mode() == launcher::mode::server;
+		}
+
 		bool is_mp()
 		{
 			return get_mode() == launcher::mode::multiplayer;
@@ -118,11 +123,6 @@ namespace game
 		bool is_sp()
 		{
 			return get_mode() == launcher::mode::singleplayer;
-		}
-
-		bool is_dedi()
-		{
-			return get_mode() == launcher::mode::server;
 		}
 
 		void initialize(const launcher::mode _mode)

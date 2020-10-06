@@ -9,7 +9,7 @@ public:
 	console()
 	{
 		ShowWindow(GetConsoleWindow(), SW_HIDE);
-		
+
 		_pipe(this->handles_, 1024, _O_TEXT);
 		_dup2(this->handles_[1], 1);
 		_dup2(this->handles_[1], 2);
@@ -51,8 +51,11 @@ public:
 	{
 		game::Sys_ShowConsole();
 
-		// Hide that shit
-		ShowWindow(*reinterpret_cast<HWND*>((SELECT_VALUE(0x145A7B490, 0x147AD1DB0))), SW_MINIMIZE);
+		if (!game::environment::is_dedi())
+		{
+			// Hide that shit
+			ShowWindow(*reinterpret_cast<HWND*>((SELECT_VALUE(0x145A7B490, 0x147AD1DB0))), SW_MINIMIZE);
+		}
 
 		// Async console is not ready yet :/
 		//this->initialize();
