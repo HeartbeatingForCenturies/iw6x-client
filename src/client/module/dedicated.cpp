@@ -91,4 +91,6 @@ public:
 	}
 };
 
+#ifdef DEV_BUILD
 REGISTER_MODULE(dedicated)
+#endif
