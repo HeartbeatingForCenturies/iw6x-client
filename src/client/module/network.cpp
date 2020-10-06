@@ -12,7 +12,7 @@ namespace
 		return callbacks;
 	}
 
-	int handle_command(game::netadr_s* address, const char* command, game::msg_t* message)
+	bool handle_command(game::netadr_s* address, const char* command, game::msg_t* message)
 	{
 		auto& callbacks = get_callbacks();
 		const auto handler = callbacks.find(command);
@@ -40,7 +40,7 @@ namespace
 
 		a.call(handle_command);
 
-		a.test(ax, ax);
+		a.test(al, al);
 		a.jz(return_unhandled);
 
 		// Command handled
