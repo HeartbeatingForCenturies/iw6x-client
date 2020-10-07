@@ -136,6 +136,8 @@ namespace game
 
 	namespace mp
 	{
+		extern cg_s* cgArray;
+
 		extern gentity_s* g_entities;
 	}
 

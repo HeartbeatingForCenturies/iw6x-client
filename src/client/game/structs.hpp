@@ -1117,5 +1117,22 @@ namespace game
 			int maxHealth;
 			char _0x1E4[0x10C];
 		};
+
+		struct snapshot_s
+		{
+			char _0x0[0x3C78];
+			int ping;
+			int serverTime;
+			int numEntities;
+			int numClients;
+		};
+
+		struct cg_s
+		{
+			playerState_s ps;
+			char _0x3324[0x64];
+			snapshot_s* snap;
+			snapshot_s* nextSnap; // theres alot after this cba rn
+		};
 	}
 }
