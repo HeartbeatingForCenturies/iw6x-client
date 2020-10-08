@@ -68,7 +68,7 @@ public:
 		utils::hook::set<uint8_t>(0x140503420, 0xC3); // some mixer-related function called on shutdown
 		utils::hook::set<uint8_t>(0x1404BEC10, 0xC3); // dont load ui gametype stuff
 		//utils::hook::set<uint8_t>(0x611690, 0xC3); 										// some unknown function that seems to fail
-		//utils::hook::nop(0x572238, 6); 															// unknown check in SV_ExecuteClientMessage
+		utils::hook::nop(0x14047261C, 6); 															// unknown check in SV_ExecuteClientMessage
 		//utils::hook::nop(0x5751DF, 2);															// don't spawn a DemonWare session for the dedicated server
 		//utils::hook::set<uint8_t>(0x5751E9, 0xEB);											// ^
 		utils::hook::nop(0x140471B6B , 4);											// allow first slot to be occupied
