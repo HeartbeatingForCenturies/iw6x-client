@@ -14,8 +14,6 @@ namespace
 	{
 		Discord_RunCallbacks();
 
-		static int64_t timestamp = 0;
-
 		if (!game::CL_IsCgameInitialized())
 		{
 			discord_presence.details = game::environment::is_sp() ? "Singleplayer" : "Multiplayer";
