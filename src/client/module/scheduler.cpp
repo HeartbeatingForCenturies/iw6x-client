@@ -25,7 +25,7 @@ void scheduler::main_frame_stub()
 	game::Com_Frame_Try_Block_Function();
 }
 
-void scheduler::schedule(const std::function<bool()>& callback, const pipeline type)
+void scheduler::schedule(const std::function<bool()>& callback, const pipeline type, const std::chrono::milliseconds delay)
 {
 	auto* instance = module_loader::get<scheduler>();
 	if (instance)
@@ -33,18 +33,21 @@ void scheduler::schedule(const std::function<bool()>& callback, const pipeline t
 		task task;
 		task.type = type;
 		task.handler = callback;
+		task.interval = delay;
+		task.last_call = std::chrono::high_resolution_clock::now();
 
 		instance->callbacks_.add(task);
 	}
 }
 
-void scheduler::loop(const std::function<void()>& callback, const pipeline type)
+void scheduler::loop(const std::function<void()>& callback, const pipeline type, const std::chrono::milliseconds delay)
 {
 	scheduler::schedule([callback]()
 	{
 		callback();
+
 		return cond_continue;
-	}, type);
+	}, type, delay);
 }
 
 void scheduler::once(const std::function<void()>& callback, const pipeline type)
@@ -64,6 +67,13 @@ void scheduler::execute(const pipeline type)
 		{
 			continue;
 		}
+
+		const auto now = std::chrono::high_resolution_clock::now();
+		const auto diff = now - callback->last_call;
+
+		if (diff < callback->interval) continue;
+
+		callback->last_call = now;
 
 		const auto res = callback->handler();
 		if (res == cond_end)
