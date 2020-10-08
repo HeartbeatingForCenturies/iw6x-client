@@ -4,6 +4,53 @@
 #include "scheduler.hpp"
 #include "game/game.hpp"
 
+#include "utils/string.hpp"
+
+namespace
+{
+	DiscordRichPresence discord_presence;
+
+	void update_discord()
+	{
+		Discord_RunCallbacks();
+
+		if (!game::CL_IsCgameInitialized())
+		{
+			discord_presence.details = game::environment::is_sp() ? "Singleplayer" : "Multiplayer";
+			discord_presence.state = "Main Menu";
+
+			discord_presence.partySize = 0;
+			discord_presence.partyMax = 0;
+
+			discord_presence.startTimestamp = 0;
+
+			discord_presence.largeImageKey = game::environment::is_sp() ? "menu_singleplayer" : "menu_multiplayer";
+		}
+		else
+		{
+			if (game::environment::is_sp()) return;
+
+			auto gametype = game::Dvar_FindVar("party_gametype")->current.string;
+			auto map = game::Dvar_FindVar("party_mapname")->current.string;
+
+			discord_presence.details = utils::string::va("%s on %s", gametype, map);
+			discord_presence.state = game::Dvar_FindVar("sv_hostname")->current.string;
+
+			discord_presence.partySize = game::mp::cgArray->snap != nullptr ? game::mp::cgArray->snap->numClients : 1;
+			discord_presence.partyMax = game::Dvar_FindVar("sv_maxclients")->current.integer;
+
+			if (!discord_presence.startTimestamp)
+			{
+				discord_presence.startTimestamp = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+			}
+
+			discord_presence.largeImageKey = game::Dvar_FindVar("ui_mapname")->current.string;
+		}
+
+		Discord_UpdatePresence(&discord_presence);
+	}
+}
+
 class discord final : public module
 {
 public:
@@ -25,7 +72,7 @@ public:
 
 		Discord_Initialize("762374436183343114", &handlers, 1, nullptr);
 
-		scheduler::loop(Discord_RunCallbacks, scheduler::pipeline::main);
+		scheduler::loop(update_discord, scheduler::pipeline::async, 20s);
 	}
 
 	void pre_destroy() override
@@ -41,17 +88,9 @@ public:
 private:
 	static void ready(const DiscordUser* request)
 	{
-		DiscordRichPresence discord_presence;
 		ZeroMemory(&discord_presence, sizeof(discord_presence));
 
-		discord_presence.details = game::environment::is_mp() ? "Multiplayer" : "Singleplayer";
 		discord_presence.instance = 1;
-
-#ifdef DEV_BUILD
-		discord_presence.details = "Team Deathmatch";
-		discord_presence.state = "Prison Break";
-		discord_presence.largeImageKey = "mp_prison";
-#endif
 
 		Discord_UpdatePresence(&discord_presence);
 	}
@@ -62,6 +101,4 @@ private:
 	}
 };
 
-#ifndef DEV_BUILD
 REGISTER_MODULE(discord)
-#endif

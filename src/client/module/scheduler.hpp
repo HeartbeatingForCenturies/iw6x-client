@@ -10,7 +10,7 @@ public:
 	{
 		// Asynchronuous pipeline, disconnected from the game
 		async,
-		
+
 		// The game's rendering pipeline
 		renderer,
 
@@ -24,10 +24,9 @@ public:
 	static const bool cond_continue = false;
 	static const bool cond_end = true;
 	
-	static void schedule(const std::function<bool()>& callback, pipeline type = pipeline::async);
-	static void loop(const std::function<void()>& callback, pipeline type = pipeline::async);
+	static void schedule(const std::function<bool()>& callback, pipeline type = pipeline::async, std::chrono::milliseconds delay = 0ms);
+	static void loop(const std::function<void()>& callback, pipeline type = pipeline::async, std::chrono::milliseconds delay = 0ms);
 	static void once(const std::function<void()>& callback, pipeline type = pipeline::async);
-
 
 	void post_start() override;
 	void post_unpack() override;
@@ -38,6 +37,8 @@ private:
 	{
 		pipeline type;
 		std::function<bool()> handler;
+		std::chrono::milliseconds interval;
+		std::chrono::high_resolution_clock::time_point last_call{};
 	};
 	
 	volatile bool kill_ = false;

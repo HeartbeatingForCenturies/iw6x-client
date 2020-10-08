@@ -73,6 +73,8 @@ namespace game
 
 	namespace mp
 	{
+		cg_s* cgArray;
+
 		gentity_s* g_entities;
 	}
 
@@ -197,6 +199,8 @@ namespace game
 			}
 			else if (is_mp())
 			{
+				mp::cgArray = reinterpret_cast<mp::cg_s*>(0x14176EC00);
+
 				mp::g_entities = reinterpret_cast<mp::gentity_s*>(0x14427A0E0);
 			}
 		}
