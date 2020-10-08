@@ -102,16 +102,6 @@ public:
 		utils::hook::set<uint8_t>(0x1405E76C0, 0xC3); // ^
 
 		utils::hook::set<uint8_t>(0x14065EA00, 0xC3); // sound crashes
-
-		scheduler::loop([]()
-		{
-			MSG msg;
-			while (PeekMessageA(&msg, nullptr, NULL, NULL, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}, scheduler::pipeline::main);
 	}
 };
 
