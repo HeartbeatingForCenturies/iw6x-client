@@ -107,8 +107,12 @@ namespace game
 
 	typedef void (*SV_GameSendServerCommand_t)(int, int, const char*);
 	extern SV_GameSendServerCommand_t SV_GameSendServerCommand;
+
 	typedef bool (*SV_Loaded_t)();
 	extern SV_Loaded_t SV_Loaded;
+
+	typedef void (*SV_StartMap_t)(int localClientNum, const char* map, bool mapIsPreloaded);
+	extern SV_StartMap_t SV_StartMap;
 
 	typedef int (*Sys_Milliseconds_t)();
 	extern Sys_Milliseconds_t Sys_Milliseconds;
