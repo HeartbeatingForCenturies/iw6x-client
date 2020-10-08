@@ -72,7 +72,7 @@ public:
 
 		Discord_Initialize("762374436183343114", &handlers, 1, nullptr);
 
-		scheduler::loop(update_discord, scheduler::pipeline::main);
+		scheduler::loop(update_discord, scheduler::pipeline::async, 20s);
 	}
 
 	void pre_destroy() override
