@@ -37,7 +37,13 @@ namespace
 		std::memcpy(reinterpret_cast<void*>(0x1480B1E40), &fastfiles, sizeof(fastfiles));
 
 		// R_LoadGraphicsAssets
-		((void(*)())0x1405E6F80)();
+		reinterpret_cast<void(*)()>(0x1405E6F80)();
+	}
+
+	game::dvar_t* register_network_fps_stub(const char* name, int, int, int, unsigned int flags,
+	                                    const char* desc)
+	{
+		return game::Dvar_RegisterInt(name, 1000, 50, 1000, flags, desc);
 	}
 }
 
@@ -53,6 +59,7 @@ public:
 
 		//utils::hook::set<uint8_t>(0x1402C89A0, 0xC3); // R_Init caller
 		utils::hook::jump(0x1402C89A0, init_dedicated_server);
+		utils::hook::call(0x140476F4F, register_network_fps_stub);
 
 		utils::hook::set<uint8_t>(0x1402E5830, 0xC3); // disable self-registration
 		utils::hook::set<uint8_t>(0x1402C7935, 5);    // make CL_Frame do client packets, even for game state 9
@@ -102,6 +109,10 @@ public:
 		utils::hook::set<uint8_t>(0x1405E76C0, 0xC3); // ^
 
 		utils::hook::set<uint8_t>(0x14065EA00, 0xC3); // sound crashes
+		
+		utils::hook::set<uint8_t>(0x14047BE70, 0xC3); // disable host migration
+
+		game::Dvar_RegisterInt("sv_network_fps", 1000, 50, 1000, 0, "Number of times per second the server checks for net messages");
 	}
 };
 
