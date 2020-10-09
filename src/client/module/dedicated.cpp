@@ -111,8 +111,6 @@ public:
 		utils::hook::set<uint8_t>(0x14065EA00, 0xC3); // sound crashes
 		
 		utils::hook::set<uint8_t>(0x14047BE70, 0xC3); // disable host migration
-
-		game::Dvar_RegisterInt("sv_network_fps", 1000, 50, 1000, 0, "Number of times per second the server checks for net messages");
 	}
 };
 
