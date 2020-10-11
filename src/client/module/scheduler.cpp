@@ -50,13 +50,13 @@ void scheduler::loop(const std::function<void()>& callback, const pipeline type,
 	}, type, delay);
 }
 
-void scheduler::once(const std::function<void()>& callback, const pipeline type)
+void scheduler::once(const std::function<void()>& callback, const pipeline type, const std::chrono::milliseconds delay)
 {
 	scheduler::schedule([callback]()
 	{
 		callback();
 		return cond_end;
-	}, type);
+	}, type, delay);
 }
 
 void scheduler::execute(const pipeline type)
