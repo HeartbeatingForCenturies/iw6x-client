@@ -117,8 +117,14 @@ namespace game
 	typedef void (*SV_StartMap_t)(int localClientNum, const char* map, bool mapIsPreloaded);
 	extern SV_StartMap_t SV_StartMap;
 
-	typedef mp::gentity_s * (*SV_AddTestClient_t)(int forceTestClientType, const int team, const int index, int team_owners_client);
-	extern SV_AddTestClient_t SV_AddTestClient;
+	typedef mp::gentity_s* (*SV_AddBot_t)(const char*, unsigned int, unsigned int, unsigned int);
+	extern SV_AddBot_t SV_AddBot;
+
+	typedef void (*SV_ExecuteClientCommand_t)(mp::client_t*, const char*, int);
+	extern SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
+
+	typedef void (*SV_SpawnTestClient_t)(mp::gentity_s*);
+	extern SV_SpawnTestClient_t SV_SpawnTestClient;
 
 	typedef int (*Sys_Milliseconds_t)();
 	extern Sys_Milliseconds_t Sys_Milliseconds;
@@ -149,6 +155,10 @@ namespace game
 		extern cg_s* cgArray;
 
 		extern gentity_s* g_entities;
+
+		extern client_t* svs_clients;
+
+		extern std::uint32_t* sv_serverId_value;
 	}
 
 	int Cmd_Argc();

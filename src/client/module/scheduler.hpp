@@ -26,7 +26,7 @@ public:
 	
 	static void schedule(const std::function<bool()>& callback, pipeline type = pipeline::async, std::chrono::milliseconds delay = 0ms);
 	static void loop(const std::function<void()>& callback, pipeline type = pipeline::async, std::chrono::milliseconds delay = 0ms);
-	static void once(const std::function<void()>& callback, pipeline type = pipeline::async);
+	static void once(const std::function<void()>& callback, pipeline type = pipeline::async, std::chrono::milliseconds delay = 0ms);
 
 	void post_start() override;
 	void post_unpack() override;

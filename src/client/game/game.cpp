@@ -53,7 +53,9 @@ namespace game
 
 	SV_StartMap_t SV_StartMap;
 
-	SV_AddTestClient_t SV_AddTestClient;
+	SV_AddBot_t SV_AddBot;
+	SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
+	SV_SpawnTestClient_t SV_SpawnTestClient;
 
 	Sys_Milliseconds_t Sys_Milliseconds;
 	Sys_SendPacket_t Sys_SendPacket;
@@ -81,6 +83,10 @@ namespace game
 		cg_s* cgArray;
 
 		gentity_s* g_entities;
+
+		client_t* svs_clients;
+
+		std::uint32_t* sv_serverId_value;
 	}
 
 	int Cmd_Argc()
@@ -183,7 +189,9 @@ namespace game
 			SV_GameSendServerCommand = SV_GameSendServerCommand_t(SELECT_VALUE(0x140490F40, 0x1404758C0));
 			SV_Loaded = SV_Loaded_t(SELECT_VALUE(0x140491820, 0x1404770C0));
 			SV_StartMap = SV_StartMap_t(SELECT_VALUE(0, 0x140470170));
-			SV_AddTestClient = SV_AddTestClient_t(SELECT_VALUE(0, 0x140470B70));
+			SV_AddBot = SV_AddBot_t(SELECT_VALUE(0, 0x140470920));
+			SV_ExecuteClientCommand = SV_ExecuteClientCommand_t(SELECT_VALUE(0, 0x140472430));
+			SV_SpawnTestClient = SV_SpawnTestClient_t(SELECT_VALUE(0, 0x1404740A0));
 
 			Sys_Milliseconds = Sys_Milliseconds_t(SELECT_VALUE(0x14043D2A0, 0x140501CA0));
 			Sys_SendPacket = Sys_SendPacket_t(SELECT_VALUE(0x14043D000, 0x140501A00));
@@ -210,6 +218,10 @@ namespace game
 				mp::cgArray = reinterpret_cast<mp::cg_s*>(0x14176EC00);
 
 				mp::g_entities = reinterpret_cast<mp::gentity_s*>(0x14427A0E0);
+
+				mp::svs_clients = reinterpret_cast<mp::client_t*>(0x14647B290);
+
+				mp::sv_serverId_value = reinterpret_cast<std::uint32_t*>(0x144DF9478);
 			}
 		}
 	}

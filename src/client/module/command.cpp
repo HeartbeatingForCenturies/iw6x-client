@@ -111,7 +111,6 @@ void command::add_sp_commands()
     {
         if (!game::SV_Loaded())
         {
-            printf("not in game\n");
             return;
         }
 
