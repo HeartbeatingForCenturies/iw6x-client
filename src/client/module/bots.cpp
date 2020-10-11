@@ -29,6 +29,17 @@ namespace
 
 		}, scheduler::pipeline::server, 1s);
 	}
+
+	void add_bot()
+	{
+		// SV_BotGetRandomName
+		auto* bot_name = reinterpret_cast<const char*(*)()>(0x140460B80)();
+		auto* bot_ent = game::SV_AddBot(bot_name, 26, 62, 0);
+		if (bot_ent)
+		{
+			spawn_bot(bot_ent->s.entityNum);
+		}
+	}
 }
 
 class bots final : public module
@@ -48,34 +59,18 @@ public:
 		{
 			if (!game::SV_Loaded()) return;
 
+			auto num_bots = 1;
 			if (params.size() == 2)
 			{
-				auto num_bots = atoi(params.get(1));
-
-				for (auto i = 0; i < num_bots; i++)
-				{
-					// SV_BotGetRandomName
-					const char* bot_name = reinterpret_cast<const char*(*)()>(0x140460B80)();
-
-					game::mp::gentity_s* bot_ent = game::SV_AddBot(bot_name, 26, 62, 0);
-
-					if (bot_ent)
-					{
-						spawn_bot(bot_ent->s.entityNum);
-					}
-				}
+				num_bots = atoi(params.get(1));
 			}
-			else
+
+			for (auto i = 0; i < num_bots; i++)
 			{
-				// SV_BotGetRandomName
-				const char* bot_name = reinterpret_cast<const char* (*)()>(0x140460B80)();
-
-				game::mp::gentity_s* bot_ent = game::SV_AddBot(bot_name, 26, 62, 0);
-
-				if (bot_ent)
+				scheduler::once([]()
 				{
-					spawn_bot(bot_ent->s.entityNum);
-				}
+					add_bot();
+				}, scheduler::pipeline::server, 100ms * i);
 			}
 		});
 	}
