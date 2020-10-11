@@ -127,13 +127,15 @@ int main()
 				if (mode == launcher::mode::none) return 0;
 			}
 
+			game::environment::set_mode(mode);
+
 			entry_point = load_binary(mode);
 			if (!entry_point)
 			{
 				throw std::runtime_error("Unable to load binary into memory");
 			}
 
-			game::environment::initialize(mode);
+			game::environment::initialize();
 			if (!module_loader::post_load()) return 0;
 
 			premature_shutdown = false;

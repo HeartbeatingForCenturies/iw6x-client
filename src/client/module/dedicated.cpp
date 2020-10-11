@@ -50,6 +50,24 @@ namespace
 class dedicated final : public module
 {
 public:
+	void* load_import(const std::string& module, const std::string& function) override
+	{
+		if(!game::environment::is_dedi())
+		{
+			return nullptr;
+		}
+
+		if(function == "DirectSoundCreate8"
+			|| function == "DirectSoundCaptureCreate"
+			|| function == "CreateDXGIFactory"
+			|| function == "D3D11CreateDevice")
+		{
+			FARPROC(1);
+		}
+
+		return nullptr;
+	}
+
 	void post_unpack() override
 	{
 		if (!game::environment::is_dedi())
@@ -63,7 +81,7 @@ public:
 
 		utils::hook::set<uint8_t>(0x1402E5830, 0xC3); // disable self-registration
 		utils::hook::set<uint8_t>(0x1402C7935, 5);    // make CL_Frame do client packets, even for game state 9
-		//utils::hook::set<uint8_t>(0x5C6F90, 0xC3);  // init sound system (1)
+		utils::hook::set<uint8_t>(0x140503FF0, 0xC3); // init sound system (1)
 		utils::hook::set<uint8_t>(0x140602380, 0xC3); // start render thread
 		utils::hook::set<uint8_t>(0x140658580, 0xC3); // init sound system (2)
 		//utils::hook::set<uint8_t>(0x49BC10, 0xC3);  // Com_Frame audio processor?

@@ -141,10 +141,13 @@ namespace game
 			return get_mode() == launcher::mode::singleplayer;
 		}
 
-		void initialize(const launcher::mode _mode)
+		void set_mode(const launcher::mode _mode)
 		{
 			mode = _mode;
+		}
 
+		void initialize()
+		{
 			Sys_ShowConsole = Sys_ShowConsole_t(SELECT_VALUE(0x14043E650, 0x140503130));
 			Conbuf_AppendText = Conbuf_AppendText_t(SELECT_VALUE(0x14043DDE0, 0x1405028C0));
 

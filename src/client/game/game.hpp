@@ -179,6 +179,7 @@ namespace game
 		bool is_sp();
 		bool is_dedi();
 
-		void initialize(launcher::mode mode);
+		void set_mode(launcher::mode mode);
+		void initialize();
 	}
 }
