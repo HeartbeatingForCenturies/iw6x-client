@@ -8,7 +8,7 @@ public:
 	{
 	public:
 		file(std::string name);
-		
+
 		bool exists() const;
 		const std::string& get_buffer() const;
 		const std::string& get_name() const;
@@ -18,6 +18,6 @@ public:
 		std::string name_;
 		std::string buffer_;
 	};
-	
+
 	void post_unpack() override;
 };

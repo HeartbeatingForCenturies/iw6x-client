@@ -1,19 +1,17 @@
 #include <std_include.hpp>
 
-#include "game_console.hpp"
 #include "scheduler.hpp"
 
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 
 #include "utils/hook.hpp"
-#include "utils/string.hpp"
 
 namespace
 {
 	std::vector<DWORD> color_table;
 
-	DWORD hsv_to_rgb(game::HsvColor hsv)
+	DWORD hsv_to_rgb(const game::HsvColor hsv)
 	{
 		DWORD rgb;
 		unsigned char region, p, q, t;
@@ -62,10 +60,9 @@ namespace
 		return rgb;
 	}
 
-	char color_index(char c)
+	char color_index(const char c)
 	{
-		char index = c - 48;
-
+		const char index = c - 48;
 		return index >= 0xC ? 7 : index;
 	}
 
@@ -74,10 +71,10 @@ namespace
 		if (!in || !out) return;
 
 		max--;
-		int current = 0;
+		auto current = 0;
 		while (*in != 0 && current < max)
 		{
-			char index = *(in + 1);
+			const char index = *(in + 1);
 			if (*in == '^' && (color_index(index) != 7 || index == '7'))
 			{
 				++in;
@@ -96,12 +93,12 @@ namespace
 
 	char add(uint8_t r, uint8_t g, uint8_t b)
 	{
-		char index = '0' + static_cast<char>(color_table.size());
+		const char index = '0' + static_cast<char>(color_table.size());
 		color_table.push_back(RGB(r, g, b));
 		return index;
 	}
 
-	void com_clean_name_stub(const char* in, char* out, int out_size)
+	void com_clean_name_stub(const char* in, char* out, const int out_size)
 	{
 		strncpy_s(out, out_size, in, _TRUNCATE);
 	}
@@ -113,7 +110,7 @@ namespace
 		return string;
 	}
 
-	void rb_lookup_color_stub(char index, DWORD* color)
+	void rb_lookup_color_stub(const char index, DWORD* color)
 	{
 		*color = RGB(255, 255, 255);
 
@@ -163,20 +160,21 @@ public:
 		utils::hook::jump(SELECT_VALUE(0x14055DCC0, 0x14062AE80), rb_lookup_color_stub);
 
 		// add colors
-		add(0, 0, 0);       // 0  - Black
-		add(255, 49, 49);   // 1  - Red
-		add(134, 192, 0);   // 2  - Green
-		add(255, 173, 34);  // 3  - Yellow
-		add(0, 135, 193);   // 4  - Blue
-		add(32, 197, 255);  // 5  - Light Blue
-		add(151, 80, 221);  // 6  - Pink
+		add(0, 0, 0); // 0  - Black
+		add(255, 49, 49); // 1  - Red
+		add(134, 192, 0); // 2  - Green
+		add(255, 173, 34); // 3  - Yellow
+		add(0, 135, 193); // 4  - Blue
+		add(32, 197, 255); // 5  - Light Blue
+		add(151, 80, 221); // 6  - Pink
 		add(255, 255, 255); // 7  - White
 
-		add(0, 0, 0);       // 8  - Team color (axis?)
-		add(0, 0, 0);       // 9  - Team color (allies?)
+		add(0, 0, 0); // 8  - Team color (axis?)
+		add(0, 0, 0); // 9  - Team color (allies?)
 
-		add(0, 0, 0);       // 10 - Rainbow (:)
-		add(0, 0, 0);       // 11 - Server color (;) - using that color in infostrings (e.g. your name) fails, ';' is an illegal character!
+		add(0, 0, 0); // 10 - Rainbow (:)
+		add(0, 0, 0);
+		// 11 - Server color (;) - using that color in infostrings (e.g. your name) fails, ';' is an illegal character!
 	}
 };
 

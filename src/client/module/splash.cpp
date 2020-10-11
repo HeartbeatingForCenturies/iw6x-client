@@ -2,7 +2,6 @@
 #include "loader/module_loader.hpp"
 #include "utils/nt.hpp"
 #include "utils/hook.hpp"
-#include "scheduler.hpp"
 #include "game/game.hpp"
 
 class splash final : public module

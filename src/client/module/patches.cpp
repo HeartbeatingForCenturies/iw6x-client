@@ -20,7 +20,7 @@ namespace
 	utils::hook::detour dvar_register_int_hook;
 
 	game::dvar_t* dvar_register_int(const char* dvarName, int value, int min, int max, unsigned int flags,
-		const char* description)
+	                                const char* description)
 	{
 		// enable map selection in extinction
 		if (!strcmp(dvarName, "extinction_map_selection_enabled"))
@@ -28,13 +28,13 @@ namespace
 			value = true;
 		}
 
-		// enable extra loadouts
+			// enable extra loadouts
 		else if (!strcmp(dvarName, "extendedLoadoutsEnable"))
 		{
 			value = true;
 		}
 
-		// show all in-game store items
+			// show all in-game store items
 		else if (strstr(dvarName, "igs_"))
 		{
 			value = true;
@@ -61,12 +61,14 @@ public:
 
 		// Keep this at 1 so it cannot be used 
 		game::Dvar_RegisterInt("r_fog", 1, 1, 1, 0, "Shows the maps fog");
-		
+
 		// Keeping it so it cant be used for uav cheats for people
-		game::Dvar_RegisterInt("bg_compassShowEnemies", 0, 0, 0, 0x8C, "Whether enemies are visible on the compass at all times");
+		game::Dvar_RegisterInt("bg_compassShowEnemies", 0, 0, 0, 0x8C,
+		                       "Whether enemies are visible on the compass at all times");
 
 		// set it to 3 to display both voice dlc announcers did only show 1
-		game::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0, "Show Announcer Packs. (Bitfield representing which announcer paks to show)");
+		game::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0,
+		                       "Show Announcer Packs. (Bitfield representing which announcer paks to show)");
 
 		// changed max value from 85 -> 1000
 		if (game::environment::is_dedi())

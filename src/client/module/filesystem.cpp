@@ -37,7 +37,7 @@ const std::string& filesystem::file::get_name() const
 void filesystem::post_unpack()
 {
 	// Set fs_basegame
-	utils::hook::inject(SELECT_VALUE(0x14041C053, 0x1404DDA13),"iw6x");
+	utils::hook::inject(SELECT_VALUE(0x14041C053, 0x1404DDA13), "iw6x");
 }
 
 REGISTER_MODULE(filesystem)

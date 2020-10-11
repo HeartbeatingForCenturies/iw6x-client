@@ -25,7 +25,8 @@ void scheduler::main_frame_stub()
 	game::Com_Frame_Try_Block_Function();
 }
 
-void scheduler::schedule(const std::function<bool()>& callback, const pipeline type, const std::chrono::milliseconds delay)
+void scheduler::schedule(const std::function<bool()>& callback, const pipeline type,
+                         const std::chrono::milliseconds delay)
 {
 	auto* instance = module_loader::get<scheduler>();
 	if (instance)

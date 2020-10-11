@@ -1,6 +1,5 @@
 #include <std_include.hpp>
 
-#include "game_console.hpp"
 #include "scheduler.hpp"
 
 #include "game/game.hpp"

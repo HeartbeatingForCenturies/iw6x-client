@@ -2,7 +2,6 @@
 
 #include "scheduler.hpp"
 #include "loader/module_loader.hpp"
-#include "utils/nt.hpp"
 #include "utils/hook.hpp"
 #include "game/game.hpp"
 
@@ -41,7 +40,7 @@ namespace
 	}
 
 	game::dvar_t* register_network_fps_stub(const char* name, int, int, int, unsigned int flags,
-	                                    const char* desc)
+	                                        const char* desc)
 	{
 		return game::Dvar_RegisterInt(name, 1000, 50, 1000, flags, desc);
 	}
@@ -52,12 +51,12 @@ class dedicated final : public module
 public:
 	void* load_import(const std::string& module, const std::string& function) override
 	{
-		if(!game::environment::is_dedi())
+		if (!game::environment::is_dedi())
 		{
 			return nullptr;
 		}
 
-		if(function == "DirectSoundCreate8"
+		if (function == "DirectSoundCreate8"
 			|| function == "DirectSoundCaptureCreate"
 			|| function == "CreateDXGIFactory"
 			|| function == "D3D11CreateDevice")
@@ -102,7 +101,7 @@ public:
 		utils::hook::nop(0x1402CA0B9, 2);             // ^
 		utils::hook::nop(0x1402CA12D, 5);             // don't shutdown renderer
 		//utils::hook::set<uint8_t>(0x575266, 0xEB);  // shutdown existing stuff before loading new map
-		
+
 		utils::hook::set<uint8_t>(0x1404FFCF0, 0xC3); // cpu detection stuff
 		utils::hook::set<uint8_t>(0x1405F0620, 0xC3); // gfx stuff during fastfile loading
 		utils::hook::set<uint8_t>(0x1405F0530, 0xC3); // ^
@@ -128,14 +127,14 @@ public:
 		utils::hook::set<uint8_t>(0x1405E76C0, 0xC3); // ^
 
 		utils::hook::set<uint8_t>(0x14065EA00, 0xC3); // sound crashes
-		
+
 		utils::hook::set<uint8_t>(0x14047BE70, 0xC3); // disable host migration
 		//utils::hook::set<uint8_t>(0x1402CAC60, 0xC3); // disable loadscreen
 
 		scheduler::schedule([]()
 		{
 			const auto flags = game::Live_SyncOnlineDataFlags(0);
-			if(flags == 0)
+			if (flags == 0)
 			{
 				game::Cmd_ExecuteSingleCommand(0, 0, "xstartprivatematch\n");
 				game::Cmd_ExecuteSingleCommand(0, 0, "xstartpartyhost\n");

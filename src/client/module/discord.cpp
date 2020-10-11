@@ -41,7 +41,8 @@ namespace
 
 			if (!discord_presence.startTimestamp)
 			{
-				discord_presence.startTimestamp = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+				discord_presence.startTimestamp = std::chrono::duration_cast<std::chrono::seconds>(
+					std::chrono::system_clock::now().time_since_epoch()).count();
 			}
 
 			discord_presence.largeImageKey = game::Dvar_FindVar("ui_mapname")->current.string;

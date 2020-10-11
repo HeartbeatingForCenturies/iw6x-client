@@ -7,7 +7,6 @@
 #include "command.hpp"
 #include "game_console.hpp"
 #include "localized_strings.hpp"
-#include "scheduler.hpp"
 
 #include "utils/string.hpp"
 
@@ -43,7 +42,7 @@ void server_list::insert_server(server_info* server)
 
 void server_list::add_server()
 {
-	server_info server = { 0 };
+	server_info server = {0};
 
 	strcpy_s(server.host_name, utils::string::va("^%dIW6x Test Server %d", server_count + 1, server_count));
 	strcpy_s(server.map_name, "mp_favela_iw6");
@@ -82,7 +81,7 @@ bool server_list_refresher()
 		server_list::update_server_list = false;
 	}
 
-	return 0;
+	return false;
 }
 
 int server_list::ui_feeder_count()
@@ -150,7 +149,7 @@ void server_list::post_unpack()
 
 		server_count = 0;
 	});
-	
+
 	command::add("lui_open", [](command::params params)
 	{
 		if (params.size() <= 1)
