@@ -15,6 +15,9 @@ namespace game
 	typedef void (*Com_Frame_Try_Block_Function_t)();
 	extern Com_Frame_Try_Block_Function_t Com_Frame_Try_Block_Function;
 
+	typedef const char* (*Com_Parse_t)(char const **);
+	extern Com_Parse_t Com_Parse;
+
 	typedef void (*Conbuf_AppendText_t)(const char* message);
 	extern Conbuf_AppendText_t Conbuf_AppendText;
 
