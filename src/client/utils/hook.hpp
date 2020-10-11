@@ -117,7 +117,7 @@ namespace utils::hook
 	void copy(void* place, const void* data, size_t length);
 	void copy(size_t place, const void* data, size_t length);
 
-	bool is_relatively_far(void* pointer, void* data);
+	bool is_relatively_far(void* pointer, void* data, int offset = 5);
 
 	void call(void* pointer, void* data);
 	void call(size_t pointer, void* data);
@@ -126,6 +126,9 @@ namespace utils::hook
 	void jump(size_t pointer, void* data, bool use_far = false);
 
 	void* assemble(const std::function<void(assembler&)>& asm_function);
+
+	void inject(void* pointer, void* data);
+	void inject(size_t pointer, void* data);
 
 	template <typename T>
 	T extract(void* address)

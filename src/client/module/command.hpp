@@ -26,7 +26,8 @@ public:
     };
 
     static void add_raw(const char* name, void(*callback)());
-    static void add(const char* name, std::function<void(params&)> callback);
+    static void add(const char* name, const std::function<void(params&)>& callback);
+    static void add(const char* name, const std::function<void()>& callback);
 
     static void add_sv(const char* name, std::function<void(int, params_sv&)> callback);
 

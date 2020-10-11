@@ -73,6 +73,12 @@ namespace game
 	typedef const char* (*Dvar_ValueToString_t)(dvar_t* dvar, dvar_value value);
 	extern Dvar_ValueToString_t Dvar_ValueToString;
 
+	typedef unsigned __int64 (*FS_ReadFile_t)(const char *qpath, char **buffer);
+	extern FS_ReadFile_t FS_ReadFile;
+
+	typedef void (*FS_FreeFile_t)(void *buffer);
+	extern FS_FreeFile_t FS_FreeFile;
+
 	typedef int (*G_RunFrame_t)(int server_time);
 	extern G_RunFrame_t G_RunFrame;
 

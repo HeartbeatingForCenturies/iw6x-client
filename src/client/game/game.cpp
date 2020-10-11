@@ -30,6 +30,9 @@ namespace game
 	Dvar_Sort_t Dvar_Sort;
 	Dvar_ValueToString_t Dvar_ValueToString;
 
+	FS_ReadFile_t FS_ReadFile;
+	FS_FreeFile_t FS_FreeFile;
+
 	G_RunFrame_t G_RunFrame;
 
 	LUI_OpenMenu_t LUI_OpenMenu;
@@ -169,6 +172,9 @@ namespace game
 			Dvar_ValueToString = Dvar_ValueToString_t(SELECT_VALUE(0x14042E710, 0x1404F1A30));
 
 			G_RunFrame = G_RunFrame_t(SELECT_VALUE(0x0, 0x1403A05E0));
+			
+			FS_ReadFile = FS_ReadFile_t(SELECT_VALUE(0x14041D0B0, 0x1404DE900));
+			FS_FreeFile = FS_FreeFile_t(SELECT_VALUE(0x14041D0A0, 0x1404DE8F0));
 
 			LUI_OpenMenu = LUI_OpenMenu_t(SELECT_VALUE(0x0, 0x1404B3610));
 

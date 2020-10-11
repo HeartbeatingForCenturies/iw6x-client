@@ -58,7 +58,7 @@ void command::add_raw(const char* name, void(*callback)())
     game::Cmd_AddCommandInternal(name, callback, utils::memory::get_allocator()->allocate<game::cmd_function_s>());
 }
 
-void command::add(const char* name, std::function<void(params&)> callback)
+void command::add(const char* name, const std::function<void(params&)>& callback)
 {
     const auto command = utils::string::to_lower(name);
 
@@ -66,6 +66,14 @@ void command::add(const char* name, std::function<void(params&)> callback)
         add_raw(name, main_handler);
 
     handlers[command] = callback;
+}
+
+void command::add(const char* name, const std::function<void()>& callback)
+{
+    command::add(name, [callback](params&)
+    {
+        callback();
+    });
 }
 
 void command::add_sv(const char* name, std::function<void(int, params_sv&)> callback)
@@ -107,7 +115,7 @@ void command::client_command(int clientNum, void* a2)
 
 void command::add_sp_commands()
 {
-    command::add("noclip", [&](command::params&)
+    command::add("noclip", [&]()
     {
         if (!game::SV_Loaded())
         {
@@ -118,7 +126,7 @@ void command::add_sp_commands()
         game::CG_GameMessage(0, utils::string::va("noclip %s", game::sp::g_entities[0].client->flags & 1 ? "^2on" : "^1off"));
     });
 
-    command::add("ufo", [&](command::params&)
+    command::add("ufo", [&]()
     {
         if (!game::SV_Loaded())
         {

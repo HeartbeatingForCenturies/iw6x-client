@@ -49,12 +49,12 @@ class patches final : public module
 public:
 	void post_unpack() override
 	{
-		command::add("quit", [](command::params&)
+		command::add("quit", []()
 		{
 			utils::hook::invoke<void>(SELECT_VALUE(0x1403BDDD0, 0x140414920));
 		});
 
-		command::add("quit_hard", [](command::params&)
+		command::add("quit_hard", []()
 		{
 			utils::nt::raise_hard_exception();
 		});
@@ -81,7 +81,7 @@ public:
 		// changed max value from 80.0f -> 120.f
 		game::Dvar_RegisterFloat("cg_fov", 65.0f, 65.0f, 120.0f, 0x1, "The field of view angle in degrees");
 
-		command::add("dvarDump", [](command::params&)
+		command::add("dvarDump", []()
 		{
 			game_console::print(
 				7, "================================ DVAR DUMP ========================================\n");
@@ -98,7 +98,7 @@ public:
 				7, "================================ END DVAR DUMP ====================================\n");
 		});
 
-		command::add("commandDump", [](command::params&)
+		command::add("commandDump", []()
 		{
 			game_console::print(
 				7, "================================ COMMAND DUMP =====================================\n");

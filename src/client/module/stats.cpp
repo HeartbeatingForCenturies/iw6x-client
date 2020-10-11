@@ -14,7 +14,7 @@ public:
 			return;
 		}
 
-		command::add("unlockall", [](command::params&)
+		command::add("unlockall", []()
 		{
 			utils::hook::set<BYTE>(0x1445A3798, 0x0A);	// Prestige
 			utils::hook::set<short>(0x1445A34A0, 5000); // squad points

@@ -138,12 +138,12 @@ void server_list::post_unpack()
 	memset(display_servers, 0, sizeof(display_servers));
 	memset(servers, 0, sizeof(servers));
 
-	command::add("addTestServer", [&](command::params&)
+	command::add("addTestServer", [&]()
 	{
 		add_server();
 	});
 
-	command::add("clearTestServers", [&](command::params&)
+	command::add("clearTestServers", [&]()
 	{
 		memset(display_servers, 0, sizeof(display_servers));
 		memset(servers, 0, sizeof(servers));
