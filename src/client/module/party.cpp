@@ -58,8 +58,6 @@ void party::post_unpack()
 			return;
 		}
 
-		// TODO: Figure out correct party type
-		game::Cmd_ExecuteSingleCommand(0, 0, "xblive_privatematch 1\n");
 		game::SV_StartMap(0, argument[1], false);
 	});
 

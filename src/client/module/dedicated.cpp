@@ -130,6 +130,31 @@ public:
 		utils::hook::set<uint8_t>(0x14065EA00, 0xC3); // sound crashes
 		
 		utils::hook::set<uint8_t>(0x14047BE70, 0xC3); // disable host migration
+		//utils::hook::set<uint8_t>(0x1402CAC60, 0xC3); // disable loadscreen
+
+		scheduler::schedule([]()
+		{
+			const auto flags = game::Live_SyncOnlineDataFlags(0);
+			if(flags == 0)
+			{
+				game::Cmd_ExecuteSingleCommand(0, 0, "xstartprivatematch\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "xstartpartyhost\n");
+
+				game::Cmd_ExecuteSingleCommand(0, 0, "exec default_mp_gamesettings.cfg\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "exec default_private.cfg\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "onlinegame 1\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "xblive_rankedmatch 1\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "xblive_privatematch 1\n");
+
+				printf("==================================\n");
+				printf("Server started!\n");
+				printf("==================================\n");
+
+				return scheduler::cond_end;
+			}
+
+			return scheduler::cond_continue;
+		}, scheduler::pipeline::main, 1s);
 	}
 };
 

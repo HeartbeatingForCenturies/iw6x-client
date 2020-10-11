@@ -82,6 +82,9 @@ namespace game
 	typedef int (*G_RunFrame_t)(int server_time);
 	extern G_RunFrame_t G_RunFrame;
 
+	typedef unsigned int (*Live_SyncOnlineDataFlags_t)(int);
+	extern Live_SyncOnlineDataFlags_t Live_SyncOnlineDataFlags;
+
 	typedef void (*LUI_OpenMenu_t)(int clientNum, const char* menu, int a3, int a4, unsigned int a5);
 	extern LUI_OpenMenu_t LUI_OpenMenu;
 

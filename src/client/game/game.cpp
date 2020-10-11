@@ -35,6 +35,8 @@ namespace game
 
 	G_RunFrame_t G_RunFrame;
 
+	Live_SyncOnlineDataFlags_t Live_SyncOnlineDataFlags;
+
 	LUI_OpenMenu_t LUI_OpenMenu;
 
 	Material_RegisterHandle_t Material_RegisterHandle;
@@ -179,6 +181,8 @@ namespace game
 			FS_ReadFile = FS_ReadFile_t(SELECT_VALUE(0x14041D0B0, 0x1404DE900));
 			FS_FreeFile = FS_FreeFile_t(SELECT_VALUE(0x14041D0A0, 0x1404DE8F0));
 
+			Live_SyncOnlineDataFlags = Live_SyncOnlineDataFlags_t(SELECT_VALUE(0, 0x1405ABF70));
+
 			LUI_OpenMenu = LUI_OpenMenu_t(SELECT_VALUE(0x0, 0x1404B3610));
 
 			Material_RegisterHandle = Material_RegisterHandle_t(SELECT_VALUE(0x140523D90, 0x1405F0E20));
@@ -222,7 +226,7 @@ namespace game
 			{
 				sp::g_entities = reinterpret_cast<sp::gentity_s*>(0x143C91600);
 			}
-			else if (is_mp())
+			else
 			{
 				mp::cgArray = reinterpret_cast<mp::cg_s*>(0x14176EC00);
 
