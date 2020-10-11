@@ -117,6 +117,9 @@ namespace game
 	typedef void (*SV_StartMap_t)(int localClientNum, const char* map, bool mapIsPreloaded);
 	extern SV_StartMap_t SV_StartMap;
 
+	typedef mp::gentity_s * (*SV_AddTestClient_t)(int forceTestClientType, const int team, const int index, int team_owners_client);
+	extern SV_AddTestClient_t SV_AddTestClient;
+
 	typedef int (*Sys_Milliseconds_t)();
 	extern Sys_Milliseconds_t Sys_Milliseconds;
 
