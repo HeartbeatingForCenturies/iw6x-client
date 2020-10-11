@@ -68,10 +68,7 @@ public:
 
 			for (auto i = 0; i < num_bots; i++)
 			{
-				scheduler::once([]()
-				{
-					add_bot();
-				}, scheduler::pipeline::server, 100ms * i);
+				scheduler::once(add_bot, scheduler::pipeline::server, 100ms * i);
 			}
 		});
 	}
