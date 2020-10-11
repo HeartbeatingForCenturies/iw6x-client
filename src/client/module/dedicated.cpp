@@ -79,6 +79,7 @@ public:
 		utils::hook::jump(0x1402C89A0, init_dedicated_server);
 		utils::hook::call(0x140476F4F, register_network_fps_stub);
 
+		utils::hook::set<uint8_t>(0x140416100, 0xC3); // don't save config file
 		utils::hook::set<uint8_t>(0x1402E5830, 0xC3); // disable self-registration
 		utils::hook::set<uint8_t>(0x1402C7935, 5);    // make CL_Frame do client packets, even for game state 9
 		utils::hook::set<uint8_t>(0x140503FF0, 0xC3); // init sound system (1)
