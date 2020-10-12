@@ -118,10 +118,10 @@ namespace game
 
 	launcher::mode get_mode()
 	{
-		/*if (mode == launcher::mode::none)
+		if (mode == launcher::mode::none)
 		{
 			throw std::runtime_error("Launcher mode not valid. Something must be wrong.");
-		}*/
+		}
 
 		return mode;
 	}

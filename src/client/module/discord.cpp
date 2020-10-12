@@ -74,11 +74,13 @@ public:
 		Discord_Initialize("762374436183343114", &handlers, 1, nullptr);
 
 		scheduler::loop(update_discord, scheduler::pipeline::async, 20s);
+
+		initialized_ = true;
 	}
 
 	void pre_destroy() override
 	{
-		if (game::environment::is_dedi())
+		if (!initialized_ || game::environment::is_dedi())
 		{
 			return;
 		}
@@ -87,6 +89,8 @@ public:
 	}
 
 private:
+	bool initialized_ = false;
+
 	static void ready(const DiscordUser* request)
 	{
 		ZeroMemory(&discord_presence, sizeof(discord_presence));
