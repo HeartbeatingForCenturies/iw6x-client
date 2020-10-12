@@ -84,7 +84,8 @@ namespace
 
 	void cg_draw_fps()
 	{
-		if (game::Dvar_FindVar("cg_drawFPS")->current.integer != 0 /*&& game::CL_IsCgameInitialized()*/)
+		const auto* draw_fps = game::Dvar_FindVar("cg_drawFPS");
+		if (draw_fps && draw_fps->current.integer != 0 /*&& game::CL_IsCgameInitialized()*/)
 		{
 			const auto fps = static_cast<std::int32_t>(static_cast<float>(1000.0f / static_cast<float>(cg_perf.average))
 				+ 9.313225746154785e-10);
@@ -103,7 +104,7 @@ namespace
 
 			game::R_AddCmdDrawText(fps_string, 0x7FFFFFFF, font, x, y, scale, scale, 0.0f, fps_color, 6);
 
-			if (game::mp::g_entities && game::Dvar_FindVar("cg_drawFPS")->current.integer > 1 && game::SV_Loaded())
+			if (game::mp::g_entities && draw_fps->current.integer > 1 && game::SV_Loaded())
 			{
 				auto* const origin_string = utils::string::va("%f, %f, %f",
 				                                              game::mp::g_entities[0].client->ps.origin[0],
