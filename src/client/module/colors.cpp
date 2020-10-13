@@ -14,26 +14,25 @@ namespace
 	DWORD hsv_to_rgb(const game::HsvColor hsv)
 	{
 		DWORD rgb;
-		unsigned char region, p, q, t;
-		unsigned int h, s, v, remainder;
 
 		if (hsv.s == 0)
 		{
-			rgb = RGB(hsv.v, hsv.v, hsv.v);
-			return rgb;
+			return RGB(hsv.v, hsv.v, hsv.v);
 		}
 
 		// converting to 16 bit to prevent overflow
-		h = hsv.h;
-		s = hsv.s;
-		v = hsv.v;
+		const unsigned int h = hsv.h;
+		const unsigned int s = hsv.s;
+		const unsigned int v = hsv.v;
 
-		region = static_cast<uint8_t>(h / 43);
-		remainder = (h - (region * 43)) * 6;
+		const auto region = static_cast<uint8_t>(h / 43);
+		const auto remainder = (h - (region * 43)) * 6;
 
-		p = static_cast<uint8_t>((v * (255 - s)) >> 8);
-		q = static_cast<uint8_t>((v * (255 - ((s * remainder) >> 8))) >> 8);
-		t = static_cast<uint8_t>((v * (255 - ((s * (255 - remainder)) >> 8))) >> 8);
+		const auto p = static_cast<uint8_t>((v * (255 - s)) >> 8);
+		const auto q = static_cast<uint8_t>(
+			(v * (255 - ((s * remainder) >> 8))) >> 8);
+		const auto t = static_cast<uint8_t>(
+			(v * (255 - ((s * (255 - remainder)) >> 8))) >> 8);
 
 		switch (region)
 		{
@@ -74,7 +73,7 @@ namespace
 		auto current = 0;
 		while (*in != 0 && current < max)
 		{
-			const char index = *(in + 1);
+			const auto index = *(in + 1);
 			if (*in == '^' && (color_index(index) != 7 || index == '7'))
 			{
 				++in;
@@ -91,7 +90,7 @@ namespace
 		*out = '\0';
 	}
 
-	char add(uint8_t r, uint8_t g, uint8_t b)
+	char add(const uint8_t r, const uint8_t g, const uint8_t b)
 	{
 		const char index = '0' + static_cast<char>(color_table.size());
 		color_table.push_back(RGB(r, g, b));
