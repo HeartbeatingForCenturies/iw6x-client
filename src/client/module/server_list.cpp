@@ -7,7 +7,6 @@
 #include "command.hpp"
 #include "game_console.hpp"
 #include "localized_strings.hpp"
-#include "scheduler.hpp"
 
 #include "utils/string.hpp"
 
@@ -43,7 +42,7 @@ void server_list::insert_server(server_info* server)
 
 void server_list::add_server()
 {
-	server_info server = { 0 };
+	server_info server = {0};
 
 	strcpy_s(server.host_name, utils::string::va("^%dIW6x Test Server %d", server_count + 1, server_count));
 	strcpy_s(server.map_name, "mp_favela_iw6");
@@ -70,6 +69,11 @@ void refresh_server_list()
 	// refresh server list here
 }
 
+void join_server(int, int, const int index)
+{
+	printf("Join %d ...\n", index);
+}
+
 bool server_list_refresher()
 {
 	if (server_list::update_server_list)
@@ -77,7 +81,7 @@ bool server_list_refresher()
 		server_list::update_server_list = false;
 	}
 
-	return 0;
+	return false;
 }
 
 int server_list::ui_feeder_count()
@@ -123,6 +127,8 @@ void server_list::post_unpack()
 
 	// replace UI_RunMenuScript call in LUI_CoD_LuaCall_RefreshServerList to our refresh_servers
 	utils::hook::call(0x1401E7171, &refresh_server_list);
+	utils::hook::call(0x1401E7616, &join_server);
+	utils::hook::nop(0x1401E7635, 5);
 
 	// do feeder stuff
 	utils::hook::call(0x1401E7225, &ui_feeder_count);
@@ -131,19 +137,19 @@ void server_list::post_unpack()
 	memset(display_servers, 0, sizeof(display_servers));
 	memset(servers, 0, sizeof(servers));
 
-	command::add("addTestServer", [&](command::params&)
+	command::add("addTestServer", [&]()
 	{
 		add_server();
 	});
 
-	command::add("clearTestServers", [&](command::params&)
+	command::add("clearTestServers", [&]()
 	{
 		memset(display_servers, 0, sizeof(display_servers));
 		memset(servers, 0, sizeof(servers));
 
 		server_count = 0;
 	});
-	
+
 	command::add("lui_open", [](command::params params)
 	{
 		if (params.size() <= 1)

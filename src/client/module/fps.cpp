@@ -1,6 +1,5 @@
 #include <std_include.hpp>
 
-#include "game_console.hpp"
 #include "scheduler.hpp"
 
 #include "game/game.hpp"
@@ -11,8 +10,8 @@
 
 namespace
 {
-	float fps_color[4] = { 0.6f, 1.0f, 0.0f, 1.0f };
-	float origin_color[4] = { 1.0f, 0.67f, 0.13f, 1.0f };
+	float fps_color[4] = {0.6f, 1.0f, 0.0f, 1.0f};
+	float origin_color[4] = {1.0f, 0.67f, 0.13f, 1.0f};
 
 	struct cg_perf_data
 	{
@@ -73,7 +72,8 @@ namespace
 	{
 		cg_perf.count = 32;
 
-		cg_perf.current_ms = static_cast<std::int32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - cg_perf.perf_start).count());
+		cg_perf.current_ms = static_cast<std::int32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::high_resolution_clock::now() - cg_perf.perf_start).count());
 		cg_perf.frame_ms = cg_perf.current_ms - cg_perf.previous_ms;
 		cg_perf.previous_ms = cg_perf.current_ms;
 
@@ -84,9 +84,11 @@ namespace
 
 	void cg_draw_fps()
 	{
-		if (game::Dvar_FindVar("cg_drawFPS")->current.integer != 0 /*&& game::CL_IsCgameInitialized()*/)
+		const auto* draw_fps = game::Dvar_FindVar("cg_drawFPS");
+		if (draw_fps && draw_fps->current.integer != 0 /*&& game::CL_IsCgameInitialized()*/)
 		{
-			const auto fps = static_cast<std::int32_t>(static_cast<float>(1000.0f / static_cast<float>(cg_perf.average)) + 9.313225746154785e-10);
+			const auto fps = static_cast<std::int32_t>(static_cast<float>(1000.0f / static_cast<float>(cg_perf.average))
+				+ 9.313225746154785e-10);
 
 			auto* font = game::R_RegisterFont("fonts/normalfont");
 			if (!font) return;
@@ -95,23 +97,29 @@ namespace
 
 			const auto scale = 1.0f;
 
-			const auto x = (game::ScrPlace_GetViewPlacement()->realViewportSize[0] - 10.0f) - game::R_TextWidth(fps_string, 0x7FFFFFFF, font) * scale;
+			const auto x = (game::ScrPlace_GetViewPlacement()->realViewportSize[0] - 10.0f) - game::R_TextWidth(
+				fps_string, 0x7FFFFFFF, font) * scale;
 
 			const auto y = font->pixelHeight * 1.2f;
 
 			game::R_AddCmdDrawText(fps_string, 0x7FFFFFFF, font, x, y, scale, scale, 0.0f, fps_color, 6);
 
-			if (game::mp::g_entities && game::Dvar_FindVar("cg_drawFPS")->current.integer > 1 && game::SV_Loaded())
+			if (game::mp::g_entities && draw_fps->current.integer > 1 && game::SV_Loaded())
 			{
-				auto* const origin_string = utils::string::va("%f, %f, %f", game::mp::g_entities[0].client->ps.origin[0], game::mp::g_entities[0].client->ps.origin[1], game::mp::g_entities[0].client->ps.origin[2]);
-				const auto origin_x = (game::ScrPlace_GetViewPlacement()->realViewportSize[0] - 10.0f) - game::R_TextWidth(origin_string, 0x7FFFFFFF, font) * scale;
-				game::R_AddCmdDrawText(origin_string, 0x7FFFFFFF, font, origin_x, y + 50, scale, scale, 0.0f, origin_color, 6);
+				auto* const origin_string = utils::string::va("%f, %f, %f",
+				                                              game::mp::g_entities[0].client->ps.origin[0],
+				                                              game::mp::g_entities[0].client->ps.origin[1],
+				                                              game::mp::g_entities[0].client->ps.origin[2]);
+				const auto origin_x = (game::ScrPlace_GetViewPlacement()->realViewportSize[0] - 10.0f) -
+					game::R_TextWidth(origin_string, 0x7FFFFFFF, font) * scale;
+				game::R_AddCmdDrawText(origin_string, 0x7FFFFFFF, font, origin_x, y + 50, scale, scale, 0.0f,
+				                       origin_color, 6);
 			}
-
 		}
 	}
 
-	void cg_draw_fps_register_stub(const char* name, const char** _enum, const int value, unsigned int flags, const char* desc)
+	void cg_draw_fps_register_stub(const char* name, const char** _enum, const int value, unsigned int flags,
+	                               const char* desc)
 	{
 		game::Dvar_RegisterEnum(name, _enum, value, 0x1, desc);
 	}
@@ -122,6 +130,11 @@ class fps final : public module
 public:
 	void post_unpack() override
 	{
+		if (game::environment::is_dedi())
+		{
+			return;
+		}
+
 		// fps setup
 		cg_perf.perf_start = std::chrono::high_resolution_clock::now();
 		utils::hook::call(SELECT_VALUE(0x140242C11, 0x1402CF457), &perf_update);

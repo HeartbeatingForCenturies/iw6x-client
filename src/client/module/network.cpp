@@ -1,7 +1,6 @@
 #include <std_include.hpp>
 #include "network.hpp"
 
-#include "command.hpp"
 #include "game/game.hpp"
 #include "utils/hook.hpp"
 
@@ -37,11 +36,11 @@ namespace
 
 		a.mov(r8, rsi); // message
 		a.mov(rdx, rdi); // command
-		a.xor_(rcx, r14); // netaddr
+		a.mov(rcx, r14); // netaddr
 
 		a.call(handle_command);
 
-		a.test(ax, ax);
+		a.test(al, al);
 		a.jz(return_unhandled);
 
 		// Command handled
@@ -53,7 +52,7 @@ namespace
 		a.jmp(0x1402C64EE);
 	}
 
-	int net_compare_base_address(game::netadr_s* a1, game::netadr_s* a2)
+	int net_compare_base_address(const game::netadr_s* a1, const game::netadr_s* a2)
 	{
 		if (a1->type == a2->type)
 		{
@@ -75,7 +74,7 @@ namespace
 		return false;
 	}
 
-	int net_compare_address(game::netadr_s* a1, game::netadr_s* a2)
+	int net_compare_address(const game::netadr_s* a1, const game::netadr_s* a2)
 	{
 		return net_compare_base_address(a1, a2) && a1->port == a2->port;
 	}
@@ -101,9 +100,18 @@ void network::send(const game::netadr_s& address, const std::string& data)
 	game::Sys_SendPacket(static_cast<int>(data.size()), data.data(), &address);
 }
 
+bool network::are_addresses_equal(const game::netadr_s& a, const game::netadr_s& b)
+{
+	return net_compare_address(&a, &b);
+}
+
 void network::post_unpack()
 {
-	if (!game::environment::is_mp()) return;
+	if (game::environment::is_sp())
+	{
+		return;
+	}
+
 	// redirect dw_sendto to raw socket
 	utils::hook::jump(0x140501AAA, reinterpret_cast<void*>(0x140501A3A));
 
@@ -127,39 +135,19 @@ void network::post_unpack()
 	utils::hook::set<uint8_t>(0x140154AA9, 0xEB);
 	utils::hook::set<uint8_t>(0x140154AC3, 0xEB);
 
-	// fucked up client state test
-	//utils::hook::nop(0x1404742B0, 6);
+	// disable xuid verification
+	utils::hook::nop(0x140474584, 2);
+	utils::hook::set<uint8_t>(0x1404745DB, 0xEB);
 
-	command::add("lul", [](command::params&)
-	{
-		game::netadr_s addr{};
-		addr.port = htons(27016);
-		addr.type = game::NA_IP;
-		inet_pton(AF_INET, "192.168.10.111", addr.ip);
+	// ignore configstring mismatch
+	utils::hook::set<uint8_t>(0x1402CCCC7, 0xEB);
 
-		network::send(addr, "test_command", "this is a test");
-	});
+	// increase cl_maxpackets
+	utils::hook::set<uint8_t>(0x1402C8083, 125);
+	utils::hook::set<uint8_t>(0x1402C808C, 125);
 
-	command::add("hehe", [](command::params&)
-	{
-		char session_info[0x1000] = {};
-
-		game::netadr_s addr{};
-		addr.port = htons(27016);
-		addr.type = game::NA_IP;
-		inet_pton(AF_INET, "192.168.10.19", addr.ip);
-
-		// CL_ConnectFromParty
-		((void(*)(int, char*, game::netadr_s*, const char*, const char*))0x1402C5700)(
-			0, session_info, &addr, "mp_prisonbreak", "war");
-	});
-
-	network::on("test_command", [](const game::netadr_s& address, const std::string_view& data)
-	{
-		printf("YEEEEEEEEEEES: %s\n", std::string(data).data());
-	});
+	// ignore impure client
+	utils::hook::jump(0x140472671, reinterpret_cast<void*>(0x1404726F9));
 }
 
-#if defined(DEV_BUILD)
 REGISTER_MODULE(network)
-#endif

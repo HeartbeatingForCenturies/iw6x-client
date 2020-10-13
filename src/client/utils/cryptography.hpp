@@ -89,4 +89,15 @@ namespace utils::cryptography
 		static unsigned int compute(const std::string& data);
 		static unsigned int compute(const char* key, size_t len);
 	};
+
+	class random final
+	{
+	public:
+		static uint32_t get_integer();
+		static std::string get_challenge();
+		static void get_data(void* data, size_t size);
+
+	private:
+		static prng_state* get_prng_state();
+	};
 }

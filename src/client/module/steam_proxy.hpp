@@ -15,9 +15,9 @@ private:
 	utils::nt::module steam_client_module_{};
 	utils::nt::module steam_overlay_module_{};
 
-	steam::interface client_engine_ {};
-	steam::interface client_user_ {};
-	steam::interface client_utils_ {};
+	steam::interface client_engine_{};
+	steam::interface client_user_{};
+	steam::interface client_utils_{};
 
 	void* steam_pipe_ = nullptr;
 	void* global_user_ = nullptr;

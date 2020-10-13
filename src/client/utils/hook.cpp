@@ -130,9 +130,9 @@ namespace utils::hook
 		copy(reinterpret_cast<void*>(place), data, length);
 	}
 
-	bool is_relatively_far(void* pointer, void* data)
+	bool is_relatively_far(void* pointer, void* data, int offset)
 	{
-		const int64_t diff = size_t(data) - (size_t(pointer) + 5);
+		const int64_t diff = size_t(data) - (size_t(pointer) + offset);
 		const auto small_diff = int32_t(diff);
 		return diff != int64_t(small_diff);
 	}
@@ -152,6 +152,11 @@ namespace utils::hook
 	void call(const size_t pointer, void* data)
 	{
 		return call(reinterpret_cast<void*>(pointer), data);
+	}
+
+	void call(const size_t pointer, const size_t data)
+	{
+		return call(pointer, reinterpret_cast<void*>(data));
 	}
 
 	void jump(void* pointer, void* data, const bool use_far)
@@ -184,6 +189,11 @@ namespace utils::hook
 		return jump(reinterpret_cast<void*>(pointer), data, use_far);
 	}
 
+	void jump(const size_t pointer, const size_t data, const bool use_far)
+	{
+		return jump(pointer, reinterpret_cast<void*>(data), use_far);
+	}
+
 	void* assemble(const std::function<void(assembler&)>& asm_function)
 	{
 		static asmjit::JitRuntime runtime;
@@ -199,6 +209,21 @@ namespace utils::hook
 		runtime.add(&result, &code);
 
 		return result;
+	}
+
+	void inject(void* pointer, void* data)
+	{
+		if (is_relatively_far(pointer, data, 4))
+		{
+			throw std::runtime_error("Too far away to create 32bit relative branch");
+		}
+
+		set<int32_t>(pointer, int32_t(size_t(data) - (size_t(pointer) + 4)));
+	}
+
+	void inject(const size_t pointer, void* data)
+	{
+		return inject(reinterpret_cast<void*>(pointer), data);
 	}
 
 	void* follow_branch(void* address)

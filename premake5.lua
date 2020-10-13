@@ -183,7 +183,7 @@ workspace "iw6x"
 
 		if _OPTIONS["copy-to"] then
 			postbuildcommands {
-				"copy /y \"$(TargetDir)*.exe\" \"" .. _OPTIONS["copy-to"] .. "\""
+				"copy /y \"$(TargetPath)\" \"" .. _OPTIONS["copy-to"] .. "\""
 			}
 		end
 

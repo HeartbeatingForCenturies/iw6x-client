@@ -1,12 +1,10 @@
 #include <std_include.hpp>
 
-#include "command.hpp"
 #include "game_console.hpp"
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 
 #include "utils/hook.hpp"
-#include "utils/nt.hpp"
 
 namespace
 {
@@ -100,7 +98,8 @@ public:
 		{
 			utils::hook::nop(0x14046EC5C, 16);
 		}
-		utils::hook::jump(SELECT_VALUE(0x14046EC5C, 0x140228FFF), SELECT_VALUE(pm_bouncing_stub_sp, pm_bouncing_stub_mp), true);
+		utils::hook::jump(
+			SELECT_VALUE(0x14046EC5C, 0x140228FFF), SELECT_VALUE(pm_bouncing_stub_sp, pm_bouncing_stub_mp), true);
 		dvars::pm_bouncing = game::Dvar_RegisterBool("pm_bouncing", 0, 0x1, "Enable bouncing");
 
 		if (game::environment::is_sp()) return;
@@ -108,7 +107,8 @@ public:
 		// Implement gravity dvar
 		utils::hook::nop(0x1403828C8, 13);
 		utils::hook::jump(0x1403828C8, g_gravity_stub, true);
-		dvars::g_gravity = game::Dvar_RegisterInt("g_gravity", 800, 0, 1000, 0, "Game gravity in inches per second squared");
+		dvars::g_gravity = game::Dvar_RegisterInt("g_gravity", 800, 0, 1000, 0,
+		                                          "Game gravity in inches per second squared");
 
 		// Implement speed dvar
 		utils::hook::nop(0x140383789, 13);

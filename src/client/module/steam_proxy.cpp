@@ -21,6 +21,7 @@ void steam_proxy::post_load()
 	this->load_client();
 	this->clean_up_on_error();
 
+#ifndef DEV_BUILD
 	try
 	{
 		this->start_mod("\xF0\x9F\x90\x8D" " IW6x: "s + (game::environment::is_sp() ? "Singleplayer" : "Multiplayer"),
@@ -30,6 +31,7 @@ void steam_proxy::post_load()
 	{
 		printf("Steam: %s\n", e.what());
 	}
+#endif
 }
 
 void steam_proxy::pre_destroy()
@@ -155,6 +157,4 @@ std::filesystem::path steam_proxy::get_steam_install_directory()
 	return path;
 }
 
-#ifndef DEV_BUILD
 REGISTER_MODULE(steam_proxy)
-#endif

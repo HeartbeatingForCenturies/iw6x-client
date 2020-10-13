@@ -6,6 +6,19 @@
 
 namespace utils::cryptography
 {
+	namespace
+	{
+		void initialize_math()
+		{
+			static bool initialized = false;
+			if (!initialized)
+			{
+				initialized = true;
+				ltc_mp = ltm_desc;
+			}
+		}
+	}
+
 	ecc::key::key()
 	{
 		ZeroMemory(&this->key_storage_, sizeof(this->key_storage_));
@@ -54,7 +67,8 @@ namespace utils::cryptography
 	{
 		this->free();
 
-		if (ecc_import(reinterpret_cast<const uint8_t*>(key.data()), ULONG(key.size()), &this->key_storage_) != CRYPT_OK)
+		if (ecc_import(reinterpret_cast<const uint8_t*>(key.data()), ULONG(key.size()), &this->key_storage_) != CRYPT_OK
+		)
 		{
 			ZeroMemory(&this->key_storage_, sizeof(this->key_storage_));
 		}
@@ -92,7 +106,7 @@ namespace utils::cryptography
 	{
 		key key;
 
-		ltc_mp = ltm_desc;
+		initialize_math();
 		register_prng(&sprng_desc);
 		ecc_make_key(nullptr, find_prng("sprng"), bits / 8, key.get());
 
@@ -106,7 +120,7 @@ namespace utils::cryptography
 		uint8_t buffer[512];
 		DWORD length = sizeof(buffer);
 
-		ltc_mp = ltm_desc;
+		initialize_math();
 		register_prng(&sprng_desc);
 		ecc_sign_hash(reinterpret_cast<const uint8_t*>(message.data()), ULONG(message.size()), buffer, &length, nullptr,
 		              find_prng("sprng"), key.get());
@@ -118,7 +132,7 @@ namespace utils::cryptography
 	{
 		if (!key.is_valid()) return false;
 
-		ltc_mp = ltm_desc;
+		initialize_math();
 
 		auto result = 0;
 		return (ecc_verify_hash(reinterpret_cast<const uint8_t*>(signature.data()), ULONG(signature.size()),
@@ -169,7 +183,7 @@ namespace utils::cryptography
 		if (initialized) return;
 		initialized = true;
 
-		ltc_mp = ltm_desc;
+		initialize_math();
 		register_hash(&sha1_desc);
 		register_prng(&yarrow_desc);
 	}
@@ -319,5 +333,45 @@ namespace utils::cryptography
 		hash ^= (hash >> 11);
 		hash += (hash << 15);
 		return hash;
+	}
+
+	uint32_t random::get_integer()
+	{
+		uint32_t result;
+		random::get_data(&result, sizeof(result));
+		return result;
+	}
+
+	std::string random::get_challenge()
+	{
+		std::string result;
+		result.resize(sizeof(size_t));
+		random::get_data(result.data(), result.size());
+		return result;
+	}
+
+	void random::get_data(void* data, const size_t size)
+	{
+		fortuna_read(static_cast<unsigned char*>(data), static_cast<unsigned long>(size), random::get_prng_state());
+	}
+
+	prng_state* random::get_prng_state()
+	{
+		static prng_state* state_ref = []()
+		{
+			static prng_state state;
+
+			initialize_math();
+			register_prng(&fortuna_desc);
+			rng_make_prng(128, find_prng("fortuna"), &state, nullptr);
+
+			auto t = time(nullptr);
+			fortuna_add_entropy(reinterpret_cast<unsigned char*>(&t), sizeof(t), &state);
+
+			return &state;
+		}();
+
+		fortuna_ready(state_ref);
+		return state_ref;
 	}
 }

@@ -12,6 +12,12 @@ namespace game
 	typedef void (*Sys_ShowConsole_t)();
 	extern Sys_ShowConsole_t Sys_ShowConsole;
 
+	typedef void (*Com_Frame_Try_Block_Function_t)();
+	extern Com_Frame_Try_Block_Function_t Com_Frame_Try_Block_Function;
+
+	typedef const char* (*Com_Parse_t)(char const **);
+	extern Com_Parse_t Com_Parse;
+
 	typedef void (*Conbuf_AppendText_t)(const char* message);
 	extern Conbuf_AppendText_t Conbuf_AppendText;
 
@@ -67,11 +73,26 @@ namespace game
 	typedef const char* (*Dvar_ValueToString_t)(dvar_t* dvar, dvar_value value);
 	extern Dvar_ValueToString_t Dvar_ValueToString;
 
+	typedef unsigned __int64 (*FS_ReadFile_t)(const char *qpath, char **buffer);
+	extern FS_ReadFile_t FS_ReadFile;
+
+	typedef void (*FS_FreeFile_t)(void *buffer);
+	extern FS_FreeFile_t FS_FreeFile;
+
+	typedef int (*G_RunFrame_t)(int server_time);
+	extern G_RunFrame_t G_RunFrame;
+
+	typedef unsigned int (*Live_SyncOnlineDataFlags_t)(int);
+	extern Live_SyncOnlineDataFlags_t Live_SyncOnlineDataFlags;
+
 	typedef void (*LUI_OpenMenu_t)(int clientNum, const char* menu, int a3, int a4, unsigned int a5);
 	extern LUI_OpenMenu_t LUI_OpenMenu;
 
 	typedef Material* (*Material_RegisterHandle_t)(const char* material);
 	extern Material_RegisterHandle_t Material_RegisterHandle;
+
+	typedef bool (*NET_StringToAdr_t)(const char* s, game::netadr_s* a);
+	extern NET_StringToAdr_t NET_StringToAdr;
 
 	typedef void (*R_AddCmdDrawStretchPic_t)(float x, float y, float width, float height, float s0, float t0,
 	                                         float s1, float t1, float* color, Material* material);
@@ -98,8 +119,24 @@ namespace game
 
 	typedef void (*SV_GameSendServerCommand_t)(int, int, const char*);
 	extern SV_GameSendServerCommand_t SV_GameSendServerCommand;
+
 	typedef bool (*SV_Loaded_t)();
 	extern SV_Loaded_t SV_Loaded;
+
+	typedef void (*SV_StartMap_t)(int localClientNum, const char* map, bool mapIsPreloaded);
+	extern SV_StartMap_t SV_StartMap;
+
+	typedef mp::gentity_s* (*SV_AddBot_t)(const char*, unsigned int, unsigned int, unsigned int);
+	extern SV_AddBot_t SV_AddBot;
+
+	typedef void (*SV_ExecuteClientCommand_t)(mp::client_t*, const char*, int);
+	extern SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
+
+	typedef void (*SV_SpawnTestClient_t)(mp::gentity_s*);
+	extern SV_SpawnTestClient_t SV_SpawnTestClient;
+
+	typedef int (*Sys_Milliseconds_t)();
+	extern Sys_Milliseconds_t Sys_Milliseconds;
 
 	//typedef bool (*Sys_SendPacket_t)(netsrc_t, int, void const*, netadr_s); // Actual
 	typedef bool (*Sys_SendPacket_t)(int, void const*, const netadr_s*); // Compiler-optimized
@@ -124,7 +161,13 @@ namespace game
 
 	namespace mp
 	{
+		extern cg_s* cgArray;
+
 		extern gentity_s* g_entities;
+
+		extern client_t* svs_clients;
+
+		extern std::uint32_t* sv_serverId_value;
 	}
 
 	int Cmd_Argc();
@@ -139,6 +182,7 @@ namespace game
 		bool is_sp();
 		bool is_dedi();
 
-		void initialize(launcher::mode mode);
+		void set_mode(launcher::mode mode);
+		void initialize();
 	}
 }

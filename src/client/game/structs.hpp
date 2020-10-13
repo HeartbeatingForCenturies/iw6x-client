@@ -862,6 +862,13 @@ namespace game
 		int useZlib;
 	};
 
+	struct HsvColor
+	{
+		unsigned char h;
+		unsigned char s;
+		unsigned char v;
+	};
+
 	namespace sp
 	{
 		// very shit structures for the moment cuz i cba mapping the whole thing out right now...
@@ -1109,6 +1116,103 @@ namespace game
 			int health;
 			int maxHealth;
 			char _0x1E4[0x10C];
+		};
+
+		struct snapshot_s
+		{
+			char _0x0[0x3C78];
+			int ping;
+			int serverTime;
+			int numEntities;
+			int numClients;
+		};
+
+		struct cg_s
+		{
+			playerState_s ps;
+			char _0x3324[0x64];
+			snapshot_s* snap;
+			snapshot_s* nextSnap; // theres alot after this cba rn
+		};
+
+		struct netProfilePacket_t
+		{
+			int iTime;
+			int iSize;
+			int bFragment;
+		};
+
+		struct netProfileStream_t
+		{
+			netProfilePacket_t packets[60];
+			int iCurrPacket;
+			int iBytesPerSecond;
+			int iLastBPSCalcTime;
+			int iCountedPackets;
+			int iCountedFragments;
+			int iFragmentPercentage;
+			int iLargestPacket;
+			int iSmallestPacket;
+		};
+
+		struct netProfileInfo_t
+		{
+			netProfileStream_t send;
+			netProfileStream_t recieve;
+		};
+
+		struct __declspec(align(8)) netchan_t
+		{
+			int outgoingSequence;
+			netsrc_t sock;
+			int dropped;
+			int incomingSequence;
+			netadr_s remoteAddress;
+			int fragmentSequence;
+			int fragmentLength;
+			char* fragmentBuffer;
+			int fragmentBufferSize;
+			int unsentFragments;
+			int unsentFragmentStart;
+			int unsentLength;
+			char* unsentBuffer;
+			int unsentBufferSize;
+			netProfileInfo_t prof;
+		};
+
+		struct __declspec(align(8)) clientHeader_t
+		{
+			int state;
+			int sendAsActive;
+			int deltaMessage;
+			int rateDelayed;
+			int hasAckedBaselineData;
+			int hugeSnapshotSent;
+			netchan_t netchan;
+			float predictedOrigin[3];
+			int predictedOriginServerTime;
+			int migrationState;
+			unsigned int predictedVehicleSplineId;
+			int predictedVehicleTargetEntity;
+			float predictedVehicleOrigin[3];
+			int predictedVehicleServerTime;
+			int ackedMessage[32];
+			unsigned int ackedMessageCount;
+			int sentMessage[32];
+			int wasKillcam[32];
+			unsigned int sendMessageCount;
+			bool overrideDeltaMessage;
+			int overrideSequenceNumber;
+			int sequenceResume;
+			int isInKillcam;
+		};
+
+		struct client_t
+		{
+			clientHeader_t header;
+			char _0x818[0x41678];
+			int ping;
+			char _0x41E94[0x416DC];
 		};
 	}
 }
