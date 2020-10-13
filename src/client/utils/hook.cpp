@@ -154,6 +154,11 @@ namespace utils::hook
 		return call(reinterpret_cast<void*>(pointer), data);
 	}
 
+	void call(const size_t pointer, const size_t data)
+	{
+		return call(pointer, reinterpret_cast<void*>(data));
+	}
+
 	void jump(void* pointer, void* data, const bool use_far)
 	{
 		static const unsigned char jump_data[] = {
@@ -182,6 +187,11 @@ namespace utils::hook
 	void jump(const size_t pointer, void* data, const bool use_far)
 	{
 		return jump(reinterpret_cast<void*>(pointer), data, use_far);
+	}
+
+	void jump(const size_t pointer, const size_t data, const bool use_far)
+	{
+		return jump(pointer, reinterpret_cast<void*>(data), use_far);
 	}
 
 	void* assemble(const std::function<void(assembler&)>& asm_function)

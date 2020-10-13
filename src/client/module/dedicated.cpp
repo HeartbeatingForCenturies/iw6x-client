@@ -110,17 +110,19 @@ public:
 		utils::hook::set<uint8_t>(0x1405B81A0, 0xC3); // directx stuff
 		utils::hook::set<uint8_t>(0x1405E0CF0, 0xC3); // ^
 		utils::hook::set<uint8_t>(0x1405E1530, 0xC3); // ^
-		utils::hook::set<uint8_t>(0x1405E3E50, 0xC3); // ^
+		utils::hook::set<uint8_t>(0x1405E3E50, 0xC3); // ^ - mutex
 		utils::hook::set<uint8_t>(0x1405E1050, 0xC3); // ^
 
+		// shaders
 		utils::hook::set<uint8_t>(0x140167E00, 0xC3); // ^
 		utils::hook::set<uint8_t>(0x140167D80, 0xC3); // ^
 
-		utils::hook::set<uint8_t>(0x1406492A0, 0xC3); // ^
+		utils::hook::set<uint8_t>(0x1406492A0, 0xC3); // ^ - mutex
 
 		utils::hook::set<uint8_t>(0x1405047A0, 0xC3); // idk
 		utils::hook::set<uint8_t>(0x1405B8DB0, 0xC3); // ^
 
+		utils::hook::set<uint8_t>(0x1405E7D20, 0xC3); // R_Shutdown
 		utils::hook::set<uint8_t>(0x1405B8BD0, 0xC3); // shutdown stuff
 		utils::hook::set<uint8_t>(0x1405E7DF0, 0xC3); // ^
 		utils::hook::set<uint8_t>(0x1405E76C0, 0xC3); // ^
@@ -131,6 +133,10 @@ public:
 
 		utils::hook::set<uint8_t>(0x140423B20, 0xC3); // render synchronization lock
 		utils::hook::set<uint8_t>(0x140423A60, 0xC3); // render synchronization unlock
+
+		//utils::hook::set<uint8_t>(0x1405E3470, 0xC3); // some rendering stuff in R_UpdateDynamicMemory
+		//utils::hook::set<uint8_t>(0x1405E31A0, 0xC3); // ^
+		utils::hook::jump(0x140610EB6, 0x140610F15);    // ^
 
 		scheduler::schedule([]()
 		{
