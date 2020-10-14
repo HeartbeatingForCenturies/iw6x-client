@@ -42,6 +42,13 @@ namespace
 
 		return dvar_register_int_hook.invoke<game::dvar_t*>(dvarName, value, min, max, flags, description);
 	}
+
+	game::dvar_t* register_fovscale_stub(const char* name, float /*value*/, float /*min*/, float /*max*/, unsigned int /*flags*/,
+		const char* desc)
+	{
+		// changed max value from 2.0f -> 5.0f and min value from 0.5f -> 0.1f
+		return game::Dvar_RegisterFloat(name, 1.0f, 0.1f, 5.0f, 0x1, desc);
+	}
 }
 
 class patches final : public module
@@ -80,8 +87,8 @@ public:
 			game::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, 0x1, "Cap frames per second");
 		}
 
-		// changed max value from 80.0f -> 120.f
-		game::Dvar_RegisterFloat("cg_fov", 65.0f, 65.0f, 120.0f, 0x1, "The field of view angle in degrees");
+		// changed max value from 80.0f -> 120.f and min value from 65.0f -> 1.0f
+		game::Dvar_RegisterFloat("cg_fov", 65.0f, 1.0f, 120.0f, 0x1, "The field of view angle in degrees");
 
 		command::add("dvarDump", []()
 		{
@@ -143,6 +150,9 @@ public:
 
 		// Enable DLC items, extra loadouts and map selection in extinction
 		dvar_register_int_hook.create(0x1404EE270, &dvar_register_int);
+
+		// Register cg_fovscale with new params
+		utils::hook::call(0x140272777, register_fovscale_stub);
 	}
 
 	void patch_sp() const
