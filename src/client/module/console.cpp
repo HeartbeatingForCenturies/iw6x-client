@@ -3,7 +3,7 @@
 #include "game/game.hpp"
 #include "scheduler.hpp"
 
-class console final : public module
+class console final : public module_interface
 {
 public:
 	console()

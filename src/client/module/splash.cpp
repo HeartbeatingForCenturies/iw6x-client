@@ -4,7 +4,7 @@
 #include "utils/hook.hpp"
 #include "game/game.hpp"
 
-class splash final : public module
+class splash final : public module_interface
 {
 public:
 	void post_start() override

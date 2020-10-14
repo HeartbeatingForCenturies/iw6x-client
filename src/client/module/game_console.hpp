@@ -39,7 +39,7 @@ struct ingame_console
 	std::deque<std::string> output;
 };
 
-class game_console final : public module
+class game_console final : public module_interface
 {
 public:
 	void post_load() override;

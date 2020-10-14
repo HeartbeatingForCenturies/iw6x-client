@@ -52,106 +52,106 @@ namespace party
 
 		network::send(target, "preConnect", connect_state.challenge);
 	}
+
+	class module final : public module_interface
+	{
+	public:
+		void post_unpack() override
+		{
+			if (game::environment::is_sp())
+			{
+				return;
+			}
+
+			// Hook CL_SetupForNewServerMap
+			// The server seems to kick us after a map change
+			// This fix is pretty bad, but it works for now
+			utils::hook::jump(0x1402C9F60, &load_new_map_stub);
+
+			command::add("map", [](command::params& argument)
+			{
+				if (argument.size() != 2)
+				{
+					return;
+				}
+
+				game::SV_StartMap(0, argument[1], false);
+			});
+
+			command::add("connect", [](command::params& argument)
+			{
+				if (argument.size() != 2)
+				{
+					return;
+				}
+
+				game::netadr_s target{};
+				if (game::NET_StringToAdr(argument[1], &target))
+				{
+					connect(target);
+				}
+			});
+
+			network::on("preConnect", [](const game::netadr_s& target, const std::string_view& data)
+			{
+				proto::network::connect_info info;
+				info.set_valid(true);
+				info.set_challenge(data.data(), data.size());
+
+				auto* gametype = game::Dvar_FindVar("g_gametype");
+				if (!gametype || !gametype->current.string)
+				{
+					info.set_valid(false);
+				}
+				else
+				{
+					info.set_gametype(gametype->current.string);
+				}
+
+				auto* mapname = game::Dvar_FindVar("mapname");
+				if (!mapname || !mapname->current.string)
+				{
+					info.set_valid(false);
+				}
+				else
+				{
+					info.set_mapname(mapname->current.string);
+				}
+
+				network::send(target, "preConnectResponse", info.SerializeAsString());
+			});
+
+			network::on("preConnectResponse", [](const game::netadr_s& target, const std::string_view& data)
+			{
+				if (!network::are_addresses_equal(connect_state.host, target))
+				{
+					printf("Connect response from stray host.\n");
+					return;
+				}
+
+				proto::network::connect_info info;
+				if (!info.ParseFromArray(data.data(), static_cast<int>(data.size())))
+				{
+					printf("Unable to read connect response data.\n");
+					return;
+				}
+
+				if (!info.valid())
+				{
+					printf("Invalid connect response data.\n");
+					return;
+				}
+
+				if (info.challenge() != connect_state.challenge)
+				{
+					printf("Invalid challenge.\n");
+					return;
+				}
+
+				connect_to_party(target, info.mapname(), info.gametype());
+			});
+		}
+	};
 }
 
-class party_module final : public module
-{
-public:
-	void post_unpack() override
-	{
-		if (game::environment::is_sp())
-		{
-			return;
-		}
-
-		// Hook CL_SetupForNewServerMap
-		// The server seems to kick us after a map change
-		// This fix is pretty bad, but it works for now
-		utils::hook::jump(0x1402C9F60, &party::load_new_map_stub);
-
-		command::add("map", [](command::params& argument)
-		{
-			if (argument.size() != 2)
-			{
-				return;
-			}
-
-			game::SV_StartMap(0, argument[1], false);
-		});
-
-		command::add("connect", [](command::params& argument)
-		{
-			if (argument.size() != 2)
-			{
-				return;
-			}
-
-			game::netadr_s target{};
-			if (game::NET_StringToAdr(argument[1], &target))
-			{
-				::party::connect(target);
-			}
-		});
-
-		network::on("preConnect", [](const game::netadr_s& target, const std::string_view& data)
-		{
-			proto::network::connect_info info;
-			info.set_valid(true);
-			info.set_challenge(data.data(), data.size());
-
-			auto* gametype = game::Dvar_FindVar("g_gametype");
-			if (!gametype || !gametype->current.string)
-			{
-				info.set_valid(false);
-			}
-			else
-			{
-				info.set_gametype(gametype->current.string);
-			}
-
-			auto* mapname = game::Dvar_FindVar("mapname");
-			if (!mapname || !mapname->current.string)
-			{
-				info.set_valid(false);
-			}
-			else
-			{
-				info.set_mapname(mapname->current.string);
-			}
-
-			network::send(target, "preConnectResponse", info.SerializeAsString());
-		});
-
-		network::on("preConnectResponse", [](const game::netadr_s& target, const std::string_view& data)
-		{
-			if (!network::are_addresses_equal(party::connect_state.host, target))
-			{
-				printf("Connect response from stray host.\n");
-				return;
-			}
-
-			proto::network::connect_info info;
-			if (!info.ParseFromArray(data.data(), static_cast<int>(data.size())))
-			{
-				printf("Unable to read connect response data.\n");
-				return;
-			}
-
-			if (!info.valid())
-			{
-				printf("Invalid connect response data.\n");
-				return;
-			}
-
-			if (info.challenge() != party::connect_state.challenge)
-			{
-				printf("Invalid challenge.\n");
-				return;
-			}
-
-			party::connect_to_party(target, info.mapname(), info.gametype());
-		});
-	}
-};
-
-REGISTER_MODULE(party_module)
+REGISTER_MODULE(party::module)

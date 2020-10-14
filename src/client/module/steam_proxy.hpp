@@ -3,7 +3,7 @@
 #include "steam/interface.hpp"
 #include "utils/nt.hpp"
 
-class steam_proxy final : public module
+class steam_proxy final : public module_interface
 {
 public:
 	void post_load() override;

@@ -52,7 +52,7 @@ namespace
 	}
 }
 
-class discord final : public module
+class discord final : public module_interface
 {
 public:
 	void post_load() override

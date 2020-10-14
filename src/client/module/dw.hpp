@@ -8,7 +8,7 @@
 
 namespace demonware
 {
-	class dw final : public module
+	class dw final : public module_interface
 	{
 	public:
 		dw();

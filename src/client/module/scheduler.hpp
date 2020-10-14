@@ -3,7 +3,7 @@
 #include "utils/concurrent_list.hpp"
 #include "utils/hook.hpp"
 
-class scheduler final : public module
+class scheduler final : public module_interface
 {
 public:
 	enum class pipeline

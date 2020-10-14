@@ -51,7 +51,7 @@ namespace
 	}
 }
 
-class patches final : public module
+class patches final : public module_interface
 {
 public:
 	void post_unpack() override

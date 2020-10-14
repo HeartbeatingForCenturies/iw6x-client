@@ -18,7 +18,7 @@ struct server_info
 	char in_game;
 };
 
-class server_list final : public module
+class server_list final : public module_interface
 {
 public:
 	void post_unpack() override;

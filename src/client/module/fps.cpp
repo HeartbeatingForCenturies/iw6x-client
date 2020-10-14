@@ -125,7 +125,7 @@ namespace
 	}
 }
 
-class fps final : public module
+class fps final : public module_interface
 {
 public:
 	void post_unpack() override

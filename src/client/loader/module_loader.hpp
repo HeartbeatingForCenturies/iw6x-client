@@ -1,5 +1,5 @@
 #pragma once
-#include "module.hpp"
+#include "module_interface.hpp"
 
 class module_loader final
 {
@@ -15,7 +15,7 @@ public:
 	template <typename T>
 	class installer final
 	{
-		static_assert(std::is_base_of<module, T>::value, "Module has invalid base class");
+		static_assert(std::is_base_of<module_interface, T>::value, "Module has invalid base class");
 
 	public:
 		installer()
@@ -38,7 +38,7 @@ public:
 		return nullptr;
 	}
 
-	static void register_module(std::unique_ptr<module>&& module);
+	static void register_module(std::unique_ptr<module_interface>&& module);
 
 	static bool post_start();
 	static bool post_load();
@@ -50,11 +50,11 @@ public:
 	static void trigger_premature_shutdown();
 
 private:
-	static std::vector<std::unique_ptr<module>>& get_modules();
+	static std::vector<std::unique_ptr<module_interface>>& get_modules();
 };
 
 #define REGISTER_MODULE(name)                       \
 namespace                                           \
 {                                                   \
-	static module_loader::installer<name> $_##name; \
+	static module_loader::installer<name> __module; \
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "loader/module_loader.hpp"
 
-class command final : public module
+class command final : public module_interface
 {
 public:
 	void post_unpack() override;

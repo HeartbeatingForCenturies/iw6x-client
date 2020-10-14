@@ -46,7 +46,7 @@ namespace
 	}
 }
 
-class dedicated final : public module
+class dedicated final : public module_interface
 {
 public:
 	void* load_import(const std::string& module, const std::string& function) override

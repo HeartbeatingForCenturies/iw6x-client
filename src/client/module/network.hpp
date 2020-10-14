@@ -2,7 +2,7 @@
 #include "loader/module_loader.hpp"
 #include "game/game.hpp"
 
-class network final : public module
+class network final : public module_interface
 {
 public:
 	using callback = std::function<void(const game::netadr_s&, const std::string_view&)>;

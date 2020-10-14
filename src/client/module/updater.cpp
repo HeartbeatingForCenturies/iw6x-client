@@ -123,7 +123,7 @@ namespace
 	}
 }
 
-class updater final : public module
+class updater final : public module_interface
 {
 public:
 	void post_start() override

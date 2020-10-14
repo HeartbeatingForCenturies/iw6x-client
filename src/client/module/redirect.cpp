@@ -43,7 +43,7 @@ namespace
 	}
 }
 
-class redirect final : public module
+class redirect final : public module_interface
 {
 public:
 	void* load_import(const std::string& module, const std::string& function) override

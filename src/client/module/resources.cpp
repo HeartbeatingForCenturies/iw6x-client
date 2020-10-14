@@ -26,7 +26,7 @@ namespace
 	}
 }
 
-class resources final : public module
+class resources final : public module_interface
 {
 public:
 	~resources() override

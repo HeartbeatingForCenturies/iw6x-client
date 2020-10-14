@@ -4,7 +4,7 @@
 #include "game/game.hpp"
 #include "utils/hook.hpp"
 
-class stats final : public module
+class stats final : public module_interface
 {
 public:
 	void post_unpack() override

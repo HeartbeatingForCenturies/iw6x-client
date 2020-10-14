@@ -1,7 +1,7 @@
 #pragma once
 #include "loader/module_loader.hpp"
 
-class filesystem final : public module
+class filesystem final : public module_interface
 {
 public:
 	class file

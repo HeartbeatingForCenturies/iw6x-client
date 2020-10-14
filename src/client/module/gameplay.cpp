@@ -88,7 +88,7 @@ namespace
 	});
 }
 
-class gameplay final : public module
+class gameplay final : public module_interface
 {
 public:
 	void post_unpack() override
