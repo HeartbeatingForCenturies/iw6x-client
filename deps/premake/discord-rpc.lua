@@ -26,6 +26,7 @@ function discordrpc.project()
 		}
 		
 		removefiles {
+			path.join(discordrpc.source, "src/dllmain.cpp"),
 			path.join(discordrpc.source, "src/*_linux.cpp"),
 			path.join(discordrpc.source, "src/*_unix.cpp"),
 			path.join(discordrpc.source, "src/*_osx.cpp"),
