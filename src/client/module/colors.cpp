@@ -1,6 +1,5 @@
 #include <std_include.hpp>
-
-#include "scheduler.hpp"
+#include "loader/module_loader.hpp"
 
 #include "game/game.hpp"
 #include "game/dvars.hpp"

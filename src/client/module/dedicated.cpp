@@ -1,7 +1,6 @@
 #include <std_include.hpp>
-
-#include "scheduler.hpp"
 #include "loader/module_loader.hpp"
+#include "scheduler.hpp"
 #include "utils/hook.hpp"
 #include "game/game.hpp"
 
@@ -31,7 +30,7 @@ namespace dedicated
 				"techsets_common_alien_mp",
 				"common_alien_mp",
 				"common_alien_dlc_updated_mp",
-				0
+				nullptr
 			};
 
 			// load fastfiles

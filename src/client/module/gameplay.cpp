@@ -1,6 +1,5 @@
 #include <std_include.hpp>
-
-#include "game_console.hpp"
+#include "loader/module_loader.hpp"
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 
@@ -100,6 +99,7 @@ namespace gameplay
 			{
 				utils::hook::nop(0x14046EC5C, 16);
 			}
+
 			utils::hook::jump(
 				SELECT_VALUE(0x14046EC5C, 0x140228FFF), SELECT_VALUE(pm_bouncing_stub_sp, pm_bouncing_stub_mp), true);
 			dvars::pm_bouncing = game::Dvar_RegisterBool("pm_bouncing", 0, 0x1, "Enable bouncing");

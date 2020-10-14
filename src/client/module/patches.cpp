@@ -1,5 +1,5 @@
 #include <std_include.hpp>
-
+#include "loader/module_loader.hpp"
 #include "command.hpp"
 #include "game_console.hpp"
 #include "game/game.hpp"

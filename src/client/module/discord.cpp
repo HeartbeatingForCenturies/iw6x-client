@@ -1,10 +1,11 @@
 #include <std_include.hpp>
-#include <discord_rpc.h>
 #include "loader/module_loader.hpp"
 #include "scheduler.hpp"
 #include "game/game.hpp"
 
 #include "utils/string.hpp"
+
+#include <discord_rpc.h>
 
 namespace discord
 {

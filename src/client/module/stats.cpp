@@ -1,6 +1,6 @@
 #include <std_include.hpp>
-#include "module/command.hpp"
-#include "module/game_console.hpp"
+#include "loader/module_loader.hpp"
+#include "command.hpp"
 #include "game/game.hpp"
 #include "utils/hook.hpp"
 

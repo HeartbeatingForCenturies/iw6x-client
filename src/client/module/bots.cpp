@@ -1,9 +1,10 @@
 #include <std_include.hpp>
-
+#include "loader/module_loader.hpp"
 #include "command.hpp"
 #include "scheduler.hpp"
 #include "game/game.hpp"
 
+#include "utils/hook.hpp"
 #include "utils/string.hpp"
 
 namespace bots

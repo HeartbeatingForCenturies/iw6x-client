@@ -1,5 +1,5 @@
 #include <std_include.hpp>
-
+#include "loader/module_loader.hpp"
 #include "scheduler.hpp"
 
 #include "game/game.hpp"
@@ -150,4 +150,4 @@ namespace fps
 	};
 }
 
-REGISTER_MODULE(fps::module);
+REGISTER_MODULE(fps::module)
