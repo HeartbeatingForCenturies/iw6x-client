@@ -1,17 +1,23 @@
 #pragma once
-#include "loader/module_loader.hpp"
 #include "game/game.hpp"
 
-class network final : public module_interface
+namespace network
 {
-public:
 	using callback = std::function<void(const game::netadr_s&, const std::string_view&)>;
 
-	static void on(const std::string& command, const callback& callback);
-	static void send(const game::netadr_s& address, const std::string& command, const std::string& data);
-	static void send(const game::netadr_s& address, const std::string& data);
+	void on(const std::string& command, const callback& callback);
+	void send(const game::netadr_s& address, const std::string& command, const std::string& data);
+	void send(const game::netadr_s& address, const std::string& data);
 
-	static bool are_addresses_equal(const game::netadr_s& a, const game::netadr_s& b);
+	bool are_addresses_equal(const game::netadr_s& a, const game::netadr_s& b);
 
-	void post_unpack() override;
-};
+	inline bool operator==(const game::netadr_s& a, const game::netadr_s& b)
+	{
+		return are_addresses_equal(a, b); //
+	}
+
+	inline bool operator!=(const game::netadr_s& a, const game::netadr_s& b)
+	{
+		return !(a == b); //
+	}
+}

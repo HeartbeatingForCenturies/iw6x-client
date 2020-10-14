@@ -1,9 +1,7 @@
 #pragma once
-#include "loader/module_loader.hpp"
 
-class filesystem final : public module_interface
+namespace filesystem
 {
-public:
 	class file
 	{
 	public:
@@ -18,6 +16,4 @@ public:
 		std::string name_;
 		std::string buffer_;
 	};
-
-	void post_unpack() override;
-};
+}
