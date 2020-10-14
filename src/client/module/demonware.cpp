@@ -45,7 +45,7 @@ namespace demonware
 
 		std::shared_ptr<service_server> find_server_by_address(const unsigned long address)
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 
 			const auto server = servers.find(address);
 			if (server != servers.end())
@@ -58,13 +58,13 @@ namespace demonware
 
 		std::shared_ptr<service_server> find_server_by_name(const std::string& name)
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 			return find_server_by_address(utils::cryptography::jenkins_one_at_a_time::compute(name));
 		}
 
 		std::shared_ptr<stun_server> find_stun_server_by_address(const unsigned long address)
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 
 			const auto server = stun_servers.find(address);
 			if (server != stun_servers.end())
@@ -77,13 +77,13 @@ namespace demonware
 
 		std::shared_ptr<stun_server> find_stun_server_by_name(const std::string& name)
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 			return find_stun_server_by_address(utils::cryptography::jenkins_one_at_a_time::compute(name));
 		}
 
 		std::shared_ptr<service_server> find_server_by_socket(const SOCKET s)
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 
 			const auto server = socket_links.find(s);
 			if (server != socket_links.end())
@@ -96,7 +96,7 @@ namespace demonware
 
 		bool link_socket(const SOCKET s, const unsigned long address)
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 
 			const auto server = find_server_by_address(address);
 			if (!server) return false;
@@ -107,7 +107,7 @@ namespace demonware
 
 		void unlink_socket(const SOCKET sock)
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 
 			const auto server = socket_links.find(sock);
 			if (server != socket_links.end())
@@ -124,7 +124,7 @@ namespace demonware
 
 		bool is_blocking_socket(const SOCKET s, const bool def)
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 
 			if (blocking_sockets.find(s) != blocking_sockets.end())
 			{
@@ -136,7 +136,7 @@ namespace demonware
 
 		int recv_datagam_packet(const SOCKET s, char* buf, const int len, sockaddr* from, int* fromlen)
 		{
-			std::unique_lock lock(server_mutex);
+			std::unique_lock<std::recursive_mutex> lock(server_mutex);
 
 			auto queue = datagram_packets.find(s);
 			if (queue != datagram_packets.end())
@@ -152,16 +152,16 @@ namespace demonware
 
 				if (!queue->second.empty())
 				{
-					auto packet = queue->second.front();
+					auto [address, data] = queue->second.front();
 					queue->second.pop();
 
-					*fromlen = INT(packet.first.size());
-					std::memcpy(from, packet.first.data(), *fromlen);
+					*fromlen = INT(address.size());
+					std::memcpy(from, address.data(), address.size());
 
-					const int size = std::min(len, INT(packet.second.size()));
-					std::memcpy(buf, packet.second.data(), size);
+					const auto size = std::min(size_t(len), data.size());
+					std::memcpy(buf, data.data(), size);
 
-					return size;
+					return static_cast<int>(size);
 				}
 
 				WSASetLastError(WSAEWOULDBLOCK);
@@ -173,7 +173,7 @@ namespace demonware
 
 		void remove_blocking_socket(const SOCKET s)
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 
 			const auto entry = blocking_sockets.find(s);
 			if (entry != blocking_sockets.end())
@@ -184,7 +184,7 @@ namespace demonware
 
 		void set_blocking_socket(const SOCKET s, const bool blocking)
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 			blocking_sockets[s] = blocking;
 		}
 
@@ -193,7 +193,7 @@ namespace demonware
 			terminate = false;
 			while (!terminate)
 			{
-				std::unique_lock lock(server_mutex);
+				std::unique_lock<std::recursive_mutex> lock(server_mutex);
 
 				for (auto& server : servers)
 				{
@@ -310,9 +310,6 @@ namespace demonware
 
 			hostent* __stdcall get_host_by_name(char* name)
 			{
-				static std::mutex mutex;
-				std::lock_guard<std::mutex> _(mutex);
-
 				unsigned long addr = 0;
 				const auto server = find_server_by_name(name);
 				if (server) addr = server->get_address();
@@ -322,14 +319,14 @@ namespace demonware
 
 				if (server || stun_server)
 				{
-					static in_addr address;
+					static thread_local in_addr address;
 					address.s_addr = addr;
 
-					static in_addr* addr_list[2];
+					static thread_local in_addr* addr_list[2];
 					addr_list[0] = &address;
 					addr_list[1] = nullptr;
 
-					static hostent host;
+					static thread_local hostent host;
 					host.h_name = name;
 					host.h_aliases = nullptr;
 					host.h_addrtype = AF_INET;
@@ -341,10 +338,7 @@ namespace demonware
 
 #pragma warning(push)
 #pragma warning(disable: 4996)
-
-				// ReSharper disable once CppDeprecatedEntity
 				return gethostbyname(name);
-
 #pragma warning(pop)
 			}
 
@@ -362,8 +356,8 @@ namespace demonware
 
 	void send_datagram_packet(const SOCKET s, const std::string& data, const sockaddr* to, const int tolen)
 	{
-		std::lock_guard _(server_mutex);
-		datagram_packets[s].push({std::string(LPSTR(to), tolen), data});
+		std::lock_guard<std::recursive_mutex> _(server_mutex);
+		datagram_packets[s].push({std::string(LPSTR(to), size_t(tolen)), data});
 	}
 
 	uint8_t* get_key(const bool encrypt)
@@ -426,7 +420,7 @@ namespace demonware
 
 		void pre_destroy() override
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 
 			terminate = true;
 			if (message_thread.joinable())
@@ -444,7 +438,7 @@ namespace demonware
 		template <typename... Args>
 		static std::shared_ptr<service_server> register_server(Args ... args)
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 			auto server = std::make_shared<service_server>(args...);
 			servers[server->get_address()] = server;
 			return server;
@@ -452,7 +446,7 @@ namespace demonware
 
 		static std::shared_ptr<stun_server> register_stun_server(const std::string& name)
 		{
-			std::lock_guard _(server_mutex);
+			std::lock_guard<std::recursive_mutex> _(server_mutex);
 			auto server = std::make_shared<stun_server>(name);
 			stun_servers[server->get_address()] = server;
 			return server;
