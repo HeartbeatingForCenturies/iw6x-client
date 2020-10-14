@@ -123,7 +123,7 @@ namespace party
 
 			network::on("preConnectResponse", [](const game::netadr_s& target, const std::string_view& data)
 			{
-				if (!network::are_addresses_equal(connect_state.host, target))
+				if (connect_state.host != target)
 				{
 					printf("Connect response from stray host.\n");
 					return;
