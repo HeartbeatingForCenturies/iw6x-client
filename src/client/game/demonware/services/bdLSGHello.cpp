@@ -1,6 +1,6 @@
 #include <std_include.hpp>
 #include "bdLSGHello.hpp"
-#include "module/dw.hpp"
+#include "module/demonware.hpp"
 
 namespace demonware
 {
@@ -20,7 +20,7 @@ namespace demonware
 		uint8_t ticket[128];
 		buffer.read_bytes(sizeof(ticket), ticket);
 
-		dw::set_key(true, ticket);
-		dw::set_key(false, ticket);
+		set_key(true, ticket);
+		set_key(false, ticket);
 	}
 }
