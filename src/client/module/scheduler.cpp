@@ -119,4 +119,4 @@ void scheduler::pre_destroy()
 	}
 }
 
-REGISTER_MODULE(scheduler);
+REGISTER_MODULE(scheduler)
