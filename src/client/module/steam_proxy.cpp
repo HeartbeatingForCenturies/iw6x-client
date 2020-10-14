@@ -1,25 +1,33 @@
 #include <std_include.hpp>
+#include "loader/module_loader.hpp"
 #include "steam_proxy.hpp"
 #include "scheduler.hpp"
+
+#include "utils/nt.hpp"
 #include "utils/string.hpp"
 #include "utils/binary_resource.hpp"
-#include "loader/loader.hpp"
+
 #include "game/game.hpp"
 
-namespace
+namespace steam_proxy
 {
-	utils::binary_resource runner_file(RUNNER, "runner.exe");
-}
-
-void steam_proxy::post_load()
-{
-	if (game::environment::is_dedi())
+	namespace
 	{
-		return;
+		utils::binary_resource runner_file(RUNNER, "runner.exe");
 	}
 
-	this->load_client();
-	this->clean_up_on_error();
+	class module final : public module_interface
+	{
+	public:
+		void post_load() override
+		{
+			if (game::environment::is_dedi())
+			{
+				return;
+			}
+
+			this->load_client();
+			this->clean_up_on_error();
 
 #ifndef DEV_BUILD
 	try
@@ -32,129 +40,148 @@ void steam_proxy::post_load()
 		printf("Steam: %s\n", e.what());
 	}
 #endif
-}
+		}
 
-void steam_proxy::pre_destroy()
-{
-	if (this->steam_client_module_)
-	{
-		if (this->steam_pipe_)
+		void pre_destroy() override
 		{
-			if (this->global_user_)
+			if (this->steam_client_module_)
 			{
-				this->steam_client_module_.invoke<void>("Steam_ReleaseUser", this->steam_pipe_, this->global_user_);
+				if (this->steam_pipe_)
+				{
+					if (this->global_user_)
+					{
+						this->steam_client_module_.invoke<void>("Steam_ReleaseUser", this->steam_pipe_,
+						                                        this->global_user_);
+					}
+
+					this->steam_client_module_.invoke<bool>("Steam_BReleaseSteamPipe", this->steam_pipe_);
+				}
+			}
+		}
+
+		static std::filesystem::path get_steam_install_directory()
+		{
+			HKEY reg_key;
+			if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\WOW6432Node\\Valve\\Steam", 0, KEY_QUERY_VALUE,
+			                  &reg_key) !=
+				ERROR_SUCCESS)
+			{
+				return {};
 			}
 
-			this->steam_client_module_.invoke<bool>("Steam_BReleaseSteamPipe", this->steam_pipe_);
+			char path[MAX_PATH] = {0};
+			DWORD length = sizeof(path);
+			RegQueryValueExA(reg_key, "InstallPath", nullptr, nullptr, reinterpret_cast<BYTE*>(path),
+			                 &length);
+			RegCloseKey(reg_key);
+
+			return path;
 		}
-	}
-}
 
-void* steam_proxy::load_client_engine() const
-{
-	if (!this->steam_client_module_) return nullptr;
+	private:
+		utils::nt::module steam_client_module_{};
+		utils::nt::module steam_overlay_module_{};
 
-	for (auto i = 1; i > 0; ++i)
-	{
-		std::string name = utils::string::va("CLIENTENGINE_INTERFACE_VERSION%03i", i);
-		auto* const client_engine = this->steam_client_module_
-		                                .invoke<void*>("CreateInterface", name.data(), nullptr);
-		if (client_engine) return client_engine;
-	}
+		steam::interface client_engine_{};
+		steam::interface client_user_{};
+		steam::interface client_utils_{};
 
-	return nullptr;
-}
+		void* steam_pipe_ = nullptr;
+		void* global_user_ = nullptr;
 
-void steam_proxy::load_client()
-{
-	const auto steam_path = get_steam_install_directory();
-	if (steam_path.empty()) return;
-
-	utils::nt::module::load(steam_path / "tier0_s64.dll");
-	utils::nt::module::load(steam_path / "vstdlib_s64.dll");
-	this->steam_overlay_module_ = utils::nt::module::load(steam_path / "gameoverlayrenderer64.dll");
-	this->steam_client_module_ = utils::nt::module::load(steam_path / "steamclient64.dll");
-	if (!this->steam_client_module_) return;
-
-	this->client_engine_ = load_client_engine();
-	if (!this->client_engine_) return;
-
-	this->steam_pipe_ = this->steam_client_module_.invoke<void*>("Steam_CreateSteamPipe");
-	this->global_user_ = this->steam_client_module_.invoke<void*>("Steam_ConnectToGlobalUser", this->steam_pipe_);
-	this->client_user_ = this->client_engine_.invoke<void*>(8, this->steam_pipe_, this->global_user_); // GetIClientUser
-	this->client_utils_ = this->client_engine_.invoke<void*>(13, this->steam_pipe_); // GetIClientUtils
-}
-
-void steam_proxy::start_mod(const std::string& title, size_t app_id)
-{
-	if (!this->client_utils_ || !this->client_user_) return;
-
-	if (!this->client_user_.invoke<bool>("BIsSubscribedApp", app_id))
-	{
-		app_id = 480; // Spacewar
-	}
-
-	this->client_utils_.invoke<void>("SetAppIDForCurrentPipe", app_id, false);
-
-	char our_directory[MAX_PATH] = {0};
-	GetCurrentDirectoryA(sizeof(our_directory), our_directory);
-
-	const auto path = runner_file.get_extracted_file();
-	const std::string cmdline = utils::string::va("\"%s\" -proc %d", path.data(), GetCurrentProcessId());
-
-	steam::game_id game_id;
-	game_id.raw.type = 1; // k_EGameIDTypeGameMod
-	game_id.raw.app_id = app_id & 0xFFFFFF;
-
-	const auto* mod_id = "IW6x";
-	game_id.raw.mod_id = *reinterpret_cast<const unsigned int*>(mod_id) | 0x80000000;
-
-	this->client_user_.invoke<bool>("SpawnProcess", path.data(), cmdline.data(), our_directory,
-	                                &game_id.bits, title.data(), 0, 0, 0);
-}
-
-void steam_proxy::clean_up_on_error()
-{
-	scheduler::schedule([this]()
-	{
-		if (this->steam_client_module_
-			&& this->steam_pipe_
-			&& this->global_user_
-			&& this->steam_client_module_.invoke<bool>("Steam_BConnected", this->global_user_, this->steam_pipe_)
-			&& this->steam_client_module_.invoke<bool>("Steam_BLoggedOn", this->global_user_, this->steam_pipe_))
+		void* load_client_engine() const
 		{
-			return scheduler::cond_continue;
+			if (!this->steam_client_module_) return nullptr;
+
+			for (auto i = 1; i > 0; ++i)
+			{
+				std::string name = utils::string::va("CLIENTENGINE_INTERFACE_VERSION%03i", i);
+				auto* const client_engine = this->steam_client_module_
+				                                .invoke<void*>("CreateInterface", name.data(), nullptr);
+				if (client_engine) return client_engine;
+			}
+
+			return nullptr;
 		}
 
-		this->client_engine_ = nullptr;
-		this->client_user_ = nullptr;
-		this->client_utils_ = nullptr;
+		void load_client()
+		{
+			const auto steam_path = get_steam_install_directory();
+			if (steam_path.empty()) return;
 
-		this->steam_pipe_ = nullptr;
-		this->global_user_ = nullptr;
+			utils::nt::module::load(steam_path / "tier0_s64.dll");
+			utils::nt::module::load(steam_path / "vstdlib_s64.dll");
+			this->steam_overlay_module_ = utils::nt::module::load(steam_path / "gameoverlayrenderer64.dll");
+			this->steam_client_module_ = utils::nt::module::load(steam_path / "steamclient64.dll");
+			if (!this->steam_client_module_) return;
 
-		this->steam_client_module_ = utils::nt::module{nullptr};
+			this->client_engine_ = load_client_engine();
+			if (!this->client_engine_) return;
 
-		return scheduler::cond_end;
-	});
+			this->steam_pipe_ = this->steam_client_module_.invoke<void*>("Steam_CreateSteamPipe");
+			this->global_user_ = this->steam_client_module_.invoke<void*>(
+				"Steam_ConnectToGlobalUser", this->steam_pipe_);
+			this->client_user_ = this->client_engine_.invoke<void*>(8, this->steam_pipe_, this->global_user_);
+			// GetIClientUser
+			this->client_utils_ = this->client_engine_.invoke<void*>(13, this->steam_pipe_); // GetIClientUtils
+		}
+
+		void start_mod(const std::string& title, size_t app_id)
+		{
+			if (!this->client_utils_ || !this->client_user_) return;
+
+			if (!this->client_user_.invoke<bool>("BIsSubscribedApp", app_id))
+			{
+				app_id = 480; // Spacewar
+			}
+
+			this->client_utils_.invoke<void>("SetAppIDForCurrentPipe", app_id, false);
+
+			char our_directory[MAX_PATH] = {0};
+			GetCurrentDirectoryA(sizeof(our_directory), our_directory);
+
+			const auto path = runner_file.get_extracted_file();
+			const std::string cmdline = utils::string::va("\"%s\" -proc %d", path.data(), GetCurrentProcessId());
+
+			steam::game_id game_id;
+			game_id.raw.type = 1; // k_EGameIDTypeGameMod
+			game_id.raw.app_id = app_id & 0xFFFFFF;
+
+			const auto* mod_id = "IW6x";
+			game_id.raw.mod_id = *reinterpret_cast<const unsigned int*>(mod_id) | 0x80000000;
+
+			this->client_user_.invoke<bool>("SpawnProcess", path.data(), cmdline.data(), our_directory,
+			                                &game_id.bits, title.data(), 0, 0, 0);
+		}
+
+		void clean_up_on_error()
+		{
+			scheduler::schedule([this]()
+			{
+				if (this->steam_client_module_
+					&& this->steam_pipe_
+					&& this->global_user_
+					&& this->steam_client_module_.invoke<bool>("Steam_BConnected", this->global_user_,
+					                                           this->steam_pipe_)
+					&& this->steam_client_module_.invoke<bool>("Steam_BLoggedOn", this->global_user_, this->steam_pipe_)
+				)
+				{
+					return scheduler::cond_continue;
+				}
+
+				this->client_engine_ = nullptr;
+				this->client_user_ = nullptr;
+				this->client_utils_ = nullptr;
+
+				this->steam_pipe_ = nullptr;
+				this->global_user_ = nullptr;
+
+				this->steam_client_module_ = utils::nt::module{nullptr};
+
+				return scheduler::cond_end;
+			});
+		}
+	};
 }
 
-std::filesystem::path steam_proxy::get_steam_install_directory()
-{
-	HKEY reg_key;
-	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\WOW6432Node\\Valve\\Steam", 0, KEY_QUERY_VALUE, &reg_key) !=
-		ERROR_SUCCESS)
-	{
-		return {};
-	}
-
-	char path[MAX_PATH] = {0};
-	DWORD length = sizeof(path);
-	RegQueryValueExA(reg_key, "InstallPath", nullptr, nullptr, reinterpret_cast<BYTE*>(path),
-	                 &length);
-	RegCloseKey(reg_key);
-
-	return path;
-}
-
-REGISTER_MODULE(steam_proxy)
+REGISTER_MODULE(steam_proxy::module)
