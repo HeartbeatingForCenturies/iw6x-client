@@ -166,6 +166,4 @@ namespace dedicated
 	};
 }
 
-#ifdef DEV_BUILD
 REGISTER_MODULE(dedicated::module)
-#endif
