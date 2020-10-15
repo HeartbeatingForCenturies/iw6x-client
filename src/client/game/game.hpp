@@ -129,6 +129,9 @@ namespace game
 	typedef void (*SV_StartMap_t)(int localClientNum, const char* map, bool mapIsPreloaded);
 	extern SV_StartMap_t SV_StartMap;
 
+	typedef void (*SV_StartMapForParty_t)(int localClientNum, const char *map, bool mapIsPreloaded, bool migrate);
+	extern SV_StartMapForParty_t SV_StartMapForParty;
+
 	typedef mp::gentity_s* (*SV_AddBot_t)(const char*, unsigned int, unsigned int, unsigned int);
 	extern SV_AddBot_t SV_AddBot;
 

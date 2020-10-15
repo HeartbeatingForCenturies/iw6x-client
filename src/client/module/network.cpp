@@ -107,6 +107,34 @@ namespace network
 		return net_compare_address(&a, &b);
 	}
 
+	void set_xuid_config_string_stub(utils::hook::assembler& a)
+	{
+		const auto return_regular = a.newLabel();
+
+		a.mov(rax, ptr(rsp));
+		a.mov(r9, 0x140477715); // This is the evil one :(
+		a.cmp(rax, r9);
+		a.jne(return_regular);
+
+		// Do the original work
+		a.call(return_regular);
+
+		// Jump to success branch
+		a.mov(rax, 0x14047771E);
+		a.mov(ptr(rsp), rax);
+
+		a.ret();
+
+		a.bind(return_regular);
+
+		a.sub(rsp, 0x38);
+		a.mov(eax, ptr(rcx));
+		a.mov(r9d, ptr(rcx, 4));
+		a.mov(r10, rdx);
+
+		a.jmp(0x14041DFBD);
+	}
+
 	class module final : public module_interface
 	{
 	public:
@@ -123,6 +151,10 @@ namespace network
 
 				// intercept command handling
 				utils::hook::jump(0x1402C64CB, utils::hook::assemble(handle_command_stub), true);
+
+				// handle xuid without secure connection
+				void* x = utils::hook::assemble(set_xuid_config_string_stub);
+				utils::hook::jump(0x14041DFB0, x, true);
 
 				utils::hook::jump(0x14041D010, net_compare_address);
 				utils::hook::jump(0x14041D060, net_compare_base_address);
@@ -147,6 +179,20 @@ namespace network
 
 				// ignore configstring mismatch
 				utils::hook::set<uint8_t>(0x1402CCCC7, 0xEB);
+
+				// ignore dw handle in SV_PacketEvent
+				utils::hook::set<uint8_t>(0x14047A17A, 0xEB);
+				utils::hook::call(0x14047A16E, &net_compare_address);
+
+				// ignore dw handle in SV_FindClientByAddress
+				utils::hook::set<uint8_t>(0x1404799AD, 0xEB);
+				utils::hook::call(0x1404799A1, &net_compare_address);
+
+				// ignore dw handle in SV_DirectConnect
+				utils::hook::set<uint8_t>(0x1404717BA, 0xEB);
+				utils::hook::set<uint8_t>(0x1404719DF, 0xEB);
+				utils::hook::call(0x1404717AD, &net_compare_address);
+				utils::hook::call(0x1404719D2, &net_compare_address);
 
 				// increase cl_maxpackets
 				utils::hook::set<uint8_t>(0x1402C8083, 125);

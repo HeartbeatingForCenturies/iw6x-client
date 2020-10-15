@@ -58,6 +58,7 @@ namespace game
 	SV_Loaded_t SV_Loaded;
 
 	SV_StartMap_t SV_StartMap;
+	SV_StartMapForParty_t SV_StartMapForParty;
 
 	SV_AddBot_t SV_AddBot;
 	SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
@@ -204,6 +205,7 @@ namespace game
 			SV_GameSendServerCommand = SV_GameSendServerCommand_t(SELECT_VALUE(0x140490F40, 0x1404758C0));
 			SV_Loaded = SV_Loaded_t(SELECT_VALUE(0x140491820, 0x1404770C0));
 			SV_StartMap = SV_StartMap_t(SELECT_VALUE(0, 0x140470170));
+			SV_StartMapForParty = SV_StartMapForParty_t(SELECT_VALUE(0, 0x1404702F0));
 			SV_AddBot = SV_AddBot_t(SELECT_VALUE(0, 0x140470920));
 			SV_ExecuteClientCommand = SV_ExecuteClientCommand_t(SELECT_VALUE(0, 0x140472430));
 			SV_SpawnTestClient = SV_SpawnTestClient_t(SELECT_VALUE(0, 0x1404740A0));

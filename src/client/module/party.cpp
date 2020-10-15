@@ -18,6 +18,8 @@ namespace party
 			std::string challenge{};
 		} connect_state;
 
+		utils::hook::detour setup_new_map_hook;
+
 		void connect_to_party(const game::netadr_s& target, const std::string& mapname, const std::string& gametype)
 		{
 			if (game::environment::is_sp())
@@ -36,7 +38,15 @@ namespace party
 
 		void load_new_map_stub(const char* map, const char* gametype)
 		{
-			connect_to_party(*reinterpret_cast<game::netadr_s*>(0x141CB535C), map, gametype);
+			const auto& host = *reinterpret_cast<game::netadr_s*>(0x141CB535C);
+			if (host.type == game::NA_LOOPBACK)
+			{
+				setup_new_map_hook.invoke<void>(map, gametype);
+			}
+			else
+			{
+				connect_to_party(host, map, gametype);
+			}
 		}
 	}
 
@@ -66,7 +76,7 @@ namespace party
 			// Hook CL_SetupForNewServerMap
 			// The server seems to kick us after a map change
 			// This fix is pretty bad, but it works for now
-			utils::hook::jump(0x1402C9F60, &load_new_map_stub);
+			//setup_new_map_hook.create(0x1402C9F60, &load_new_map_stub);
 
 			command::add("map", [](command::params& argument)
 			{
@@ -75,7 +85,7 @@ namespace party
 					return;
 				}
 
-				game::SV_StartMap(0, argument[1], false);
+				game::SV_StartMapForParty(0, argument[1], false, false);
 			});
 
 			command::add("connect", [](command::params& argument)
