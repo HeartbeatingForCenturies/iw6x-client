@@ -153,8 +153,7 @@ namespace network
 				utils::hook::jump(0x1402C64CB, utils::hook::assemble(handle_command_stub), true);
 
 				// handle xuid without secure connection
-				void* x = utils::hook::assemble(set_xuid_config_string_stub);
-				utils::hook::jump(0x14041DFB0, x, true);
+				utils::hook::jump(0x14041DFB0, utils::hook::assemble(set_xuid_config_string_stub), true);
 
 				utils::hook::jump(0x14041D010, net_compare_address);
 				utils::hook::jump(0x14041D060, net_compare_base_address);
