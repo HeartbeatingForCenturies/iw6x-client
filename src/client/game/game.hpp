@@ -18,7 +18,7 @@ namespace game
 	typedef const char* (*Com_Parse_t)(char const **);
 	extern Com_Parse_t Com_Parse;
 
-	typedef const char* (*Com_Error_t)(int type, const char* message);
+	typedef const char* (*Com_Error_t)(int type, const char* message, ...);
 	extern Com_Error_t Com_Error;
 
 	typedef void (*Conbuf_AppendText_t)(const char* message);
