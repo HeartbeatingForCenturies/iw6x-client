@@ -110,6 +110,16 @@ namespace colors
 			return string;
 		}
 
+		char* get_client_name_stub(int local_client_num, int index, char* buf, int size, char* a5)
+		{
+			// CL_GetClientName (CL_GetClientNameAndClantag?)
+			reinterpret_cast<char*(*)(int, int, char*, int, char*)>(0x1402CF790)(local_client_num, index, buf, size, a5);
+
+			strip(buf, buf, size);
+
+			return buf;
+		}
+
 		void rb_lookup_color_stub(const char index, DWORD* color)
 		{
 			*color = RGB(255, 255, 255);
@@ -151,6 +161,9 @@ namespace colors
 			{
 				// allows colored name in-game
 				utils::hook::jump(0x1404F5FC0, com_clean_name_stub);
+
+				// don't apply colors to overhead names
+				utils::hook::call(0x14025CE79, get_client_name_stub);
 
 				// patch I_CleanStr
 				utils::hook::jump(0x1404F63C0, i_clean_str_stub);
