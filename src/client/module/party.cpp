@@ -5,7 +5,6 @@
 #include "command.hpp"
 #include "network.hpp"
 
-#include "utils/hook.hpp"
 #include "utils/cryptography.hpp"
 
 namespace party
@@ -17,8 +16,6 @@ namespace party
 			game::netadr_s host{};
 			std::string challenge{};
 		} connect_state;
-
-		utils::hook::detour setup_new_map_hook;
 
 		void connect_to_party(const game::netadr_s& target, const std::string& mapname, const std::string& gametype)
 		{
@@ -34,19 +31,6 @@ namespace party
 			char session_info[0x100] = {};
 			reinterpret_cast<void(*)(int, char*, const game::netadr_s*, const char*, const char*)>(0x1402C5700)(
 				0, session_info, &target, mapname.data(), gametype.data());
-		}
-
-		void load_new_map_stub(const char* map, const char* gametype)
-		{
-			const auto& host = *reinterpret_cast<game::netadr_s*>(0x141CB535C);
-			if (host.type == game::NA_LOOPBACK)
-			{
-				setup_new_map_hook.invoke<void>(map, gametype);
-			}
-			else
-			{
-				connect_to_party(host, map, gametype);
-			}
 		}
 	}
 
@@ -72,11 +56,6 @@ namespace party
 			{
 				return;
 			}
-
-			// Hook CL_SetupForNewServerMap
-			// The server seems to kick us after a map change
-			// This fix is pretty bad, but it works for now
-			//setup_new_map_hook.create(0x1402C9F60, &load_new_map_stub);
 
 			command::add("map", [](command::params& argument)
 			{
