@@ -60,7 +60,7 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName", "IW4x Team"
+            VALUE "CompanyName", "X Labs"
             VALUE "FileDescription", "Steam mod runner"
             VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "Runner"
