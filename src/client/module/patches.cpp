@@ -146,6 +146,9 @@ namespace patches
 			utils::hook::set<uint8_t>(0x1402C836D, 0x01);
 			live_get_local_client_name_hook.create(0x1404FDAA0, &live_get_local_client_name);
 
+			// block changing name in-game
+			utils::hook::set<uint8_t>(0x140470300, 0xC3);
+
 			// Unlock all patches/cardtitles and exclusive items/camos
 			utils::hook::set(0x140402B10, 0xC301B0); // LiveStorage_IsItemUnlockedFromTable_LocalClient
 			utils::hook::set(0x140402360, 0xC301B0); // LiveStorage_IsItemUnlockedFromTable
