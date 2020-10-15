@@ -1,7 +1,7 @@
 #include <std_include.hpp>
 #include "module_loader.hpp"
 
-void module_loader::register_module(std::unique_ptr<module>&& module_)
+void module_loader::register_module(std::unique_ptr<module_interface>&& module_)
 {
 	get_modules().push_back(std::move(module_));
 }
@@ -93,9 +93,9 @@ void module_loader::trigger_premature_shutdown()
 	throw premature_shutdown_trigger();
 }
 
-std::vector<std::unique_ptr<module>>& module_loader::get_modules()
+std::vector<std::unique_ptr<module_interface>>& module_loader::get_modules()
 {
-	using module_vector = std::vector<std::unique_ptr<module>>;
+	using module_vector = std::vector<std::unique_ptr<module_interface>>;
 	using module_vector_container = std::unique_ptr<module_vector, std::function<void(module_vector*)>>;
 
 	static

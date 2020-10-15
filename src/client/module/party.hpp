@@ -1,11 +1,7 @@
 #pragma once
-#include "loader/module_loader.hpp"
 #include "game/game.hpp"
 
-class party final : public module
+namespace party
 {
-public:
-	void post_unpack() override;
-
-	static void connect(const game::netadr_s& target);
-};
+	void connect(const game::netadr_s& target);
+}

@@ -6,6 +6,8 @@ namespace game
 	Sys_ShowConsole_t Sys_ShowConsole;
 
 	Com_Frame_Try_Block_Function_t Com_Frame_Try_Block_Function;
+	Com_Parse_t Com_Parse;
+	Com_Error_t Com_Error;
 
 	Conbuf_AppendText_t Conbuf_AppendText;
 
@@ -29,7 +31,12 @@ namespace game
 	Dvar_Sort_t Dvar_Sort;
 	Dvar_ValueToString_t Dvar_ValueToString;
 
+	FS_ReadFile_t FS_ReadFile;
+	FS_FreeFile_t FS_FreeFile;
+
 	G_RunFrame_t G_RunFrame;
+
+	Live_SyncOnlineDataFlags_t Live_SyncOnlineDataFlags;
 
 	LUI_OpenMenu_t LUI_OpenMenu;
 
@@ -49,6 +56,13 @@ namespace game
 
 	SV_GameSendServerCommand_t SV_GameSendServerCommand;
 	SV_Loaded_t SV_Loaded;
+
+	SV_StartMap_t SV_StartMap;
+	SV_StartMapForParty_t SV_StartMapForParty;
+
+	SV_AddBot_t SV_AddBot;
+	SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
+	SV_SpawnTestClient_t SV_SpawnTestClient;
 
 	Sys_Milliseconds_t Sys_Milliseconds;
 	Sys_SendPacket_t Sys_SendPacket;
@@ -73,7 +87,13 @@ namespace game
 
 	namespace mp
 	{
+		cg_s* cgArray;
+
 		gentity_s* g_entities;
+
+		client_t* svs_clients;
+
+		std::uint32_t* sv_serverId_value;
 	}
 
 	int Cmd_Argc()
@@ -110,6 +130,11 @@ namespace game
 
 	namespace environment
 	{
+		bool is_dedi()
+		{
+			return get_mode() == launcher::mode::server;
+		}
+
 		bool is_mp()
 		{
 			return get_mode() == launcher::mode::multiplayer;
@@ -120,19 +145,19 @@ namespace game
 			return get_mode() == launcher::mode::singleplayer;
 		}
 
-		bool is_dedi()
-		{
-			return get_mode() == launcher::mode::server;
-		}
-
-		void initialize(const launcher::mode _mode)
+		void set_mode(const launcher::mode _mode)
 		{
 			mode = _mode;
+		}
 
+		void initialize()
+		{
 			Sys_ShowConsole = Sys_ShowConsole_t(SELECT_VALUE(0x14043E650, 0x140503130));
 			Conbuf_AppendText = Conbuf_AppendText_t(SELECT_VALUE(0x14043DDE0, 0x1405028C0));
 
 			Com_Frame_Try_Block_Function = Com_Frame_Try_Block_Function_t(SELECT_VALUE(0x1403BC980, 0x1404131A0));
+			Com_Parse = Com_Parse_t(SELECT_VALUE(0, 0x1404F50E0));
+			Com_Error = Com_Error_t(SELECT_VALUE(0x1403BBFF0, 0x140412740));
 
 			Cbuf_AddText = Cbuf_AddText_t(SELECT_VALUE(0x1403B3050, 0x1403F6B50));
 
@@ -155,6 +180,11 @@ namespace game
 			Dvar_ValueToString = Dvar_ValueToString_t(SELECT_VALUE(0x14042E710, 0x1404F1A30));
 
 			G_RunFrame = G_RunFrame_t(SELECT_VALUE(0x0, 0x1403A05E0));
+			
+			FS_ReadFile = FS_ReadFile_t(SELECT_VALUE(0x14041D0B0, 0x1404DE900));
+			FS_FreeFile = FS_FreeFile_t(SELECT_VALUE(0x14041D0A0, 0x1404DE8F0));
+
+			Live_SyncOnlineDataFlags = Live_SyncOnlineDataFlags_t(SELECT_VALUE(0, 0x1405ABF70));
 
 			LUI_OpenMenu = LUI_OpenMenu_t(SELECT_VALUE(0x0, 0x1404B3610));
 
@@ -174,6 +204,11 @@ namespace game
 
 			SV_GameSendServerCommand = SV_GameSendServerCommand_t(SELECT_VALUE(0x140490F40, 0x1404758C0));
 			SV_Loaded = SV_Loaded_t(SELECT_VALUE(0x140491820, 0x1404770C0));
+			SV_StartMap = SV_StartMap_t(SELECT_VALUE(0, 0x140470170));
+			SV_StartMapForParty = SV_StartMapForParty_t(SELECT_VALUE(0, 0x1404702F0));
+			SV_AddBot = SV_AddBot_t(SELECT_VALUE(0, 0x140470920));
+			SV_ExecuteClientCommand = SV_ExecuteClientCommand_t(SELECT_VALUE(0, 0x140472430));
+			SV_SpawnTestClient = SV_SpawnTestClient_t(SELECT_VALUE(0, 0x1404740A0));
 
 			Sys_Milliseconds = Sys_Milliseconds_t(SELECT_VALUE(0x14043D2A0, 0x140501CA0));
 			Sys_SendPacket = Sys_SendPacket_t(SELECT_VALUE(0x14043D000, 0x140501A00));
@@ -195,9 +230,15 @@ namespace game
 			{
 				sp::g_entities = reinterpret_cast<sp::gentity_s*>(0x143C91600);
 			}
-			else if (is_mp())
+			else
 			{
+				mp::cgArray = reinterpret_cast<mp::cg_s*>(0x14176EC00);
+
 				mp::g_entities = reinterpret_cast<mp::gentity_s*>(0x14427A0E0);
+
+				mp::svs_clients = reinterpret_cast<mp::client_t*>(0x14647B290);
+
+				mp::sv_serverId_value = reinterpret_cast<std::uint32_t*>(0x144DF9478);
 			}
 		}
 	}

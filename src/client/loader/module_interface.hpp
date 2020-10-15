@@ -1,9 +1,9 @@
 #pragma once
 
-class module
+class module_interface
 {
 public:
-	virtual ~module()
+	virtual ~module_interface()
 	{
 	}
 

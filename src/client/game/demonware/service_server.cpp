@@ -1,5 +1,6 @@
 #include <std_include.hpp>
-#include "module/dw.hpp"
+#include "module/demonware.hpp"
+#include "game/demonware/service_server.hpp"
 #include "utils/cryptography.hpp"
 
 namespace demonware
@@ -42,7 +43,7 @@ namespace demonware
 
 		const auto iv = utils::cryptography::tiger::compute(std::string(reinterpret_cast<char*>(&seed), 4));
 
-		const std::string key(reinterpret_cast<char*>(dw::get_key(true)), 24);
+		const std::string key(reinterpret_cast<char*>(get_key(true)), 24);
 		result.write(utils::cryptography::des3::encrypt(data, iv, key));
 
 		return result.get_buffer();
@@ -172,7 +173,7 @@ namespace demonware
 
 					auto iv_hash = utils::cryptography::tiger::compute(std::string(reinterpret_cast<char*>(&iv), 4));
 
-					const std::string key(reinterpret_cast<char*>(dw::get_key(false)), 24);
+					const std::string key(reinterpret_cast<char*>(get_key(false)), 24);
 					p_buffer = byte_buffer{utils::cryptography::des3::decrypt(p_buffer.get_remaining(), iv_hash, key)};
 					p_buffer.set_use_data_types(false);
 
