@@ -25,7 +25,7 @@ namespace localized_strings
 
 		const char* seh_string_ed_get_string(const char* reference)
 		{
-			std::lock_guard _(get_synchronization_mutex());
+			std::lock_guard<std::mutex> _(get_synchronization_mutex());
 
 			auto& overrides = get_localized_overrides();
 			const auto entry = overrides.find(reference);
@@ -40,7 +40,7 @@ namespace localized_strings
 
 	void override(const std::string& key, const std::string& value)
 	{
-		std::lock_guard _(get_synchronization_mutex());
+		std::lock_guard<std::mutex> _(get_synchronization_mutex());
 		get_localized_overrides()[key] = value;
 	}
 
@@ -49,13 +49,8 @@ namespace localized_strings
 	public:
 		void post_unpack() override
 		{
-			if (game::environment::is_sp())
-			{
-				return;
-			}
-
 			// Change some localized strings
-			seh_string_ed_get_string_hook.create(0x1404A5F60, &seh_string_ed_get_string);
+			seh_string_ed_get_string_hook.create(SELECT_VALUE(0x1403F42D0, 0x1404A5F60), &seh_string_ed_get_string);
 		}
 	};
 }

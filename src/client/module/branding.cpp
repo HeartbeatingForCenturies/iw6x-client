@@ -1,5 +1,6 @@
 #include <std_include.hpp>
 #include "loader/module_loader.hpp"
+#include "localized_strings.hpp"
 #include "scheduler.hpp"
 #include "game/game.hpp"
 
@@ -14,6 +15,13 @@ namespace branding
 			{
 				return;
 			}
+
+			if (game::environment::is_mp())
+			{
+				localized_strings::override("LUA_MENU_MULTIPLAYER_CAPS", "IW6x: Multiplayer\n");
+			}
+
+			localized_strings::override("LUA_MENU_LEGAL_COPYRIGHT", "IW6x: Pre-Release by X Labs.\n");
 
 			scheduler::loop([]()
 			{
