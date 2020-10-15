@@ -103,6 +103,13 @@ namespace patches
 			game::Dvar_RegisterInt("cg_gun_y", 0, 0, 0, 0, "Right position of the viewmodel");
 			game::Dvar_RegisterInt("cg_gun_z", 0, 0, 0, 0, "Up position of the viewmodel");
 
+
+			if (!game::environment::is_sp())
+			{
+				//increased max limit for sv_network_fps, the lower limit is the default one. Original range is from 20 to 200 times a second.
+				game::Dvar_RegisterInt("sv_network_fps", 1000, 20, 1000, 0, "Number of times per second the server checks for net messages");
+			}
+
 			command::add("dvarDump", []()
 			{
 				game_console::print(
