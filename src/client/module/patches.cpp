@@ -69,8 +69,13 @@ namespace patches
 				utils::nt::raise_hard_exception();
 			});
 
-			// Keep this at 1 so it cannot be used 
+			// Keep these at 1 so they cannot be used 
+			// For colorMap and lightMap : 1 = "Unchanged"
 			game::Dvar_RegisterInt("r_fog", 1, 1, 1, 0, "Shows the maps fog");
+			game::Dvar_RegisterInt("fx_draw", 1, 1, 1, 0, "Toggles drawing of effects after processing");
+			game::Dvar_RegisterInt("fx_enable", 1, 1, 1, 0, "Toggles all effects processing");
+			game::Dvar_RegisterInt("r_colorMap", 1, 1, 1, 0, "Replace all color maps with pure black or pure white");
+			game::Dvar_RegisterInt("r_lightMap", 1, 1, 1, 0, "Replace all lightmaps with pure black or pure white");
 
 			// Keeping it so it cant be used for uav cheats for people
 			game::Dvar_RegisterInt("bg_compassShowEnemies", 0, 0, 0, 0x8C,
@@ -92,6 +97,11 @@ namespace patches
 
 			// changed max value from 80.0f -> 120.f and min value from 65.0f -> 1.0f
 			game::Dvar_RegisterFloat("cg_fov", 65.0f, 1.0f, 120.0f, 0x1, "The field of view angle in degrees");
+
+			// maybe _x can stay usable within a reasonable range? it can make scoped weapons DRASTICALLY better on high FOVs
+			game::Dvar_RegisterFloat("cg_gun_x", 0.0f, -1.0f, 2.0f, 0x1, "Forward position of the viewmodel");
+			game::Dvar_RegisterInt("cg_gun_y", 0, 0, 0, 0, "Right position of the viewmodel");
+			game::Dvar_RegisterInt("cg_gun_z", 0, 0, 0, 0, "Up position of the viewmodel");
 
 			command::add("dvarDump", []()
 			{
