@@ -27,6 +27,9 @@ namespace game
 	typedef void (*Cbuf_AddText_t)(int localClientNum, const char* text);
 	extern Cbuf_AddText_t Cbuf_AddText;
 
+	typedef void (*Cbuf_ExecuteBufferInternal_t)(int localClientNum, int controllerIndex, const char* buffer, void(*singleExecCmd)(int, int, const char*));
+	extern Cbuf_ExecuteBufferInternal_t Cbuf_ExecuteBufferInternal;
+
 	typedef bool (*CL_IsCgameInitialized_t)();
 	extern CL_IsCgameInitialized_t CL_IsCgameInitialized;
 
@@ -76,7 +79,7 @@ namespace game
 	typedef const char* (*Dvar_ValueToString_t)(dvar_t* dvar, dvar_value value);
 	extern Dvar_ValueToString_t Dvar_ValueToString;
 
-	typedef unsigned __int64 (*FS_ReadFile_t)(const char *qpath, char **buffer);
+	typedef __int64 (*FS_ReadFile_t)(const char *qpath, char **buffer);
 	extern FS_ReadFile_t FS_ReadFile;
 
 	typedef void (*FS_FreeFile_t)(void *buffer);

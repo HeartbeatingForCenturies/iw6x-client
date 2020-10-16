@@ -12,6 +12,7 @@ namespace game
 	Conbuf_AppendText_t Conbuf_AppendText;
 
 	Cbuf_AddText_t Cbuf_AddText;
+	Cbuf_ExecuteBufferInternal_t Cbuf_ExecuteBufferInternal;
 
 	CG_GameMessage_t CG_GameMessage;
 
@@ -160,6 +161,7 @@ namespace game
 			Com_Error = Com_Error_t(SELECT_VALUE(0x1403BBFF0, 0x140412740));
 
 			Cbuf_AddText = Cbuf_AddText_t(SELECT_VALUE(0x1403B3050, 0x1403F6B50));
+			Cbuf_ExecuteBufferInternal = Cbuf_ExecuteBufferInternal_t(SELECT_VALUE(0x1403B3160, 0x1403F6C60));
 
 			CG_GameMessage = CG_GameMessage_t(SELECT_VALUE(0x1401F2E20, 0x140271320));
 
