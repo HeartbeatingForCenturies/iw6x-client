@@ -137,7 +137,11 @@ namespace dedicated
 
 			//utils::hook::set<uint8_t>(0x1405E3470, 0xC3); // some rendering stuff in R_UpdateDynamicMemory
 			//utils::hook::set<uint8_t>(0x1405E31A0, 0xC3); // ^
-			utils::hook::jump(0x140610EB6, 0x140610F15); // ^
+			utils::hook::jump(0x140610EB6, 0x140610F15);    // ^
+
+			utils::hook::nop(0x1404F8BD9, 5);               // Disable sound pak file loading
+			utils::hook::nop(0x1404F8BE1, 2);               // ^
+			utils::hook::set<uint8_t>(0x140328660, 0xC3);   // Disable image pak file loading
 
 			scheduler::schedule([]()
 			{
