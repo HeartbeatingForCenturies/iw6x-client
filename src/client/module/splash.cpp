@@ -79,7 +79,7 @@ namespace splash
 
 			const utils::nt::module self;
 
-			wnd_class.style = 0;
+			wnd_class.style = CS_DROPSHADOW;
 			wnd_class.cbClsExtra = 0;
 			wnd_class.cbWndExtra = 0;
 			wnd_class.lpszMenuName = nullptr;
