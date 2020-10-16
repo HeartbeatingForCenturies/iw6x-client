@@ -194,6 +194,9 @@ namespace patches
 					7, "================================ END COMMAND DUMP =================================\n");
 			});
 
+			// Allow executing custom cfg files with the "exec" command
+			utils::hook::jump(SELECT_VALUE(0x1403B39BB, 0x1403F752B), SELECT_VALUE(cmd_exec_stub_sp, cmd_exec_stub_mp), true);
+
 			if (game::environment::is_sp())
 			{
 				patch_sp();
@@ -223,9 +226,6 @@ namespace patches
 
 			// Register cg_fovscale with new params
 			utils::hook::call(0x140272777, register_fovscale_stub);
-
-			// Allow executing custom cfg files with the "exec" command
-			utils::hook::jump(0x1403F752B, cmd_exec_stub_mp, true);
 		}
 
 		void patch_sp() const
@@ -233,9 +233,6 @@ namespace patches
 			// SP doesn't initialize WSA
 			WSADATA wsa_data;
 			WSAStartup(MAKEWORD(2, 2), &wsa_data);
-
-			// Allow executing custom cfg files with the "exec" command
-			utils::hook::jump(0x1403B39BB, cmd_exec_stub_sp, true);
 		}
 	};
 }
