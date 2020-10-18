@@ -1,7 +1,7 @@
 #pragma once
-#include "steam/interface.hpp"
+#include "utils/nt.hpp"
 
 namespace steam_proxy
 {
-	// This will export stuff some day
+	const utils::nt::module& get_overlay_module();
 }

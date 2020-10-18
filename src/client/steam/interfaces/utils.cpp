@@ -1,5 +1,6 @@
 #include <std_include.hpp>
 #include "steam/steam.hpp"
+#include "module/steam_proxy.hpp"
 
 namespace steam
 {
@@ -55,6 +56,7 @@ namespace steam
 
 	void utils::SetOverlayNotificationPosition(int eNotificationPosition)
 	{
+		const auto& overlay = steam_proxy::get_overlay_module();
 		if (overlay)
 		{
 			overlay.invoke<void>("SetNotificationPosition", eNotificationPosition);

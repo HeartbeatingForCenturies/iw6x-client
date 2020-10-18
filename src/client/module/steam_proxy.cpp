@@ -9,6 +9,8 @@
 
 #include "game/game.hpp"
 
+#include "steam/interface.hpp"
+
 namespace steam_proxy
 {
 	namespace
@@ -76,6 +78,11 @@ namespace steam_proxy
 			RegCloseKey(reg_key);
 
 			return path;
+		}
+
+		const utils::nt::module& get_overlay_module() const
+		{
+			return steam_overlay_module_;
 		}
 
 	private:
@@ -182,6 +189,12 @@ namespace steam_proxy
 			});
 		}
 	};
+
+	const utils::nt::module& get_overlay_module()
+	{
+		// TODO: Find a better way to do this
+		return module_loader::get<module>()->get_overlay_module();
+	}
 }
 
 REGISTER_MODULE(steam_proxy::module)

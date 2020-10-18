@@ -3,8 +3,6 @@
 
 namespace steam
 {
-	::utils::nt::module overlay(nullptr);
-
 	uint64_t callbacks::call_id_ = 0;
 	std::recursive_mutex callbacks::mutex_;
 	std::map<uint64_t, bool> callbacks::calls_;
@@ -14,29 +12,29 @@ namespace steam
 
 	uint64_t callbacks::register_call()
 	{
-		std::lock_guard _(mutex_);
+		std::lock_guard<std::recursive_mutex> _(mutex_);
 		calls_[++call_id_] = false;
 		return call_id_;
 	}
 
 	void callbacks::register_callback(base* handler, const int callback)
 	{
-		std::lock_guard _(mutex_);
+		std::lock_guard<std::recursive_mutex> _(mutex_);
 		handler->set_i_callback(callback);
 		callback_list_.push_back(handler);
 	}
 
 	void callbacks::register_call_result(const uint64_t call, base* result)
 	{
-		std::lock_guard _(mutex_);
+		std::lock_guard<std::recursive_mutex> _(mutex_);
 		result_handlers_[call] = result;
 	}
 
 	void callbacks::return_call(void* data, const int size, const int type, const uint64_t call)
 	{
-		std::lock_guard _(mutex_);
+		std::lock_guard<std::recursive_mutex> _(mutex_);
 
-		result result;
+		result result{};
 		result.call = call;
 		result.data = data;
 		result.size = size;
@@ -44,12 +42,12 @@ namespace steam
 
 		calls_[call] = true;
 
-		results_.push_back(result);
+		results_.emplace_back(std::move(result));
 	}
 
 	void callbacks::run_callbacks()
 	{
-		std::lock_guard _(mutex_);
+		std::lock_guard<std::recursive_mutex> _(mutex_);
 
 		for (const auto& result : results_)
 		{
@@ -75,30 +73,6 @@ namespace steam
 		results_.clear();
 	}
 
-	std::string get_steam_install_directory()
-	{
-		HKEY reg_key;
-		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Valve\\Steam", 0, KEY_QUERY_VALUE, &reg_key) ==
-			ERROR_SUCCESS)
-		{
-			char path[MAX_PATH] = {0};
-			DWORD length = sizeof(path);
-			RegQueryValueExA(reg_key, "InstallPath", nullptr, nullptr, reinterpret_cast<BYTE*>(path),
-			                 &length);
-			RegCloseKey(reg_key);
-
-			std::string steam_path = path;
-			if (steam_path.back() != '\\' && steam_path.back() != '/')
-			{
-				steam_path.push_back('\\');
-			}
-
-			return steam_path;
-		}
-
-		return {};
-	}
-
 	extern "C" {
 	bool SteamAPI_RestartAppIfNecessary()
 	{
@@ -107,17 +81,6 @@ namespace steam
 
 	bool SteamAPI_Init()
 	{
-		overlay = ::utils::nt::module("gameoverlayrenderer.dll");
-
-		if (!overlay)
-		{
-			const auto steam_path = get_steam_install_directory();
-			if (!steam_path.empty())
-			{
-				overlay = ::utils::nt::module::load(steam_path + "gameoverlayrenderer.dll");
-			}
-		}
-
 		return true;
 	}
 

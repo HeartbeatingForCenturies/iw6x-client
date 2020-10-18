@@ -18,7 +18,7 @@ namespace branding
 
 			if (game::environment::is_mp())
 			{
-				localized_strings::override("LUA_MENU_MULTIPLAYER_CAPS", "IW6x: Multiplayer\n");
+				localized_strings::override("LUA_MENU_MULTIPLAYER_CAPS", "IW6x: MULTIPLAYER\n");
 			}
 
 			localized_strings::override("LUA_MENU_LEGAL_COPYRIGHT", "IW6x: Pre-Release by X Labs.\n");
@@ -34,9 +34,8 @@ namespace branding
 				auto* font = game::R_RegisterFont("fonts/normalfont");
 				if (!font) return;
 
-				game::R_AddCmdDrawText(text, 0x7FFFFFFF, font, x,
-				                       y + font->pixelHeight * scale, scale,
-				                       scale, 0.0, color, 0);
+				game::R_AddCmdDrawText(text, 0x7FFFFFFF, font, x, y + static_cast<float>(font->pixelHeight) * scale,
+				                       scale, scale, 0.0, color, 0);
 			}, scheduler::pipeline::renderer);
 		}
 	};
