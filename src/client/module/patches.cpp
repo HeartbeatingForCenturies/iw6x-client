@@ -116,7 +116,7 @@ namespace patches
 		{
 			command::add("quit", []()
 			{
-				utils::hook::invoke<void>(SELECT_VALUE(0x1403BDDD0, 0x140414920));
+				game::Com_Quit();
 			});
 
 			command::add("quit_hard", []()
@@ -164,6 +164,19 @@ namespace patches
 				//increased max limit for sv_network_fps, the lower limit is the default one. Original range is from 20 to 200 times a second.
 				game::Dvar_RegisterInt("sv_network_fps", 1000, 20, 1000, 0, "Number of times per second the server checks for net messages");
 			}
+
+			// Register cg_fovscale with new params
+			utils::hook::call(SELECT_VALUE(0x140317079, 0x140272777), register_fovscale_stub);
+
+			command::add("getDvarValue", [](command::params& params)
+			{
+				auto dvar = game::Dvar_FindVar(params.get(1));
+				if (dvar)
+				{
+					auto value = game::Dvar_ValueToString(dvar, dvar->current);
+					game_console::print(7, "%s current value: %s", dvar->name, value);
+				}
+			});
 
 			command::add("dvarDump", []()
 			{
@@ -232,9 +245,6 @@ namespace patches
 
 			// Enable DLC items, extra loadouts and map selection in extinction
 			dvar_register_int_hook.create(0x1404EE270, &dvar_register_int);
-
-			// Register cg_fovscale with new params
-			utils::hook::call(0x140272777, register_fovscale_stub);
 		}
 
 		void patch_sp() const
