@@ -170,7 +170,7 @@ namespace patches
 
 			command::add("getDvarValue", [](command::params& params)
 			{
-				if (argument.size() != 2)
+				if (params.size() != 2)
 				{
 					return;
 				}
