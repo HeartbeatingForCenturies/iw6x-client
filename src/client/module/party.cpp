@@ -88,7 +88,7 @@ namespace party
 				info.set_challenge(data.data(), data.size());
 
 				auto* gametype = game::Dvar_FindVar("g_gametype");
-				if (!gametype || !gametype->current.string)
+				if (!gametype || !gametype->current.string || !strlen(gametype->current.string))
 				{
 					info.set_valid(false);
 				}
@@ -98,7 +98,7 @@ namespace party
 				}
 
 				auto* mapname = game::Dvar_FindVar("mapname");
-				if (!mapname || !mapname->current.string)
+				if (!mapname || !mapname->current.string || !strlen(mapname->current.string))
 				{
 					info.set_valid(false);
 				}
