@@ -170,6 +170,11 @@ namespace patches
 
 			command::add("getDvarValue", [](command::params& params)
 			{
+				if (argument.size() != 2)
+				{
+					return;
+				}
+				
 				auto dvar = game::Dvar_FindVar(params.get(1));
 				if (dvar)
 				{
