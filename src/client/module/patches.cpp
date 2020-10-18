@@ -67,6 +67,7 @@ namespace patches
 				if (file.exists())
 				{
 					game::Cbuf_ExecuteBufferInternal(0, 0, file.get_buffer().data(), game::Cmd_ExecuteSingleCommand);
+					return true;
 				}				
 			}
 
@@ -82,7 +83,7 @@ namespace patches
 			a.test(al, al);
 			a.popad64();
 
-			a.jnz(success);
+			a.jz(success);
 			a.mov(edx, 0x18000);
 			a.jmp(0x1403F7530);
 
@@ -99,7 +100,7 @@ namespace patches
 			a.test(al, al);
 			a.popad64();
 
-			a.jnz(success);
+			a.jz(success);
 			a.mov(edx, 0x18000);
 			a.jmp(0x1403B39C0);
 
@@ -202,7 +203,8 @@ namespace patches
 			});
 
 			// Allow executing custom cfg files with the "exec" command
-			utils::hook::jump(SELECT_VALUE(0x1403B39BB, 0x1403F752B), SELECT_VALUE(cmd_exec_stub_sp, cmd_exec_stub_mp), true);
+			utils::hook::jump(SELECT_VALUE(0x1403B39BB, 0x1403F752B), SELECT_VALUE(0x1403B3A12, 0x1403F7582)); //Patch a jnz to empty memory
+			utils::hook::jump(SELECT_VALUE(0x1403B3A12, 0x1403F7582), SELECT_VALUE(cmd_exec_stub_sp, cmd_exec_stub_mp), true); //Use empty memory to go to our stub first (can't do close jump, so need space for 12 bytes)
 
 			if (game::environment::is_sp())
 			{
