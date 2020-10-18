@@ -8,6 +8,7 @@ namespace game
 	Com_Frame_Try_Block_Function_t Com_Frame_Try_Block_Function;
 	Com_Parse_t Com_Parse;
 	Com_Error_t Com_Error;
+	Com_Quit_t Com_Quit;
 
 	Conbuf_AppendText_t Conbuf_AppendText;
 
@@ -159,6 +160,7 @@ namespace game
 			Com_Frame_Try_Block_Function = Com_Frame_Try_Block_Function_t(SELECT_VALUE(0x1403BC980, 0x1404131A0));
 			Com_Parse = Com_Parse_t(SELECT_VALUE(0, 0x1404F50E0));
 			Com_Error = Com_Error_t(SELECT_VALUE(0x1403BBFF0, 0x140412740));
+			Com_Quit = Com_Quit_t(SELECT_VALUE(0x1403BDDD0, 0x140414920));
 
 			Cbuf_AddText = Cbuf_AddText_t(SELECT_VALUE(0x1403B3050, 0x1403F6B50));
 			Cbuf_ExecuteBufferInternal = Cbuf_ExecuteBufferInternal_t(SELECT_VALUE(0x1403B3160, 0x1403F6C60));
