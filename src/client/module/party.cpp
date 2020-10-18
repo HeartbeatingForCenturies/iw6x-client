@@ -74,8 +74,14 @@ namespace party
 					return;
 				}
 
+				auto adr = argument[1];
+				if (adr == "localhost"s)
+				{
+					adr = "127.0.0.1";
+				}
+
 				game::netadr_s target{};
-				if (game::NET_StringToAdr(argument[1], &target))
+				if (game::NET_StringToAdr(adr, &target))
 				{
 					connect(target);
 				}
