@@ -203,7 +203,7 @@ namespace patches
 			});
 
 			// Allow executing custom cfg files with the "exec" command
-			utils::hook::jump(SELECT_VALUE(0x1403B39BB, 0x1403F752B), SELECT_VALUE(0x1403B3A12, 0x1403F7582)); //Patch a jnz to empty memory
+			utils::hook::jump(SELECT_VALUE(0x1403B39BB, 0x1403F752B), SELECT_VALUE(0x1403B3A12, 0x1403F7582)); //Use a relative jump to empty memory first
 			utils::hook::jump(SELECT_VALUE(0x1403B3A12, 0x1403F7582), SELECT_VALUE(cmd_exec_stub_sp, cmd_exec_stub_mp), true); //Use empty memory to go to our stub first (can't do close jump, so need space for 12 bytes)
 
 			if (game::environment::is_sp())
