@@ -102,7 +102,8 @@ namespace gameplay
 
 			utils::hook::jump(
 				SELECT_VALUE(0x14046EC5C, 0x140228FFF), SELECT_VALUE(pm_bouncing_stub_sp, pm_bouncing_stub_mp), true);
-			dvars::pm_bouncing = game::Dvar_RegisterBool("pm_bouncing", false, 0x1, "Enable bouncing");
+			dvars::pm_bouncing = game::Dvar_RegisterBool("pm_bouncing", false, 
+				game::DvarFlags::DVAR_FLAG_SAVED | game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable bouncing");
 
 			if (game::environment::is_sp()) return;
 
