@@ -119,7 +119,7 @@ namespace dvar_cheats
 			scheduler::once([]()
 			{
 				game::Dvar_RegisterBool("sv_cheats", false, game::DvarFlags::DVAR_FLAG_REPLICATED, "Allow cheat commands and dvars on this server");
-			});
+			}, scheduler::pipeline::main);
 		}
 	};
 }
