@@ -8,7 +8,7 @@
 
 namespace dvar_cheats
 {
-	void apply_sv_cheats(game::dvar_t* dvar, game::DvarSetSource source, game::dvar_value* value)
+	void apply_sv_cheats(const game::dvar_t* dvar, const game::DvarSetSource source, game::dvar_value* value)
 	{
 		if (dvar && dvar->name == "sv_cheats"s)
 		{
@@ -33,7 +33,7 @@ namespace dvar_cheats
 		}
 	}
 
-	bool dvar_flag_checks(game::dvar_t* dvar, game::DvarSetSource source)
+	bool dvar_flag_checks(const game::dvar_t* dvar, const game::DvarSetSource source)
 	{
 		if ((dvar->flags & game::DvarFlags::DVAR_FLAG_WRITE))
 		{
@@ -47,22 +47,24 @@ namespace dvar_cheats
 			return false;
 		}
 
-		const auto cl_ingame = game::Dvar_FindVar("cl_ingame");
-		const auto sv_running = game::Dvar_FindVar("sv_running");
-
-		if ((dvar->flags & game::DvarFlags::DVAR_FLAG_REPLICATED) && (cl_ingame && cl_ingame->current.enabled) && (sv_running && !sv_running->current.enabled))
+		// only check cheat/replicated values when the source is external
+		if (source == game::DvarSetSource::DVAR_SOURCE_EXTERNAL)
 		{
-			game_console::print(1, "%s can only be changed by the server", dvar->name);
-			return false;
-		}
+			const auto cl_ingame = game::Dvar_FindVar("cl_ingame");
+			const auto sv_running = game::Dvar_FindVar("sv_running");
 
-		const auto sv_cheats = game::Dvar_FindVar("sv_cheats");
+			if ((dvar->flags & game::DvarFlags::DVAR_FLAG_REPLICATED) && (cl_ingame && cl_ingame->current.enabled) && (sv_running && !sv_running->current.enabled))
+			{
+				game_console::print(1, "%s can only be changed by the server", dvar->name);
+				return false;
+			}
 
-		// only check cheat-protected values when the source is external (CoD4 does this too)
-		if (source == game::DvarSetSource::DVAR_SOURCE_EXTERNAL && (dvar->flags & game::DvarFlags::DVAR_FLAG_CHEAT) && (sv_cheats && !sv_cheats->current.enabled))
-		{
-			game_console::print(1, "%s is cheat protected", dvar->name);
-			return false;
+			const auto sv_cheats = game::Dvar_FindVar("sv_cheats");
+			if ((dvar->flags & game::DvarFlags::DVAR_FLAG_CHEAT) && (sv_cheats && !sv_cheats->current.enabled))
+			{
+				game_console::print(1, "%s is cheat protected", dvar->name);
+				return false;
+			}
 		}
 
 		// pass all the flag checks, allow dvar to be changed
@@ -86,7 +88,7 @@ namespace dvar_cheats
 		a.pushad64();
 		a.mov(edx, esi); //source
 		a.mov(rcx, rbx); //dvar
-		a.call(dvar_flag_checks); //don't allow read/write/cheat/replicated dvars to be changed unless host
+		a.call(dvar_flag_checks); //protect read/write/cheat/replicated dvars
 		a.cmp(al, 1);
 		a.jz(can_set_value);
 
