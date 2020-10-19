@@ -10,7 +10,6 @@ namespace cursor
 	{
 		bool show_cursor_next_frame = false;
 
-
 		int WINAPI show_cursor_stub(const BOOL show)
 		{
 			static auto counter = 0;

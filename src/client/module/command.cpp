@@ -119,6 +119,20 @@ namespace command
 			handlers_sv[command] = callback;
 	}
 
+	void execute(std::string command, const bool sync)
+	{
+		command += "\n";
+
+		if (sync)
+		{
+			game::Cmd_ExecuteSingleCommand(0,0, command.data());
+		}
+		else
+		{
+			game::Cbuf_AddText(0, command.data());
+		}
+	}
+
 	class module final : public module_interface
 	{
 	public:
@@ -178,8 +192,10 @@ namespace command
 
 				game::mp::g_entities[client_num].flags ^= 1;
 				game::SV_GameSendServerCommand(client_num, 1,
-											   utils::string::va("f \"godmode %s\"",
-											   game::mp::g_entities[client_num].flags & 1 ? "^2on" : "^1off"));
+				                               utils::string::va("f \"godmode %s\"",
+				                                                 game::mp::g_entities[client_num].flags & 1
+					                                                 ? "^2on"
+					                                                 : "^1off"));
 			});
 
 			add_sv("noclip", [&](const int client_num, params_sv&)

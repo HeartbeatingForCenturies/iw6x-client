@@ -16,7 +16,7 @@ namespace utils::string
 		return result;
 	}
 
-	std::vector<std::string> split(const std::string& s, char delim)
+	std::vector<std::string> split(const std::string& s, const char delim)
 	{
 		std::stringstream ss(s);
 		std::string item;
