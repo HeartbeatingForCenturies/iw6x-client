@@ -97,8 +97,6 @@ void remove_crash_file()
 
 int main()
 {
-	ShowWindow(GetConsoleWindow(), SW_HIDE);
-
 	FARPROC entry_point;
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
