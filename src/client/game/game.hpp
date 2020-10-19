@@ -15,7 +15,7 @@ namespace game
 	typedef void (*Com_Frame_Try_Block_Function_t)();
 	extern Com_Frame_Try_Block_Function_t Com_Frame_Try_Block_Function;
 
-	typedef const char* (*Com_Parse_t)(char const **);
+	typedef const char* (*Com_Parse_t)(char const**);
 	extern Com_Parse_t Com_Parse;
 
 	typedef void (*Com_Error_t)(int type, const char* message, ...);
@@ -30,7 +30,8 @@ namespace game
 	typedef void (*Cbuf_AddText_t)(int localClientNum, const char* text);
 	extern Cbuf_AddText_t Cbuf_AddText;
 
-	typedef void (*Cbuf_ExecuteBufferInternal_t)(int localClientNum, int controllerIndex, const char* buffer, void(*singleExecCmd)(int, int, const char*));
+	typedef void (*Cbuf_ExecuteBufferInternal_t)(int localClientNum, int controllerIndex, const char* buffer,
+	                                             void (*singleExecCmd)(int, int, const char*));
 	extern Cbuf_ExecuteBufferInternal_t Cbuf_ExecuteBufferInternal;
 
 	typedef bool (*CL_IsCgameInitialized_t)();
@@ -88,10 +89,10 @@ namespace game
 	typedef const char* (*Dvar_ValueToString_t)(dvar_t* dvar, dvar_value value);
 	extern Dvar_ValueToString_t Dvar_ValueToString;
 
-	typedef __int64 (*FS_ReadFile_t)(const char *qpath, char **buffer);
+	typedef __int64 (*FS_ReadFile_t)(const char* qpath, char** buffer);
 	extern FS_ReadFile_t FS_ReadFile;
 
-	typedef void (*FS_FreeFile_t)(void *buffer);
+	typedef void (*FS_FreeFile_t)(void* buffer);
 	extern FS_FreeFile_t FS_FreeFile;
 
 	typedef int (*G_RunFrame_t)(int server_time);
@@ -141,7 +142,7 @@ namespace game
 	typedef void (*SV_StartMap_t)(int localClientNum, const char* map, bool mapIsPreloaded);
 	extern SV_StartMap_t SV_StartMap;
 
-	typedef void (*SV_StartMapForParty_t)(int localClientNum, const char *map, bool mapIsPreloaded, bool migrate);
+	typedef void (*SV_StartMapForParty_t)(int localClientNum, const char* map, bool mapIsPreloaded, bool migrate);
 	extern SV_StartMapForParty_t SV_StartMapForParty;
 
 	typedef mp::gentity_s* (*SV_AddBot_t)(const char*, unsigned int, unsigned int, unsigned int);
@@ -196,6 +197,8 @@ namespace game
 
 	namespace environment
 	{
+		launcher::mode get_mode();
+
 		bool is_mp();
 		bool is_sp();
 		bool is_dedi();

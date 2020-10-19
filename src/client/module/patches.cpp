@@ -119,6 +119,11 @@ namespace patches
 				game::Com_Quit();
 			});
 
+			command::add("crash", []()
+			{
+				*reinterpret_cast<int*>(1) = 0;
+			});
+
 			command::add("quit_hard", []()
 			{
 				utils::nt::raise_hard_exception();
