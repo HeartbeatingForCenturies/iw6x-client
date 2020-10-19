@@ -559,6 +559,27 @@ namespace game
 		CA_ACTIVE = 0xA,
 	};
 
+	enum DvarSetSource : std::uint32_t
+	{
+		DVAR_SOURCE_INTERNAL = 0x0,
+		DVAR_SOURCE_EXTERNAL = 0x1,
+		DVAR_SOURCE_SCRIPT = 0x2,
+		DVAR_SOURCE_UISCRIPT = 0x3,
+		DVAR_SOURCE_SERVERCMD = 0x4,
+		DVAR_SOURCE_NUM = 0x5,
+	};
+
+	enum DvarFlags : std::uint32_t
+	{
+		DVAR_FLAG_NONE = 0,
+		DVAR_FLAG_SAVED = 0x1,
+		DVAR_FLAG_LATCHED = 0x2,
+		DVAR_FLAG_CHEAT = 0x4,
+		DVAR_FLAG_REPLICATED = 0x8,
+		DVAR_FLAG_WRITE = 0x800,
+		DVAR_FLAG_READ = 0x2000,
+	};
+
 	enum dvar_type : std::int8_t
 	{
 		boolean = 0,

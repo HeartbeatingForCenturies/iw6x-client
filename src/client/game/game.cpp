@@ -30,6 +30,8 @@ namespace game
 	Dvar_RegisterString_t Dvar_RegisterString;
 	Dvar_RegisterVec2_t Dvar_RegisterVec2;
 	Dvar_RegisterVec4_t Dvar_RegisterVec4;
+	Dvar_Reset_t Dvar_Reset;
+	Dvar_SetBool_t Dvar_SetBool;
 	Dvar_Sort_t Dvar_Sort;
 	Dvar_ValueToString_t Dvar_ValueToString;
 
@@ -180,6 +182,8 @@ namespace game
 			Dvar_RegisterString = Dvar_RegisterString_t(SELECT_VALUE(0x14042B7A0, 0x1404EE660));
 			Dvar_RegisterVec2 = Dvar_RegisterVec2_t(SELECT_VALUE(0x14042B880, 0x1404EE740));
 			Dvar_RegisterVec4 = Dvar_RegisterVec4_t(SELECT_VALUE(0x14042BC10, 0x1404EEA50));
+			Dvar_Reset = Dvar_Reset_t(SELECT_VALUE(0x14042C150, 0x1404EF020));
+			Dvar_SetBool = Dvar_SetBool_t(SELECT_VALUE(0x14042C370, 0x1404EF1A0));
 			Dvar_Sort = Dvar_Sort_t(SELECT_VALUE(0x14042DEF0, 0x1404F1210));
 			Dvar_ValueToString = Dvar_ValueToString_t(SELECT_VALUE(0x14042E710, 0x1404F1A30));
 

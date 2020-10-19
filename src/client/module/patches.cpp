@@ -132,10 +132,6 @@ namespace patches
 			game::Dvar_RegisterInt("r_colorMap", 1, 1, 1, 0, "Replace all color maps with pure black or pure white");
 			game::Dvar_RegisterInt("r_lightMap", 1, 1, 1, 0, "Replace all lightmaps with pure black or pure white");
 
-			// Keeping it so it cant be used for uav cheats for people
-			game::Dvar_RegisterInt("bg_compassShowEnemies", 0, 0, 0, 0x8C,
-			                       "Whether enemies are visible on the compass at all times");
-
 			// set it to 3 to display both voice dlc announcers did only show 1
 			game::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0,
 			                       "Show Announcer Packs. (Bitfield representing which announcer paks to show)");

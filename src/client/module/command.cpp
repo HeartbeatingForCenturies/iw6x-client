@@ -168,10 +168,25 @@ namespace command
 		{
 			client_command_hook.create(0x1403929B0, &client_command);
 
+			add_sv("god", [&](const int client_num, params_sv&)
+			{
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
+					return;
+				}
+
+				game::mp::g_entities[client_num].flags ^= 1;
+				game::SV_GameSendServerCommand(client_num, 1,
+											   utils::string::va("f \"godmode %s\"",
+											   game::mp::g_entities[client_num].flags & 1 ? "^2on" : "^1off"));
+			});
+
 			add_sv("noclip", [&](const int client_num, params_sv&)
 			{
-				if (!game::SV_Loaded())
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
 					return;
 				}
 
@@ -185,8 +200,9 @@ namespace command
 
 			add_sv("ufo", [&](const int client_num, params_sv&)
 			{
-				if (!game::SV_Loaded())
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
 					return;
 				}
 
@@ -200,8 +216,9 @@ namespace command
 
 			add_sv("setviewpos", [&](const int client_num, params_sv& params)
 			{
-				if (!game::SV_Loaded())
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
 					return;
 				}
 
@@ -212,8 +229,9 @@ namespace command
 
 			add_sv("setviewang", [&](const int client_num, params_sv& params)
 			{
-				if (!game::SV_Loaded())
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
 					return;
 				}
 

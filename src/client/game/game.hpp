@@ -76,6 +76,12 @@ namespace game
 	                                       float max, unsigned int flags, const char* description);
 	extern Dvar_RegisterVec4_t Dvar_RegisterVec4;
 
+	typedef void (*Dvar_Reset_t)(dvar_t* dvar, DvarSetSource source);
+	extern Dvar_Reset_t Dvar_Reset;
+
+	typedef void (*Dvar_SetBool_t)(dvar_t* dvar, bool value);
+	extern Dvar_SetBool_t Dvar_SetBool;
+
 	typedef void (*Dvar_Sort_t)();
 	extern Dvar_Sort_t Dvar_Sort;
 
