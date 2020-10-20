@@ -47,6 +47,8 @@ newaction {
 		local commithash = assert(proc:read('*a')):gsub("%s+", "")
 		proc:close()
 		
+		-- NOTE - remove this once we have a proper updater and proper release versioning
+
 		local oldCommit = "(none)"
 		local oldCommitFile = io.open(wks.location .. "/version.txt", "r")
 		if oldCommitFile ~= nil then
