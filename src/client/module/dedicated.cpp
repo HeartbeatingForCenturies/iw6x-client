@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "loader/module_loader.hpp"
 #include "scheduler.hpp"
+#include "network.hpp"
 #include "utils/hook.hpp"
 #include "game/game.hpp"
 
@@ -44,6 +45,15 @@ namespace dedicated
 		                                        const char* desc)
 		{
 			return game::Dvar_RegisterInt(name, 1000, 50, 1000, flags, desc);
+		}
+
+		void send_heartbeat()
+		{
+			game::netadr_s target{};
+			if (game::NET_StringToAdr("192.168.10.111:20810", &target))
+			{
+				network::send(target, "heartbeat", "IW6");
+			}
 		}
 	}
 
@@ -166,6 +176,12 @@ namespace dedicated
 
 				return scheduler::cond_continue;
 			}, scheduler::pipeline::main, 1s);
+
+			// Send heartbeat to dpmaster
+#ifdef DEV_BUILD
+			scheduler::once(send_heartbeat, scheduler::pipeline::server);
+			scheduler::loop(send_heartbeat, scheduler::pipeline::server, 2s);
+#endif
 		}
 	};
 }
