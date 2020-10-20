@@ -1,8 +1,6 @@
 name: Build
 
 on:
-  create:
-    ref_type: tag
   push:
     branches:
       - master
@@ -35,23 +33,15 @@ jobs:
       - name: Build ${{matrix.configuration}} binaries
         run: msbuild /m /v:minimal /p:Configuration=${{matrix.configuration}} /p:Platform=x64 build/iw6x.sln
 
-      - name: Upload ${{matrix.configuration}} binaries
-        uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v2
         with:
           name: ${{matrix.configuration}} binaries
           path: |
             build/bin/**/*.exe
             build/bin/**/*.dll
 
-      - name: Upload ${{matrix.configuration}} debug symbols
-        uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v2
         with:
           name: ${{matrix.configuration}} debug symbols
           path: |
             build/bin/**/*.pdb
-
-      - name: Post CI status notification to Discord
-        uses: sarisia/actions-status-discord@v1.7.1
-        if: always()
-        with:
-          webhook: ${{ secrets.DISCORD_CI_BOT_WEBHOOK }}
