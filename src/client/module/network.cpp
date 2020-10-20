@@ -3,6 +3,7 @@
 #include "network.hpp"
 
 #include "utils/hook.hpp"
+#include "utils/string.hpp"
 
 namespace network
 {
@@ -16,14 +17,15 @@ namespace network
 
 		bool handle_command(game::netadr_s* address, const char* command, game::msg_t* message)
 		{
+			const auto cmd_string = utils::string::to_lower(command);
 			auto& callbacks = get_callbacks();
-			const auto handler = callbacks.find(command);
+			const auto handler = callbacks.find(cmd_string);
 			if (handler == callbacks.end())
 			{
 				return false;
 			}
 
-			const auto offset = strlen(command) + 5;
+			const auto offset = cmd_string.size() + 5;
 			const std::string_view data(message->data + offset, message->cursize - offset);
 
 			handler->second(*address, data);
@@ -84,7 +86,7 @@ namespace network
 
 	void on(const std::string& command, const callback& callback)
 	{
-		get_callbacks()[command] = callback;
+		get_callbacks()[utils::string::to_lower(command)] = callback;
 	}
 
 	void send(const game::netadr_s& address, const std::string& command, const std::string& data)

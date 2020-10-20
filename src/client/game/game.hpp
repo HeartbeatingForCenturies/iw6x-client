@@ -89,7 +89,7 @@ namespace game
 	typedef const char* (*Dvar_ValueToString_t)(dvar_t* dvar, dvar_value value);
 	extern Dvar_ValueToString_t Dvar_ValueToString;
 
-	typedef __int64 (*FS_ReadFile_t)(const char* qpath, char** buffer);
+	typedef long long (*FS_ReadFile_t)(const char* qpath, char** buffer);
 	extern FS_ReadFile_t FS_ReadFile;
 
 	typedef void (*FS_FreeFile_t)(void* buffer);
@@ -184,6 +184,7 @@ namespace game
 
 		extern gentity_s* g_entities;
 
+		extern int* svs_numclients;
 		extern client_t* svs_clients;
 
 		extern std::uint32_t* sv_serverId_value;
