@@ -45,3 +45,10 @@ jobs:
           name: ${{matrix.configuration}} debug symbols
           path: |
             build/bin/**/*.pdb
+
+      - name: Post CI status notification to Discord
+        uses: sarisia/actions-status-discord@v1.7.1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_CI_BOT_WEBHOOK }}
+          title: "${{matrix.configuration}} Build"
