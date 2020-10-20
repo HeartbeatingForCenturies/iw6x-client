@@ -77,7 +77,7 @@ namespace map_rotation
 		{
 			const auto rotation = parse_current_map_rotation();
 
-			for (size_t i = 0; i < (rotation.size() - 1); i += 2)
+			for (size_t i = 0; !rotation.empty() && i < (rotation.size() - 1); i += 2)
 			{
 				const auto& key = rotation[i];
 				const auto& value = rotation[i + 1];
