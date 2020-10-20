@@ -201,6 +201,12 @@ namespace network
 
 				// ignore impure client
 				utils::hook::jump(0x140472671, reinterpret_cast<void*>(0x1404726F9));
+
+				// don't send checksum
+				utils::hook::set<uint8_t>(0x140501A63, 0);
+
+				// don't read checksum
+				utils::hook::jump(0x1405019CB, 0x1405019F3);
 			}
 		}
 	};
