@@ -37,6 +37,11 @@ jobs:
         with:
           name: ${{matrix.configuration}} binaries
           path: |
-            build/version.txt
             build/bin/**/*.exe
+            build/bin/**/*.dll
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{matrix.configuration}} debug symbols
+          path: |
             build/bin/**/*.pdb
