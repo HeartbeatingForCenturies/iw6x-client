@@ -95,6 +95,7 @@ namespace game
 
 		gentity_s* g_entities;
 
+		int* svs_numclients;
 		client_t* svs_clients;
 
 		std::uint32_t* sv_serverId_value;
@@ -244,6 +245,7 @@ namespace game
 
 				mp::g_entities = reinterpret_cast<mp::gentity_s*>(0x14427A0E0);
 
+				mp::svs_numclients = reinterpret_cast<int*>(0x14647B28C);
 				mp::svs_clients = reinterpret_cast<mp::client_t*>(0x14647B290);
 
 				mp::sv_serverId_value = reinterpret_cast<std::uint32_t*>(0x144DF9478);
