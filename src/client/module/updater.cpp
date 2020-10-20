@@ -5,7 +5,7 @@
 
 #include <version.h>
 
-#define APPVEYOR_ARTIFACT_BASE "https://ci.appveyor.com/api/projects/momo5502/iw6x-client/artifacts/"
+#define APPVEYOR_ARTIFACT_BASE "https://ci.appveyor.com/api/projects/XLabsProject/iw6x-client/artifacts/"
 #define APPVEYOR_BRANCH "master"
 #define APPVEYOR_JOB "Environment%3A%20APPVEYOR_BUILD_WORKER_IMAGE%3DVisual%20Studio%202019%2C%20PREMAKE_ACTION%3Dvs2019%3B%20Configuration%3A%20Release"
 #define APPVEYOR_ARTIFACT_SUFFIX "?branch=" APPVEYOR_BRANCH "&job=" APPVEYOR_JOB
