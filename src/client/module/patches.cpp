@@ -5,6 +5,7 @@
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 #include "filesystem.hpp"
+#include "scheduler.hpp"
 
 #include "utils/hook.hpp"
 #include "utils/nt.hpp"
@@ -52,6 +53,19 @@ namespace patches
 		{
 			// changed max value from 2.0f -> 5.0f and min value from 0.5f -> 0.1f
 			return game::Dvar_RegisterFloat(name, 1.0f, 0.1f, 5.0f, 0x1, desc);
+		}
+
+		game::dvar_t* register_cg_gun_dvars(const char* name, float /*value*/, float /*min*/, float /*max*/,
+											unsigned int /*flags*/, const char* desc)
+		{
+			if (name == "cg_gun_x"s)
+			{
+				return game::Dvar_RegisterFloat(name, 0.0f, -1.0f, 2.0f, game::DvarFlags::DVAR_FLAG_SAVED, desc);
+			}
+			else
+			{
+				return game::Dvar_RegisterFloat(name, 0.0f, 0.0f, 0.0f, 0, desc);
+			}
 		}
 
 		bool cmd_exec_patch()
@@ -147,17 +161,17 @@ namespace patches
 				game::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, 0x1, "Cap frames per second");
 			}
 
-			// maybe _x can stay usable within a reasonable range? it can make scoped weapons DRASTICALLY better on high FOVs
-			game::Dvar_RegisterFloat("cg_gun_x", 0.0f, -1.0f, 2.0f, 0x1, "Forward position of the viewmodel");
-			game::Dvar_RegisterInt("cg_gun_y", 0, 0, 0, 0, "Right position of the viewmodel");
-			game::Dvar_RegisterInt("cg_gun_z", 0, 0, 0, 0, "Up position of the viewmodel");
-
-
 			if (!game::environment::is_sp())
 			{
 				//increased max limit for sv_network_fps, the lower limit is the default one. Original range is from 20 to 200 times a second.
 				game::Dvar_RegisterInt("sv_network_fps", 1000, 20, 1000, 0, "Number of times per second the server checks for net messages");
 			}
+
+			// register cg_gun_ dvars with new values and flags
+			// maybe _x can stay usable within a reasonable range? it can make scoped weapons DRASTICALLY better on high FOVs
+			utils::hook::call(SELECT_VALUE(0x140228DDE, 0x1402AB04C), register_cg_gun_dvars);
+			utils::hook::call(SELECT_VALUE(0x140228E0E, 0x1402AB07C), register_cg_gun_dvars);
+			utils::hook::call(SELECT_VALUE(0x140228E3E, 0x1402AB0AC), register_cg_gun_dvars);
 
 			// Register cg_fovscale with new params
 			utils::hook::call(SELECT_VALUE(0x140317079, 0x140272777), register_fovscale_stub);
