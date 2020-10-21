@@ -43,12 +43,6 @@ namespace dedicated
 			reinterpret_cast<void(*)()>(0x1405E6F80)();
 		}
 
-		game::dvar_t* register_network_fps_stub(const char* name, int, int, int, unsigned int flags,
-		                                        const char* desc)
-		{
-			return game::Dvar_RegisterInt(name, 1000, 50, 1000, flags, desc);
-		}
-
 		game::dvar_t* register_maxfps_stub(const char* name, int, int, int, unsigned int flags,
 		                                   const char* desc)
 		{
@@ -68,24 +62,6 @@ namespace dedicated
 	class module final : public module_interface
 	{
 	public:
-		void* load_import(const std::string& module, const std::string& function) override
-		{
-			if (!game::environment::is_dedi())
-			{
-				return nullptr;
-			}
-
-			if (function == "DirectSoundCreate8"
-				|| function == "DirectSoundCaptureCreate"
-				|| function == "CreateDXGIFactory"
-				|| function == "D3D11CreateDevice")
-			{
-				FARPROC(1);
-			}
-
-			return nullptr;
-		}
-
 		void post_unpack() override
 		{
 			if (!game::environment::is_dedi())
@@ -95,7 +71,6 @@ namespace dedicated
 
 			//utils::hook::set<uint8_t>(0x1402C89A0, 0xC3); // R_Init caller
 			utils::hook::jump(0x1402C89A0, init_dedicated_server);
-			utils::hook::call(0x140476F4F, register_network_fps_stub);
 			utils::hook::call(0x140413AD8, register_maxfps_stub);
 
 			utils::hook::nop(0x1404DDC2E, 5);             // don't load config file
