@@ -49,6 +49,12 @@ namespace dedicated
 			return game::Dvar_RegisterInt(name, 1000, 50, 1000, flags, desc);
 		}
 
+		game::dvar_t* register_maxfps_stub(const char* name, int, int, int, unsigned int flags,
+		                                   const char* desc)
+		{
+			return game::Dvar_RegisterInt(name, 0, 0, 0, game::DvarFlags::DVAR_FLAG_READ, desc);
+		}
+
 		void send_heartbeat()
 		{
 			game::netadr_s target{};
@@ -90,7 +96,9 @@ namespace dedicated
 			//utils::hook::set<uint8_t>(0x1402C89A0, 0xC3); // R_Init caller
 			utils::hook::jump(0x1402C89A0, init_dedicated_server);
 			utils::hook::call(0x140476F4F, register_network_fps_stub);
+			utils::hook::call(0x140413AD8, register_maxfps_stub);
 
+			utils::hook::nop(0x1404DDC2E, 5);             // don't load config file
 			utils::hook::set<uint8_t>(0x140416100, 0xC3); // don't save config file
 			utils::hook::set<uint8_t>(0x1402E5830, 0xC3); // disable self-registration
 			utils::hook::set<uint8_t>(0x1402C7935, 5); // make CL_Frame do client packets, even for game state 9
@@ -149,11 +157,11 @@ namespace dedicated
 
 			//utils::hook::set<uint8_t>(0x1405E3470, 0xC3); // some rendering stuff in R_UpdateDynamicMemory
 			//utils::hook::set<uint8_t>(0x1405E31A0, 0xC3); // ^
-			utils::hook::jump(0x140610EB6, 0x140610F15);    // ^
+			utils::hook::jump(0x140610EB6, 0x140610F15); // ^
 
-			utils::hook::nop(0x1404F8BD9, 5);               // Disable sound pak file loading
-			utils::hook::nop(0x1404F8BE1, 2);               // ^
-			utils::hook::set<uint8_t>(0x140328660, 0xC3);   // Disable image pak file loading
+			utils::hook::nop(0x1404F8BD9, 5); // Disable sound pak file loading
+			utils::hook::nop(0x1404F8BE1, 2); // ^
+			utils::hook::set<uint8_t>(0x140328660, 0xC3); // Disable image pak file loading
 
 			scheduler::schedule([]()
 			{

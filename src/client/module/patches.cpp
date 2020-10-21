@@ -142,11 +142,7 @@ namespace patches
 			                       "Show Announcer Packs. (Bitfield representing which announcer paks to show)");
 
 			// changed max value from 85 -> 1000
-			if (game::environment::is_dedi())
-			{
-				game::Dvar_RegisterInt("com_maxfps", 0, 0, 0, 0, "Cap frames per second");
-			}
-			else
+			if (!game::environment::is_dedi())
 			{
 				game::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, 0x1, "Cap frames per second");
 			}
