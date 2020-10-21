@@ -71,6 +71,9 @@ namespace game
 	Sys_Milliseconds_t Sys_Milliseconds;
 	Sys_SendPacket_t Sys_SendPacket;
 
+	UI_LocalizeMapname_t UI_LocalizeMapname;
+	UI_LocalizeMapname_t UI_LocalizeGametype;
+
 	int* keyCatchers;
 
 	CmdArgs* cmd_args;
@@ -221,6 +224,9 @@ namespace game
 
 			Sys_Milliseconds = Sys_Milliseconds_t(SELECT_VALUE(0x14043D2A0, 0x140501CA0));
 			Sys_SendPacket = Sys_SendPacket_t(SELECT_VALUE(0x14043D000, 0x140501A00));
+
+			UI_LocalizeMapname = UI_LocalizeMapname_t(SELECT_VALUE(0, 0x1404B96D0));
+			UI_LocalizeGametype = UI_LocalizeMapname_t(SELECT_VALUE(0, 0x1404B90F0));
 
 			keyCatchers = reinterpret_cast<int*>(SELECT_VALUE(0x1417CF6E0, 0x1419E1ADC));
 

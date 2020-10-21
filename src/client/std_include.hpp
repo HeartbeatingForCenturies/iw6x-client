@@ -71,6 +71,7 @@
 #include <filesystem>
 #include <functional>
 #include <sstream>
+#include <optional>
 
 #include <zlib.h>
 #include <gsl/gsl>

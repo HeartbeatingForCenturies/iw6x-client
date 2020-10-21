@@ -1,6 +1,10 @@
 #pragma once
 
+#include "game/game.hpp"
+#include "utils/info_string.hpp"
+
 namespace server_list
 {
-	// This will expose functions some day
+	bool get_master_server(game::netadr_s& address);
+	void handle_info_response(const game::netadr_s& address, const utils::info_string& info);
 }

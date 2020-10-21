@@ -89,11 +89,11 @@ namespace network
 		get_callbacks()[utils::string::to_lower(command)] = callback;
 	}
 
-	void send(const game::netadr_s& address, const std::string& command, const std::string& data)
+	void send(const game::netadr_s& address, const std::string& command, const std::string& data, const char separator)
 	{
 		std::string packet = "\xFF\xFF\xFF\xFF";
 		packet.append(command);
-		packet.push_back(' ');
+		packet.push_back(separator);
 		packet.append(data);
 
 		send(address, packet);

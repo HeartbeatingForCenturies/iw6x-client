@@ -4,8 +4,12 @@
 #include "game_console.hpp"
 #include "command.hpp"
 #include "localized_strings.hpp"
+#include "network.hpp"
+#include "scheduler.hpp"
+#include "party.hpp"
 #include "game/game.hpp"
 
+#include "utils/cryptography.hpp"
 #include "utils/string.hpp"
 #include "utils/hook.hpp"
 
@@ -16,16 +20,24 @@ namespace server_list
 		struct server_info
 		{
 			// gotta add more to this
-			char clients;
-			char max_clients;
-			short ping;
+			int clients;
+			int max_clients;
+			int ping;
 			std::string host_name;
 			std::string map_name;
 			std::string game_type;
 			char in_game;
+			game::netadr_s address;
 		};
 
-		bool update_server_list = false;
+		struct
+		{
+			game::netadr_s address;
+			volatile bool requesting = false;
+			std::unordered_map<game::netadr_s, int> queued_servers;
+		} master_state;
+
+		volatile bool update_server_list = false;
 
 		std::mutex mutex;
 		std::vector<server_info> servers;
@@ -38,12 +50,30 @@ namespace server_list
 
 		void refresh_server_list()
 		{
-			// refresh server list here
+			{
+				std::lock_guard<std::mutex> _(mutex);
+				servers.clear();
+				master_state.queued_servers.clear();
+			}
+
+			if (get_master_server(master_state.address))
+			{
+				master_state.requesting = true;
+				network::send(master_state.address, "getservers", utils::string::va("IW6 %i full empty", PROTOCOL));
+			}
 		}
 
 		void join_server(int, int, const int index)
 		{
 			printf("Join %d ...\n", index);
+
+			auto i = static_cast<size_t>(index);
+			std::lock_guard<std::mutex> _(mutex);
+
+			if (i < servers.size())
+			{
+				party::connect(servers[i].address);
+			}
 		}
 
 		bool server_list_refresher()
@@ -101,24 +131,78 @@ namespace server_list
 			servers.emplace_back(std::move(server));
 		}
 
-		void add_server()
+		void do_frame_work()
 		{
-			server_info server;
+			auto& queue = master_state.queued_servers;
+			if (queue.empty())
+			{
+				return;
+			}
 
-			server.host_name = utils::string::va("^%dIW6x Test Server %d", servers.size() + 1, servers.size());
-			server.map_name = "mp_favela_iw6";
-			server.game_type = "war";
+			std::lock_guard<std::mutex> _(mutex);
 
-			server.clients = 0;
-			server.max_clients = 18;
-			server.ping = static_cast<short>(rand()) % 999;
+			size_t queried_servers = 0;
+			const size_t query_limit = 3;
 
-			server.in_game = 0;
+			for (auto i = queue.begin(); i != queue.end();)
+			{
+				if (i->second)
+				{
+					const auto now = game::Sys_Milliseconds();
+					if (now - i->second > 10'000)
+					{
+						i = queue.erase(i);
+						continue;
+					}
+				}
+				else if (queried_servers++ < query_limit)
+				{
+					i->second = game::Sys_Milliseconds();
+					network::send(i->first, "getInfo", utils::cryptography::random::get_challenge());
+				}
 
-			insert_server(std::move(server));
-
-			update_server_list = true;
+				++i;
+			}
 		}
+	}
+
+	bool get_master_server(game::netadr_s& address)
+	{
+		return game::NET_StringToAdr("192.168.10.111:20810", &address);
+	}
+
+	void handle_info_response(const game::netadr_s& address, const utils::info_string& info)
+	{
+		int start_time{};
+		const auto now = game::Sys_Milliseconds();
+
+		{
+			std::lock_guard<std::mutex> _(mutex);
+			const auto entry = master_state.queued_servers.find(address);
+
+			if (entry == master_state.queued_servers.end() || !entry->second)
+			{
+				return;
+			}
+
+			start_time = entry->second;
+			master_state.queued_servers.erase(entry);
+		}
+
+		server_info server{};
+		server.address = address;
+		server.host_name = info.get("hostname");
+		server.map_name = game::UI_LocalizeMapname(info.get("mapname").data());
+		server.game_type = game::UI_LocalizeGametype(info.get("gametype").data());
+		server.clients = atoi(info.get("clients").data());
+		server.max_clients = atoi(info.get("sv_maxclients").data());
+		server.ping = now - start_time;
+
+		server.in_game = 1;
+
+		insert_server(std::move(server));
+
+		update_server_list = true;
 	}
 
 	class module final : public module_interface
@@ -147,17 +231,6 @@ namespace server_list
 			utils::hook::call(0x1401E7225, &ui_feeder_count);
 			utils::hook::call(0x1401E7405, &ui_feeder_item_text);
 
-			command::add("addTestServer", [&]()
-			{
-				add_server();
-			});
-
-			command::add("clearTestServers", [&]()
-			{
-				std::lock_guard<std::mutex> _(mutex);
-				servers.clear();
-			});
-
 			command::add("lui_open", [](command::params params)
 			{
 				if (params.size() <= 1)
@@ -167,6 +240,52 @@ namespace server_list
 				}
 
 				game::LUI_OpenMenu(0, params[1], 1, 0, 0);
+			});
+
+			scheduler::loop(do_frame_work, scheduler::pipeline::main);
+
+			network::on("getServersResponse", [](const game::netadr_s& target, const std::string_view& data)
+			{
+				{
+					std::lock_guard<std::mutex> _(mutex);
+					if (!master_state.requesting || master_state.address != target)
+					{
+						return;
+					}
+
+					master_state.requesting = false;
+
+					std::optional<size_t> start{};
+					for (size_t i = 0; i + 6 < data.size(); ++i)
+					{
+						if (data[i + 6] == '\\')
+						{
+							start.emplace(i);
+							break;
+						}
+					}
+
+					if (!start.has_value())
+					{
+						return;
+					}
+
+					for (auto i = start.value(); i + 6 < data.size(); i += 7)
+					{
+						if (data[i + 6] != '\\')
+						{
+							break;
+						}
+
+						game::netadr_s address{};
+						address.type = game::NA_IP;
+						address.localNetID = game::NS_CLIENT1;
+						memcpy(&address.ip[0], data.data() + i + 0, 4);
+						memcpy(&address.port, data.data() + i + 4, 2);
+
+						master_state.queued_servers[address] = 0;
+					}
+				}
 			});
 		}
 	};

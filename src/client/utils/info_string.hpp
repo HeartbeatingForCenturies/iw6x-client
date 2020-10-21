@@ -10,7 +10,7 @@ namespace utils
 		info_string(const std::string_view& buffer);
 
 		void set(const std::string& key, const std::string& value);
-		std::string get(const std::string& key);
+		std::string get(const std::string& key) const;
 		std::string build();
 
 	private:

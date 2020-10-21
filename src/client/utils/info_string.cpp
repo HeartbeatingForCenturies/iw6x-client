@@ -19,7 +19,7 @@ namespace utils
 		this->key_value_pairs_[key] = value;
 	}
 
-	std::string info_string::get(const std::string& key)
+	std::string info_string::get(const std::string& key) const
 	{
 		const auto value = this->key_value_pairs_.find(key);
 		if (value != this->key_value_pairs_.end())
@@ -48,12 +48,12 @@ namespace utils
 
 	std::string info_string::build()
 	{
-		auto first = true;
+		//auto first = true;
 		std::string info_string;
 		for (auto i = this->key_value_pairs_.begin(); i != this->key_value_pairs_.end(); ++i)
 		{
-			if (first) first = false;
-			else info_string.append("\\");
+			//if (first) first = false;
+			/*else*/ info_string.append("\\");
 
 			info_string.append(i->first); // Key
 			info_string.append("\\");

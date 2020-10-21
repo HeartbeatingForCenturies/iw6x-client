@@ -4,6 +4,7 @@
 
 #include "command.hpp"
 #include "network.hpp"
+#include "server_list.hpp"
 
 #include "steam/steam.hpp"
 
@@ -122,22 +123,22 @@ namespace party
 				info.set("isPrivate", get_dvar_string("g_password").empty() ? "0" : "1");
 				info.set("clients", utils::string::va("%i", get_client_count()));
 				info.set("sv_maxclients", utils::string::va("%i", *game::mp::svs_numclients));
-				//info.set("protocol", utils::string::va("%i", PROTOCOL));
+				info.set("protocol", utils::string::va("%i", PROTOCOL));
 				//info.set("shortversion", SHORTVERSION);
 				//info.set("hc", (Dvar::Var("g_hardcore").get<bool>() ? "1" : "0"));
 
-				network::send(target, "infoResponse", info.build());
+				network::send(target, "infoResponse", info.build(), '\n');
 			});
 
 			network::on("infoResponse", [](const game::netadr_s& target, const std::string_view& data)
 			{
+				const utils::info_string info{data};
+				server_list::handle_info_response(target, info);
+
 				if (connect_state.host != target)
 				{
-					printf("Connect response from stray host.\n");
 					return;
 				}
-
-				utils::info_string info{data};
 
 				if (info.get("challenge") != connect_state.challenge)
 				{

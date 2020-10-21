@@ -1,7 +1,9 @@
 #include <std_include.hpp>
 #include "loader/module_loader.hpp"
 #include "scheduler.hpp"
+#include "server_list.hpp"
 #include "network.hpp"
+#include "command.hpp"
 #include "utils/hook.hpp"
 #include "game/game.hpp"
 
@@ -50,7 +52,7 @@ namespace dedicated
 		void send_heartbeat()
 		{
 			game::netadr_s target{};
-			if (game::NET_StringToAdr("192.168.10.111:20810", &target))
+			if (server_list::get_master_server(target))
 			{
 				network::send(target, "heartbeat", "IW6");
 			}
@@ -178,10 +180,9 @@ namespace dedicated
 			}, scheduler::pipeline::main, 1s);
 
 			// Send heartbeat to dpmaster
-#ifdef DEV_BUILD
 			scheduler::once(send_heartbeat, scheduler::pipeline::server);
-			scheduler::loop(send_heartbeat, scheduler::pipeline::server, 2s);
-#endif
+			scheduler::loop(send_heartbeat, scheduler::pipeline::server, 2min);
+			command::add("heartbeat", send_heartbeat);
 		}
 	};
 }

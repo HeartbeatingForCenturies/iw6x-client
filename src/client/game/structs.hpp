@@ -1,5 +1,7 @@
 #pragma once
 
+#define PROTOCOL 1
+
 namespace game
 {
 	typedef float vec_t;

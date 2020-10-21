@@ -161,6 +161,10 @@ namespace game
 	typedef bool (*Sys_SendPacket_t)(int, void const*, const netadr_s*); // Compiler-optimized
 	extern Sys_SendPacket_t Sys_SendPacket;
 
+	typedef const char* (*UI_LocalizeMapname_t)(const char*);
+	extern UI_LocalizeMapname_t UI_LocalizeMapname;
+	extern UI_LocalizeMapname_t UI_LocalizeGametype;
+
 	extern int* keyCatchers;
 
 	extern CmdArgs* cmd_args;
