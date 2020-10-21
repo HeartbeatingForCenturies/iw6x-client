@@ -54,6 +54,12 @@ namespace patches
 			return game::Dvar_RegisterFloat(name, 1.0f, 0.1f, 5.0f, 0x1, desc);
 		}
 
+		game::dvar_t* register_network_fps_stub(const char* name, int, int, int, unsigned int flags,
+		                                        const char* desc)
+		{
+			return game::Dvar_RegisterInt(name, 1000, 20, 1000, flags, desc);
+		}
+
 		bool cmd_exec_patch()
 		{
 			command::params exec_params;
@@ -68,7 +74,7 @@ namespace patches
 				{
 					game::Cbuf_ExecuteBufferInternal(0, 0, file.get_buffer().data(), game::Cmd_ExecuteSingleCommand);
 					return true;
-				}				
+				}
 			}
 
 			return false;
@@ -156,7 +162,7 @@ namespace patches
 			if (!game::environment::is_sp())
 			{
 				//increased max limit for sv_network_fps, the lower limit is the default one. Original range is from 20 to 200 times a second.
-				game::Dvar_RegisterInt("sv_network_fps", 1000, 20, 1000, 0, "Number of times per second the server checks for net messages");
+				utils::hook::call(0x140476F4F, register_network_fps_stub);
 			}
 
 			// Register cg_fovscale with new params
@@ -168,7 +174,7 @@ namespace patches
 				{
 					return;
 				}
-				
+
 				auto dvar = game::Dvar_FindVar(params.get(1));
 				if (dvar)
 				{
@@ -215,8 +221,11 @@ namespace patches
 			});
 
 			// Allow executing custom cfg files with the "exec" command
-			utils::hook::jump(SELECT_VALUE(0x1403B39BB, 0x1403F752B), SELECT_VALUE(0x1403B3A12, 0x1403F7582)); //Use a relative jump to empty memory first
-			utils::hook::jump(SELECT_VALUE(0x1403B3A12, 0x1403F7582), SELECT_VALUE(cmd_exec_stub_sp, cmd_exec_stub_mp), true); //Use empty memory to go to our stub first (can't do close jump, so need space for 12 bytes)
+			utils::hook::jump(SELECT_VALUE(0x1403B39BB, 0x1403F752B), SELECT_VALUE(0x1403B3A12, 0x1403F7582));
+			//Use a relative jump to empty memory first
+			utils::hook::jump(SELECT_VALUE(0x1403B3A12, 0x1403F7582), SELECT_VALUE(cmd_exec_stub_sp, cmd_exec_stub_mp),
+			                  true);
+			//Use empty memory to go to our stub first (can't do close jump, so need space for 12 bytes)
 
 			if (game::environment::is_sp())
 			{
