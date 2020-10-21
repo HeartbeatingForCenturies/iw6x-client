@@ -147,9 +147,6 @@ namespace patches
 				game::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, 0x1, "Cap frames per second");
 			}
 
-			// changed max value from 80.0f -> 120.f and min value from 65.0f -> 1.0f
-			game::Dvar_RegisterFloat("cg_fov", 65.0f, 1.0f, 120.0f, 0x1, "The field of view angle in degrees");
-
 			// maybe _x can stay usable within a reasonable range? it can make scoped weapons DRASTICALLY better on high FOVs
 			game::Dvar_RegisterFloat("cg_gun_x", 0.0f, -1.0f, 2.0f, 0x1, "Forward position of the viewmodel");
 			game::Dvar_RegisterInt("cg_gun_y", 0, 0, 0, 0, "Right position of the viewmodel");
