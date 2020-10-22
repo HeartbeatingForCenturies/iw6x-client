@@ -40,8 +40,8 @@ namespace party
 			}
 
 			// This fixes several crashes and impure client stuff
-			command::execute("xstartprivatematch");
-			command::execute("xblive_privatematch 1");
+			command::execute("xstartprivatematch", true);
+			command::execute("xblive_privatematch 1", true);
 
 			// CL_ConnectFromParty
 			char session_info[0x100] = {};
@@ -81,6 +81,8 @@ namespace party
 		{
 			return;
 		}
+
+		command::execute("lui_open popup_acceptinginvite", false);
 
 		connect_state.host = target;
 		connect_state.challenge = utils::cryptography::random::get_challenge();
