@@ -1,0 +1,19 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - "*"
+  pull_request:
+    branches:
+      - "*"
+  issues:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification to Discord
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_CI_BOT_WEBHOOK }}
