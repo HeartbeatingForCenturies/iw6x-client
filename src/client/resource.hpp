@@ -1,5 +1,7 @@
 #pragma once
 
+#include "version.h"
+
 #define ID_ICON               102
 
 #define IMAGE_SPLASH          300
