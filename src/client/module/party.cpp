@@ -4,6 +4,7 @@
 
 #include "command.hpp"
 #include "network.hpp"
+#include "scheduler.hpp"
 #include "server_list.hpp"
 
 #include "steam/steam.hpp"
@@ -29,8 +30,18 @@ namespace party
 				return;
 			}
 
+			if(game::Live_SyncOnlineDataFlags(0))
+			{
+				scheduler::once([=]()
+				{
+					connect_to_party(target, mapname, gametype);
+				}, scheduler::pipeline::main, 1s);
+				return;
+			}
+
 			// This fixes several crashes and impure client stuff
-			game::Cmd_ExecuteSingleCommand(0, 0, "xblive_privatematch 1\n");
+			command::execute("xstartprivatematch");
+			command::execute("xblive_privatematch 1");
 
 			// CL_ConnectFromParty
 			char session_info[0x100] = {};
