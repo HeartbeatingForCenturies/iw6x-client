@@ -13,8 +13,8 @@ namespace rcon
 {
 	namespace
 	{
-		bool is_redirecting = false;
-		game::netadr_s redirect_target = {};
+		bool is_redirecting_ = false;
+		game::netadr_s redirect_target_ = {};
 		std::recursive_mutex redirect_lock;
 		utils::hook::detour print_hook;
 
@@ -22,16 +22,16 @@ namespace rcon
 		{
 			std::lock_guard<std::recursive_mutex> $(redirect_lock);
 
-			rcon::is_redirecting = true;
-			rcon::redirect_target = target;
+			is_redirecting_ = true;
+			redirect_target_ = target;
 		}
 
 		void clear_redirect()
 		{
 			std::lock_guard<std::recursive_mutex> $(redirect_lock);
 
-			rcon::is_redirecting = false;
-			rcon::redirect_target = {};
+			is_redirecting_ = false;
+			redirect_target_ = {};
 		}
 
 		int __cdecl print_stub(const char* fmt, ...)
@@ -44,9 +44,9 @@ namespace rcon
 			const char* result = provider.get(fmt, ap);
 			va_end(ap);
 
-			if (is_redirecting)
+			if (is_redirecting_)
 			{
-				network::send(redirect_target, "print\n", result);
+				network::send(redirect_target_, "print\n", result);
 			}
 			else
 			{
@@ -54,6 +54,70 @@ namespace rcon
 			}
 
 			return 0;
+		}
+		
+		std::string build_status_buffer()
+		{
+			const auto sv_maxclients = game::Dvar_FindVar("sv_maxclients");
+			const auto mapname = game::Dvar_FindVar("mapname");
+
+			std::string buffer = ""s;
+			buffer.append(utils::string::va("map: %s\n", mapname->current.string));
+			buffer.append("num score bot ping guid                             name             address               qport\n");
+			buffer.append("--- ----- --- ---- -------------------------------- ---------------- --------------------- -----\n");
+
+			for (int i = 0; i < sv_maxclients->current.integer; i++)
+			{
+				auto client = &game::mp::svs_clients[i];
+				auto self = &game::mp::g_entities[i];
+
+				char clean_name[32] = { 0 };
+				strncpy_s(clean_name, self->client->sess.cs.name, 32);
+				game::I_CleanStr(clean_name);
+
+				if (client->header.state >= 1 && self && self->client)
+				{
+					buffer.append(utils::string::va("%3i %5i %3s %s %32s %16s %21s %5i\n",
+						i,
+						self->client->sess.scores.score,
+						game::SV_BotIsBot(i) ? "Yes" : "No",
+						(client->header.state == 2) ? "CNCT" : (client->header.state == 1) ? "ZMBI" : utils::string::va("%4i", client->ping),
+						game::SV_GetGuid(i),
+						clean_name,
+						network::net_adr_to_string(client->header.netchan.remoteAddress),
+						client->header.netchan.remoteAddress.port)
+					);
+				}
+			}
+			
+			return buffer;
+		}
+
+		void send_rcon_command(const std::string& password, const std::string& data)
+		{
+			// If you are the server, don't bother with rcon and just execute the command
+			if (game::Dvar_FindVar("sv_running")->current.enabled)
+			{
+				game::Cbuf_AddText(0, data.data());
+				return;
+			}
+
+			if (password.empty())
+			{
+				game_console::print(game_console::con_type_warning, "You must login first to use RCON");
+				return;
+			}
+
+			if (*reinterpret_cast<std::int32_t*>(0x1419E1AE0) >= 5) //clientUIActive.connectionState >= CA_CONNECTED
+			{
+				const auto target = *reinterpret_cast<game::netadr_s*>(0x141CB535C);
+				const auto buffer = password + " " + data;
+				network::send(target, "rcon", buffer);
+			}
+			else
+			{
+				game_console::print(game_console::con_type_warning, "You need to be connected to a server!\n");
+			}
 		}
 	}
 
@@ -71,45 +135,14 @@ namespace rcon
 
 			command::add("status", [&](command::params& params)
 			{
-				auto dvar = game::Dvar_FindVar("sv_running");
-				auto sv_maxclients = game::Dvar_FindVar("sv_maxclients");
-				auto mapname = game::Dvar_FindVar("mapname");
-
-				if (!dvar || !sv_maxclients || !mapname || !dvar->current.enabled)
+				auto sv_running = game::Dvar_FindVar("sv_running");
+				if (!sv_running || !sv_running->current.enabled)
 				{
 					game_console::print(game_console::con_type_error, "Server is not running\n");
 					return;
 				}
 
-				auto status_buffer = ""s;
-
-				status_buffer.append(utils::string::va("map: %s\n", mapname->current.string));
-				status_buffer.append("num score bot ping guid                             name             address               qport\n");
-				status_buffer.append("--- ----- --- ---- -------------------------------- ---------------- --------------------- -----\n");
-
-				for (int i = 0; i < sv_maxclients->current.integer; i++)
-				{
-					auto client = &game::mp::svs_clients[i];
-					auto self = &game::mp::g_entities[i];
-
-					char clean_name[32] = { 0 };
-					strncpy_s(clean_name, self->client->sess.cs.name, 32);
-					game::I_CleanStr(clean_name);
-
-					if (client->header.state >= 1 && self && self->client)
-					{
-						status_buffer.append(utils::string::va("%3i %5i %3s %s %32s %16s %21s %5i\n",
-							i,
-							self->client->sess.scores.score,
-							game::SV_BotIsBot(i) ? "Yes" : "No",
-							(client->header.state == 2) ? "CNCT" : (client->header.state == 1) ? "ZMBI" : utils::string::va("%4i", client->ping),
-							game::SV_GetGuid(i),
-							clean_name,
-							network::net_adr_to_string(client->header.netchan.remoteAddress),
-							client->header.netchan.remoteAddress.port)
-						);
-					}
-				}
+				auto status_buffer = build_status_buffer();
 
 				if (game::environment::is_dedi())
 				{
@@ -143,35 +176,12 @@ namespace rcon
 					}
 					else
 					{
-						// If you are the server, don't bother with rcon and just execute the command
-						if (game::Dvar_FindVar("sv_running")->current.enabled)
-						{
-							game::Cbuf_AddText(0, params.join(1).data());
-							return;
-						}
-
-						if (rcon_password.empty())
-						{
-							game_console::print(game_console::con_type_warning, "You must login first to use RCON");
-							return;
-						}
-
-						if (*reinterpret_cast<std::int32_t*>(0x1419E1AE0) >= 5)
-						{
-							const auto target = *reinterpret_cast<game::netadr_s*>(0x141CB535C);
-							const auto data = rcon_password + " " + params.join(1);
-							network::send(target, "rcon", data);
-						}
-						else
-						{
-							game_console::print(game_console::con_type_warning, "You need to be connected to a server!\n");
-						}
+						send_rcon_command(rcon_password, params.join(1));
 					}
 				});
 			}
 			else
 			{
-				// setup printf hook for redirecting data
 				print_hook.create(reinterpret_cast<void*>(printf), &print_stub);
 
 				network::on("rcon", [](const game::netadr_s& addr, const std::string_view& data)
@@ -196,7 +206,7 @@ namespace rcon
 
 					if (password != rcon_password->current.string)
 					{
-						printf("Invalid rcon password\n");
+						printf("^1Invalid rcon password\n");
 					}
 					else
 					{
