@@ -19,7 +19,7 @@ namespace dvars
 
 	game::dvar_t* pm_bouncing = nullptr;
 
-    std::string dvar_get_vector_domain(int components, const game::dvar_limits& domain)
+    std::string dvar_get_vector_domain(const int components, const game::dvar_limits& domain)
     {
         if (domain.vector.min == -FLT_MAX)
         {
@@ -42,7 +42,7 @@ namespace dvars
         }
     }
 
-    std::string dvar_get_domain(game::dvar_type type, const game::dvar_limits& domain)
+    std::string dvar_get_domain(const game::dvar_type type, const game::dvar_limits& domain)
     {
         std::string str;
 
