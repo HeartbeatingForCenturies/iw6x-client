@@ -49,6 +49,9 @@ namespace game
 	typedef dvar_t* (*Dvar_FindVar_t)(const char* name);
 	extern Dvar_FindVar_t Dvar_FindVar;
 
+	typedef void (*Dvar_GetCombinedString_t)(char* buffer, int index);
+	extern Dvar_GetCombinedString_t Dvar_GetCombinedString;
+
 	typedef dvar_t* (*Dvar_RegisterBool_t)(const char* dvarName, bool value, unsigned int flags,
 	                                       const char* description);
 	extern Dvar_RegisterBool_t Dvar_RegisterBool;
@@ -82,6 +85,9 @@ namespace game
 
 	typedef void (*Dvar_SetBool_t)(dvar_t* dvar, bool value);
 	extern Dvar_SetBool_t Dvar_SetBool;
+
+	typedef void (*Dvar_SetCommand_t)(const char* dvar, const char* buffer);
+	extern Dvar_SetCommand_t Dvar_SetCommand;
 
 	typedef void (*Dvar_Sort_t)();
 	extern Dvar_Sort_t Dvar_Sort;

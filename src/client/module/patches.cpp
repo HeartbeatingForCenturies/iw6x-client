@@ -127,6 +127,36 @@ namespace patches
 			a.bind(success);
 			a.jmp(0x1403B3A04);
 		});
+
+		int dvar_command_patch() // game makes this return an int and compares with eax instead of al -_-
+		{
+			command::params args{};
+
+			if (args.size() <= 0)
+				return 0;
+
+			auto* dvar = game::Dvar_FindVar(args.get(0));
+			if (dvar)
+			{
+				if (args.size() == 1)
+				{
+					const auto current = game::Dvar_ValueToString(dvar, dvar->current);
+					const auto reset = game::Dvar_ValueToString(dvar, dvar->reset);
+					game_console::print(7, "\"%s\" is: \"%s^7\" default: \"%s^7\"", dvar->name, current, reset);
+					game_console::print(7, "   %s\n", dvars::dvar_get_domain(dvar->type, dvar->domain).data());
+				}
+				else
+				{
+					char command[0x1000] = { 0 };
+					game::Dvar_GetCombinedString(command, 1);
+					game::Dvar_SetCommand(args.get(0), command);
+				}
+
+				return 1;
+			}
+
+			return 0;
+		}
 	}
 
 	class module final : public module_interface
@@ -182,20 +212,8 @@ namespace patches
 			// Register cg_fovscale with new params
 			utils::hook::call(SELECT_VALUE(0x140317079, 0x140272777), register_fovscale_stub);
 
-			command::add("getDvarValue", [](command::params& params)
-			{
-				if (params.size() != 2)
-				{
-					return;
-				}
-
-				auto dvar = game::Dvar_FindVar(params.get(1));
-				if (dvar)
-				{
-					auto value = game::Dvar_ValueToString(dvar, dvar->current);
-					game_console::print(7, "%s current value: %s", dvar->name, value);
-				}
-			});
+			// Patch Dvar_Command to print out values how CoD4 does it
+			utils::hook::jump(SELECT_VALUE(0x1403BFCB0, 0x140416A60), dvar_command_patch);
 
 			command::add("dvarDump", []()
 			{
