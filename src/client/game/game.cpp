@@ -23,6 +23,7 @@ namespace game
 	Cmd_ExecuteSingleCommand_t Cmd_ExecuteSingleCommand;
 
 	Dvar_FindVar_t Dvar_FindVar;
+	Dvar_GetCombinedString_t Dvar_GetCombinedString;
 	Dvar_RegisterBool_t Dvar_RegisterBool;
 	Dvar_RegisterEnum_t Dvar_RegisterEnum;
 	Dvar_RegisterFloat_t Dvar_RegisterFloat;
@@ -32,6 +33,7 @@ namespace game
 	Dvar_RegisterVec4_t Dvar_RegisterVec4;
 	Dvar_Reset_t Dvar_Reset;
 	Dvar_SetBool_t Dvar_SetBool;
+	Dvar_SetCommand_t Dvar_SetCommand;
 	Dvar_Sort_t Dvar_Sort;
 	Dvar_ValueToString_t Dvar_ValueToString;
 
@@ -183,6 +185,7 @@ namespace game
 			Cmd_ExecuteSingleCommand = Cmd_ExecuteSingleCommand_t(SELECT_VALUE(0x1403B3B10, 0x1403F7680));
 
 			Dvar_FindVar = Dvar_FindVar_t(SELECT_VALUE(0x140429E70, 0x1404ECB60));
+			Dvar_GetCombinedString = Dvar_GetCombinedString_t(SELECT_VALUE(0x1403BFD80, 0x140416B30));
 			Dvar_RegisterBool = Dvar_RegisterBool_t(SELECT_VALUE(0x14042AF10, 0x1404EDD60));
 			Dvar_RegisterEnum = Dvar_RegisterEnum_t(SELECT_VALUE(0x14042B220, 0x1404EE070));
 			Dvar_RegisterFloat = Dvar_RegisterFloat_t(SELECT_VALUE(0x14042B330, 0x1404EE180));
@@ -192,6 +195,7 @@ namespace game
 			Dvar_RegisterVec4 = Dvar_RegisterVec4_t(SELECT_VALUE(0x14042BC10, 0x1404EEA50));
 			Dvar_Reset = Dvar_Reset_t(SELECT_VALUE(0x14042C150, 0x1404EF020));
 			Dvar_SetBool = Dvar_SetBool_t(SELECT_VALUE(0x14042C370, 0x1404EF1A0));
+			Dvar_SetCommand = Dvar_SetCommand_t(SELECT_VALUE(0x14042C8E0, 0x1404EF790));
 			Dvar_Sort = Dvar_Sort_t(SELECT_VALUE(0x14042DEF0, 0x1404F1210));
 			Dvar_ValueToString = Dvar_ValueToString_t(SELECT_VALUE(0x14042E710, 0x1404F1A30));
 
