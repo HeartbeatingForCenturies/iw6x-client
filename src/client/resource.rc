@@ -65,7 +65,7 @@ BEGIN
             VALUE "FileDescription", "IW6x"
             VALUE "FileVersion", SHORTVERSION
             VALUE "InternalName", "IW6x"
-            VALUE "LegalCopyright", "Copyright (C) 2020 X Labs Project. All rights reserved.
+            VALUE "LegalCopyright", "Copyright (C) 2020 X Labs Project. All rights reserved."
             VALUE "Licence", "GPLv3"
             VALUE "Info", "https://github.com/XLabsProject/iw6x-client"
             VALUE "OriginalFilename", "iw6x.exe"
