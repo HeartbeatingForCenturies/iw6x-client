@@ -10,6 +10,8 @@ namespace network
 	void send(const game::netadr_s& address, const std::string& data);
 
 	bool are_addresses_equal(const game::netadr_s& a, const game::netadr_s& b);
+
+	const char* net_adr_to_string(const game::netadr_s& a);
 }
 
 inline bool operator==(const game::netadr_s& a, const game::netadr_s& b)

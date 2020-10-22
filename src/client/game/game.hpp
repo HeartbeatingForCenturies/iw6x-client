@@ -98,6 +98,9 @@ namespace game
 	typedef int (*G_RunFrame_t)(int server_time);
 	extern G_RunFrame_t G_RunFrame;
 
+	typedef char* (*I_CleanStr_t)(char* string);
+	extern I_CleanStr_t I_CleanStr;
+
 	typedef unsigned int (*Live_SyncOnlineDataFlags_t)(int);
 	extern Live_SyncOnlineDataFlags_t Live_SyncOnlineDataFlags;
 
@@ -148,8 +151,14 @@ namespace game
 	typedef mp::gentity_s* (*SV_AddBot_t)(const char*, unsigned int, unsigned int, unsigned int);
 	extern SV_AddBot_t SV_AddBot;
 
+	typedef bool (*SV_BotIsBot_t)(int clientNum);
+	extern SV_BotIsBot_t SV_BotIsBot;
+
 	typedef void (*SV_ExecuteClientCommand_t)(mp::client_t*, const char*, int);
 	extern SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
+
+	typedef const char* (*SV_GetGuid_t)(int clientNum);
+	extern SV_GetGuid_t SV_GetGuid;
 
 	typedef void (*SV_SpawnTestClient_t)(mp::gentity_s*);
 	extern SV_SpawnTestClient_t SV_SpawnTestClient;

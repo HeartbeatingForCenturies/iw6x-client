@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "loader/module_loader.hpp"
 #include "network.hpp"
+#include "game_console.hpp"
 
 #include "utils/hook.hpp"
 #include "utils/string.hpp"
@@ -109,6 +110,31 @@ namespace network
 		return net_compare_address(&a, &b);
 	}
 
+	const char* net_adr_to_string(const game::netadr_s& a)
+	{
+		if (a.type == game::netadrtype_t::NA_LOOPBACK)
+		{
+			return "loopback";
+		}
+
+		if (a.type == game::netadrtype_t::NA_BOT)
+		{
+			return "bot";
+		}
+
+		if (a.type == game::netadrtype_t::NA_IP || a.type == game::netadrtype_t::NA_BROADCAST)
+		{
+			if (a.port)
+			{
+				return utils::string::va("%u.%u.%u.%u:%u", a.ip[0], a.ip[1], a.ip[2], a.ip[3], htons(a.port));
+			}
+
+			return utils::string::va("%u.%u.%u.%u", a.ip[0], a.ip[1], a.ip[2], a.ip[3]);
+		}
+
+		return "bad";
+	}
+
 	void set_xuid_config_string_stub(utils::hook::assembler& a)
 	{
 		const auto return_regular = a.newLabel();
@@ -207,6 +233,22 @@ namespace network
 
 				// don't read checksum
 				utils::hook::jump(0x1405019CB, 0x1405019F3);
+
+				// ignore built in "print" oob command and add in our own
+				utils::hook::set<uint8_t>(0x1402C6AA4, 0xEB);
+				on("print", [](const game::netadr_s& addr, const std::string_view& data)
+				{
+					const std::string message{ data };
+
+					if (game::environment::is_dedi())
+					{
+						printf("%s\n", message.data());
+					}
+					else
+					{
+						game_console::print(7, "%s\n", message.data());
+					}
+				});
 			}
 		}
 	};
