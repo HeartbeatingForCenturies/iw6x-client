@@ -40,6 +40,8 @@ namespace game
 
 	G_RunFrame_t G_RunFrame;
 
+	I_CleanStr_t I_CleanStr;
+
 	Live_SyncOnlineDataFlags_t Live_SyncOnlineDataFlags;
 
 	LUI_OpenMenu_t LUI_OpenMenu;
@@ -65,7 +67,9 @@ namespace game
 	SV_StartMapForParty_t SV_StartMapForParty;
 
 	SV_AddBot_t SV_AddBot;
+	SV_BotIsBot_t SV_BotIsBot;
 	SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
+	SV_GetGuid_t SV_GetGuid;
 	SV_SpawnTestClient_t SV_SpawnTestClient;
 
 	Sys_Milliseconds_t Sys_Milliseconds;
@@ -193,6 +197,8 @@ namespace game
 
 			G_RunFrame = G_RunFrame_t(SELECT_VALUE(0x0, 0x1403A05E0));
 
+			I_CleanStr = I_CleanStr_t(SELECT_VALUE(0x140432460, 0x1404F63C0));
+
 			FS_ReadFile = FS_ReadFile_t(SELECT_VALUE(0x14041D0B0, 0x1404DE900));
 			FS_FreeFile = FS_FreeFile_t(SELECT_VALUE(0x14041D0A0, 0x1404DE8F0));
 
@@ -219,7 +225,9 @@ namespace game
 			SV_StartMap = SV_StartMap_t(SELECT_VALUE(0, 0x140470170));
 			SV_StartMapForParty = SV_StartMapForParty_t(SELECT_VALUE(0, 0x1404702F0));
 			SV_AddBot = SV_AddBot_t(SELECT_VALUE(0, 0x140470920));
+			SV_BotIsBot = SV_BotIsBot_t(SELECT_VALUE(0, 0x140461340));
 			SV_ExecuteClientCommand = SV_ExecuteClientCommand_t(SELECT_VALUE(0, 0x140472430));
+			SV_GetGuid = SV_GetGuid_t(SELECT_VALUE(0, 0x140475990));
 			SV_SpawnTestClient = SV_SpawnTestClient_t(SELECT_VALUE(0, 0x1404740A0));
 
 			Sys_Milliseconds = Sys_Milliseconds_t(SELECT_VALUE(0x14043D2A0, 0x140501CA0));
