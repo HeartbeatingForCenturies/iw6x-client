@@ -10,6 +10,7 @@
 #include "game/game.hpp"
 
 #include "steam/interface.hpp"
+#include "steam/steam.hpp"
 
 namespace steam_proxy
 {
@@ -61,25 +62,6 @@ namespace steam_proxy
 			}
 		}
 
-		static std::filesystem::path get_steam_install_directory()
-		{
-			HKEY reg_key;
-			if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\WOW6432Node\\Valve\\Steam", 0, KEY_QUERY_VALUE,
-			                  &reg_key) !=
-				ERROR_SUCCESS)
-			{
-				return {};
-			}
-
-			char path[MAX_PATH] = {0};
-			DWORD length = sizeof(path);
-			RegQueryValueExA(reg_key, "InstallPath", nullptr, nullptr, reinterpret_cast<BYTE*>(path),
-			                 &length);
-			RegCloseKey(reg_key);
-
-			return path;
-		}
-
 		const utils::nt::module& get_overlay_module() const
 		{
 			return steam_overlay_module_;
@@ -113,7 +95,7 @@ namespace steam_proxy
 
 		void load_client()
 		{
-			const auto steam_path = get_steam_install_directory();
+			const std::filesystem::path steam_path = steam::SteamAPI_GetSteamInstallPath();
 			if (steam_path.empty()) return;
 
 			utils::nt::module::load(steam_path / "tier0_s64.dll");

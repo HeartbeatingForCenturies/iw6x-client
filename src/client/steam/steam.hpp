@@ -99,6 +99,7 @@ namespace steam
 	STEAM_EXPORT void SteamAPI_Shutdown();
 	STEAM_EXPORT void SteamAPI_UnregisterCallResult();
 	STEAM_EXPORT void SteamAPI_UnregisterCallback();
+	STEAM_EXPORT const char* SteamAPI_GetSteamInstallPath();
 
 	STEAM_EXPORT bool SteamGameServer_Init();
 	STEAM_EXPORT void SteamGameServer_RunCallbacks();
