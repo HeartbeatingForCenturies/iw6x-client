@@ -110,14 +110,14 @@ namespace colors
 			return string;
 		}
 
-		char* get_client_name_stub(int local_client_num, int index, char* buf, int size, char* a5)
+		size_t get_client_name_stub(const int local_client_num, const int index, char *buf, const int size, const size_t unk, const size_t unk2)
 		{
 			// CL_GetClientName (CL_GetClientNameAndClantag?)
-			reinterpret_cast<char*(*)(int, int, char*, int, char*)>(0x1402CF790)(local_client_num, index, buf, size, a5);
+			const auto result = reinterpret_cast<size_t(*)(int, int, char*, int, size_t, size_t)>(0x1402CF790)(local_client_num, index, buf, size, unk, unk2);
 
 			strip(buf, buf, size);
 
-			return buf;
+			return result;
 		}
 
 		void rb_lookup_color_stub(const char index, DWORD* color)
