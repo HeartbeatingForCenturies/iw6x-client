@@ -33,11 +33,15 @@ namespace discord
 			{
 				if (game::environment::is_sp()) return;
 
-				auto gametype = game::Dvar_FindVar("party_gametype")->current.string;
-				auto map = game::Dvar_FindVar("party_mapname")->current.string;
+				auto* const gametype = game::Dvar_FindVar("party_gametype")->current.string;
+				auto* const map = game::Dvar_FindVar("party_mapname")->current.string;
 
 				discord_presence.details = utils::string::va("%s on %s", gametype, map);
-				discord_presence.state = game::Dvar_FindVar("sv_hostname")->current.string;
+
+				auto* const host_name = reinterpret_cast<char*>(0x14187EBC4);
+				utils::string::strip(host_name, host_name, static_cast<int>(strlen(host_name)) + 1);
+				
+				discord_presence.state = host_name;
 
 				discord_presence.partySize = game::mp::cgArray->snap != nullptr
 					                             ? game::mp::cgArray->snap->numClients

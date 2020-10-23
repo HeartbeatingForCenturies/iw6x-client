@@ -5,6 +5,7 @@
 #include "game/dvars.hpp"
 
 #include "utils/hook.hpp"
+#include "utils/string.hpp"
 
 namespace colors
 {
@@ -66,31 +67,6 @@ namespace colors
 			return index >= 0xC ? 7 : index;
 		}
 
-		void strip(const char* in, char* out, int max)
-		{
-			if (!in || !out) return;
-
-			max--;
-			auto current = 0;
-			while (*in != 0 && current < max)
-			{
-				const auto index = *(in + 1);
-				if (*in == '^' && (color_index(index) != 7 || index == '7'))
-				{
-					++in;
-				}
-				else
-				{
-					*out = *in;
-					++out;
-					++current;
-				}
-
-				++in;
-			}
-			*out = '\0';
-		}
-
 		char add(const uint8_t r, const uint8_t g, const uint8_t b)
 		{
 			const char index = '0' + static_cast<char>(color_table.size());
@@ -105,7 +81,7 @@ namespace colors
 
 		char* i_clean_str_stub(char* string)
 		{
-			strip(string, string, static_cast<int>(strlen(string)) + 1);
+			utils::string::strip(string, string, static_cast<int>(strlen(string)) + 1);
 
 			return string;
 		}
@@ -115,7 +91,7 @@ namespace colors
 			// CL_GetClientName (CL_GetClientNameAndClantag?)
 			const auto result = reinterpret_cast<size_t(*)(int, int, char*, int, size_t, size_t)>(0x1402CF790)(local_client_num, index, buf, size, unk, unk2);
 
-			strip(buf, buf, size);
+			utils::string::strip(buf, buf, size);
 
 			return result;
 		}
