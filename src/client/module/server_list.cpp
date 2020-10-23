@@ -42,8 +42,10 @@ namespace server_list
 		std::mutex mutex;
 		std::vector<server_info> servers;
 
+		int selected_server_index = -1;
+
 		void lui_open_menu_stub(int /*controllerIndex*/, const char* /*menu*/, int /*a3*/, int /*a4*/,
-		                        unsigned int /*a5*/)
+			unsigned int /*a5*/)
 		{
 			game::Cmd_ExecuteSingleCommand(0, 0, "lui_open menu_systemlink_join\n");
 		}
@@ -65,15 +67,29 @@ namespace server_list
 
 		void join_server(int, int, const int index)
 		{
+			if (selected_server_index == -1)
+			{
+				selected_server_index = index;
+				return;
+			}
+
+			if (selected_server_index != index)
+			{
+				selected_server_index = -1;
+				return;
+			}
+
 			printf("Join %d ...\n", index);
 
-			auto i = static_cast<size_t>(index);
+			const auto i = static_cast<size_t>(index);
 			std::lock_guard<std::mutex> _(mutex);
 
 			if (i < servers.size())
 			{
 				party::connect(servers[i].address);
 			}
+
+			selected_server_index = -1;
 		}
 
 		bool server_list_refresher()
@@ -93,7 +109,7 @@ namespace server_list
 		}
 
 		const char* ui_feeder_item_text(int /*localClientNum*/, void* /*a2*/, void* /*a3*/, const size_t index,
-		                                const size_t column)
+			const size_t column)
 		{
 			std::lock_guard<std::mutex> _(mutex);
 
@@ -232,61 +248,61 @@ namespace server_list
 			utils::hook::call(0x1401E7405, &ui_feeder_item_text);
 
 			command::add("lui_open", [](command::params params)
-			{
-				if (params.size() <= 1)
 				{
-					game_console::print(7, "usage: lui_open <name>\n");
-					return;
-				}
+					if (params.size() <= 1)
+					{
+						game_console::print(7, "usage: lui_open <name>\n");
+						return;
+					}
 
-				game::LUI_OpenMenu(0, params[1], 1, 0, 0);
-			});
+					game::LUI_OpenMenu(0, params[1], 1, 0, 0);
+				});
 
 			scheduler::loop(do_frame_work, scheduler::pipeline::main);
 
 			network::on("getServersResponse", [](const game::netadr_s& target, const std::string_view& data)
-			{
 				{
-					std::lock_guard<std::mutex> _(mutex);
-					if (!master_state.requesting || master_state.address != target)
 					{
-						return;
-					}
-
-					master_state.requesting = false;
-
-					std::optional<size_t> start{};
-					for (size_t i = 0; i + 6 < data.size(); ++i)
-					{
-						if (data[i + 6] == '\\')
+						std::lock_guard<std::mutex> _(mutex);
+						if (!master_state.requesting || master_state.address != target)
 						{
-							start.emplace(i);
-							break;
-						}
-					}
-
-					if (!start.has_value())
-					{
-						return;
-					}
-
-					for (auto i = start.value(); i + 6 < data.size(); i += 7)
-					{
-						if (data[i + 6] != '\\')
-						{
-							break;
+							return;
 						}
 
-						game::netadr_s address{};
-						address.type = game::NA_IP;
-						address.localNetID = game::NS_CLIENT1;
-						memcpy(&address.ip[0], data.data() + i + 0, 4);
-						memcpy(&address.port, data.data() + i + 4, 2);
+						master_state.requesting = false;
 
-						master_state.queued_servers[address] = 0;
+						std::optional<size_t> start{};
+						for (size_t i = 0; i + 6 < data.size(); ++i)
+						{
+							if (data[i + 6] == '\\')
+							{
+								start.emplace(i);
+								break;
+							}
+						}
+
+						if (!start.has_value())
+						{
+							return;
+						}
+
+						for (auto i = start.value(); i + 6 < data.size(); i += 7)
+						{
+							if (data[i + 6] != '\\')
+							{
+								break;
+							}
+
+							game::netadr_s address{};
+							address.type = game::NA_IP;
+							address.localNetID = game::NS_CLIENT1;
+							memcpy(&address.ip[0], data.data() + i + 0, 4);
+							memcpy(&address.port, data.data() + i + 4, 2);
+
+							master_state.queued_servers[address] = 0;
+						}
 					}
-				}
-			});
+				});
 		}
 	};
 }
