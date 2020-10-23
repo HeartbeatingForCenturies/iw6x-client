@@ -33,8 +33,8 @@ namespace discord
 			{
 				if (game::environment::is_sp()) return;
 
-				auto* const gametype = game::Dvar_FindVar("party_gametype")->current.string;
-				auto* const map = game::Dvar_FindVar("party_mapname")->current.string;
+				const auto* gametype = game::Dvar_FindVar("party_gametype")->current.string;
+				const auto* map = game::Dvar_FindVar("party_mapname")->current.string;
 
 				discord_presence.details = utils::string::va("%s on %s", gametype, map);
 
