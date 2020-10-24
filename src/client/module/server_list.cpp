@@ -200,9 +200,9 @@ namespace server_list
 
 		server.in_game = 1;
 
-		if(server.host_name.size() > 30)
+		if(server.host_name.size() > 50)
 		{
-			server.host_name.resize(30);
+			server.host_name.resize(50);
 		}
 
 		insert_server(std::move(server));
