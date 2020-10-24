@@ -77,7 +77,7 @@ namespace map_rotation
 		{
 			if (game::Live_SyncOnlineDataFlags(0) != 0)
 			{
-				scheduler::on_dw_init(perform_map_rotation, scheduler::pipeline::main, 1s);
+				scheduler::on_game_initialized(perform_map_rotation, scheduler::pipeline::main, 1s);
 				return;
 			}
 

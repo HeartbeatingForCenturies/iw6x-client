@@ -97,11 +97,12 @@ namespace scheduler
 		}, type, delay);
 	}
 
-	void on_dw_init(const std::function<void()>& callback, const pipeline type, std::chrono::milliseconds delay)
+	void on_game_initialized(const std::function<void()>& callback, const pipeline type, const std::chrono::milliseconds delay)
 	{
-		loop([=]()
+		schedule([=]()
 		{
-			if(game::Live_SyncOnlineDataFlags(0) == 0)
+			const auto dw_init = game::environment::is_sp() || game::Live_SyncOnlineDataFlags(0) == 0;
+			if (dw_init && game::Sys_IsDatabaseReady2())
 			{
 				once(callback, type, delay);
 				return cond_end;

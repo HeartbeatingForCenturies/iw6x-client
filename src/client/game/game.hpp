@@ -169,6 +169,9 @@ namespace game
 	typedef void (*SV_SpawnTestClient_t)(mp::gentity_s*);
 	extern SV_SpawnTestClient_t SV_SpawnTestClient;
 
+	typedef bool (*Sys_IsDatabaseReady2_t)();
+	extern Sys_IsDatabaseReady2_t Sys_IsDatabaseReady2;
+
 	typedef int (*Sys_Milliseconds_t)();
 	extern Sys_Milliseconds_t Sys_Milliseconds;
 

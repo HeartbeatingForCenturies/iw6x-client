@@ -79,15 +79,14 @@ namespace dedicated
 
 		void execute_command_queue()
 		{
-			auto& queue = get_command_queue();
+			const auto queue = get_command_queue();
+			get_command_queue().clear();
 
 			for (const auto& command : queue)
 			{
 				game::Cbuf_AddText(0, command.data());
 				game::Cbuf_AddText(0, "\n");
 			}
-
-			queue.clear();
 		}
 	}
 
@@ -175,7 +174,7 @@ namespace dedicated
 			utils::hook::nop(0x1404F8BE1, 2); // ^
 			utils::hook::set<uint8_t>(0x140328660, 0xC3); // Disable image pak file loading
 
-			scheduler::on_dw_init([]()
+			scheduler::on_game_initialized([]()
 			{
 				game::Cmd_ExecuteSingleCommand(0, 0, "xstartprivatematch\n");
 				game::Cmd_ExecuteSingleCommand(0, 0, "xstartpartyhost\n");
