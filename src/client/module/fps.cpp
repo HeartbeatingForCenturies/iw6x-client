@@ -14,6 +14,7 @@ namespace fps
 	{
 		float fps_color[4] = {0.6f, 1.0f, 0.0f, 1.0f};
 		float origin_color[4] = {1.0f, 0.67f, 0.13f, 1.0f};
+		float ping_color[4] = { 1.0f, 1.0f, 1.0f, 0.65f };
 
 		struct cg_perf_data
 		{
@@ -121,8 +122,40 @@ namespace fps
 			}
 		}
 
+		void cg_draw_ping()
+		{
+			const auto* draw_ping = game::Dvar_FindVar("cg_drawPing");
+			if (draw_ping && draw_ping->current.integer != 0 && game::CL_IsCgameInitialized())
+			{
+				//garbage c code btw -halcyon
+				uintptr_t ping_offset = 0x1419E5100;
+				int ping = *reinterpret_cast<int *>(ping_offset);
+
+				auto* font = game::R_RegisterFont("fonts/normalfont");
+				if (!font) return;
+
+				auto* const ping_string = utils::string::va("Ping: %i", ping);
+
+				const auto scale = 1.0f;
+
+				const auto x = (game::ScrPlace_GetViewPlacement()->realViewportSize[0] - 50.0f) - game::R_TextWidth(
+				ping_string, 0x7FFFFFFF, font) * scale;
+
+				const auto y = font->pixelHeight * 1.2f;
+				//todo: implement a check if drawFPS is >1, then push ping counter under fps counter
+				//todo: implement this into scoreboard? i don't wanna touch the scoreboard considering the state it's in at the moment.
+
+				game::R_AddCmdDrawText(ping_string, 0x7FFFFFFF, font, x, y, scale, scale, 0.0f, ping_color, 6);
+			}
+		}
+
 		void cg_draw_fps_register_stub(const char* name, const char** _enum, const int value, unsigned int flags,
 		                               const char* desc)
+		{
+			game::Dvar_RegisterEnum(name, _enum, value, 0x1, desc);
+		}
+		void cg_draw_ping_register_stub(const char* name, const char** _enum, const int value, unsigned int flags,
+			const char* desc)
 		{
 			game::Dvar_RegisterEnum(name, _enum, value, 0x1, desc);
 		}
@@ -145,7 +178,11 @@ namespace fps
 			// change cg_drawfps flags to saved
 			utils::hook::call(SELECT_VALUE(0x1401F400A, 0x140272B98), &cg_draw_fps_register_stub);
 
+			// change cg_drawping flags to saved
+			//utils::hook::call(SELECT_VALUE(0x1419E50FF, 0x1419E5100), &cg_draw_ping_register_stub);
+
 			scheduler::loop(cg_draw_fps, scheduler::pipeline::renderer);
+			scheduler::loop(cg_draw_ping, scheduler::pipeline::renderer);
 		}
 	};
 }
