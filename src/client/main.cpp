@@ -80,7 +80,8 @@ FARPROC load_binary(const launcher::mode mode)
 	std::string data;
 	if (!utils::io::read_file(binary, &data))
 	{
-		throw std::runtime_error("Failed to read game binary!");
+		throw std::runtime_error(
+			"Failed to read game binary! Please copy the iw6x.exe into you Call of Duty: Ghosts installation folder and run it from there.");
 	}
 
 	return loader.load(self, data);
@@ -131,6 +132,12 @@ int main()
 			if (!entry_point)
 			{
 				throw std::runtime_error("Unable to load binary into memory");
+			}
+
+			const auto value = *reinterpret_cast<DWORD*>(0x140001337);
+			if (value != 0xDB0A33E7 && value != 0xA6D147E7)
+			{
+				throw std::runtime_error("Unsupported Call of Duty: Ghosts version");
 			}
 
 			game::environment::initialize();
