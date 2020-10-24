@@ -30,7 +30,7 @@ namespace party
 				return;
 			}
 
-			if(game::Live_SyncOnlineDataFlags(0))
+			if (game::Live_SyncOnlineDataFlags(0))
 			{
 				scheduler::once([=]()
 				{
@@ -90,6 +90,21 @@ namespace party
 		network::send(target, "getInfo", connect_state.challenge);
 	}
 
+	void start_map(const std::string& mapname)
+	{
+		if (game::Live_SyncOnlineDataFlags(0) != 0)
+		{
+			scheduler::once([mapname]()
+			{
+				start_map(mapname);
+			}, scheduler::pipeline::main, 1s);
+		}
+		else
+		{
+			game::SV_StartMapForParty(0, mapname.data(), false, false);
+		}
+	}
+
 	class module final : public module_interface
 	{
 	public:
@@ -107,7 +122,7 @@ namespace party
 					return;
 				}
 
-				game::SV_StartMapForParty(0, argument[1], false, false);
+				start_map(argument[1]);
 			});
 
 			command::add("connect", [](command::params& argument)
