@@ -97,6 +97,20 @@ namespace scheduler
 		}, type, delay);
 	}
 
+	void on_dw_init(const std::function<void()>& callback, const pipeline type, std::chrono::milliseconds delay)
+	{
+		loop([=]()
+		{
+			if(game::Live_SyncOnlineDataFlags(0) == 0)
+			{
+				once(callback, type, delay);
+				return cond_end;
+			}
+
+			return cond_continue;
+		}, pipeline::main);
+	}
+
 	class module final : public module_interface
 	{
 	public:

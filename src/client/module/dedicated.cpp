@@ -175,30 +175,22 @@ namespace dedicated
 			utils::hook::nop(0x1404F8BE1, 2); // ^
 			utils::hook::set<uint8_t>(0x140328660, 0xC3); // Disable image pak file loading
 
-			scheduler::schedule([]()
+			scheduler::on_dw_init([]()
 			{
-				const auto flags = game::Live_SyncOnlineDataFlags(0);
-				if (flags == 0)
-				{
-					game::Cmd_ExecuteSingleCommand(0, 0, "xstartprivatematch\n");
-					game::Cmd_ExecuteSingleCommand(0, 0, "xstartpartyhost\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "xstartprivatematch\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "xstartpartyhost\n");
 
-					game::Cmd_ExecuteSingleCommand(0, 0, "exec default_mp_gamesettings.cfg\n");
-					game::Cmd_ExecuteSingleCommand(0, 0, "exec default_private.cfg\n");
-					game::Cmd_ExecuteSingleCommand(0, 0, "onlinegame 1\n");
-					game::Cmd_ExecuteSingleCommand(0, 0, "xblive_rankedmatch 1\n");
-					game::Cmd_ExecuteSingleCommand(0, 0, "xblive_privatematch 1\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "exec default_mp_gamesettings.cfg\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "exec default_private.cfg\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "onlinegame 1\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "xblive_rankedmatch 1\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "xblive_privatematch 1\n");
 
-					printf("==================================\n");
-					printf("Server started!\n");
-					printf("==================================\n");
+				printf("==================================\n");
+				printf("Server started!\n");
+				printf("==================================\n");
 
-					execute_command_queue();
-
-					return scheduler::cond_end;
-				}
-
-				return scheduler::cond_continue;
+				execute_command_queue();
 			}, scheduler::pipeline::main, 1s);
 
 			// Send heartbeat to dpmaster
