@@ -82,7 +82,7 @@ namespace dedicated
 			utils::hook::set<uint8_t>(0x140658580, 0xC3); // init sound system (2)
 			//utils::hook::set<uint8_t>(0x49BC10, 0xC3);  // Com_Frame audio processor?
 			utils::hook::set<uint8_t>(0x1402CF570, 0xC3); // called from Com_Frame, seems to do renderer stuff
-			//utils::hook::set<uint8_t>(0x48FF30, 0xC3);  // CL_CheckForResend, which tries to connect to the local server constantly
+			utils::hook::set<uint8_t>(0x1402C49B0, 0xC3); // CL_CheckForResend, which tries to connect to the local server constantly
 			utils::hook::set<uint8_t>(0x1405DAE1F, 0); // r_loadForRenderer default to 0
 			utils::hook::set<uint8_t>(0x1404FFCE2, 0xC3); // recommended settings check - TODO: Check hook
 			utils::hook::set<uint8_t>(0x140503420, 0xC3); // some mixer-related function called on shutdown

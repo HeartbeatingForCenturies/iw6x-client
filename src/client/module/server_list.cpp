@@ -216,6 +216,11 @@ namespace server_list
 
 		server.in_game = 1;
 
+		if(server.host_name.size() > 30)
+		{
+			server.host_name.resize(30);
+		}
+
 		insert_server(std::move(server));
 
 		update_server_list = true;
