@@ -23,22 +23,23 @@ namespace branding
 
 			localized_strings::override("LUA_MENU_LEGAL_COPYRIGHT", "IW6x: Pre-Release by X Labs.\n");
 
-			scheduler::loop([]()
-			{
-				const auto x = 3;
-				const auto y = 0;
+			scheduler::loop([]() {
+				const auto x = 24;
+				const auto y = 24;
 				const auto scale = 0.5f;
-				float color[4] = {1.0f, 1.0f, 1.0f, 0.5f};
-				const auto* text = "IW6x: Pre-Release";
+				float color[4] = {0.666f, 0.666f, 0.666f, 0.666f};
+				const auto *text = "IW6x: Pre-Release\n" VERSION;
 
-				auto* font = game::R_RegisterFont("fonts/normalfont");
-				if (!font) return;
+				auto *font = game::R_RegisterFont("fonts/normalfont");
+				if (!font)
+					return;
 
 				game::R_AddCmdDrawText(text, 0x7FFFFFFF, font, x, y + static_cast<float>(font->pixelHeight) * scale,
-				                       scale, scale, 0.0, color, 0);
-			}, scheduler::pipeline::renderer);
+									   scale, scale, 0.0, color, 0);
+			},
+							scheduler::pipeline::renderer);
 		}
 	};
-}
+} // namespace branding
 
 REGISTER_MODULE(branding::module)
