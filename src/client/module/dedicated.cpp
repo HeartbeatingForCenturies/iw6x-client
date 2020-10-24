@@ -57,6 +57,38 @@ namespace dedicated
 				network::send(target, "heartbeat", "IW6");
 			}
 		}
+
+		std::vector<std::string>& get_command_queue()
+		{
+			static std::vector<std::string> command_queue;
+			return command_queue;
+		}
+
+		void execute_console_command(const int client, const char* command)
+		{
+			if (game::Live_SyncOnlineDataFlags(0) == 0)
+			{
+				game::Cbuf_AddText(client, command);
+				game::Cbuf_AddText(client, "\n");
+			}
+			else
+			{
+				get_command_queue().emplace_back(command);
+			}
+		}
+
+		void execute_command_queue()
+		{
+			auto& queue = get_command_queue();
+
+			for (const auto& command : queue)
+			{
+				game::Cbuf_AddText(0, command.data());
+				game::Cbuf_AddText(0, "\n");
+			}
+
+			queue.clear();
+		}
 	}
 
 	class module final : public module_interface
@@ -73,7 +105,11 @@ namespace dedicated
 			utils::hook::jump(0x1402C89A0, init_dedicated_server);
 			utils::hook::call(0x140413AD8, register_maxfps_stub);
 
-			utils::hook::nop(0x1404DDC2E, 5);             // don't load config file
+			// delay console commands until the initialization is done
+			utils::hook::call(0x140412FD3, execute_console_command);
+			utils::hook::nop(0x140412FE9, 5);
+
+			utils::hook::nop(0x1404DDC2E, 5); // don't load config file
 			utils::hook::set<uint8_t>(0x140416100, 0xC3); // don't save config file
 			utils::hook::set<uint8_t>(0x1402E5830, 0xC3); // disable self-registration
 			utils::hook::set<uint8_t>(0x1402C7935, 5); // make CL_Frame do client packets, even for game state 9
@@ -82,7 +118,8 @@ namespace dedicated
 			utils::hook::set<uint8_t>(0x140658580, 0xC3); // init sound system (2)
 			//utils::hook::set<uint8_t>(0x49BC10, 0xC3);  // Com_Frame audio processor?
 			utils::hook::set<uint8_t>(0x1402CF570, 0xC3); // called from Com_Frame, seems to do renderer stuff
-			utils::hook::set<uint8_t>(0x1402C49B0, 0xC3); // CL_CheckForResend, which tries to connect to the local server constantly
+			utils::hook::set<uint8_t>(0x1402C49B0, 0xC3);
+			// CL_CheckForResend, which tries to connect to the local server constantly
 			utils::hook::set<uint8_t>(0x1405DAE1F, 0); // r_loadForRenderer default to 0
 			utils::hook::set<uint8_t>(0x1404FFCE2, 0xC3); // recommended settings check - TODO: Check hook
 			utils::hook::set<uint8_t>(0x140503420, 0xC3); // some mixer-related function called on shutdown
@@ -155,6 +192,8 @@ namespace dedicated
 					printf("==================================\n");
 					printf("Server started!\n");
 					printf("==================================\n");
+
+					execute_command_queue();
 
 					return scheduler::cond_end;
 				}
