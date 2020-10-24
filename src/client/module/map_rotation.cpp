@@ -22,7 +22,7 @@ namespace map_rotation
 
 		void launch_map(const std::string& mapname)
 		{
-			command::execute(utils::string::va("map %s", mapname.data()), true);
+			command::execute(utils::string::va("map %s", mapname.data()), false);
 		}
 
 		void launch_default_map()
@@ -75,6 +75,12 @@ namespace map_rotation
 
 		void perform_map_rotation()
 		{
+			if (game::Live_SyncOnlineDataFlags(0) != 0)
+			{
+				scheduler::on_game_initialized(perform_map_rotation, scheduler::pipeline::main, 1s);
+				return;
+			}
+
 			const auto rotation = parse_current_map_rotation();
 
 			for (size_t i = 0; !rotation.empty() && i < (rotation.size() - 1); i += 2)

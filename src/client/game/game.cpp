@@ -74,6 +74,7 @@ namespace game
 	SV_GetGuid_t SV_GetGuid;
 	SV_SpawnTestClient_t SV_SpawnTestClient;
 
+	Sys_IsDatabaseReady2_t Sys_IsDatabaseReady2;
 	Sys_Milliseconds_t Sys_Milliseconds;
 	Sys_SendPacket_t Sys_SendPacket;
 
@@ -234,6 +235,7 @@ namespace game
 			SV_GetGuid = SV_GetGuid_t(SELECT_VALUE(0, 0x140475990));
 			SV_SpawnTestClient = SV_SpawnTestClient_t(SELECT_VALUE(0, 0x1404740A0));
 
+			Sys_IsDatabaseReady2 = Sys_IsDatabaseReady2_t(SELECT_VALUE(0x1403C2D40, 0x140423920));
 			Sys_Milliseconds = Sys_Milliseconds_t(SELECT_VALUE(0x14043D2A0, 0x140501CA0));
 			Sys_SendPacket = Sys_SendPacket_t(SELECT_VALUE(0x14043D000, 0x140501A00));
 

@@ -39,6 +39,55 @@ namespace command
 
 			client_command_hook.invoke<void>(clientNum, a2);
 		}
+
+		// Shamelessly stolen from Quake3
+		// https://github.com/id-Software/Quake-III-Arena/blob/dbe4ddb10315479fc00086f08e25d968b4b43c49/code/qcommon/common.c#L364
+		void parse_command_line()
+		{
+			static auto parsed = false;
+			if (parsed)
+			{
+				return;
+			}
+
+			static std::string comand_line_buffer = GetCommandLineA();
+			char* command_line = comand_line_buffer.data();
+
+			auto& com_num_console_lines = *reinterpret_cast<int*>(0x1445CFF98);
+			auto* com_console_lines = reinterpret_cast<char**>(0x1445CFFA0);
+
+			auto inq = 0;
+			com_console_lines[0] = command_line;
+			com_num_console_lines = 0;
+
+			while (*command_line)
+			{
+				if (*command_line == '"')
+				{
+					inq = !inq;
+				}
+				// look for a + separating character
+				// if commandLine came from a file, we might have real line seperators
+				if ((*command_line == '+' && !inq) || *command_line == '\n' || *command_line == '\r')
+				{
+					if (com_num_console_lines == 0x20) // MAX_CONSOLE_LINES
+					{
+						break;
+					}
+					com_console_lines[com_num_console_lines] = command_line + 1;
+					com_num_console_lines++;
+					*command_line = '\0';
+				}
+				command_line++;
+			}
+			parsed = true;
+		}
+
+		void parse_commandline_stub()
+		{
+			parse_command_line();
+			reinterpret_cast<void(*)()>(0x140413080)();
+		}
 	}
 
 	int params::size()
@@ -125,7 +174,7 @@ namespace command
 
 		if (sync)
 		{
-			game::Cmd_ExecuteSingleCommand(0,0, command.data());
+			game::Cmd_ExecuteSingleCommand(0, 0, command.data());
 		}
 		else
 		{
@@ -138,13 +187,18 @@ namespace command
 	public:
 		void post_unpack() override
 		{
-			if (game::environment::is_mp())
-			{
-				add_mp_commands();
-			}
-			else if (game::environment::is_sp())
+			if (game::environment::is_sp())
 			{
 				add_sp_commands();
+			}
+			else
+			{
+				utils::hook::call(0x14041213C, &parse_commandline_stub);
+
+				if (game::environment::is_mp())
+				{
+					add_mp_commands();
+				}
 			}
 		}
 

@@ -79,15 +79,57 @@ namespace dedicated
 
 		void execute_command_queue()
 		{
-			auto& queue = get_command_queue();
+			const auto queue = get_command_queue();
+			get_command_queue().clear();
 
 			for (const auto& command : queue)
 			{
 				game::Cbuf_AddText(0, command.data());
 				game::Cbuf_AddText(0, "\n");
 			}
+		}
 
-			queue.clear();
+		volatile bool allow_lobby_pump = true;
+		utils::hook::detour lobby_pump_hook;
+
+		void lobby_pump_stub(const int controller_index)
+		{
+			if (allow_lobby_pump)
+			{
+				allow_lobby_pump = false;
+				lobby_pump_hook.invoke<void*>(controller_index);
+			}
+		}
+
+		volatile bool allow_net_pump = true;
+		utils::hook::detour net_pump_hook;
+
+		void net_pump_stub(const int controller_index)
+		{
+			if (allow_net_pump)
+			{
+				allow_net_pump = false;
+				net_pump_hook.invoke<void*>(controller_index);
+			}
+		}
+
+		game::DWOnlineStatus get_logon_status_stub(const int controller_index)
+		{
+			static auto is_connected = false;
+			if (is_connected)
+			{
+				return game::DW_LIVE_CONNECTED;
+			}
+
+			const auto result = reinterpret_cast<game::DWOnlineStatus(*)(int)>(0x1405894C0)(controller_index);
+			if (result == game::DW_LIVE_CONNECTED)
+			{
+				is_connected = true;
+				lobby_pump_hook.create(0x140591850, lobby_pump_stub);
+				net_pump_hook.create(0x140558C20, net_pump_stub);
+			}
+
+			return result;
 		}
 	}
 
@@ -100,6 +142,17 @@ namespace dedicated
 			{
 				return;
 			}
+
+			/*scheduler::loop([]
+			{
+				allow_lobby_pump = true;
+				allow_net_pump = true;
+			}, scheduler::pipeline::async, 300ms);*/
+
+			// Some arxan exception stuff to obfuscate functions
+			// This is causing lags
+			// We will have to properly patch that some day
+			//utils::hook::jump(0x140589480, get_logon_status_stub);
 
 			//utils::hook::set<uint8_t>(0x1402C89A0, 0xC3); // R_Init caller
 			utils::hook::jump(0x1402C89A0, init_dedicated_server);
@@ -175,30 +228,22 @@ namespace dedicated
 			utils::hook::nop(0x1404F8BE1, 2); // ^
 			utils::hook::set<uint8_t>(0x140328660, 0xC3); // Disable image pak file loading
 
-			scheduler::schedule([]()
+			scheduler::on_game_initialized([]()
 			{
-				const auto flags = game::Live_SyncOnlineDataFlags(0);
-				if (flags == 0)
-				{
-					game::Cmd_ExecuteSingleCommand(0, 0, "xstartprivatematch\n");
-					game::Cmd_ExecuteSingleCommand(0, 0, "xstartpartyhost\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "xstartprivatematch\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "xstartpartyhost\n");
 
-					game::Cmd_ExecuteSingleCommand(0, 0, "exec default_mp_gamesettings.cfg\n");
-					game::Cmd_ExecuteSingleCommand(0, 0, "exec default_private.cfg\n");
-					game::Cmd_ExecuteSingleCommand(0, 0, "onlinegame 1\n");
-					game::Cmd_ExecuteSingleCommand(0, 0, "xblive_rankedmatch 1\n");
-					game::Cmd_ExecuteSingleCommand(0, 0, "xblive_privatematch 1\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "exec default_mp_gamesettings.cfg\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "exec default_private.cfg\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "onlinegame 1\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "xblive_rankedmatch 1\n");
+				game::Cmd_ExecuteSingleCommand(0, 0, "xblive_privatematch 1\n");
 
-					printf("==================================\n");
-					printf("Server started!\n");
-					printf("==================================\n");
+				printf("==================================\n");
+				printf("Server started!\n");
+				printf("==================================\n");
 
-					execute_command_queue();
-
-					return scheduler::cond_end;
-				}
-
-				return scheduler::cond_continue;
+				execute_command_queue();
 			}, scheduler::pipeline::main, 1s);
 
 			// Send heartbeat to dpmaster

@@ -94,9 +94,10 @@ namespace party
 	{
 		if (game::Live_SyncOnlineDataFlags(0) != 0)
 		{
-			scheduler::once([mapname]()
+			scheduler::on_game_initialized([mapname]()
 			{
-				start_map(mapname);
+				//start_map(mapname);
+				command::execute("map " + mapname, false);
 			}, scheduler::pipeline::main, 1s);
 		}
 		else
