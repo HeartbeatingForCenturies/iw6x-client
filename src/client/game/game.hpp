@@ -101,6 +101,9 @@ namespace game
 	typedef void (*FS_FreeFile_t)(void* buffer);
 	extern FS_FreeFile_t FS_FreeFile;
 
+	typedef int (*GetCurrentCoDPlayMode_t)();
+	extern GetCurrentCoDPlayMode_t GetCurrentCoDPlayMode;
+
 	typedef int (*G_RunFrame_t)(int server_time);
 	extern G_RunFrame_t G_RunFrame;
 
@@ -178,6 +181,15 @@ namespace game
 	//typedef bool (*Sys_SendPacket_t)(netsrc_t, int, void const*, netadr_s); // Actual
 	typedef bool (*Sys_SendPacket_t)(int, void const*, const netadr_s*); // Compiler-optimized
 	extern Sys_SendPacket_t Sys_SendPacket;
+
+	typedef void (*SwitchToCoreMode_t)();
+	extern SwitchToCoreMode_t SwitchToCoreMode;
+
+	typedef void (*SwitchToAliensMode_t)();
+	extern SwitchToAliensMode_t SwitchToAliensMode;
+
+	typedef void (*SwitchToSquadVsSquadMode_t)();
+	extern SwitchToSquadVsSquadMode_t SwitchToSquadVsSquadMode;
 
 	typedef const char* (*UI_LocalizeMapname_t)(const char*);
 	extern UI_LocalizeMapname_t UI_LocalizeMapname;
