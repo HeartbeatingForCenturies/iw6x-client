@@ -32,9 +32,9 @@ namespace server_list
 
 		struct
 		{
-			game::netadr_s address;
+			game::netadr_s address{};
 			volatile bool requesting = false;
-			std::unordered_map<game::netadr_s, int> queued_servers;
+			std::unordered_map<game::netadr_s, int> queued_servers{};
 		} master_state;
 
 		volatile bool update_server_list = false;
