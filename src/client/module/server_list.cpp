@@ -240,7 +240,7 @@ namespace server_list
 			{
 				if (params.size() <= 1)
 				{
-					game_console::print(7, "usage: lui_open <name>\n");
+					game_console::print(game_console::con_type_info, "usage: lui_open <name>\n");
 					return;
 				}
 
