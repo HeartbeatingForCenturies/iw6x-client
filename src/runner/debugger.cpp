@@ -4,7 +4,7 @@
 
 namespace
 {
-	BOOL acquire_debug_privilege()
+	bool acquire_debug_privilege()
 	{
 		TOKEN_PRIVILEGES token_privileges;
 		ZeroMemory(&token_privileges, sizeof(token_privileges));
@@ -13,13 +13,13 @@ namespace
 		HANDLE token;
 		if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &token))
 		{
-			return FALSE;
+			return false;
 		}
 
 		if (!LookupPrivilegeValue(nullptr, SE_DEBUG_NAME, &token_privileges.Privileges[0].Luid))
 		{
 			CloseHandle(token);
-			return FALSE;
+			return false;
 		}
 
 		token_privileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
@@ -28,10 +28,10 @@ namespace
 		if (!AdjustTokenPrivileges(token, FALSE, &token_privileges, 0, nullptr, &size))
 		{
 			CloseHandle(token);
-			return FALSE;
+			return false;
 		}
 
-		return CloseHandle(token);
+		return CloseHandle(token) != FALSE;
 	}
 }
 
