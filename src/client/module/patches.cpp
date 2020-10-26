@@ -142,8 +142,8 @@ namespace patches
 				{
 					const auto current = game::Dvar_ValueToString(dvar, dvar->current);
 					const auto reset = game::Dvar_ValueToString(dvar, dvar->reset);
-					game_console::print(7, "\"%s\" is: \"%s^7\" default: \"%s^7\"", dvar->name, current, reset);
-					game_console::print(7, "   %s\n", dvars::dvar_get_domain(dvar->type, dvar->domain).data());
+					game_console::print(game_console::con_type_info, "\"%s\" is: \"%s^7\" default: \"%s^7\"", dvar->name, current, reset);
+					game_console::print(game_console::con_type_info, "   %s\n", dvars::dvar_get_domain(dvar->type, dvar->domain).data());
 				}
 				else
 				{
@@ -217,39 +217,35 @@ namespace patches
 
 			command::add("dvarDump", []()
 			{
-				game_console::print(
-					7, "================================ DVAR DUMP ========================================\n");
-				int i;
-				for (i = 0; i < *game::dvarCount; i++)
+				game_console::print(game_console::con_type_info, "================================ DVAR DUMP ========================================\n");
+				for (auto i = 0; i < *game::dvarCount; i++)
 				{
-					if (game::sortedDvars[i] && game::sortedDvars[i]->name)
+					const auto dvar = game::sortedDvars[i];
+					if (dvar)
 					{
-						game_console::print(7, "%s\n", game::sortedDvars[i]->name);
+						game_console::print(game_console::con_type_info, "%s \"%s\"\n", dvar->name, game::Dvar_ValueToString(dvar, dvar->current));
 					}
 				}
-				game_console::print(7, "\n%i dvar indexes\n", i);
-				game_console::print(
-					7, "================================ END DVAR DUMP ====================================\n");
+				game_console::print(game_console::con_type_info, "\n%i dvar indexes\n", *game::dvarCount);
+				game_console::print(game_console::con_type_info, "================================ END DVAR DUMP ====================================\n");
 			});
 
 			command::add("commandDump", []()
 			{
-				game_console::print(
-					7, "================================ COMMAND DUMP =====================================\n");
+				game_console::print(game_console::con_type_info, "================================ COMMAND DUMP =====================================\n");
 				game::cmd_function_s* cmd = (*game::cmd_functions);
 				int i = 0;
 				while (cmd)
 				{
 					if (cmd->name)
 					{
-						game_console::print(7, "%s\n", cmd->name);
+						game_console::print(game_console::con_type_info, "%s\n", cmd->name);
 						i++;
 					}
 					cmd = cmd->next;
 				}
-				game_console::print(7, "\n%i command indexes\n", i);
-				game_console::print(
-					7, "================================ END COMMAND DUMP =================================\n");
+				game_console::print(game_console::con_type_info, "\n%i command indexes\n", i);
+				game_console::print(game_console::con_type_info, "================================ END COMMAND DUMP =================================\n");
 			});
 
 			// Allow executing custom cfg files with the "exec" command
