@@ -4,7 +4,7 @@
 #include "utils/hook.hpp"
 #include "game/game.hpp"
 
-namespace anti_debug
+namespace arxan
 {
 	namespace
 	{
@@ -163,4 +163,4 @@ namespace anti_debug
 	};
 }
 
-REGISTER_MODULE(anti_debug::module)
+REGISTER_MODULE(arxan::module)
