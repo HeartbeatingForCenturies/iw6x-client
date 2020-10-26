@@ -9,6 +9,13 @@ namespace game
 	typedef vec_t vec3_t[3];
 	typedef vec_t vec4_t[4];
 
+	enum DWOnlineStatus
+	{
+		DW_LIVE_DISCONNECTED = 0x0,
+		DW_LIVE_CONNECTING = 0x1,
+		DW_LIVE_CONNECTED = 0x2,
+	};
+
 	enum bdLobbyErrorCode : uint32_t
 	{
 		BD_NO_ERROR = 0x0,

@@ -40,6 +40,8 @@ namespace game
 	FS_ReadFile_t FS_ReadFile;
 	FS_FreeFile_t FS_FreeFile;
 
+	GetCurrentCoDPlayMode_t GetCurrentCoDPlayMode;
+
 	G_RunFrame_t G_RunFrame;
 
 	I_CleanStr_t I_CleanStr;
@@ -77,6 +79,10 @@ namespace game
 	Sys_IsDatabaseReady2_t Sys_IsDatabaseReady2;
 	Sys_Milliseconds_t Sys_Milliseconds;
 	Sys_SendPacket_t Sys_SendPacket;
+
+	SwitchToCoreMode_t SwitchToCoreMode;
+	SwitchToAliensMode_t SwitchToAliensMode;
+	SwitchToSquadVsSquadMode_t SwitchToSquadVsSquadMode;
 
 	UI_LocalizeMapname_t UI_LocalizeMapname;
 	UI_LocalizeMapname_t UI_LocalizeGametype;
@@ -200,6 +206,8 @@ namespace game
 			Dvar_Sort = Dvar_Sort_t(SELECT_VALUE(0x14042DEF0, 0x1404F1210));
 			Dvar_ValueToString = Dvar_ValueToString_t(SELECT_VALUE(0x14042E710, 0x1404F1A30));
 
+			GetCurrentCoDPlayMode = GetCurrentCoDPlayMode_t(SELECT_VALUE(0, 0x1404f6140));
+
 			G_RunFrame = G_RunFrame_t(SELECT_VALUE(0x0, 0x1403A05E0));
 
 			I_CleanStr = I_CleanStr_t(SELECT_VALUE(0x140432460, 0x1404F63C0));
@@ -238,6 +246,10 @@ namespace game
 			Sys_IsDatabaseReady2 = Sys_IsDatabaseReady2_t(SELECT_VALUE(0x1403C2D40, 0x140423920));
 			Sys_Milliseconds = Sys_Milliseconds_t(SELECT_VALUE(0x14043D2A0, 0x140501CA0));
 			Sys_SendPacket = Sys_SendPacket_t(SELECT_VALUE(0x14043D000, 0x140501A00));
+
+			SwitchToCoreMode = SwitchToCoreMode_t(SELECT_VALUE(0, 0x1401FA4A0));
+			SwitchToSquadVsSquadMode = SwitchToSquadVsSquadMode_t(SELECT_VALUE(0, 0x1401FA500));
+			SwitchToAliensMode = SwitchToAliensMode_t(SELECT_VALUE(0, 0x1401FA4D0));
 
 			UI_LocalizeMapname = UI_LocalizeMapname_t(SELECT_VALUE(0, 0x1404B96D0));
 			UI_LocalizeGametype = UI_LocalizeMapname_t(SELECT_VALUE(0, 0x1404B90F0));

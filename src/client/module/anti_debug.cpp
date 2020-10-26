@@ -1,5 +1,6 @@
 #include <std_include.hpp>
 #include "loader/module_loader.hpp"
+#include "scheduler.hpp"
 #include "utils/hook.hpp"
 
 namespace anti_debug
@@ -73,6 +74,13 @@ namespace anti_debug
 				       ? EXCEPTION_CONTINUE_EXECUTION
 				       : EXCEPTION_CONTINUE_SEARCH;
 		}
+
+		void hide_being_debugged()
+		{
+			auto* const peb = PPEB(__readgsqword(0x60));
+			peb->BeingDebugged = false;
+			*PDWORD(LPSTR(peb) + 0xBC) &= ~0x70;
+		}
 	}
 
 	class module final : public module_interface
@@ -80,9 +88,9 @@ namespace anti_debug
 	public:
 		void post_load() override
 		{
-			auto* const peb = PPEB(__readgsqword(0x60));
-			peb->BeingDebugged = false;
-			*PDWORD(LPSTR(peb) + 0xBC) &= ~0x70;
+			hide_being_debugged();
+			scheduler::loop(hide_being_debugged, scheduler::pipeline::async);
+
 
 			const utils::nt::module ntdll("ntdll.dll");
 			nt_close_hook.create(ntdll.get_proc<void*>("NtClose"), nt_close_stub);

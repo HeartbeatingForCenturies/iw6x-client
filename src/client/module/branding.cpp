@@ -28,8 +28,8 @@ namespace branding
 				const auto x = 3;
 				const auto y = 0;
 				const auto scale = 0.5f;
-				float color[4] = {1.0f, 1.0f, 1.0f, 0.5f};
-				const auto* text = "IW6x: Pre-Release";
+				float color[4] = {0.666f, 0.666f, 0.666f, 0.666f};
+				const auto* text = "IW6x: " VERSION;
 
 				auto* font = game::R_RegisterFont("fonts/normalfont");
 				if (!font) return;
@@ -39,6 +39,6 @@ namespace branding
 			}, scheduler::pipeline::renderer);
 		}
 	};
-}
+} // namespace branding
 
 REGISTER_MODULE(branding::module)
