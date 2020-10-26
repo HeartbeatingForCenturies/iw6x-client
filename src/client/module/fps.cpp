@@ -14,7 +14,7 @@ namespace fps
 	{
 		float fps_color[4] = {0.6f, 1.0f, 0.0f, 1.0f};
 		float origin_color[4] = {1.0f, 0.67f, 0.13f, 1.0f};
-		float ping_color[4] = { 1.0f, 1.0f, 1.0f, 0.65f };
+		float ping_color[4] = {1.0f, 1.0f, 1.0f, 0.65f};
 
 		struct cg_perf_data
 		{
@@ -168,6 +168,8 @@ namespace fps
 
 			// change cg_drawfps flags to saved
 			utils::hook::call(SELECT_VALUE(0x1401F400A, 0x140272B98), &cg_draw_fps_register_stub);
+
+			game::Dvar_RegisterInt("cg_drawPing", 0, 0, 1, 0, "Choose to draw ping");
 
 			scheduler::loop(cg_draw_fps, scheduler::pipeline::renderer);
 			scheduler::loop(cg_draw_ping, scheduler::pipeline::renderer);

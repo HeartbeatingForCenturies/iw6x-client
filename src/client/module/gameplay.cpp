@@ -117,9 +117,6 @@ namespace gameplay
 			utils::hook::nop(0x140383789, 13);
 			utils::hook::jump(0x140383789, g_speed_stub, true);
 			dvars::g_speed = game::Dvar_RegisterInt("g_speed", 190, 0, 999, 0, "Maximum player speed");
-
-			// Implement ping dvar
-			dvars::cg_drawPing = game::Dvar_RegisterInt("cg_drawPing", 0, 0, 1, 0, "Choose to draw ping");
 		}
 	};
 }

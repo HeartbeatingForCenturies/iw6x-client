@@ -19,8 +19,6 @@ namespace dvars
 	extern game::dvar_t* g_speed;
 
 	extern game::dvar_t* pm_bouncing;
-	
-	extern game::dvar_t* cg_drawPing;
 
 	std::string dvar_get_vector_domain(const int components, const game::dvar_limits& domain);
 	std::string dvar_get_domain(const game::dvar_type type, const game::dvar_limits& domain);
