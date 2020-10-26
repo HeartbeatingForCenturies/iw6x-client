@@ -14,7 +14,7 @@ namespace fps
 	{
 		float fps_color[4] = {0.6f, 1.0f, 0.0f, 1.0f};
 		float origin_color[4] = {1.0f, 0.67f, 0.13f, 1.0f};
-		float ping_color[4] = { 1.0f, 1.0f, 1.0f, 0.65f }; //need to put something for github desktop to detect the change lmfao.
+		float ping_color[4] = { 1.0f, 1.0f, 1.0f, 0.65f };
 
 		struct cg_perf_data
 		{
