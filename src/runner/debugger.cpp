@@ -66,6 +66,8 @@ void debugger::run(const unsigned long process_id) const
 		return;
 	}
 
+	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
+
 	DEBUG_EVENT event;
 	while (!this->terminate_ && WaitForDebugEvent(&event,INFINITE))
 	{
