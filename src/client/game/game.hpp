@@ -89,6 +89,9 @@ namespace game
 	typedef void (*Dvar_SetCommand_t)(const char* dvar, const char* buffer);
 	extern Dvar_SetCommand_t Dvar_SetCommand;
 
+	typedef void (*Dvar_SetString_t)(dvar_t* dvar, const char* string);
+	extern Dvar_SetString_t Dvar_SetString;
+
 	typedef void (*Dvar_Sort_t)();
 	extern Dvar_Sort_t Dvar_Sort;
 

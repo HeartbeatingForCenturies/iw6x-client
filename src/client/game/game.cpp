@@ -34,6 +34,7 @@ namespace game
 	Dvar_Reset_t Dvar_Reset;
 	Dvar_SetBool_t Dvar_SetBool;
 	Dvar_SetCommand_t Dvar_SetCommand;
+	Dvar_SetString_t Dvar_SetString;
 	Dvar_Sort_t Dvar_Sort;
 	Dvar_ValueToString_t Dvar_ValueToString;
 
@@ -203,6 +204,7 @@ namespace game
 			Dvar_Reset = Dvar_Reset_t(SELECT_VALUE(0x14042C150, 0x1404EF020));
 			Dvar_SetBool = Dvar_SetBool_t(SELECT_VALUE(0x14042C370, 0x1404EF1A0));
 			Dvar_SetCommand = Dvar_SetCommand_t(SELECT_VALUE(0x14042C8E0, 0x1404EF790));
+			Dvar_SetString = Dvar_SetString_t(SELECT_VALUE(0x14042D6E0, 0x1404F08E0));
 			Dvar_Sort = Dvar_Sort_t(SELECT_VALUE(0x14042DEF0, 0x1404F1210));
 			Dvar_ValueToString = Dvar_ValueToString_t(SELECT_VALUE(0x14042E710, 0x1404F1A30));
 
