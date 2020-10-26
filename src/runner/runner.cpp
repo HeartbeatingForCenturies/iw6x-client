@@ -15,7 +15,7 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 		auto* const process_handle = OpenProcess(SYNCHRONIZE, FALSE, pid);
 		if (process_handle)
 		{
-			debugger _(pid, strstr(GetCommandLineA(), "-debug ") != nullptr);
+			//debugger _(pid, strstr(GetCommandLineA(), "-debug ") != nullptr);
 			WaitForSingleObject(process_handle, INFINITE);
 			CloseHandle(process_handle);
 			return 0;

@@ -91,78 +91,9 @@ namespace dedicated
 			}
 		}
 
-		volatile bool allow_lobby_pump = true;
-		utils::hook::detour lobby_pump_hook;
-
-		void lobby_pump_stub(const int controller_index)
+		void sync_gpu_stub()
 		{
-			if (allow_lobby_pump)
-			{
-				allow_lobby_pump = false;
-				lobby_pump_hook.invoke<void*>(controller_index);
-			}
-		}
-
-		volatile bool allow_net_pump = true;
-		utils::hook::detour net_pump_hook;
-
-		void net_pump_stub(const int controller_index)
-		{
-			if (allow_net_pump)
-			{
-				allow_net_pump = false;
-				net_pump_hook.invoke<void*>(controller_index);
-			}
-		}
-
-		game::DWOnlineStatus get_logon_status_stub(const int controller_index)
-		{
-			static auto is_connected = false;
-			if (is_connected)
-			{
-				return game::DW_LIVE_CONNECTED;
-			}
-
-			const auto result = reinterpret_cast<game::DWOnlineStatus(*)(int)>(0x1405894C0)(controller_index);
-			if (result == game::DW_LIVE_CONNECTED)
-			{
-				is_connected = true;
-				lobby_pump_hook.create(0x140591850, lobby_pump_stub);
-				net_pump_hook.create(0x140558C20, net_pump_stub);
-			}
-
-			return result;
-		}
-
-		namespace biggest_piece_of_garbage_in_human_history
-		{
-			utils::binary_resource runner_file(RUNNER, "runner.exe");
-
-			void debug_self()
-			{
-				STARTUPINFOA startup_info;
-				PROCESS_INFORMATION process_info;
-
-				ZeroMemory(&startup_info, sizeof(startup_info));
-				ZeroMemory(&process_info, sizeof(process_info));
-				startup_info.cb = sizeof(startup_info);
-
-				const auto runner = runner_file.get_extracted_file();
-				auto* arguments = const_cast<char*>(utils::string::va("\"%s\" -debug -proc %d", runner.data(),
-				                                                      GetCurrentProcessId()));
-				CreateProcessA(runner.data(), arguments, nullptr, nullptr, false, NULL, nullptr, nullptr,
-				               &startup_info, &process_info);
-
-				if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE)
-				{
-					CloseHandle(process_info.hThread);
-				}
-
-				if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE)
-				{
-					CloseHandle(process_info.hProcess);
-				}
-			}
+			std::this_thread::sleep_for(1ms);
 		}
 	}
 
@@ -176,23 +107,8 @@ namespace dedicated
 				return;
 			}
 
-			/*scheduler::loop([]
-			{
-				allow_lobby_pump = true;
-				allow_net_pump = true;
-			}, scheduler::pipeline::async, 300ms);*/
-
-			// Some arxan exception stuff to obfuscate functions
-			// This is causing lags
-			// We will have to properly patch that some day
-			//utils::hook::jump(0x140589480, get_logon_status_stub);
-
-			// This fixes dedi lags. I currently don't know why, yet.
-			// I might be too dumb, but that's how it is.
-			// I really need to deeply look into why this works, but it works.
-			// On a serious note tho, it is probably arxan related and the
-			// way they deal with exceptions.
-			biggest_piece_of_garbage_in_human_history::debug_self();
+			// Hook R_SyncGpu
+			utils::hook::jump(0x1405E8530, sync_gpu_stub);
 
 			//utils::hook::set<uint8_t>(0x1402C89A0, 0xC3); // R_Init caller
 			utils::hook::jump(0x1402C89A0, init_dedicated_server);
