@@ -219,15 +219,15 @@ namespace patches
 			{
 				game_console::print(
 					7, "================================ DVAR DUMP ========================================\n");
-				int i;
-				for (i = 0; i < *game::dvarCount; i++)
+				for (auto i = 0; i < *game::dvarCount; i++)
 				{
-					if (game::sortedDvars[i] && game::sortedDvars[i]->name)
+					const auto dvar = game::sortedDvars[i];
+					if (dvar)
 					{
-						game_console::print(7, "%s\n", game::sortedDvars[i]->name);
+						game_console::print(7, "%s \"%s\"\n", dvar->name, game::Dvar_ValueToString(dvar, dvar->current));
 					}
 				}
-				game_console::print(7, "\n%i dvar indexes\n", i);
+				game_console::print(7, "\n%i dvar indexes\n", *game::dvarCount);
 				game_console::print(
 					7, "================================ END DVAR DUMP ====================================\n");
 			});
