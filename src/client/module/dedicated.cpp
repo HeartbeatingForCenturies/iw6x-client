@@ -5,7 +5,9 @@
 #include "network.hpp"
 #include "command.hpp"
 #include "utils/hook.hpp"
+#include "utils/binary_resource.hpp"
 #include "game/game.hpp"
+#include "utils/string.hpp"
 
 namespace dedicated
 {
@@ -131,6 +133,37 @@ namespace dedicated
 
 			return result;
 		}
+
+		namespace biggest_piece_of_garbage_in_human_history
+		{
+			utils::binary_resource runner_file(RUNNER, "runner.exe");
+
+			void debug_self()
+			{
+				STARTUPINFOA startup_info;
+				PROCESS_INFORMATION process_info;
+
+				ZeroMemory(&startup_info, sizeof(startup_info));
+				ZeroMemory(&process_info, sizeof(process_info));
+				startup_info.cb = sizeof(startup_info);
+
+				const auto runner = runner_file.get_extracted_file();
+				auto* arguments = const_cast<char*>(utils::string::va("\"%s\" -debug -proc %d", runner.data(),
+				                                                      GetCurrentProcessId()));
+				CreateProcessA(runner.data(), arguments, nullptr, nullptr, false, NULL, nullptr, nullptr,
+				               &startup_info, &process_info);
+
+				if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE)
+				{
+					CloseHandle(process_info.hThread);
+				}
+
+				if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE)
+				{
+					CloseHandle(process_info.hProcess);
+				}
+			}
+		}
 	}
 
 	class module final : public module_interface
@@ -153,6 +186,13 @@ namespace dedicated
 			// This is causing lags
 			// We will have to properly patch that some day
 			//utils::hook::jump(0x140589480, get_logon_status_stub);
+
+			// This fixes dedi lags. I currently don't know why, yet.
+			// I might be too dumb, but that's how it is.
+			// I really need to deeply look into why this works, but it works.
+			// On a serious note tho, it is probably arxan related and the
+			// way they deal with exceptions.
+			biggest_piece_of_garbage_in_human_history::debug_self();
 
 			//utils::hook::set<uint8_t>(0x1402C89A0, 0xC3); // R_Init caller
 			utils::hook::jump(0x1402C89A0, init_dedicated_server);
