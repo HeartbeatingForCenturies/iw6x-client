@@ -56,7 +56,7 @@ namespace patches
 		}
 
 		game::dvar_t* register_cg_gun_dvars(const char* name, float /*value*/, float /*min*/, float /*max*/,
-											unsigned int /*flags*/, const char* desc)
+		                                    unsigned int /*flags*/, const char* desc)
 		{
 			if (name == "cg_gun_x"s)
 			{
@@ -66,8 +66,8 @@ namespace patches
 			{
 				return game::Dvar_RegisterFloat(name, 0.0f, 0.0f, 0.0f, 0, desc);
 			}
-    }
-    
+		}
+
 		game::dvar_t* register_network_fps_stub(const char* name, int, int, int, unsigned int flags,
 		                                        const char* desc)
 		{
@@ -142,12 +142,14 @@ namespace patches
 				{
 					const auto current = game::Dvar_ValueToString(dvar, dvar->current);
 					const auto reset = game::Dvar_ValueToString(dvar, dvar->reset);
-					game_console::print(game_console::con_type_info, "\"%s\" is: \"%s^7\" default: \"%s^7\"", dvar->name, current, reset);
-					game_console::print(game_console::con_type_info, "   %s\n", dvars::dvar_get_domain(dvar->type, dvar->domain).data());
+					game_console::print(game_console::con_type_info, "\"%s\" is: \"%s^7\" default: \"%s^7\"",
+					                    dvar->name, current, reset);
+					game_console::print(game_console::con_type_info, "   %s\n",
+					                    dvars::dvar_get_domain(dvar->type, dvar->domain).data());
 				}
 				else
 				{
-					char command[0x1000] = { 0 };
+					char command[0x1000] = {0};
 					game::Dvar_GetCombinedString(command, 1);
 					game::Dvar_SetCommand(args.get(0), command);
 				}
@@ -217,22 +219,26 @@ namespace patches
 
 			command::add("dvarDump", []()
 			{
-				game_console::print(game_console::con_type_info, "================================ DVAR DUMP ========================================\n");
+				game_console::print(game_console::con_type_info,
+				                    "================================ DVAR DUMP ========================================\n");
 				for (auto i = 0; i < *game::dvarCount; i++)
 				{
 					const auto dvar = game::sortedDvars[i];
 					if (dvar)
 					{
-						game_console::print(game_console::con_type_info, "%s \"%s\"\n", dvar->name, game::Dvar_ValueToString(dvar, dvar->current));
+						game_console::print(game_console::con_type_info, "%s \"%s\"\n", dvar->name,
+						                    game::Dvar_ValueToString(dvar, dvar->current));
 					}
 				}
 				game_console::print(game_console::con_type_info, "\n%i dvar indexes\n", *game::dvarCount);
-				game_console::print(game_console::con_type_info, "================================ END DVAR DUMP ====================================\n");
+				game_console::print(game_console::con_type_info,
+				                    "================================ END DVAR DUMP ====================================\n");
 			});
 
 			command::add("commandDump", []()
 			{
-				game_console::print(game_console::con_type_info, "================================ COMMAND DUMP =====================================\n");
+				game_console::print(game_console::con_type_info,
+				                    "================================ COMMAND DUMP =====================================\n");
 				game::cmd_function_s* cmd = (*game::cmd_functions);
 				int i = 0;
 				while (cmd)
@@ -245,7 +251,8 @@ namespace patches
 					cmd = cmd->next;
 				}
 				game_console::print(game_console::con_type_info, "\n%i command indexes\n", i);
-				game_console::print(game_console::con_type_info, "================================ END COMMAND DUMP =================================\n");
+				game_console::print(game_console::con_type_info,
+				                    "================================ END COMMAND DUMP =================================\n");
 			});
 
 			// Allow executing custom cfg files with the "exec" command
@@ -254,6 +261,13 @@ namespace patches
 			utils::hook::jump(SELECT_VALUE(0x1403B3A12, 0x1403F7582), SELECT_VALUE(cmd_exec_stub_sp, cmd_exec_stub_mp),
 			                  true);
 			//Use empty memory to go to our stub first (can't do close jump, so need space for 12 bytes)
+
+			// Fix mouse lag
+			utils::hook::nop(SELECT_VALUE(0x14043E6CB, 0x140504A2B), 6);
+			scheduler::loop([]()
+			{
+				SetThreadExecutionState(ES_DISPLAY_REQUIRED);
+			}, scheduler::pipeline::main);
 
 			if (game::environment::is_sp())
 			{
