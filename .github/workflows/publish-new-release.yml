@@ -1,0 +1,116 @@
+name: "Publish new release"
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+jobs:
+  release:
+    name: Publish new release
+    runs-on: windows-latest
+    if: github.event.pull_request.merged == true # only merged pull requests must trigger this job
+    steps:
+      # Set up committer info and GPG key
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v3
+        with:
+          git-commit-gpgsign: true
+          git-committer-email: "${{ secrets.XLABS_CI_EMAIL }}"
+          git-committer-name: "${{ secrets.XLABS_CI_NAME }}"
+          git-push-gpgsign: true
+          git-tag-gpgsign: true
+          git-user-signingkey: true
+          gpg-private-key: ${{ secrets.XLABS_CI_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.XLABS_CI_GPG_PASSPHRASE }}
+
+      - name: Extract version from changelog
+        id: changelog_reader
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          validation_depth: 2
+          path: ./CHANGELOG.md
+
+      - name: Create annotated tag
+        id: make_tag
+        run: |
+          git tag -a -m "${{ steps.changelog_reader.outputs.changes }}" \
+            "${{ steps.changelog_reader.outputs.version }}" \
+            "${{ github.event.pull_request.merge_commit_sha }}"
+
+          echo "::set-output name=tag::${{ steps.changelog_reader.outputs.version }}"
+
+      - name: Check out files
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          # NOTE - if LFS ever starts getting used during builds, switch this to true!
+          lfs: false
+
+      # same procedure as build.yml here
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+      - name: Generate project files
+        run: tools/premake5 vs2019
+      - name: Set up problem matching
+        uses: ammaraskar/msvc-problem-matcher@master
+      - name: Build Release binaries
+        run: msbuild /m /v:minimal /p:Configuration=Release /p:Platform=x64 build/iw6x.sln
+
+      - uses: papeloto/action-zip@v1
+        with:
+          recursive: false
+          files: build/bin/x64/Release/iw6x.exe
+          dest: iw6x-${{ steps.make_tag.outputs.tag }}.zip
+      - name: Sign ZIP file
+        run: gpg --output "iw6x-${{ steps.make_tag.outputs.tag }}.zip.sig" --detach-sig "iw6x-${{ steps.make_tag.outputs.tag }}.zip"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.make_tag.outputs.tag }}
+          release_name: ${{ steps.make_tag.outputs.tag }}
+          body: ${{ steps.changelog_reader.outputs.changes }}
+          draft: ${{ steps.changelog_reader.outputs.status == 'unreleased' }}
+          prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
+
+      - name: Upload Release ZIP
+        id: upload-release-zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ github.workspace }}/iw6x-${{ steps.make_tag.outputs.tag }}.zip
+          asset_name: iw6x-${{ steps.make_tag.outputs.tag }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release ZIP signature
+        id: upload-release-zip-signature
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ github.workspace }}/iw6x-${{ steps.make_tag.outputs.tag }}.zip.sig
+          asset_name: iw6x-${{ steps.make_tag.outputs.tag }}.zip.sig
+          asset_content_type: text/plain
+
+      - name: Create Pull Request to merge master back into develop
+        uses: peter-evans/create-pull-request@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          delete-branch: true
+          branch: master
+          body: |
+            This Pull Request contains all changes done for the release of ${{ steps.make_tag.outputs.tag }}, ready to be merged back into `master`.
+
+            This release should be merged in due time to make sure that changes done to files such as the changelog as part of the release are also contained on the `develop` branch.
+          title: Merge ${{ steps.changelog_reader.outputs.version }} into develop
