@@ -30,12 +30,12 @@ jobs:
 
       # Set up committer info and GPG key
       - name: Import GPG key
+        if: github.event.pull_request.merged == true && github.event.pull_request.branch == 'master'
         id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v3
+        uses: XLabsProject/ghaction-import-gpg@25d9d6ab99eb355c169c33c2306a72df85d9f516
         with:
           git-commit-gpgsign: true
-          # FIXME - this always seems to trigger the error "Committer email does not match GPG key user address" for unknown reasons
-          # git-committer-email: "${{ secrets.XLABS_CI_EMAIL }}"
+          git-committer-email: "${{ secrets.XLABS_CI_EMAIL }}"
           git-committer-name: "${{ secrets.XLABS_CI_NAME }}"
           git-push-gpgsign: true
           git-tag-gpgsign: true
@@ -44,6 +44,7 @@ jobs:
           passphrase: ${{ secrets.XLABS_CI_GPG_PASSWORD }}
 
       - name: Extract version from changelog
+        if: github.event.pull_request.merged == true && github.event.pull_request.branch == 'master'
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v2
         with:
