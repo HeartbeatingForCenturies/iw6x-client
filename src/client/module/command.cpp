@@ -278,10 +278,10 @@ namespace command
 
 				game::mp::g_entities[client_num].client->flags ^= 2;
 				game::SV_GameSendServerCommand(client_num, 1,
-				                               utils::string::va("f \"ufo %s\"",
-				                                                 game::mp::g_entities[client_num].client->flags & 2
-					                                                 ? "^2on"
-					                                                 : "^1off"));
+											   utils::string::va("f \"ufo %s\"",
+																 game::mp::g_entities[client_num].client->flags & 2
+																	 ? "^2on"
+																	 : "^1off"));
 			});
 
 			add_sv("setviewpos", [&](const int client_num, params_sv& params)
@@ -308,6 +308,72 @@ namespace command
 				game::mp::g_entities[client_num].client->ps.delta_angles[0] = std::strtof(params.get(1), nullptr);
 				game::mp::g_entities[client_num].client->ps.delta_angles[1] = std::strtof(params.get(2), nullptr);
 				game::mp::g_entities[client_num].client->ps.delta_angles[2] = std::strtof(params.get(3), nullptr);
+			});
+
+			add_sv("r_fog", [&](const int client_num, params_sv&)
+			{
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
+					return;
+				}
+
+				game::mp::g_entities[client_num].client->flags ^= 1;
+				game::SV_GameSendServerCommand(client_num, 1,
+											   utils::string::va("f \"r_fog %s\"",
+															     game::mp::g_entities[client_num].client->flags & 1
+																	 ? "^2on"
+																	 : "^1off"));
+			});
+
+			add_sv("fx_draw", [&](const int client_num, params_sv&)
+			{
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
+					return;
+				}
+
+				game::mp::g_entities[client_num].client->flags ^= 1;
+				game::SV_GameSendServerCommand(client_num, 1,
+											   utils::string::va("f \"fx_draw %s\"",
+																 game::mp::g_entities[client_num].client->flags & 1
+																	 ? "^2on"
+																     : "^1off"));
+			});
+
+			add_sv("fx_enable", [&](const int client_num, params_sv&)
+			{
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
+					return;
+				}
+
+				game::mp::g_entities[client_num].client->flags ^= 1;
+				game::SV_GameSendServerCommand(client_num, 1,
+											   utils::string::va("f \"fx_enable %s\"",
+																 game::mp::g_entities[client_num].client->flags & 1
+																	 ? "^2on"
+																	 : "^1off"));
+			});
+
+			add_sv("r_colormap", [&](const int client_num, params_sv&)
+			{
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
+					return;
+				}
+			});
+
+			add_sv("r_lightmap", [&](const int client_num, params_sv&)
+			{
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
+					return;
+				}
 			});
 		}
 	};
