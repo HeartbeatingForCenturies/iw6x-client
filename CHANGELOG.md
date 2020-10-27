@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Pull Requests
 
+- Implement release process automation [\#118](https://github.com/XLabsProject/iw6x-client/pull/118) ([@x-dev-urandom](https://github.com/x-dev-urandom))
 - Add IW6x version to game version strings [\#116](https://github.com/XLabsProject/iw6x-client/pull/116) ([@x-dev-urandom](https://github.com/x-dev-urandom))
 - dvarDump show values & using enums for game_console::print [\#114](https://github.com/XLabsProject/iw6x-client/pull/114) ([@iAmThatMichael](https://github.com/iAmThatMichael))
 - Add some functions [\#110](https://github.com/XLabsProject/iw6x-client/pull/110) ([@Joelrau](https://github.com/Joelrau))
