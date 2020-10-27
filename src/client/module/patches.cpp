@@ -196,10 +196,6 @@ namespace patches
 			utils::hook::call(SELECT_VALUE(0x14051BBA8, 0x1405E8668), sync_gpu_stub);
 			utils::hook::call(SELECT_VALUE(0x14055AE33, 0x140627FC3), game::Sys_Milliseconds); // Patch CL_ScaledMilliseconds
 
-			// Keep these at 1 so they cannot be used 
-			// For colorMap and lightMap : 1 = "Unchanged"
-			//game::Dvar_RegisterInt("r_colorMap", 1, 1, 1, 0, "Replace all color maps with pure black or pure white");
-			//game::Dvar_RegisterInt("r_lightMap", 1, 1, 1, 0, "Replace all lightmaps with pure black or pure white");
 
 			// set it to 3 to display both voice dlc announcers did only show 1
 			game::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0,
