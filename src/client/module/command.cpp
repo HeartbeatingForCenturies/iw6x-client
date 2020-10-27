@@ -278,7 +278,7 @@ namespace command
 
 				game::mp::g_entities[client_num].client->flags ^= 2;
 				game::SV_GameSendServerCommand(client_num, 1,
-					utils::string::va("f \"noclip %s\"",
+					utils::string::va("f \"ufo %s\"",
 						game::mp::g_entities[client_num].client->flags & 2
 						? "^2on"
 						: "^1off"));
