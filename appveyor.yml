@@ -7,6 +7,17 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PREMAKE_ACTION: vs2019
 
+branches:
+  only:
+    - master
+    - develop
+    - "/release\\/.+/"
+
+skip_branch_with_pr: true
+
+cache:
+  - build/obj
+
 configuration:
   - Debug
   - Release
