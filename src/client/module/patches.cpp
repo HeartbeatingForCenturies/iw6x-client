@@ -193,8 +193,8 @@ namespace patches
 			});
 
 			// 60 fps in main menu
-			// still fucks with scaled milliseconds :(
-			//utils::hook::call(SELECT_VALUE(0x14051BBA8, 0x1405E8668), sync_gpu_stub);
+			utils::hook::call(SELECT_VALUE(0x14051BBA8, 0x1405E8668), sync_gpu_stub);
+			utils::hook::call(SELECT_VALUE(0x14055AE33, 0x140627FC3), game::Sys_Milliseconds); // Patch CL_ScaledMilliseconds
 
 			// Keep these at 1 so they cannot be used 
 			// For colorMap and lightMap : 1 = "Unchanged"
