@@ -17,6 +17,7 @@ jobs:
       - name: Normalize version
         id: normalize_version
         run: |
+          version="${{ github.event.inputs.version }}"
           version="v${version#v}"
           echo "::set-output name=version::$version"
 
