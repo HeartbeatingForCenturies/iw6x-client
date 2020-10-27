@@ -159,6 +159,17 @@ namespace patches
 
 			return 0;
 		}
+
+		int sync_gpu_stub()
+		{
+			if (!game::CL_IsCgameInitialized())
+			{
+				// g_maxFpsWaitTime
+				*reinterpret_cast<int*>(SELECT_VALUE(0x145FFDC9C, 0x1480AA080)) = 0;
+			}
+
+			return game::Sys_Milliseconds();
+		}
 	}
 
 	class module final : public module_interface
@@ -180,6 +191,10 @@ namespace patches
 			{
 				utils::nt::raise_hard_exception();
 			});
+
+			// 60 fps in main menu
+			// still fucks with scaled milliseconds :(
+			//utils::hook::call(SELECT_VALUE(0x14051BBA8, 0x1405E8668), sync_gpu_stub);
 
 			// Keep these at 1 so they cannot be used 
 			// For colorMap and lightMap : 1 = "Unchanged"
