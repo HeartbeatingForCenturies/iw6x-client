@@ -13,6 +13,11 @@ branches:
     - develop
     - "/release\\/.+/"
 
+skip_branch_with_pr: true
+
+cache:
+  - build/obj
+
 configuration:
   - Debug
   - Release
