@@ -22,7 +22,7 @@ jobs:
       # Set up committer info and GPG key
       - name: Import GPG key
         id: import_gpg
-        if: github.event.pull_request.merged == true && github.event.pull_request.branch == master
+        if: github.event.pull_request.merged == true && github.event.pull_request.branch == "master"
         uses: crazy-max/ghaction-import-gpg@v3
         with:
           git-commit-gpgsign: true
