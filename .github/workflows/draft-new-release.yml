@@ -72,7 +72,7 @@ jobs:
 
             # What happens when this PR gets merged?
 
-            After merging this PR, another workflow will create a new tag `${{ steps.normalize-version.outputs.version }}` on the `master` branch and an actual GitHub release. A final build will be triggered and all binaries and assets will be attached to the GitHub release.
+            After merging this PR, another workflow will create a new tag `${{ steps.normalize-version.outputs.version }}` on the `master` branch and the version will officially be {{ steps.changelog_reader.outputs.status }} via an actual GitHub release. A final build will be triggered and all binaries and assets will be attached to the GitHub release.
 
             # Changelog for ${{ steps.normalize-version.outputs.version }}
 
