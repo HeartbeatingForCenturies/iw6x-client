@@ -34,7 +34,8 @@ jobs:
         uses: crazy-max/ghaction-import-gpg@v3
         with:
           git-commit-gpgsign: true
-          git-committer-email: "${{ secrets.XLABS_CI_EMAIL }}"
+          # FIXME - this always seems to trigger the error "Committer email does not match GPG key user address" for unknown reasons
+          # git-committer-email: "${{ secrets.XLABS_CI_EMAIL }}"
           git-committer-name: "${{ secrets.XLABS_CI_NAME }}"
           git-push-gpgsign: true
           git-tag-gpgsign: true
