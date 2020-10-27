@@ -21,6 +21,12 @@ jobs:
   modify:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out files
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+          lfs: false
+
       # Set up committer info and GPG key
       - name: Import GPG key
         id: import_gpg
@@ -100,6 +106,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true && github.event.pull_request.branch == 'master'
     steps:
+      - name: Check out files
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+          lfs: false
+
       # Set up committer info and GPG key
       - name: Import GPG key
         id: import_gpg
