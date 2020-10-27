@@ -47,7 +47,7 @@ jobs:
         id: make-commit
         run: |
           git add CHANGELOG.md
-          git commit -m "Prepare release ${{ steps.normalize_version.outputs.version }}"
+          git commit -S -m "Prepare release ${{ steps.normalize_version.outputs.version }}"
 
           echo "::set-output name=commit::$(git rev-parse HEAD)"
 
