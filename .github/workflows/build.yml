@@ -20,6 +20,7 @@ on:
 jobs:
   modify:
     runs-on: ubuntu-latest
+    name: Apply Git modifications if any are necessary
     steps:
       - name: Check out files
         uses: actions/checkout@v2
