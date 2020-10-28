@@ -176,6 +176,9 @@ jobs:
           asset_name: iw6x-${{ steps.changelog_reader.outputs.version }}.zip.sig
           asset_content_type: text/plain
 
+      - name: Remove extra files
+        run: git clean -ffdx && git reset --hard
+
       - name: Create Pull Request to merge master back into develop
         uses: peter-evans/create-pull-request@v3
         env:
