@@ -35,9 +35,6 @@ jobs:
           gpg-private-key: ${{ secrets.XLABS_CI_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.XLABS_CI_GPG_PASSWORD }}
 
-      - name: Create branch release/${{ steps.normalize_version.outputs.version }}
-        run: git checkout -b "release/${{ steps.normalize_version.outputs.version }}"
-
       - name: Rename Unreleased section in changelog to ${{ steps.normalize_version.outputs.version }}
         uses: thomaseizinger/keep-a-changelog-new-release@1.1.0
         with:
@@ -65,7 +62,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           delete-branch: true
-          branch: "master"
+          author: "${{ secrets.XLABS_CI_NAME }} <${{ secrets.XLABS_CI_EMAIL }}>"
+          committer: "${{ secrets.XLABS_CI_NAME }} <${{ secrets.XLABS_CI_EMAIL }}>"
+          branch: "release/${{ steps.normalize_version.outputs.version }}"
+          base: master
           body: |
             This Pull Request is for the release of IW6x ${{ steps.normalize_version.outputs.version }} and was [automatically created by a workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) triggered by @${{ github.actor }}.
 
