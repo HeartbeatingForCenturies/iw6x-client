@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Pull Requests
 
+- Add more dvars to require sv_cheats / cleaned pathes a little [\#120](https://github.com/XLabsProject/iw6x-client/pull/120) ([@FragsAreUs](https://github.com/FragsAreUs))
 - Implement release process automation [\#118](https://github.com/XLabsProject/iw6x-client/pull/118) ([@x-dev-urandom](https://github.com/x-dev-urandom))
 - Add IW6x version to game version strings [\#116](https://github.com/XLabsProject/iw6x-client/pull/116) ([@x-dev-urandom](https://github.com/x-dev-urandom))
 - dvarDump show values & using enums for game_console::print [\#114](https://github.com/XLabsProject/iw6x-client/pull/114) ([@iAmThatMichael](https://github.com/iAmThatMichael))
@@ -81,4 +82,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add setviewpos, setviewang commands, add viewpos to drawfps [\#38](https://github.com/XLabsProject/iw6x-client/pull/38) ([@fedddddd](https://github.com/fedddddd))
 - Make stats look better [\#36](https://github.com/XLabsProject/iw6x-client/pull/36) ([@FragsAreUs](https://github.com/FragsAreUs))
 
-[Unreleased]: https://github.com/XLabsProject/iw6x-client/tree/HEAD
+[unreleased]: https://github.com/XLabsProject/iw6x-client/tree/HEAD
