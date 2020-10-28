@@ -110,7 +110,7 @@ jobs:
           lfs: false
 
       - name: Download Release binaries
-        uses: actions/upload-artifact@v2
+        uses: actions/download-artifact@v2
         with:
           name: Release binaries
 
@@ -183,7 +183,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           delete-branch: true
-          branch: master
+          head: master
+          base: develop
           body: |
             This Pull Request contains all changes done for the release of ${{ steps.changelog_reader.outputs.version }}, ready to be merged back into `master`.
 
