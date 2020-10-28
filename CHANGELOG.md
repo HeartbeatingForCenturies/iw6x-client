@@ -82,4 +82,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add setviewpos, setviewang commands, add viewpos to drawfps [\#38](https://github.com/XLabsProject/iw6x-client/pull/38) ([@fedddddd](https://github.com/fedddddd))
 - Make stats look better [\#36](https://github.com/XLabsProject/iw6x-client/pull/36) ([@FragsAreUs](https://github.com/FragsAreUs))
 
-[unreleased]: https://github.com/XLabsProject/iw6x-client/tree/HEAD
+[Unreleased]: https://github.com/XLabsProject/iw6x-client/tree/HEAD
