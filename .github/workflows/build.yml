@@ -29,7 +29,7 @@ jobs:
           git-commit-gpgsign: true
           git-committer-email: "${{ secrets.XLABS_CI_EMAIL }}"
           git-committer-name: "${{ secrets.XLABS_CI_NAME }}"
-          git-push-gpgsign: true
+          git-push-gpgsign: false
           git-tag-gpgsign: true
           git-user-signingkey: true
           gpg-private-key: ${{ secrets.XLABS_CI_GPG_PRIVATE_KEY }}
