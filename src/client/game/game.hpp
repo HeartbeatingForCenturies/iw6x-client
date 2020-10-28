@@ -24,6 +24,9 @@ namespace game
 	typedef void (*Com_Quit_t)();
 	extern Com_Quit_t Com_Quit;
 
+	typedef CodPlayMode (*Com_GetCurrentCoDPlayMode_t)();
+	extern Com_GetCurrentCoDPlayMode_t Com_GetCurrentCoDPlayMode;
+
 	typedef void (*Conbuf_AppendText_t)(const char* message);
 	extern Conbuf_AppendText_t Conbuf_AppendText;
 
@@ -103,9 +106,6 @@ namespace game
 
 	typedef void (*FS_FreeFile_t)(void* buffer);
 	extern FS_FreeFile_t FS_FreeFile;
-
-	typedef int (*GetCurrentCoDPlayMode_t)();
-	extern GetCurrentCoDPlayMode_t GetCurrentCoDPlayMode;
 
 	typedef int (*G_RunFrame_t)(int server_time);
 	extern G_RunFrame_t G_RunFrame;

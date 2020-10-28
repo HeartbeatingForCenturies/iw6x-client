@@ -9,6 +9,16 @@ namespace game
 	typedef vec_t vec3_t[3];
 	typedef vec_t vec4_t[4];
 
+	enum CodPlayMode
+	{
+		CODPLAYMODE_NONE = 0x0,
+		CODPLAYMODE_SP = 0x1,
+		CODPLAYMODE_CORE = 0x2,
+		CODPLAYMODE_ALIENS = 0x3,
+		CODPLAYMODE_SQUADVSSQUAD = 0x4,
+		CODPLAYMODE_COUNT = 0x5,
+	};
+
 	enum DWOnlineStatus
 	{
 		DW_LIVE_DISCONNECTED = 0x0,

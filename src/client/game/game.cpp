@@ -9,6 +9,7 @@ namespace game
 	Com_Parse_t Com_Parse;
 	Com_Error_t Com_Error;
 	Com_Quit_t Com_Quit;
+	Com_GetCurrentCoDPlayMode_t Com_GetCurrentCoDPlayMode;
 
 	Conbuf_AppendText_t Conbuf_AppendText;
 
@@ -40,8 +41,6 @@ namespace game
 
 	FS_ReadFile_t FS_ReadFile;
 	FS_FreeFile_t FS_FreeFile;
-
-	GetCurrentCoDPlayMode_t GetCurrentCoDPlayMode;
 
 	G_RunFrame_t G_RunFrame;
 
@@ -181,6 +180,7 @@ namespace game
 			Com_Parse = Com_Parse_t(SELECT_VALUE(0, 0x1404F50E0));
 			Com_Error = Com_Error_t(SELECT_VALUE(0x1403BBFF0, 0x140412740));
 			Com_Quit = Com_Quit_t(SELECT_VALUE(0x1403BDDD0, 0x140414920));
+			Com_GetCurrentCoDPlayMode = Com_GetCurrentCoDPlayMode_t(SELECT_VALUE(0, 0x1404f6140));
 
 			Cbuf_AddText = Cbuf_AddText_t(SELECT_VALUE(0x1403B3050, 0x1403F6B50));
 			Cbuf_ExecuteBufferInternal = Cbuf_ExecuteBufferInternal_t(SELECT_VALUE(0x1403B3160, 0x1403F6C60));
@@ -207,8 +207,6 @@ namespace game
 			Dvar_SetString = Dvar_SetString_t(SELECT_VALUE(0x14042D6E0, 0x1404F08E0));
 			Dvar_Sort = Dvar_Sort_t(SELECT_VALUE(0x14042DEF0, 0x1404F1210));
 			Dvar_ValueToString = Dvar_ValueToString_t(SELECT_VALUE(0x14042E710, 0x1404F1A30));
-
-			GetCurrentCoDPlayMode = GetCurrentCoDPlayMode_t(SELECT_VALUE(0, 0x1404f6140));
 
 			G_RunFrame = G_RunFrame_t(SELECT_VALUE(0x0, 0x1403A05E0));
 
