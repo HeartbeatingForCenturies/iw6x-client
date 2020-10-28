@@ -109,6 +109,11 @@ jobs:
           submodules: false
           lfs: false
 
+      - name: Download Release binaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: Release binaries
+
       # Set up committer info and GPG key
       - name: Import GPG key
         id: import_gpg
