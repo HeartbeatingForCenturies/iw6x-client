@@ -127,7 +127,7 @@ jobs:
           git-tag-gpgsign: true
           git-user-signingkey: true
           gpg-private-key: ${{ secrets.XLABS_CI_GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.XLABS_CI_GPG_PASSPHRASE }}
+          passphrase: ${{ secrets.XLABS_CI_GPG_PASSWORD }}
 
       - name: Extract version from changelog
         id: changelog_reader
