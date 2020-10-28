@@ -60,6 +60,7 @@ jobs:
           git push origin --tags
 
   build:
+    name: Build binaries
     runs-on: windows-latest
     needs:
       - modify
@@ -194,7 +195,7 @@ jobs:
   notify:
     name: Notify Discord
     runs-on: ubuntu-latest
-    if: (github.event.pull_request.merged == true && github.event.pull_request.branch == 'master' || github.event.pull_request.branch == 'develop') || (github.event.push.branch == 'master' || github.event.push.branch == 'develop')
+    if: (github.event.pull_request.merged == true && github.event.pull_request.branch == 'master' || github.event.pull_request.branch == 'develop') || (github.event.push.ref == 'refs/heads/master' || github.event.push.ref == 'refs/heads/develop')
     steps:
       - name: Post CI status notification to Discord
         uses: sarisia/actions-status-discord@v1.7.1
