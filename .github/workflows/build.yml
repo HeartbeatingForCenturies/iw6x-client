@@ -184,8 +184,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          delete-branch: true
-          head: master
+          delete-branch: false
+          author: "${{ secrets.XLABS_CI_NAME }} <${{ secrets.XLABS_CI_EMAIL }}>"
+          committer: "${{ secrets.XLABS_CI_NAME }} <${{ secrets.XLABS_CI_EMAIL }}>"
+          branch: release/${{ steps.changelog_reader.outputs.version }}
           base: develop
           body: |
             This Pull Request contains all changes done for the release of ${{ steps.changelog_reader.outputs.version }}, ready to be merged back into `master`.
