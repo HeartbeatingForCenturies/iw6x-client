@@ -4,14 +4,6 @@ on:
   push:
     branches:
       - "*"
-    paths-ignore:
-      - .gitignore
-      - "*.bat"
-      - "assets/**"
-      - appveyor.yml
-      - CHANGELOG*
-      - LICENSE*
-      - README*
   pull_request:
     branches:
       - develop
