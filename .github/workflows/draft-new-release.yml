@@ -69,7 +69,7 @@ jobs:
           body: |
             This Pull Request is for the release of IW6x ${{ steps.normalize_version.outputs.version }} and was [automatically created by a workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) triggered by @${{ github.actor }}.
 
-            Commit ${{ steps.make-commit.outputs.commit }} includes an update to the changelog to list the new version with its changes.
+            Commit [`${{ steps.make-commit.outputs.commit }}`](https://github.com/${{ github.repository }}/commit/${{ steps.make-commit.outputs.commit }}) includes an update to the changelog to list the new version with its changes.
 
             # What happens when this PR gets merged?
 
