@@ -65,7 +65,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           delete-branch: true
-          branch: "release/${{ steps.normalize_version.outputs.version }}"
+          branch: "master"
           body: |
             This Pull Request is for the release of IW6x ${{ steps.normalize_version.outputs.version }} and was [automatically created by a workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) triggered by @${{ github.actor }}.
 
