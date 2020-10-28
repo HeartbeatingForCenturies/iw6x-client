@@ -23,7 +23,7 @@ jobs:
 
       # Set up committer info and GPG key
       - name: Import GPG key
-        if: github.event.pull_request.merged == true && github.base_ref == 'refs/heads/master'
+        if: github.event.pull_request.merged == true && github.ref == 'refs/heads/master'
         id: import_gpg
         uses: XLabsProject/ghaction-import-gpg@25d9d6ab99eb355c169c33c2306a72df85d9f516
         with:
@@ -37,7 +37,7 @@ jobs:
           passphrase: ${{ secrets.XLABS_CI_GPG_PASSWORD }}
 
       - name: Extract version from changelog
-        if: github.event.pull_request.merged == true && github.base_ref == 'refs/heads/master'
+        if: github.event.pull_request.merged == true && github.ref == 'refs/heads/master'
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v2
         with:
@@ -45,7 +45,7 @@ jobs:
           path: ./CHANGELOG.md
 
       - name: Create annotated tag
-        if: github.event.pull_request.merged == true && github.base_ref == 'refs/heads/master'
+        if: github.event.pull_request.merged == true && github.ref == 'refs/heads/master'
         run: |
           git tag -a -m "${{ steps.changelog_reader.outputs.changes }}" \
             "${{ steps.changelog_reader.outputs.version }}" \
@@ -101,7 +101,7 @@ jobs:
     name: Tag new version
     needs: build
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && github.base_ref == 'refs/heads/master'
+    if: github.event.pull_request.merged == true && github.ref == 'refs/heads/master'
     steps:
       - name: Check out files
         uses: actions/checkout@v2
@@ -192,8 +192,8 @@ jobs:
       github.repository_owner == 'XLabsProject' && (
         (
           github.event.pull_request.merged == true && (
-            github.base_ref == 'refs/heads/master' || 
-            github.event.pull_request.branch == 'develop'
+            github.ref == 'refs/heads/master' || 
+            github.ref == 'refs/heads/develop'
           )
         ) || (
           github.event.push.ref == 'refs/heads/master' ||
