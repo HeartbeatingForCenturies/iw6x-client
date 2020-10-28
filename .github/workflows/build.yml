@@ -87,8 +87,7 @@ jobs:
         with:
           name: ${{matrix.configuration}} binaries
           path: |
-            build/bin/**/*.exe
-            build/bin/**/*.dll
+            build/bin/x64/${{matrix.configuration}}/*
 
       - name: Upload ${{matrix.configuration}} debug symbols
         uses: actions/upload-artifact@v2
@@ -138,7 +137,7 @@ jobs:
       - uses: papeloto/action-zip@v1
         with:
           recursive: false
-          files: build/bin/x64/Release/iw6x.exe
+          files: iw6x.exe
           dest: iw6x-${{ steps.changelog_reader.outputs.version }}.zip
       - name: Sign ZIP file
         run: gpg --output "iw6x-${{ steps.changelog_reader.outputs.version }}.zip.sig" --detach-sig "iw6x-${{ steps.changelog_reader.outputs.version }}.zip"
