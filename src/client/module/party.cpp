@@ -23,6 +23,25 @@ namespace party
 			std::string challenge{};
 		} connect_state;
 
+		void switch_gamemode_if_necessary(const std::string& gametype)
+		{
+			const auto target_mode = gametype == "aliens" ? game::CODPLAYMODE_ALIENS : game::CODPLAYMODE_CORE;
+			const auto current_mode = game::Com_GetCurrentCoDPlayMode();
+
+			if (current_mode != target_mode)
+			{
+				switch (target_mode)
+				{
+				case game::CODPLAYMODE_CORE:
+					game::SwitchToCoreMode();
+					break;
+				case game::CODPLAYMODE_ALIENS:
+					game::SwitchToAliensMode();
+					break;
+				}
+			}
+		}
+
 		void connect_to_party(const game::netadr_s& target, const std::string& mapname, const std::string& gametype)
 		{
 			if (game::environment::is_sp())
@@ -38,6 +57,8 @@ namespace party
 				}, scheduler::pipeline::main, 1s);
 				return;
 			}
+
+			switch_gamemode_if_necessary(gametype);
 
 			// This fixes several crashes and impure client stuff
 			command::execute("xstartprivatematch", true);
@@ -102,6 +123,7 @@ namespace party
 		}
 		else
 		{
+			switch_gamemode_if_necessary(get_dvar_string("g_gametype"));
 			game::SV_StartMapForParty(0, mapname.data(), false, false);
 		}
 	}
