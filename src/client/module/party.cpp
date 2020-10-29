@@ -64,6 +64,7 @@ namespace party
 			command::execute("onlinegame 1", true);
 			command::execute("exec default_xboxlive.cfg", true);
 			command::execute("xstartprivateparty", true);
+			command::execute("xblive_rankedmatch 1", true);
 			command::execute("xblive_privatematch 1", true);
 			command::execute("startentitlements", true);
 

@@ -13,6 +13,8 @@ namespace dedicated
 {
 	namespace
 	{
+		utils::hook::detour dvar_get_string_hook;
+
 		void init_dedicated_server()
 		{
 			static bool initialized = false;
@@ -95,6 +97,21 @@ namespace dedicated
 		{
 			std::this_thread::sleep_for(1ms);
 		}
+
+		const char* dvar_get_string_stub(const char* dvar, const char* default_value)
+		{
+			if (dvar == "xblive_privatematch"s || dvar == "dedicated"s || dvar == "onlinegame"s)
+			{
+				return "0";
+			}
+
+			if (dvar == "xblive_rankedmatch"s)
+			{
+				return "1";
+			}
+
+			return dvar_get_string_hook.invoke<const char*>(dvar, default_value);
+		}
 	}
 
 	class module final : public module_interface
@@ -106,6 +123,9 @@ namespace dedicated
 			{
 				return;
 			}
+
+			// Make dedis ranked
+			dvar_get_string_hook.create(game::Dvar_GetVariantStringWithDefault, dvar_get_string_stub);
 
 			// Hook R_SyncGpu
 			utils::hook::jump(0x1405E8530, sync_gpu_stub);
@@ -186,14 +206,17 @@ namespace dedicated
 
 			scheduler::on_game_initialized([]()
 			{
-				game::Cmd_ExecuteSingleCommand(0, 0, "xstartprivatematch\n");
-				game::Cmd_ExecuteSingleCommand(0, 0, "xstartpartyhost\n");
+				command::execute("exec default_xboxlive.cfg", true);
 
-				game::Cmd_ExecuteSingleCommand(0, 0, "exec default_mp_gamesettings.cfg\n");
-				game::Cmd_ExecuteSingleCommand(0, 0, "exec default_private.cfg\n");
-				game::Cmd_ExecuteSingleCommand(0, 0, "onlinegame 1\n");
-				game::Cmd_ExecuteSingleCommand(0, 0, "xblive_rankedmatch 1\n");
-				game::Cmd_ExecuteSingleCommand(0, 0, "xblive_privatematch 1\n");
+				command::execute("xstartprivatematch", true);
+				command::execute("xstartpartyhost", true);
+
+				command::execute("exec default_mp_gamesettings.cfg", true);
+				command::execute("exec default_private.cfg", true);
+
+				command::execute("onlinegame 1", true);
+				command::execute("xblive_rankedmatch 1", true);
+				command::execute("xblive_privatematch 1", true);
 
 				printf("==================================\n");
 				printf("Server started!\n");

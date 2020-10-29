@@ -25,6 +25,7 @@ namespace game
 
 	Dvar_FindVar_t Dvar_FindVar;
 	Dvar_GetCombinedString_t Dvar_GetCombinedString;
+	Dvar_GetVariantStringWithDefault_t Dvar_GetVariantStringWithDefault;
 	Dvar_RegisterBool_t Dvar_RegisterBool;
 	Dvar_RegisterEnum_t Dvar_RegisterEnum;
 	Dvar_RegisterFloat_t Dvar_RegisterFloat;
@@ -194,6 +195,7 @@ namespace game
 
 			Dvar_FindVar = Dvar_FindVar_t(SELECT_VALUE(0x140429E70, 0x1404ECB60));
 			Dvar_GetCombinedString = Dvar_GetCombinedString_t(SELECT_VALUE(0x1403BFD80, 0x140416B30));
+			Dvar_GetVariantStringWithDefault = Dvar_GetVariantStringWithDefault_t(SELECT_VALUE(0x14042A240, 0x1404ECF90));
 			Dvar_RegisterBool = Dvar_RegisterBool_t(SELECT_VALUE(0x14042AF10, 0x1404EDD60));
 			Dvar_RegisterEnum = Dvar_RegisterEnum_t(SELECT_VALUE(0x14042B220, 0x1404EE070));
 			Dvar_RegisterFloat = Dvar_RegisterFloat_t(SELECT_VALUE(0x14042B330, 0x1404EE180));
