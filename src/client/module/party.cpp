@@ -61,8 +61,11 @@ namespace party
 			switch_gamemode_if_necessary(gametype);
 
 			// This fixes several crashes and impure client stuff
-			command::execute("xstartprivatematch", true);
+			command::execute("onlinegame 1", true);
+			command::execute("exec default_xboxlive.cfg", true);
+			command::execute("xstartprivateparty", true);
 			command::execute("xblive_privatematch 1", true);
+			command::execute("startentitlements", true);
 
 			// CL_ConnectFromParty
 			char session_info[0x100] = {};
