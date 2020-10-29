@@ -8,97 +8,70 @@ namespace arxan
 {
 	namespace
 	{
-		typedef struct _OBJECT_HANDLE_ATTRIBUTE_INFORMATION
+		volatile bool allow_lobby_pump = true;
+		volatile bool allow_net_pump = true;
+		volatile bool allow_logon_status = true;
+
+		utils::hook::detour lobby_pump_hook;
+		utils::hook::detour net_pump_hook;
+
+		game::DWOnlineStatus get_logon_status_stub(const int controller_index)
 		{
-			BOOLEAN Inherit;
-			BOOLEAN ProtectFromClose;
-		} OBJECT_HANDLE_ATTRIBUTE_INFORMATION;
-
-		utils::hook::detour nt_close_hook;
-		utils::hook::detour nt_query_information_process_hook;
-
-		NTSTATUS WINAPI nt_query_information_process_stub(const HANDLE handle, const PROCESSINFOCLASS info_class,
-		                                                  PVOID info,
-		                                                  const ULONG info_length, const PULONG ret_length)
-		{
-			auto* orig = static_cast<decltype(NtQueryInformationProcess)*>(nt_query_information_process_hook.
-				get_original());
-			const auto status = orig(handle, info_class, info, info_length, ret_length);
-
-			if (NT_SUCCESS(status))
+			static volatile auto is_connected = false;
+			if (is_connected && !allow_logon_status)
 			{
-				if (info_class == ProcessBasicInformation)
-				{
-					static DWORD explorerPid = 0;
-					if (!explorerPid)
-					{
-						auto* const shell_window = GetShellWindow();
-						GetWindowThreadProcessId(shell_window, &explorerPid);
-					}
-
-					static_cast<PPROCESS_BASIC_INFORMATION>(info)->Reserved3 = PVOID(DWORD64(explorerPid));
-				}
-				else if (info_class == 30) // ProcessDebugObjectHandle
-				{
-					*static_cast<HANDLE*>(info) = nullptr;
-
-					return 0xC0000353;
-				}
-				else if (info_class == 7) // ProcessDebugPort
-				{
-					*static_cast<HANDLE*>(info) = nullptr;
-				}
-				else if (info_class == 31)
-				{
-					*static_cast<ULONG*>(info) = 1;
-				}
+				return game::DW_LIVE_CONNECTED;
 			}
 
-			return status;
+
+			const auto result = reinterpret_cast<game::DWOnlineStatus(*)(int)>(0x1405894C0)(controller_index);
+			is_connected = result == game::DW_LIVE_CONNECTED;
+			allow_logon_status = false;
+
+			return result;
 		}
 
-		NTSTATUS NTAPI nt_close_stub(const HANDLE handle)
+		void lobby_pump_stub(const int controller_index)
 		{
-			char info[16];
-			if (NtQueryObject(handle, OBJECT_INFORMATION_CLASS(4), &info, sizeof(OBJECT_HANDLE_ATTRIBUTE_INFORMATION),
-			                  nullptr) >= 0)
+			if (allow_lobby_pump || get_logon_status_stub(0) != game::DW_LIVE_CONNECTED)
 			{
-				auto* orig = static_cast<decltype(NtClose)*>(nt_close_hook.get_original());
-				return orig(handle);
+				allow_lobby_pump = false;
+				lobby_pump_hook.invoke<void*>(controller_index);
 			}
-
-			return STATUS_INVALID_HANDLE;
 		}
 
-		LONG WINAPI exception_filter(LPEXCEPTION_POINTERS info)
+		void net_pump_stub(const int controller_index)
 		{
-			return (info->ExceptionRecord->ExceptionCode == STATUS_INVALID_HANDLE)
-				       ? EXCEPTION_CONTINUE_EXECUTION
-				       : EXCEPTION_CONTINUE_SEARCH;
-		}
-
-		void hide_being_debugged()
-		{
-			auto* const peb = PPEB(__readgsqword(0x60));
-			peb->BeingDebugged = false;
-			*PDWORD(LPSTR(peb) + 0xBC) &= ~0x70;
+			if (allow_net_pump || get_logon_status_stub(0) != game::DW_LIVE_CONNECTED)
+			{
+				allow_net_pump = false;
+				net_pump_hook.invoke<void*>(controller_index);
+			}
 		}
 	}
 
 	class module final : public module_interface
 	{
 	public:
-		void post_load() override
+		void post_unpack() override
 		{
-			hide_being_debugged();
-			scheduler::loop(hide_being_debugged, scheduler::pipeline::async);
+			// cba to implement sp, not sure if it's even needed
+			if (game::environment::is_sp()) return;
 
-			const utils::nt::module ntdll("ntdll.dll");
-			nt_close_hook.create(ntdll.get_proc<void*>("NtClose"), nt_close_stub);
-			nt_query_information_process_hook.create(ntdll.get_proc<void*>("NtQueryInformationProcess"),
-			                                         nt_query_information_process_stub);
+			scheduler::loop([]
+			{
+				allow_lobby_pump = true;
+				allow_net_pump = true;
+				allow_logon_status = true;
+			}, scheduler::pipeline::async, 300ms);
 
-			AddVectoredExceptionHandler(1, exception_filter);
+			// Some arxan exception stuff to obfuscate functions
+			// This is causing lags
+			// We will have to properly patch that some day
+			utils::hook::jump(0x140589480, get_logon_status_stub);
+
+			lobby_pump_hook.create(0x140591850, lobby_pump_stub);
+			net_pump_hook.create(0x140558C20, net_pump_stub);
 		}
 	};
 }
