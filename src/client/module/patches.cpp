@@ -21,6 +21,18 @@ namespace patches
 			return game::Dvar_FindVar("name")->current.string;
 		}
 
+		utils::hook::detour sv_kick_client_num_hook;
+
+		void sv_kick_client_num(int clientNum, const char* reason)
+		{
+			// Don't kick bot to equalize team balance.
+			if (reason == "EXE_PLAYERKICKED_BOT_BALANCE"s)
+			{
+				return;
+			}
+			return sv_kick_client_num_hook.invoke<void>(clientNum, reason);
+		}
+
 		utils::hook::detour dvar_register_int_hook;
 
 		game::dvar_t* dvar_register_int(const char* dvarName, int value, int min, int max, unsigned int flags,
@@ -292,6 +304,9 @@ namespace patches
 			// Use name dvar and add "saved" flags to it
 			utils::hook::set<uint8_t>(0x1402C836D, 0x01);
 			live_get_local_client_name_hook.create(0x1404FDAA0, &live_get_local_client_name);
+
+			// Patch SV_KickClientNum
+			sv_kick_client_num_hook.create(0x14046F730, &sv_kick_client_num);
 
 			// block changing name in-game
 			utils::hook::set<uint8_t>(0x140470300, 0xC3);
