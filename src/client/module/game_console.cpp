@@ -52,12 +52,8 @@ namespace game_console
 		std::string fixed_input;
 		std::vector<std::string> matches;
 
-		utils::hook::detour cl_char_event_hook;
-		utils::hook::detour cl_key_event_hook;
-
 		float color_white[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 		float color_iw6[4] = {0.0f, 0.7f, 1.0f, 1.0f};
-
 
 		void clear()
 		{
@@ -406,235 +402,6 @@ namespace game_console
 				draw_input();
 			}
 		}
-
-		void cl_char_event_stub(const int localClientNum, const int key)
-		{
-			if (key == game::keyNum_t::K_GRAVE || key == game::keyNum_t::K_TILDE)
-			{
-				return;
-			}
-
-			if (*game::keyCatchers & 1)
-			{
-				if (key == game::keyNum_t::K_TAB) // tab (auto complete) 
-				{
-					if (con.globals.may_auto_complete)
-					{
-						const auto firstChar = con.buffer[0];
-
-						clear();
-
-						if (firstChar == '\\' || firstChar == '/')
-						{
-							con.buffer[0] = firstChar;
-							con.buffer[1] = '\0';
-						}
-
-						strncat_s(con.buffer, con.globals.auto_complete_choice, 64);
-						con.cursor = static_cast<int>(std::string(con.buffer).length());
-
-						if (con.cursor != 254)
-						{
-							con.buffer[con.cursor++] = ' ';
-							con.buffer[con.cursor] = '\0';
-						}
-					}
-				}
-
-				if (key == 'v' - 'a' + 1) // paste
-				{
-					const auto clipboard = utils::string::get_clipboard_data();
-					if (clipboard.empty())
-					{
-						return;
-					}
-
-					for (int i = 0; i < clipboard.length(); i++)
-					{
-						cl_char_event_stub(localClientNum, clipboard[i]);
-					}
-
-					return;
-				}
-
-				if (key == 'c' - 'a' + 1) // clear
-				{
-					clear();
-					con.line_count = 0;
-					con.output.clear();
-					history_index = -1;
-					history.clear();
-
-					return;
-				}
-
-				if (key == 'h' - 'a' + 1) // backspace
-				{
-					if (con.cursor > 0)
-					{
-						memmove(con.buffer + con.cursor - 1, con.buffer + con.cursor,
-						        strlen(con.buffer) + 1 - con.cursor);
-						con.cursor--;
-					}
-
-					return;
-				}
-
-				if (key < 32)
-				{
-					return;
-				}
-
-				if (con.cursor == 256 - 1)
-				{
-					return;
-				}
-
-				memmove(con.buffer + con.cursor + 1, con.buffer + con.cursor, strlen(con.buffer) + 1 - con.cursor);
-				con.buffer[con.cursor] = static_cast<char>(key);
-				con.cursor++;
-
-				if (con.cursor == strlen(con.buffer) + 1)
-				{
-					con.buffer[con.cursor] = 0;
-				}
-			}
-
-			cl_char_event_hook.invoke<void>(localClientNum, key);
-		}
-
-		void cl_key_event_stub(int localClientNum, int key, int down)
-		{
-			if (key == game::keyNum_t::K_F10)
-			{
-				game::Cmd_ExecuteSingleCommand(localClientNum, 0, "lui_open menu_systemlink_join\n");
-			}
-
-			if (key == game::keyNum_t::K_GRAVE || key == game::keyNum_t::K_TILDE)
-			{
-				if (!down)
-				{
-					return;
-				}
-
-				if (game::playerKeys[localClientNum].keys[game::keyNum_t::K_SHIFT].down)
-				{
-					if (!(*game::keyCatchers & 1))
-						toggle_console();
-
-					toggle_console_output();
-					return;
-				}
-
-				toggle_console();
-				return;
-			}
-
-			if (*game::keyCatchers & 1)
-			{
-				if (down)
-				{
-					if (key == game::keyNum_t::K_UPARROW)
-					{
-						if (++history_index >= history.size())
-						{
-							history_index = static_cast<int>(history.size()) - 1;
-						}
-
-						clear();
-
-						if (history_index != -1)
-						{
-							strncpy_s(con.buffer, history.at(history_index).c_str(), 0x100);
-							con.cursor = static_cast<int>(strlen(con.buffer));
-						}
-					}
-					else if (key == game::keyNum_t::K_DOWNARROW)
-					{
-						if (--history_index < -1)
-						{
-							history_index = -1;
-						}
-
-						clear();
-
-						if (history_index != -1)
-						{
-							strncpy_s(con.buffer, history.at(history_index).c_str(), 0x100);
-							con.cursor = static_cast<int>(strlen(con.buffer));
-						}
-					}
-
-					if (key == game::keyNum_t::K_RIGHTARROW)
-					{
-						if (con.cursor < strlen(con.buffer))
-						{
-							con.cursor++;
-						}
-
-						return;
-					}
-
-					if (key == game::keyNum_t::K_LEFTARROW)
-					{
-						if (con.cursor > 0)
-						{
-							con.cursor--;
-						}
-
-						return;
-					}
-
-					//scroll through output
-					if (key == game::keyNum_t::K_MWHEELUP || key == game::keyNum_t::K_PGUP)
-					{
-						if (con.output.size() > con.visible_line_count && con.display_line_offset > 0)
-						{
-							con.display_line_offset--;
-						}
-					}
-					else if (key == game::keyNum_t::K_MWHEELDOWN || key == game::keyNum_t::K_PGDN)
-					{
-						if (con.output.size() > con.visible_line_count && con.display_line_offset < (con.output.size() -
-							con.
-							visible_line_count))
-						{
-							con.display_line_offset++;
-						}
-					}
-
-					if (key == game::keyNum_t::K_ENTER)
-					{
-						game::Cbuf_AddText(0, utils::string::va("%s \n", fixed_input.data()));
-
-						if (history_index != -1)
-						{
-							const auto itr = history.begin() + history_index;
-
-							if (*itr == con.buffer)
-							{
-								history.erase(history.begin() + history_index);
-							}
-						}
-
-						history.push_front(con.buffer);
-
-						print("]"s.append(con.buffer));
-
-						if (history.size() > 10)
-						{
-							history.erase(history.begin() + 10);
-						}
-
-						history_index = -1;
-
-						clear();
-					}
-				}
-			}
-
-			cl_key_event_hook.invoke<void>(localClientNum, key, down);
-		}
 	}
 
 	void print(const int type, const char* fmt, ...)
@@ -653,6 +420,236 @@ namespace game_console
 		{
 			print(type == con_type_info ? line : "^"s.append(std::to_string(type)).append(line));
 		}
+	}
+
+	bool console_char_event(const int localClientNum, const int key)
+	{
+		if (key == game::keyNum_t::K_GRAVE || key == game::keyNum_t::K_TILDE)
+		{
+			return false;
+		}
+
+		if (*game::keyCatchers & 1)
+		{
+			if (key == game::keyNum_t::K_TAB) // tab (auto complete) 
+			{
+				if (con.globals.may_auto_complete)
+				{
+					const auto firstChar = con.buffer[0];
+
+					clear();
+
+					if (firstChar == '\\' || firstChar == '/')
+					{
+						con.buffer[0] = firstChar;
+						con.buffer[1] = '\0';
+					}
+
+					strncat_s(con.buffer, con.globals.auto_complete_choice, 64);
+					con.cursor = static_cast<int>(std::string(con.buffer).length());
+
+					if (con.cursor != 254)
+					{
+						con.buffer[con.cursor++] = ' ';
+						con.buffer[con.cursor] = '\0';
+					}
+				}
+			}
+
+			if (key == 'v' - 'a' + 1) // paste
+			{
+				const auto clipboard = utils::string::get_clipboard_data();
+				if (clipboard.empty())
+				{
+					return false;
+				}
+
+				for (auto i = 0; i < clipboard.length(); i++)
+				{
+					console_char_event(localClientNum, clipboard[i]);
+				}
+
+				return false;
+			}
+
+			if (key == 'c' - 'a' + 1) // clear
+			{
+				clear();
+				con.line_count = 0;
+				con.output.clear();
+				history_index = -1;
+				history.clear();
+
+				return false;
+			}
+
+			if (key == 'h' - 'a' + 1) // backspace
+			{
+				if (con.cursor > 0)
+				{
+					memmove(con.buffer + con.cursor - 1, con.buffer + con.cursor,
+						strlen(con.buffer) + 1 - con.cursor);
+					con.cursor--;
+				}
+
+				return false;
+			}
+
+			if (key < 32)
+			{
+				return false;
+			}
+
+			if (con.cursor == 256 - 1)
+			{
+				return false;
+			}
+
+			memmove(con.buffer + con.cursor + 1, con.buffer + con.cursor, strlen(con.buffer) + 1 - con.cursor);
+			con.buffer[con.cursor] = static_cast<char>(key);
+			con.cursor++;
+
+			if (con.cursor == strlen(con.buffer) + 1)
+			{
+				con.buffer[con.cursor] = 0;
+			}
+		}
+
+		return true;
+	}
+
+	bool console_key_event(int localClientNum, int key, int down)
+	{
+		if (key == game::keyNum_t::K_F10)
+		{
+			game::Cmd_ExecuteSingleCommand(localClientNum, 0, "lui_open menu_systemlink_join\n");
+		}
+
+		if (key == game::keyNum_t::K_GRAVE || key == game::keyNum_t::K_TILDE)
+		{
+			if (!down)
+			{
+				return false;
+			}
+
+			if (game::playerKeys[localClientNum].keys[game::keyNum_t::K_SHIFT].down)
+			{
+				if (!(*game::keyCatchers & 1))
+					toggle_console();
+
+				toggle_console_output();
+				return false;
+			}
+
+			toggle_console();
+			
+			return false;
+		}
+
+		if (*game::keyCatchers & 1)
+		{
+			if (down)
+			{
+				if (key == game::keyNum_t::K_UPARROW)
+				{
+					if (++history_index >= history.size())
+					{
+						history_index = static_cast<int>(history.size()) - 1;
+					}
+
+					clear();
+
+					if (history_index != -1)
+					{
+						strncpy_s(con.buffer, history.at(history_index).c_str(), 0x100);
+						con.cursor = static_cast<int>(strlen(con.buffer));
+					}
+				}
+				else if (key == game::keyNum_t::K_DOWNARROW)
+				{
+					if (--history_index < -1)
+					{
+						history_index = -1;
+					}
+
+					clear();
+
+					if (history_index != -1)
+					{
+						strncpy_s(con.buffer, history.at(history_index).c_str(), 0x100);
+						con.cursor = static_cast<int>(strlen(con.buffer));
+					}
+				}
+
+				if (key == game::keyNum_t::K_RIGHTARROW)
+				{
+					if (con.cursor < strlen(con.buffer))
+					{
+						con.cursor++;
+					}
+
+					return false;
+				}
+
+				if (key == game::keyNum_t::K_LEFTARROW)
+				{
+					if (con.cursor > 0)
+					{
+						con.cursor--;
+					}
+
+					return false;
+				}
+
+				//scroll through output
+				if (key == game::keyNum_t::K_MWHEELUP || key == game::keyNum_t::K_PGUP)
+				{
+					if (con.output.size() > con.visible_line_count && con.display_line_offset > 0)
+					{
+						con.display_line_offset--;
+					}
+				}
+				else if (key == game::keyNum_t::K_MWHEELDOWN || key == game::keyNum_t::K_PGDN)
+				{
+					if (con.output.size() > con.visible_line_count && con.display_line_offset < (con.output.size() -
+						con.
+						visible_line_count))
+					{
+						con.display_line_offset++;
+					}
+				}
+
+				if (key == game::keyNum_t::K_ENTER)
+				{
+					game::Cbuf_AddText(0, utils::string::va("%s \n", fixed_input.data()));
+
+					if (history_index != -1)
+					{
+						const auto itr = history.begin() + history_index;
+
+						if (*itr == con.buffer)
+						{
+							history.erase(history.begin() + history_index);
+						}
+					}
+
+					history.push_front(con.buffer);
+
+					print("]"s.append(con.buffer));
+
+					if (history.size() > 10)
+					{
+						history.erase(history.begin() + 10);
+					}
+
+					history_index = -1;
+
+					clear();
+				}
+			}
+		}
+
+		return true;
 	}
 
 	class module final : public module_interface
@@ -690,10 +687,6 @@ namespace game_console
 			con.globals.may_auto_complete = false;
 			con.globals.info_line_count = 0;
 			strncpy_s(con.globals.auto_complete_choice, "", 64);
-
-			// setup our hooks
-			cl_char_event_hook.create(SELECT_VALUE(0x14023CE50, 0x1402C2AE0), cl_char_event_stub);
-			cl_key_event_hook.create(SELECT_VALUE(0x14023D070, 0x1402C2CE0), cl_key_event_stub);
 
 			// add clear command
 			command::add("clear", [&]([[maybe_unused]] command::params& params)
