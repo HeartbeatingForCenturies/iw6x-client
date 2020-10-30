@@ -21,6 +21,12 @@ namespace stats
 				utils::hook::set<BYTE>(0x1445A3798, 0x0A); // Prestige
 				utils::hook::set<short>(0x1445A34A0, 5000); // squad points
 
+				// unlocks all camos
+				for (int i = 0; i < 0x2D0; i++)
+				{
+					utils::hook::set<short>(0x1445A2B40 + i, 0xFF);
+				}
+
 				//squad member ranks
 				for (long long i = 0; i < 10; i++)
 				{

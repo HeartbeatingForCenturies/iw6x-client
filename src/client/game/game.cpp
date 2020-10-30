@@ -9,6 +9,7 @@ namespace game
 	Com_Parse_t Com_Parse;
 	Com_Error_t Com_Error;
 	Com_Quit_t Com_Quit;
+	Com_GetCurrentCoDPlayMode_t Com_GetCurrentCoDPlayMode;
 
 	Conbuf_AppendText_t Conbuf_AppendText;
 
@@ -34,6 +35,7 @@ namespace game
 	Dvar_Reset_t Dvar_Reset;
 	Dvar_SetBool_t Dvar_SetBool;
 	Dvar_SetCommand_t Dvar_SetCommand;
+	Dvar_SetString_t Dvar_SetString;
 	Dvar_Sort_t Dvar_Sort;
 	Dvar_ValueToString_t Dvar_ValueToString;
 
@@ -77,6 +79,10 @@ namespace game
 	Sys_IsDatabaseReady2_t Sys_IsDatabaseReady2;
 	Sys_Milliseconds_t Sys_Milliseconds;
 	Sys_SendPacket_t Sys_SendPacket;
+
+	SwitchToCoreMode_t SwitchToCoreMode;
+	SwitchToAliensMode_t SwitchToAliensMode;
+	SwitchToSquadVsSquadMode_t SwitchToSquadVsSquadMode;
 
 	UI_LocalizeMapname_t UI_LocalizeMapname;
 	UI_LocalizeMapname_t UI_LocalizeGametype;
@@ -174,6 +180,7 @@ namespace game
 			Com_Parse = Com_Parse_t(SELECT_VALUE(0, 0x1404F50E0));
 			Com_Error = Com_Error_t(SELECT_VALUE(0x1403BBFF0, 0x140412740));
 			Com_Quit = Com_Quit_t(SELECT_VALUE(0x1403BDDD0, 0x140414920));
+			Com_GetCurrentCoDPlayMode = Com_GetCurrentCoDPlayMode_t(SELECT_VALUE(0, 0x1404f6140));
 
 			Cbuf_AddText = Cbuf_AddText_t(SELECT_VALUE(0x1403B3050, 0x1403F6B50));
 			Cbuf_ExecuteBufferInternal = Cbuf_ExecuteBufferInternal_t(SELECT_VALUE(0x1403B3160, 0x1403F6C60));
@@ -197,6 +204,7 @@ namespace game
 			Dvar_Reset = Dvar_Reset_t(SELECT_VALUE(0x14042C150, 0x1404EF020));
 			Dvar_SetBool = Dvar_SetBool_t(SELECT_VALUE(0x14042C370, 0x1404EF1A0));
 			Dvar_SetCommand = Dvar_SetCommand_t(SELECT_VALUE(0x14042C8E0, 0x1404EF790));
+			Dvar_SetString = Dvar_SetString_t(SELECT_VALUE(0x14042D6E0, 0x1404F08E0));
 			Dvar_Sort = Dvar_Sort_t(SELECT_VALUE(0x14042DEF0, 0x1404F1210));
 			Dvar_ValueToString = Dvar_ValueToString_t(SELECT_VALUE(0x14042E710, 0x1404F1A30));
 
@@ -238,6 +246,10 @@ namespace game
 			Sys_IsDatabaseReady2 = Sys_IsDatabaseReady2_t(SELECT_VALUE(0x1403C2D40, 0x140423920));
 			Sys_Milliseconds = Sys_Milliseconds_t(SELECT_VALUE(0x14043D2A0, 0x140501CA0));
 			Sys_SendPacket = Sys_SendPacket_t(SELECT_VALUE(0x14043D000, 0x140501A00));
+
+			SwitchToCoreMode = SwitchToCoreMode_t(SELECT_VALUE(0, 0x1401FA4A0));
+			SwitchToSquadVsSquadMode = SwitchToSquadVsSquadMode_t(SELECT_VALUE(0, 0x1401FA500));
+			SwitchToAliensMode = SwitchToAliensMode_t(SELECT_VALUE(0, 0x1401FA4D0));
 
 			UI_LocalizeMapname = UI_LocalizeMapname_t(SELECT_VALUE(0, 0x1404B96D0));
 			UI_LocalizeGametype = UI_LocalizeMapname_t(SELECT_VALUE(0, 0x1404B90F0));

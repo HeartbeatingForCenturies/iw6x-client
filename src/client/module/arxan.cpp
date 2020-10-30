@@ -2,8 +2,9 @@
 #include "loader/module_loader.hpp"
 #include "scheduler.hpp"
 #include "utils/hook.hpp"
+#include "game/game.hpp"
 
-namespace anti_debug
+namespace arxan
 {
 	namespace
 	{
@@ -14,13 +15,14 @@ namespace anti_debug
 		} OBJECT_HANDLE_ATTRIBUTE_INFORMATION;
 
 		utils::hook::detour nt_close_hook;
-		utils::hook::detour nt_query_information_process;
+		utils::hook::detour nt_query_information_process_hook;
 
 		NTSTATUS WINAPI nt_query_information_process_stub(const HANDLE handle, const PROCESSINFOCLASS info_class,
 		                                                  PVOID info,
 		                                                  const ULONG info_length, const PULONG ret_length)
 		{
-			auto* orig = static_cast<decltype(NtQueryInformationProcess)*>(nt_query_information_process.get_original());
+			auto* orig = static_cast<decltype(NtQueryInformationProcess)*>(nt_query_information_process_hook.
+				get_original());
 			const auto status = orig(handle, info_class, info, info_length, ret_length);
 
 			if (NT_SUCCESS(status))
@@ -91,15 +93,14 @@ namespace anti_debug
 			hide_being_debugged();
 			scheduler::loop(hide_being_debugged, scheduler::pipeline::async);
 
-
 			const utils::nt::module ntdll("ntdll.dll");
 			nt_close_hook.create(ntdll.get_proc<void*>("NtClose"), nt_close_stub);
-			nt_query_information_process.create(ntdll.get_proc<void*>("NtQueryInformationProcess"),
-			                                    nt_query_information_process_stub);
+			nt_query_information_process_hook.create(ntdll.get_proc<void*>("NtQueryInformationProcess"),
+			                                         nt_query_information_process_stub);
 
 			AddVectoredExceptionHandler(1, exception_filter);
 		}
 	};
 }
 
-REGISTER_MODULE(anti_debug::module)
+REGISTER_MODULE(arxan::module)

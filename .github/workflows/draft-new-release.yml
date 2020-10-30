@@ -1,0 +1,87 @@
+name: "Draft new release"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The version you want to release."
+        required: true
+
+jobs:
+  draft-new-release:
+    name: "Draft a new release"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Normalize version
+        id: normalize_version
+        run: |
+          version="${{ github.event.inputs.version }}"
+          version="v${version#v}"
+          echo "::set-output name=version::$version"
+
+      # Set up committer info and GPG key
+      - name: Import GPG key
+        id: import_gpg
+        uses: XLabsProject/ghaction-import-gpg@25d9d6ab99eb355c169c33c2306a72df85d9f516
+        with:
+          git-commit-gpgsign: true
+          git-committer-email: "${{ secrets.XLABS_CI_EMAIL }}"
+          git-committer-name: "${{ secrets.XLABS_CI_NAME }}"
+          # git-push-gpgsign: true
+          git-tag-gpgsign: true
+          git-user-signingkey: true
+          gpg-private-key: ${{ secrets.XLABS_CI_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.XLABS_CI_GPG_PASSWORD }}
+
+      - name: Rename Unreleased section in changelog to ${{ steps.normalize_version.outputs.version }}
+        uses: thomaseizinger/keep-a-changelog-new-release@1.1.0
+        with:
+          version: ${{ steps.normalize_version.outputs.version }}
+
+      - name: Commit changelog
+        id: make-commit
+        run: |
+          git add CHANGELOG.md
+          git commit -S -m "Prepare release ${{ steps.normalize_version.outputs.version }}"
+
+          echo "::set-output name=commit::$(git rev-parse HEAD)"
+
+      - name: Extract changelog for Pull Request
+        id: changelog_reader
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          validation_depth: 10
+          version: ${{ steps.normalize_version.outputs.version }}
+          path: ./CHANGELOG.md
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          delete-branch: true
+          author: "${{ secrets.XLABS_CI_NAME }} <${{ secrets.XLABS_CI_EMAIL }}>"
+          committer: "${{ secrets.XLABS_CI_NAME }} <${{ secrets.XLABS_CI_EMAIL }}>"
+          branch: "release/${{ steps.normalize_version.outputs.version }}"
+          base: master
+          body: |
+            This Pull Request is for the release of IW6x ${{ steps.normalize_version.outputs.version }} and was [automatically created by a workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) triggered by @${{ github.actor }}.
+
+            Commit [`${{ steps.make-commit.outputs.commit }}`](https://github.com/${{ github.repository }}/commit/${{ steps.make-commit.outputs.commit }}) includes an update to the changelog to list the new version with its changes.
+
+            # What happens when this PR gets merged?
+
+            After merging this PR, another workflow will create a new tag `${{ steps.normalize_version.outputs.version }}` on the `master` branch and the version will officially be ${{ steps.changelog_reader.outputs.status }} via an actual GitHub release. A final build will be triggered and all binaries and assets will be attached to the GitHub release.
+
+            # Changelog for ${{ steps.normalize_version.outputs.version }}
+
+            These changes will be included in the release:
+
+            ${{ steps.changelog_reader.outputs.changes }}
+          title: Release ${{ steps.changelog_reader.outputs.version }}
+          labels: |
+            release
+          team-reviewers: |
+            developers

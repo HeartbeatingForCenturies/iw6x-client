@@ -56,7 +56,7 @@ namespace patches
 		}
 
 		game::dvar_t* register_cg_gun_dvars(const char* name, float /*value*/, float /*min*/, float /*max*/,
-											unsigned int /*flags*/, const char* desc)
+		                                    unsigned int /*flags*/, const char* desc)
 		{
 			if (name == "cg_gun_x"s)
 			{
@@ -66,8 +66,8 @@ namespace patches
 			{
 				return game::Dvar_RegisterFloat(name, 0.0f, 0.0f, 0.0f, 0, desc);
 			}
-    }
-    
+		}
+
 		game::dvar_t* register_network_fps_stub(const char* name, int, int, int, unsigned int flags,
 		                                        const char* desc)
 		{
@@ -142,12 +142,14 @@ namespace patches
 				{
 					const auto current = game::Dvar_ValueToString(dvar, dvar->current);
 					const auto reset = game::Dvar_ValueToString(dvar, dvar->reset);
-					game_console::print(7, "\"%s\" is: \"%s^7\" default: \"%s^7\"", dvar->name, current, reset);
-					game_console::print(7, "   %s\n", dvars::dvar_get_domain(dvar->type, dvar->domain).data());
+					game_console::print(game_console::con_type_info, "\"%s\" is: \"%s^7\" default: \"%s^7\"",
+					                    dvar->name, current, reset);
+					game_console::print(game_console::con_type_info, "   %s\n",
+					                    dvars::dvar_get_domain(dvar->type, dvar->domain).data());
 				}
 				else
 				{
-					char command[0x1000] = { 0 };
+					char command[0x1000] = {0};
 					game::Dvar_GetCombinedString(command, 1);
 					game::Dvar_SetCommand(args.get(0), command);
 				}
@@ -156,6 +158,17 @@ namespace patches
 			}
 
 			return 0;
+		}
+
+		int sync_gpu_stub()
+		{
+			if (!game::CL_IsCgameInitialized())
+			{
+				// g_maxFpsWaitTime
+				*reinterpret_cast<int*>(SELECT_VALUE(0x145FFDC9C, 0x1480AA080)) = 0;
+			}
+
+			return game::Sys_Milliseconds();
 		}
 	}
 
@@ -179,13 +192,10 @@ namespace patches
 				utils::nt::raise_hard_exception();
 			});
 
-			// Keep these at 1 so they cannot be used 
-			// For colorMap and lightMap : 1 = "Unchanged"
-			game::Dvar_RegisterInt("r_fog", 1, 1, 1, 0, "Shows the maps fog");
-			game::Dvar_RegisterInt("fx_draw", 1, 1, 1, 0, "Toggles drawing of effects after processing");
-			game::Dvar_RegisterInt("fx_enable", 1, 1, 1, 0, "Toggles all effects processing");
-			game::Dvar_RegisterInt("r_colorMap", 1, 1, 1, 0, "Replace all color maps with pure black or pure white");
-			game::Dvar_RegisterInt("r_lightMap", 1, 1, 1, 0, "Replace all lightmaps with pure black or pure white");
+			// 60 fps in main menu
+			utils::hook::call(SELECT_VALUE(0x14051BBA8, 0x1405E8668), sync_gpu_stub);
+			utils::hook::call(SELECT_VALUE(0x14055AE33, 0x140627FC3), game::Sys_Milliseconds); // Patch CL_ScaledMilliseconds
+
 
 			// set it to 3 to display both voice dlc announcers did only show 1
 			game::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0,
@@ -217,39 +227,40 @@ namespace patches
 
 			command::add("dvarDump", []()
 			{
-				game_console::print(
-					7, "================================ DVAR DUMP ========================================\n");
-				int i;
-				for (i = 0; i < *game::dvarCount; i++)
+				game_console::print(game_console::con_type_info,
+				                    "================================ DVAR DUMP ========================================\n");
+				for (auto i = 0; i < *game::dvarCount; i++)
 				{
-					if (game::sortedDvars[i] && game::sortedDvars[i]->name)
+					const auto dvar = game::sortedDvars[i];
+					if (dvar)
 					{
-						game_console::print(7, "%s\n", game::sortedDvars[i]->name);
+						game_console::print(game_console::con_type_info, "%s \"%s\"\n", dvar->name,
+						                    game::Dvar_ValueToString(dvar, dvar->current));
 					}
 				}
-				game_console::print(7, "\n%i dvar indexes\n", i);
-				game_console::print(
-					7, "================================ END DVAR DUMP ====================================\n");
+				game_console::print(game_console::con_type_info, "\n%i dvar indexes\n", *game::dvarCount);
+				game_console::print(game_console::con_type_info,
+				                    "================================ END DVAR DUMP ====================================\n");
 			});
 
 			command::add("commandDump", []()
 			{
-				game_console::print(
-					7, "================================ COMMAND DUMP =====================================\n");
+				game_console::print(game_console::con_type_info,
+				                    "================================ COMMAND DUMP =====================================\n");
 				game::cmd_function_s* cmd = (*game::cmd_functions);
 				int i = 0;
 				while (cmd)
 				{
 					if (cmd->name)
 					{
-						game_console::print(7, "%s\n", cmd->name);
+						game_console::print(game_console::con_type_info, "%s\n", cmd->name);
 						i++;
 					}
 					cmd = cmd->next;
 				}
-				game_console::print(7, "\n%i command indexes\n", i);
-				game_console::print(
-					7, "================================ END COMMAND DUMP =================================\n");
+				game_console::print(game_console::con_type_info, "\n%i command indexes\n", i);
+				game_console::print(game_console::con_type_info,
+				                    "================================ END COMMAND DUMP =================================\n");
 			});
 
 			// Allow executing custom cfg files with the "exec" command
@@ -258,6 +269,13 @@ namespace patches
 			utils::hook::jump(SELECT_VALUE(0x1403B3A12, 0x1403F7582), SELECT_VALUE(cmd_exec_stub_sp, cmd_exec_stub_mp),
 			                  true);
 			//Use empty memory to go to our stub first (can't do close jump, so need space for 12 bytes)
+
+			// Fix mouse lag
+			utils::hook::nop(SELECT_VALUE(0x14043E6CB, 0x140504A2B), 6);
+			scheduler::loop([]()
+			{
+				SetThreadExecutionState(ES_DISPLAY_REQUIRED);
+			}, scheduler::pipeline::main);
 
 			if (game::environment::is_sp())
 			{

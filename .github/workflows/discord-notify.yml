@@ -1,4 +1,4 @@
-name: Build
+name: Notify Discord
 
 on:
   push:
@@ -7,8 +7,9 @@ on:
   issues:
 
 jobs:
-  build:
+  notify:
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'XLabsProject'
     steps:
       - name: Send notification to Discord
         uses: Ilshidur/action-discord@master

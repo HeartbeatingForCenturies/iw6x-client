@@ -45,13 +45,21 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION VERSION_RC
- PRODUCTVERSION VERSION_RC
+ FILEVERSION VERSION_FILE_RC
+ PRODUCTVERSION VERSION_PRODUCT_RC
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
- FILEFLAGS 0x1L
+ FILEFLAGS VS_FF_DEBUG
+#else
+#ifdef PRERELEASE
+ FILEFLAGS VS_FF_PRERELEASE
+#else
+#ifndef CI
+ FILEFLAGS VS_FF_PRIVATEBUILD
 #else
  FILEFLAGS 0x0L
+#endif
+#endif
 #endif
  FILEOS 0x40004L
  FILETYPE VFT_DLL
@@ -63,14 +71,14 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "X Labs"
             VALUE "FileDescription", "IW6x"
-            VALUE "FileVersion", SHORTVERSION
+            VALUE "FileVersion", VERSION_FILE
             VALUE "InternalName", "IW6x"
             VALUE "LegalCopyright", "Copyright (C) 2020 X Labs Project. All rights reserved."
             VALUE "Licence", "GPLv3"
             VALUE "Info", "https://github.com/XLabsProject/iw6x-client"
             VALUE "OriginalFilename", "iw6x.exe"
             VALUE "ProductName", "iw6x"
-            VALUE "ProductVersion", SHORTVERSION
+            VALUE "ProductVersion", VERSION_PRODUCT
         END
     END
     BLOCK "VarFileInfo"

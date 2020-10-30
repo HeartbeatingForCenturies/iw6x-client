@@ -246,7 +246,7 @@ namespace network
 					}
 					else
 					{
-						game_console::print(7, "%s\n", message.data());
+						game_console::print(game_console::con_type_info, "%s\n", message.data());
 					}
 				});
 			}

@@ -24,6 +24,9 @@ namespace game
 	typedef void (*Com_Quit_t)();
 	extern Com_Quit_t Com_Quit;
 
+	typedef CodPlayMode (*Com_GetCurrentCoDPlayMode_t)();
+	extern Com_GetCurrentCoDPlayMode_t Com_GetCurrentCoDPlayMode;
+
 	typedef void (*Conbuf_AppendText_t)(const char* message);
 	extern Conbuf_AppendText_t Conbuf_AppendText;
 
@@ -88,6 +91,9 @@ namespace game
 
 	typedef void (*Dvar_SetCommand_t)(const char* dvar, const char* buffer);
 	extern Dvar_SetCommand_t Dvar_SetCommand;
+
+	typedef void (*Dvar_SetString_t)(dvar_t* dvar, const char* string);
+	extern Dvar_SetString_t Dvar_SetString;
 
 	typedef void (*Dvar_Sort_t)();
 	extern Dvar_Sort_t Dvar_Sort;
@@ -178,6 +184,15 @@ namespace game
 	//typedef bool (*Sys_SendPacket_t)(netsrc_t, int, void const*, netadr_s); // Actual
 	typedef bool (*Sys_SendPacket_t)(int, void const*, const netadr_s*); // Compiler-optimized
 	extern Sys_SendPacket_t Sys_SendPacket;
+
+	typedef void (*SwitchToCoreMode_t)();
+	extern SwitchToCoreMode_t SwitchToCoreMode;
+
+	typedef void (*SwitchToAliensMode_t)();
+	extern SwitchToAliensMode_t SwitchToAliensMode;
+
+	typedef void (*SwitchToSquadVsSquadMode_t)();
+	extern SwitchToSquadVsSquadMode_t SwitchToSquadVsSquadMode;
 
 	typedef const char* (*UI_LocalizeMapname_t)(const char*);
 	extern UI_LocalizeMapname_t UI_LocalizeMapname;

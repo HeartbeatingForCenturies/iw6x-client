@@ -23,9 +23,15 @@ namespace redirect
 			CreateProcessA(self.get_path().data(), arguments, nullptr, nullptr, false, NULL, nullptr, nullptr,
 			               &startup_info, &process_info);
 
-			if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE) CloseHandle(process_info.hThread);
-			if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE) CloseHandle(
-				process_info.hProcess);
+			if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE)
+			{
+				CloseHandle(process_info.hThread);
+			}
+
+			if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE)
+			{
+				CloseHandle(process_info.hProcess);
+			}
 		}
 
 		HINSTANCE shell_execute_a(const HWND hwnd, const LPCSTR operation, const LPCSTR file, const LPCSTR parameters,

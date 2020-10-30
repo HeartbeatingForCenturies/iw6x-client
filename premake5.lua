@@ -17,15 +17,21 @@ function cstrquote(value)
 	return result
 end
 
--- Converts tags in "vX.X.X" format to an array of numbers {X,X,X}.
--- In the case where the format does not work fall back to old {4,2,REVISION}.
-function vertonumarr(value, vernumber)
+-- Converts tags in "vX.X.X" format and given revision number Y to an array of numbers {X,X,X,Y}.
+-- In the case where the format does not work fall back to padding with zeroes and just ending with the revision number.
+-- partscount can be either 3 or 4.
+function vertonumarr(value, vernumber, partscount)
 	vernum = {}
 	for num in string.gmatch(value or "", "%d+") do
-		table.insert(vernum, tonumber(num))
+		if #vernum < 3 then
+			table.insert(vernum, tonumber(num))
+		end
 	end
-	if #vernum < 3 then
-		return {0,0,tonumber(vernumber)}
+	while #vernum < 3 do
+		table.insert(vernum, 0)
+	end
+	if #vernum < partscount then
+		table.insert(vernum, tonumber(vernumber))
 	end
 	return vernum
 end
@@ -164,11 +170,14 @@ newaction {
 			versionHeader:write("#define GIT_TAG " .. cstrquote(tagName) .. "\n")
 			versionHeader:write("\n")
 			versionHeader:write("// Version transformed for RC files\n")
-			versionHeader:write("#define VERSION_RC " .. table.concat(vertonumarr(tagName, revNumber), ",") .. "\n")
+			versionHeader:write("#define VERSION_PRODUCT_RC " .. table.concat(vertonumarr(tagName, revNumber, 3), ",") .. "\n")
+			versionHeader:write("#define VERSION_PRODUCT " .. cstrquote(table.concat(vertonumarr(tagName, revNumber, 3), ".")) .. "\n")
+			versionHeader:write("#define VERSION_FILE_RC " .. table.concat(vertonumarr(tagName, revNumber, 4), ",") .. "\n")
+			versionHeader:write("#define VERSION_FILE " .. cstrquote(table.concat(vertonumarr(tagName, revNumber, 4), ".")) .. "\n")
 			versionHeader:write("\n")
 			versionHeader:write("// Alias definitions\n")
 			versionHeader:write("#define VERSION GIT_DESCRIBE\n")
-			versionHeader:write("#define SHORTVERSION " .. cstrquote(table.concat(vertonumarr(tagName, revNumber), ".")) .. "\n")
+			versionHeader:write("#define SHORTVERSION VERSION_PRODUCT\n")
 			versionHeader:close()
 			local versionHeader = assert(io.open(wks.location .. "/src/version.hpp", "w"))
 			versionHeader:write("/*\n")
@@ -210,6 +219,10 @@ characterset "ASCII"
 
 if _OPTIONS["dev-build"] then
 	defines {"DEV_BUILD"}
+end
+
+if os.getenv("CI") then
+	defines {"CI"}
 end
 
 flags {"NoIncrementalLink", "NoMinimalRebuild", "MultiProcessorCompile", "No64BitChecks"}

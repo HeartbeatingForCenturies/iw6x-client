@@ -5,7 +5,9 @@
 #include "network.hpp"
 #include "command.hpp"
 #include "utils/hook.hpp"
+#include "utils/binary_resource.hpp"
 #include "game/game.hpp"
+#include "utils/string.hpp"
 
 namespace dedicated
 {
@@ -89,47 +91,9 @@ namespace dedicated
 			}
 		}
 
-		volatile bool allow_lobby_pump = true;
-		utils::hook::detour lobby_pump_hook;
-
-		void lobby_pump_stub(const int controller_index)
+		void sync_gpu_stub()
 		{
-			if (allow_lobby_pump)
-			{
-				allow_lobby_pump = false;
-				lobby_pump_hook.invoke<void*>(controller_index);
-			}
-		}
-
-		volatile bool allow_net_pump = true;
-		utils::hook::detour net_pump_hook;
-
-		void net_pump_stub(const int controller_index)
-		{
-			if (allow_net_pump)
-			{
-				allow_net_pump = false;
-				net_pump_hook.invoke<void*>(controller_index);
-			}
-		}
-
-		game::DWOnlineStatus get_logon_status_stub(const int controller_index)
-		{
-			static auto is_connected = false;
-			if (is_connected)
-			{
-				return game::DW_LIVE_CONNECTED;
-			}
-
-			const auto result = reinterpret_cast<game::DWOnlineStatus(*)(int)>(0x1405894C0)(controller_index);
-			if (result == game::DW_LIVE_CONNECTED)
-			{
-				is_connected = true;
-				lobby_pump_hook.create(0x140591850, lobby_pump_stub);
-				net_pump_hook.create(0x140558C20, net_pump_stub);
-			}
-
-			return result;
+			std::this_thread::sleep_for(1ms);
 		}
 	}
 
@@ -143,16 +107,8 @@ namespace dedicated
 				return;
 			}
 
-			/*scheduler::loop([]
-			{
-				allow_lobby_pump = true;
-				allow_net_pump = true;
-			}, scheduler::pipeline::async, 300ms);*/
-
-			// Some arxan exception stuff to obfuscate functions
-			// This is causing lags
-			// We will have to properly patch that some day
-			//utils::hook::jump(0x140589480, get_logon_status_stub);
+			// Hook R_SyncGpu
+			utils::hook::jump(0x1405E8530, sync_gpu_stub);
 
 			//utils::hook::set<uint8_t>(0x1402C89A0, 0xC3); // R_Init caller
 			utils::hook::jump(0x1402C89A0, init_dedicated_server);
