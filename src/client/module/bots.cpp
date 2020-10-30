@@ -57,9 +57,6 @@ namespace bots
 				return;
 			}
 
-			// Disable bots kicked due to team balance
-			utils::hook::nop(0x14046F70A, 5);
-
 			command::add("spawnBot", [](command::params& params)
 			{
 				if (!game::SV_Loaded()) return;

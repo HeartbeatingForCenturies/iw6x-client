@@ -75,6 +75,7 @@ namespace game
 	SV_BotIsBot_t SV_BotIsBot;
 	SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
 	SV_GetGuid_t SV_GetGuid;
+	SV_KickClientNum_t SV_KickClientNum;
 	SV_SpawnTestClient_t SV_SpawnTestClient;
 
 	Sys_IsDatabaseReady2_t Sys_IsDatabaseReady2;
@@ -243,6 +244,7 @@ namespace game
 			SV_BotIsBot = SV_BotIsBot_t(SELECT_VALUE(0, 0x140461340));
 			SV_ExecuteClientCommand = SV_ExecuteClientCommand_t(SELECT_VALUE(0, 0x140472430));
 			SV_GetGuid = SV_GetGuid_t(SELECT_VALUE(0, 0x140475990));
+			SV_KickClientNum = SV_KickClientNum_t(SELECT_VALUE(0, 0x14046F730));
 			SV_SpawnTestClient = SV_SpawnTestClient_t(SELECT_VALUE(0, 0x1404740A0));
 
 			Sys_IsDatabaseReady2 = Sys_IsDatabaseReady2_t(SELECT_VALUE(0x1403C2D40, 0x140423920));

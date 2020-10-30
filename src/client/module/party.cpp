@@ -100,6 +100,22 @@ namespace party
 		}
 	}
 
+	int get_client_num_from_name(std::string name)
+	{
+		for (auto i = 0; !name.empty() && i < *game::mp::svs_numclients; ++i)
+		{
+			char client_name[16] = { 0 };
+			strncpy_s(client_name, game::mp::g_entities[i].client->sess.cs.name, 16);
+			game::I_CleanStr(client_name);
+
+			if (client_name == name)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	void connect(const game::netadr_s& target)
 	{
 		if (game::environment::is_sp())
@@ -164,6 +180,49 @@ namespace party
 				{
 					connect(target);
 				}
+			});
+
+			command::add("clientkick", [](command::params& params)
+			{
+				if (params.size() < 2)
+				{
+					printf("usage: clientkick <num>\n");
+					return;
+				}
+				auto clientNum = atoi(params.get(1));
+				if (clientNum < 0 || clientNum >= *game::mp::svs_numclients)
+				{
+					return;
+				}
+
+				game::SV_KickClientNum(clientNum, "EXE_PLAYERKICKED");
+			});
+
+			command::add("kick", [](command::params& params)
+			{
+				if (params.size() < 2)
+				{
+					printf("usage: kick <name>\n");
+					return;
+				}
+				auto name = params.get(1);
+
+				if (name == "all"s)
+				{
+					for (auto i = 0; i < *game::mp::svs_numclients; ++i)
+					{
+						game::SV_KickClientNum(i, "EXE_PLAYERKICKED");
+					}
+					return;
+				}
+
+				auto clientNum = get_client_num_from_name(name);
+				if (clientNum < 0 || clientNum >= *game::mp::svs_numclients)
+				{
+					return;
+				}
+
+				game::SV_KickClientNum(clientNum, "EXE_PLAYERKICKED");
 			});
 
 			network::on("getInfo", [](const game::netadr_s& target, const std::string_view& data)

@@ -175,6 +175,9 @@ namespace game
 	typedef const char* (*SV_GetGuid_t)(int clientNum);
 	extern SV_GetGuid_t SV_GetGuid;
 
+	typedef bool (*SV_KickClientNum_t)(int clientNum, const char* reason);
+	extern SV_KickClientNum_t SV_KickClientNum;
+
 	typedef void (*SV_SpawnTestClient_t)(mp::gentity_s*);
 	extern SV_SpawnTestClient_t SV_SpawnTestClient;
 
