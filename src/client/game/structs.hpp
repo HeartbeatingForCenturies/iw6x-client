@@ -880,7 +880,7 @@ namespace game
 	struct netadr_s
 	{
 		netadrtype_t type;
-		char ip[4];
+		unsigned char ip[4];
 		unsigned __int16 port;
 		netsrc_t localNetID;
 		unsigned int addrHandleIndex;
