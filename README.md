@@ -9,21 +9,23 @@
 
 # IW6x: Client
 
-![iw4x](src/client/resources/logo.bmp?raw=true)
+<p align="center">
+  <img alig src="assets/github/banner.png?raw=true" />
+</p>
 
 ## Download
 
-- **[Click here to get the latest release](https://github.com/XLabsProject/iw6x-client/releases/latest)**
+- **[Click here to get the latest release](https://github.com/XLabsProject/iw6x-client/releases/latest)** (or [here](https://ci.appveyor.com/api/projects/XLabsProject/iw6x-client/artifacts/build%2Fbin%2Fx64%2FRelease%2Fiw6x.exe?branch=develop&job=Environment%3A%20APPVEYOR_BUILD_WORKER_IMAGE%3DVisual%20Studio%202019%2C%20PREMAKE_ACTION%3Dvs2019%3B%20Configuration%3A%20Release) for the develop build)
 - **You will need to drop this in your Call of Duty: Ghosts installation folder. If you don't have Call of Duty: Ghosts, get those game files first.**
 - The client is still in an early alpha stage. It is far from being usable and will have bugs!
 
-## How to compile
+## Build
 
 - Clone the Git repo. Do NOT download it as ZIP, that won't work.
 - Update the submodules and run `premake5 vs2019` or simply use the delivered `generate.bat`.
 - Build via solution file in `build\iw6x.sln`.
 
-## Premake arguments
+### Premake arguments
 
 | Argument                    | Description                                    |
 |:----------------------------|:-----------------------------------------------|
