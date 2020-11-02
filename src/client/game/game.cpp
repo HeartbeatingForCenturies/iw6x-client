@@ -47,6 +47,8 @@ namespace game
 
 	I_CleanStr_t I_CleanStr;
 
+	Key_KeynumToString_t Key_KeynumToString;
+
 	Live_SyncOnlineDataFlags_t Live_SyncOnlineDataFlags;
 
 	LUI_OpenMenu_t LUI_OpenMenu;
@@ -101,6 +103,8 @@ namespace game
 	PlayerKeyState* playerKeys;
 
 	SOCKET* query_socket;
+
+	const char** command_whitelist;
 
 	namespace sp
 	{
@@ -215,6 +219,8 @@ namespace game
 
 			I_CleanStr = I_CleanStr_t(SELECT_VALUE(0x140432460, 0x1404F63C0));
 
+			Key_KeynumToString = Key_KeynumToString_t(SELECT_VALUE(0x14023D9A0, 0x1402C40E0));
+
 			FS_ReadFile = FS_ReadFile_t(SELECT_VALUE(0x14041D0B0, 0x1404DE900));
 			FS_FreeFile = FS_FreeFile_t(SELECT_VALUE(0x14041D0A0, 0x1404DE8F0));
 
@@ -271,6 +277,8 @@ namespace game
 
 			query_socket = reinterpret_cast<SOCKET*>(SELECT_VALUE(0, 0x147AD1A78));
 
+			command_whitelist = reinterpret_cast<const char**>(SELECT_VALUE(0x14086AA70, 0x1409E3AB0));
+			
 			if (is_sp())
 			{
 				sp::g_entities = reinterpret_cast<sp::gentity_s*>(0x143C91600);
