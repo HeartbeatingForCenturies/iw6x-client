@@ -116,6 +116,9 @@ namespace game
 	typedef char* (*I_CleanStr_t)(char* string);
 	extern I_CleanStr_t I_CleanStr;
 
+	typedef const char* (*Key_KeynumToString_t)(int, int, int);
+	extern Key_KeynumToString_t Key_KeynumToString;
+
 	typedef unsigned int (*Live_SyncOnlineDataFlags_t)(int);
 	extern Live_SyncOnlineDataFlags_t Live_SyncOnlineDataFlags;
 
@@ -215,6 +218,8 @@ namespace game
 	extern PlayerKeyState* playerKeys;
 
 	extern SOCKET* query_socket;
+
+	extern const char** command_whitelist;
 
 	namespace sp
 	{
