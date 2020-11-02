@@ -1,7 +1,5 @@
 #include <std_include.hpp>
 #include "loader/module_loader.hpp"
-#include "localized_strings.hpp"
-#include "scheduler.hpp"
 #include "game/game.hpp"
 
 #include "utils/hook.hpp"
