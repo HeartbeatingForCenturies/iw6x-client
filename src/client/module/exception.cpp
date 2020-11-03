@@ -14,7 +14,7 @@ namespace exception
 			std::string error_str = "Termination because of a stack overflow.";
 			if (exceptioninfo->ExceptionRecord->ExceptionCode != EXCEPTION_STACK_OVERFLOW)
 			{
-				error_str = utils::string::va("Fatal error (0x%08X) at 0x%08X.",
+				error_str = utils::string::va("Fatal error (0x%08X) at 0x%p.",
 				                              exceptioninfo->ExceptionRecord->ExceptionCode,
 				                              exceptioninfo->ExceptionRecord->ExceptionAddress);
 			}
