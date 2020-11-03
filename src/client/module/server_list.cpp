@@ -42,6 +42,8 @@ namespace server_list
 		std::mutex mutex;
 		std::vector<server_info> servers;
 
+		int server_list_index = 0;
+
 		void lui_open_menu_stub(int /*controllerIndex*/, const char* /*menu*/, int /*a3*/, int /*a4*/,
 		                        unsigned int /*a5*/)
 		{
@@ -89,6 +91,7 @@ namespace server_list
 		int ui_feeder_count()
 		{
 			std::lock_guard<std::mutex> _(mutex);
+
 			return static_cast<int>(servers.size());
 		}
 
@@ -97,29 +100,31 @@ namespace server_list
 		{
 			std::lock_guard<std::mutex> _(mutex);
 
-			if (index >= servers.size())
+			if (index >= servers.size() || server_list_index >= servers.size())
 			{
 				return "";
 			}
 
+			const auto i = server_list_index + index;
+
 			if (column == 0)
 			{
-				return utils::string::va("%s\n", servers[index].host_name.data());
+				return utils::string::va("%s\n", servers[i].host_name.data());
 			}
 
 			if (column == 1)
 			{
-				return utils::string::va("%s\n", servers[index].map_name.data());
+				return utils::string::va("%s\n", servers[i].map_name.data());
 			}
 
 			if (column == 2)
 			{
-				return utils::string::va("%d/%d", servers[index].clients, servers[index].max_clients);
+				return utils::string::va("%d/%d", servers[i].clients, servers[index].max_clients);
 			}
 
 			if (column == 3)
 			{
-				return utils::string::va("%s\n", servers[index].game_type.data());
+				return utils::string::va("%s\n", servers[i].game_type.data());
 			}
 
 			return "";
@@ -208,6 +213,40 @@ namespace server_list
 		insert_server(std::move(server));
 
 		update_server_list = true;
+	}
+
+	bool sl_key_event(int key, int down)
+	{
+		if(down)
+		{
+			if(key == game::keyNum_t::K_MWHEELUP)
+			{
+				if(server_list_index < 0)
+				{
+					server_list_index = 0;
+					return false;
+				}
+				
+				server_list_index--;
+				
+				return false;
+			}
+
+			if (key == game::keyNum_t::K_MWHEELDOWN)
+			{
+
+				if(server_list_index >= server_list_index + static_cast<int>(servers.size()))
+				{
+					server_list_index = server_list_index + static_cast<int>(servers.size());
+				}
+				
+				server_list_index++;
+				
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 	class module final : public module_interface
