@@ -56,6 +56,7 @@ namespace server_list
 				std::lock_guard<std::mutex> _(mutex);
 				servers.clear();
 				master_state.queued_servers.clear();
+				server_list_index = 0;
 			}
 
 			if (get_master_server(master_state.address))
