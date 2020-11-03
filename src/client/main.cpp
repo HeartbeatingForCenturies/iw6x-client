@@ -96,6 +96,15 @@ void remove_crash_file()
 	utils::io::remove_file("__" + name);
 }
 
+void verify_ghost_version()
+{
+	const auto value = *reinterpret_cast<DWORD*>(0x140001337);
+	if (value != 0xDB0A33E7 && value != 0xA6D147E7)
+	{
+		throw std::runtime_error("Unsupported Call of Duty: Ghosts version");
+	}
+}
+
 int main()
 {
 	FARPROC entry_point;
@@ -134,11 +143,7 @@ int main()
 				throw std::runtime_error("Unable to load binary into memory");
 			}
 
-			const auto value = *reinterpret_cast<DWORD*>(0x140001337);
-			if (value != 0xDB0A33E7 && value != 0xA6D147E7)
-			{
-				throw std::runtime_error("Unsupported Call of Duty: Ghosts version");
-			}
+			verify_ghost_version();
 
 			game::environment::initialize();
 			if (!module_loader::post_load()) return 0;
