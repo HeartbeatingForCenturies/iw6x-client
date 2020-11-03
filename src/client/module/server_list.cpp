@@ -187,11 +187,11 @@ namespace server_list
 			return game::Menu_IsMenuOpenAndVisible(0, "menu_systemlink_join");
 		}
 
-		void scroll_down()
+		bool scroll_down()
 		{
 			if (!is_server_list_open())
 			{
-				return;
+				return false;
 			}
 
 			if (server_list_index + 16 < servers.size())
@@ -200,13 +200,14 @@ namespace server_list
 			}
 
 			trigger_refresh();
+			return true;
 		}
 
-		void scroll_up()
+		bool scroll_up()
 		{
 			if (!is_server_list_open())
 			{
-				return;
+				return false;
 			}
 
 			if (server_list_index > 0)
@@ -215,6 +216,7 @@ namespace server_list
 			}
 
 			trigger_refresh();
+			return true;
 		}
 	}
 
@@ -266,14 +268,12 @@ namespace server_list
 		{
 			if (key == game::keyNum_t::K_MWHEELUP)
 			{
-				scroll_up();
-				return false;
+				return !scroll_up();
 			}
 
 			if (key == game::keyNum_t::K_MWHEELDOWN)
 			{
-				scroll_down();
-				return false;
+				return !scroll_down();
 			}
 		}
 
