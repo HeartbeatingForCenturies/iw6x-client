@@ -4,7 +4,6 @@ version: "#{build} ({branch})"
 
 environment:
   matrix:
-    - job_name: Build
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PREMAKE_ACTION: vs2019
       CI: 1
