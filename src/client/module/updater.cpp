@@ -97,7 +97,7 @@ namespace updater
 		void delete_old_file(const std::string& file)
 		{
 			// Wait for other process to die
-			for (int i = 0; i < 4; ++i)
+			for (auto i = 0; i < 4; ++i)
 			{
 				utils::io::remove_file(file);
 
