@@ -27,6 +27,9 @@ namespace game
 	typedef CodPlayMode (*Com_GetCurrentCoDPlayMode_t)();
 	extern Com_GetCurrentCoDPlayMode_t Com_GetCurrentCoDPlayMode;
 
+	typedef void (*Com_SetSlowMotion_t)(const float, const float, const int);
+	extern Com_SetSlowMotion_t Com_SetSlowMotion;
+
 	typedef void (*Conbuf_AppendText_t)(const char* message);
 	extern Conbuf_AppendText_t Conbuf_AppendText;
 
@@ -151,6 +154,12 @@ namespace game
 	typedef ScreenPlacement* (*ScrPlace_GetViewPlacement_t)();
 	extern ScrPlace_GetViewPlacement_t ScrPlace_GetViewPlacement;
 
+	typedef float(*Scr_GetFloat_t)(int index);
+	extern Scr_GetFloat_t Scr_GetFloat;
+
+	typedef int(*Scr_GetNumParam_t)();
+	extern Scr_GetNumParam_t Scr_GetNumParam;
+
 	typedef const char* (*SEH_StringEd_GetString_t)(const char*);
 	extern SEH_StringEd_GetString_t SEH_StringEd_GetString;
 
@@ -180,6 +189,9 @@ namespace game
 
 	typedef void (*SV_KickClientNum_t)(int clientNum, const char* reason);
 	extern SV_KickClientNum_t SV_KickClientNum;
+
+	typedef void (*SV_SetConfigstring_t)(int index, const char* string);
+	extern SV_SetConfigstring_t SV_SetConfigstring;
 
 	typedef void (*SV_SpawnTestClient_t)(mp::gentity_s*);
 	extern SV_SpawnTestClient_t SV_SpawnTestClient;
@@ -236,6 +248,9 @@ namespace game
 		extern client_t* svs_clients;
 
 		extern std::uint32_t* sv_serverId_value;
+
+		extern int* gameTime;
+		extern int* serverTime;
 	}
 
 	int Cmd_Argc();

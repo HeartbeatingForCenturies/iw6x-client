@@ -10,6 +10,7 @@ namespace game
 	Com_Error_t Com_Error;
 	Com_Quit_t Com_Quit;
 	Com_GetCurrentCoDPlayMode_t Com_GetCurrentCoDPlayMode;
+	Com_SetSlowMotion_t Com_SetSlowMotion;
 
 	Conbuf_AppendText_t Conbuf_AppendText;
 
@@ -65,6 +66,9 @@ namespace game
 
 	ScrPlace_GetViewPlacement_t ScrPlace_GetViewPlacement;
 
+	Scr_GetFloat_t Scr_GetFloat;
+	Scr_GetNumParam_t Scr_GetNumParam;
+
 	SEH_StringEd_GetString_t SEH_StringEd_GetString;
 
 	SV_GameSendServerCommand_t SV_GameSendServerCommand;
@@ -78,6 +82,7 @@ namespace game
 	SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
 	SV_GetGuid_t SV_GetGuid;
 	SV_KickClientNum_t SV_KickClientNum;
+	SV_SetConfigstring_t SV_SetConfigstring;
 	SV_SpawnTestClient_t SV_SpawnTestClient;
 
 	Sys_IsDatabaseReady2_t Sys_IsDatabaseReady2;
@@ -121,6 +126,9 @@ namespace game
 		client_t* svs_clients;
 
 		std::uint32_t* sv_serverId_value;
+
+		int* gameTime;
+		int* serverTime;
 	}
 
 	int Cmd_Argc()
@@ -187,6 +195,7 @@ namespace game
 			Com_Error = Com_Error_t(SELECT_VALUE(0x1403BBFF0, 0x140412740));
 			Com_Quit = Com_Quit_t(SELECT_VALUE(0x1403BDDD0, 0x140414920));
 			Com_GetCurrentCoDPlayMode = Com_GetCurrentCoDPlayMode_t(SELECT_VALUE(0, 0x1404f6140));
+			Com_SetSlowMotion = Com_SetSlowMotion_t(SELECT_VALUE(0, 0x1404158C0));
 
 			Cbuf_AddText = Cbuf_AddText_t(SELECT_VALUE(0x1403B3050, 0x1403F6B50));
 			Cbuf_ExecuteBufferInternal = Cbuf_ExecuteBufferInternal_t(SELECT_VALUE(0x1403B3160, 0x1403F6C60));
@@ -240,6 +249,9 @@ namespace game
 
 			ScrPlace_GetViewPlacement = ScrPlace_GetViewPlacement_t(SELECT_VALUE(0x14024D150, 0x1402F6D40));
 
+			Scr_GetFloat = Scr_GetFloat_t(SELECT_VALUE(0, 0x140438D60));
+			Scr_GetNumParam = Scr_GetNumParam_t(SELECT_VALUE(0, 0x140438EC0));
+
 			SEH_StringEd_GetString = SEH_StringEd_GetString_t(SELECT_VALUE(0x0, 0x1404A5F60));
 
 			SV_GameSendServerCommand = SV_GameSendServerCommand_t(SELECT_VALUE(0x140490F40, 0x1404758C0));
@@ -251,6 +263,7 @@ namespace game
 			SV_ExecuteClientCommand = SV_ExecuteClientCommand_t(SELECT_VALUE(0, 0x140472430));
 			SV_GetGuid = SV_GetGuid_t(SELECT_VALUE(0, 0x140475990));
 			SV_KickClientNum = SV_KickClientNum_t(SELECT_VALUE(0, 0x14046F730));
+			SV_SetConfigstring = SV_SetConfigstring_t(SELECT_VALUE(0, 0x140477450));
 			SV_SpawnTestClient = SV_SpawnTestClient_t(SELECT_VALUE(0, 0x1404740A0));
 
 			Sys_IsDatabaseReady2 = Sys_IsDatabaseReady2_t(SELECT_VALUE(0x1403C2D40, 0x140423920));
@@ -293,6 +306,9 @@ namespace game
 				mp::svs_clients = reinterpret_cast<mp::client_t*>(0x14647B290);
 
 				mp::sv_serverId_value = reinterpret_cast<std::uint32_t*>(0x144DF9478);
+
+				mp::gameTime = reinterpret_cast<int*>(0x1443F4B6C);
+				mp::serverTime = reinterpret_cast<int*>(0x14647B280);
 			}
 		}
 	}
