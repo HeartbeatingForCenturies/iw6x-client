@@ -2,7 +2,6 @@
 #include "loader/module_loader.hpp"
 #include "utils/io.hpp"
 #include "utils/nt.hpp"
-
 #include <version.hpp>
 
 #define APPVEYOR_ARTIFACT_BASE "https://ci.appveyor.com/api/projects/XLabsProject/iw6x-client/artifacts/"
