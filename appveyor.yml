@@ -6,6 +6,7 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PREMAKE_ACTION: vs2019
+      CI: 1
 
 branches:
   only:
