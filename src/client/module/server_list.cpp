@@ -42,6 +42,8 @@ namespace server_list
 		std::mutex mutex;
 		std::vector<server_info> servers;
 
+		size_t server_list_index = 0;
+
 		void lui_open_menu_stub(int /*controllerIndex*/, const char* /*menu*/, int /*a3*/, int /*a4*/,
 		                        unsigned int /*a5*/)
 		{
@@ -65,15 +67,26 @@ namespace server_list
 
 		void join_server(int, int, const int index)
 		{
-			printf("Join %d ...\n", index);
-
-			auto i = static_cast<size_t>(index);
 			std::lock_guard<std::mutex> _(mutex);
 
+			const auto i = static_cast<size_t>(index) + server_list_index;
 			if (i < servers.size())
 			{
-				party::connect(servers[i].address);
+				static size_t last_index = 0xFFFFFFFF;
+				if (last_index != i)
+				{
+					last_index = i;
+				}
+				else
+				{
+					party::connect(servers[i].address);
+				}
 			}
+		}
+
+		void trigger_refresh()
+		{
+			update_server_list = true;
 		}
 
 		bool server_list_refresher()
@@ -89,7 +102,7 @@ namespace server_list
 		int ui_feeder_count()
 		{
 			std::lock_guard<std::mutex> _(mutex);
-			return static_cast<int>(servers.size());
+			return static_cast<int>(servers.size() - server_list_index);
 		}
 
 		const char* ui_feeder_item_text(int /*localClientNum*/, void* /*a2*/, void* /*a3*/, const size_t index,
@@ -97,29 +110,31 @@ namespace server_list
 		{
 			std::lock_guard<std::mutex> _(mutex);
 
-			if (index >= servers.size())
+			const auto i = server_list_index + index;
+
+			if (i >= servers.size())
 			{
 				return "";
 			}
 
 			if (column == 0)
 			{
-				return utils::string::va("%s\n", servers[index].host_name.data());
+				return utils::string::va("%s\n", servers[i].host_name.data());
 			}
 
 			if (column == 1)
 			{
-				return utils::string::va("%s\n", servers[index].map_name.data());
+				return utils::string::va("%s\n", servers[i].map_name.data());
 			}
 
 			if (column == 2)
 			{
-				return utils::string::va("%d/%d", servers[index].clients, servers[index].max_clients);
+				return utils::string::va("%d/%d", servers[i].clients, servers[index].max_clients);
 			}
 
 			if (column == 3)
 			{
-				return utils::string::va("%s\n", servers[index].game_type.data());
+				return utils::string::va("%s\n", servers[i].game_type.data());
 			}
 
 			return "";
@@ -129,6 +144,7 @@ namespace server_list
 		{
 			std::lock_guard<std::mutex> _(mutex);
 			servers.emplace_back(std::move(server));
+			trigger_refresh();
 		}
 
 		void do_frame_work()
@@ -163,6 +179,41 @@ namespace server_list
 
 				++i;
 			}
+		}
+
+		bool is_server_list_open()
+		{
+			return game::Menu_IsMenuOpenAndVisible(0, "menu_systemlink_join");
+		}
+
+		void scroll_down()
+		{
+			if (!is_server_list_open())
+			{
+				return;
+			}
+
+			if (server_list_index + 16 < servers.size())
+			{
+				++server_list_index;
+			}
+
+			trigger_refresh();
+		}
+
+		void scroll_up()
+		{
+			if (!is_server_list_open())
+			{
+				return;
+			}
+
+			if (server_list_index > 0)
+			{
+				--server_list_index;
+			}
+
+			trigger_refresh();
 		}
 	}
 
@@ -200,14 +251,32 @@ namespace server_list
 
 		server.in_game = 1;
 
-		if(server.host_name.size() > 50)
+		if (server.host_name.size() > 50)
 		{
 			server.host_name.resize(50);
 		}
 
 		insert_server(std::move(server));
+	}
 
-		update_server_list = true;
+	bool sl_key_event(const int key, const int down)
+	{
+		if (down)
+		{
+			if (key == game::keyNum_t::K_MWHEELUP)
+			{
+				scroll_up();
+				return false;
+			}
+
+			if (key == game::keyNum_t::K_MWHEELDOWN)
+			{
+				scroll_down();
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	class module final : public module_interface
