@@ -29,25 +29,25 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-#include <windows.h>
-#include <mshtml.h>
-#include <mshtmhst.h>
+#include <Windows.h>
+#include <MsHTML.h>
+#include <MsHtmHst.h>
 #include <ExDisp.h>
 #include <WinSock2.h>
-#include <Ws2tcpip.h>
+#include <WS2tcpip.h>
 #include <corecrt_io.h>
 #include <fcntl.h>
 #include <shellapi.h>
 #include <csetjmp>
 #include <ShlObj.h>
 #include <winternl.h>
-#include <versionhelpers.h>
+#include <VersionHelpers.h>
 #include <Psapi.h>
-#include <Urlmon.h>
+#include <urlmon.h>
 #include <atlbase.h>
 #include <iphlpapi.h>
-#include <dbghelp.h>
-#include <tlhelp32.h>
+#include <DbgHelp.h>
+#include <TlHelp32.h>
 
 // min and max is required by gdi, therefore NOMINMAX won't work
 #ifdef max

@@ -3,16 +3,23 @@
 #include "utils/io.hpp"
 #include "utils/nt.hpp"
 
-#include <version.h>
+#include <version.hpp>
 
 #define APPVEYOR_ARTIFACT_BASE "https://ci.appveyor.com/api/projects/XLabsProject/iw6x-client/artifacts/"
-#define APPVEYOR_BRANCH "master"
-#define APPVEYOR_JOB "Environment%3A%20APPVEYOR_BUILD_WORKER_IMAGE%3DVisual%20Studio%202019%2C%20PREMAKE_ACTION%3Dvs2019%3B%20Configuration%3A%20Release"
+#define APPVEYOR_BRANCH GIT_BRANCH
+
+#ifdef DEBUG
+#define APPVEYOR_CONFIGURATION "Debug"
+#else
+#define APPVEYOR_CONFIGURATION "Release"
+#endif
+
+#define APPVEYOR_JOB "Environment%3A%20APPVEYOR_BUILD_WORKER_IMAGE%3DVisual%20Studio%202019%2C%20PREMAKE_ACTION%3Dvs2019%3B%20Configuration%3A%20" APPVEYOR_CONFIGURATION
 #define APPVEYOR_ARTIFACT_SUFFIX "?branch=" APPVEYOR_BRANCH "&job=" APPVEYOR_JOB
 
 #define APPVEYOR_ARTIFACT_URL(artifact) (APPVEYOR_ARTIFACT_BASE artifact APPVEYOR_ARTIFACT_SUFFIX)
 
-#define APPVEYOR_IW6X_EXE    APPVEYOR_ARTIFACT_URL("build/bin/x64/Release/iw6x.exe")
+#define APPVEYOR_IW6X_EXE    APPVEYOR_ARTIFACT_URL("build/bin/x64/" APPVEYOR_CONFIGURATION "/iw6x.exe")
 #define APPVEYOR_VERSION_TXT APPVEYOR_ARTIFACT_URL("build/version.txt")
 
 namespace updater
@@ -139,6 +146,6 @@ namespace updater
 	};
 }
 
-#if !defined(DEV_BUILD) && 0
+#if defined(CI) && !defined(DEBUG)
 REGISTER_MODULE(updater::module)
 #endif
