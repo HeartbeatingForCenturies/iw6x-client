@@ -149,6 +149,18 @@ newaction {
 			proc = assert(io.popen("git branch --show-current"))
 			local branchName = proc:read('*l')
 
+			-- branch for ci
+			if branchName == nil or branchName == '' then
+				proc = assert(io.popen("git show -s --pretty=%d HEAD"))
+				local branchInfo = proc:read('*l')
+				m = string.match(branchInfo, ".+,.+, ([^)]+)")
+				if m ~= nil then
+					branchName = m
+				end
+			end
+
+			print("Detected branch: " .. branchName)
+
 			-- get revision number via git
 			local proc = assert(io.popen("git rev-list --count HEAD", "r"))
 			local revNumber = assert(proc:read('*a')):gsub("%s+", "")

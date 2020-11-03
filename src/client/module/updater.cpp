@@ -5,7 +5,7 @@
 #include <version.hpp>
 
 #define APPVEYOR_ARTIFACT_BASE "https://ci.appveyor.com/api/projects/XLabsProject/iw6x-client/artifacts/"
-#define APPVEYOR_BRANCH "develop"//GIT_BRANCH
+#define APPVEYOR_BRANCH GIT_BRANCH
 
 #ifdef DEBUG
 #define APPVEYOR_CONFIGURATION "Debug"
