@@ -55,7 +55,7 @@ namespace game
 	typedef void (*Dvar_GetCombinedString_t)(char* buffer, int index);
 	extern Dvar_GetCombinedString_t Dvar_GetCombinedString;
 
-	typedef const char* (*Dvar_GetVariantStringWithDefault_t)(const char *dvarName, const char *defaultValue);
+	typedef const char* (*Dvar_GetVariantStringWithDefault_t)(const char* dvarName, const char* defaultValue);
 	extern Dvar_GetVariantStringWithDefault_t Dvar_GetVariantStringWithDefault;
 
 	typedef dvar_t* (*Dvar_RegisterBool_t)(const char* dvarName, bool value, unsigned int flags,
@@ -124,6 +124,9 @@ namespace game
 
 	typedef void (*LUI_OpenMenu_t)(int clientNum, const char* menu, int a3, int a4, unsigned int a5);
 	extern LUI_OpenMenu_t LUI_OpenMenu;
+
+	typedef bool (*Menu_IsMenuOpenAndVisible_t)(int clientNum, const char* menu);
+	extern Menu_IsMenuOpenAndVisible_t Menu_IsMenuOpenAndVisible;
 
 	typedef Material* (*Material_RegisterHandle_t)(const char* material);
 	extern Material_RegisterHandle_t Material_RegisterHandle;
