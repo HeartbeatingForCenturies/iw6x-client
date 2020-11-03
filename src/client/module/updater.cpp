@@ -146,6 +146,6 @@ namespace updater
 	};
 }
 
-#if defined(CI) && !defined(DEBUG)
+#if /*defined(CI) &&*/ !defined(DEBUG)
 REGISTER_MODULE(updater::module)
 #endif
