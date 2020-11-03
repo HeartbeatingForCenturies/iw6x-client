@@ -9,13 +9,13 @@ namespace slowmotion
 	namespace
 	{
 		int delay = 0;
-		utils::hook::detour Com_TimeScaleMsecHook;
+		utils::hook::detour com_timescale_msec_hook;
 
-		uint64_t Com_TimeScaleMsec(const int msec)
+		uint64_t com_timescale_msec(const int msec)
 		{
 			if (delay <= 0)
 			{
-				return Com_TimeScaleMsecHook.invoke<uint64_t>(msec);
+				return com_timescale_msec_hook.invoke<uint64_t>(msec);
 			}
 			else
 			{
@@ -24,7 +24,7 @@ namespace slowmotion
 			}
 		}
 
-		void ScrCmd_SetSlowMotion()
+		void scr_cmd_set_slow_motion()
 		{
 			if (game::Scr_GetNumParam() < 1)
 				return;
@@ -61,10 +61,10 @@ namespace slowmotion
 		{
 			if (!game::environment::is_dedi()) return;
 
-			utils::hook::jump(0x1403B4A10, ScrCmd_SetSlowMotion);
+			utils::hook::jump(0x1403B4A10, scr_cmd_set_slow_motion);
 
 			// Detour used here instead of call hook because Com_TimeScaleMsec is called from arxan encrypted function
-			Com_TimeScaleMsecHook.create(0x140415D50, Com_TimeScaleMsec);
+			com_timescale_msec_hook.create(0x140415D50, com_timescale_msec);
 		}
 	};
 }

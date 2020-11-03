@@ -318,6 +318,25 @@ namespace patches
 
 			// Enable DLC items, extra loadouts and map selection in extinction
 			dvar_register_int_hook.create(0x1404EE270, &dvar_register_int);
+
+			scheduler::once([]()
+			{
+				const auto plugins_directory = std::filesystem::path("iw6x\\plugins");
+				if (std::filesystem::exists(plugins_directory) && std::filesystem::is_directory(plugins_directory))
+				{
+					for (auto& file : std::filesystem::directory_iterator(plugins_directory))
+					{
+						if (std::filesystem::is_regular_file(file) && file.path().extension() == ".dll")
+						{
+							auto mod_plugin = utils::nt::module::load(file);
+							if (mod_plugin.is_valid())
+							{
+								printf("Plugin \"%s\" has been loaded\n", mod_plugin.get_name().data());
+							}
+						}
+					}
+				}
+			}, scheduler::pipeline::main);
 		}
 
 		void patch_sp() const
