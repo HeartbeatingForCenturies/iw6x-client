@@ -170,10 +170,10 @@ namespace console
 
 	void set_title(std::string title)
 	{
-		SetWindowText(get_window(), title.c_str());
+		SetWindowText(get_window(), title.data());
 	}
 
-	void set_size(int width, int height)
+	void set_size(const int width, const int height)
 	{
 		RECT rect;
 		GetWindowRect(get_window(), &rect);
@@ -181,8 +181,11 @@ namespace console
 		SetWindowPos(get_window(), 0, rect.left, rect.top, width, height, 0);
 
 		// TODO: fill the SP address(I didn't downloaded the SP part of the game).
-		auto logoWindow = *reinterpret_cast<HWND*>(0x147AD1DC0);
-		SetWindowPos(logoWindow, 0, 5, 5, width - 25, 60, 0);
+		if (!game::environment::is_sp())
+		{
+			auto logoWindow = *reinterpret_cast<HWND*>(0x147AD1DC0);
+			SetWindowPos(logoWindow, 0, 5, 5, width - 25, 60, 0);
+		}
 	}
 }
 
