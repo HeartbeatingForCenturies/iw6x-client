@@ -1,7 +1,7 @@
 #include <std_include.hpp>
 #include "loader/module_loader.hpp"
 #include "scheduler.hpp"
-#include "game/structs.hpp"
+#include "game/game.hpp"
 #include "utils/hook.hpp"
 
 namespace arxan
@@ -94,7 +94,7 @@ namespace arxan
 		{
 			const auto dwGetLogOnStatus = reinterpret_cast<game::DWOnlineStatus(*)(size_t)>(0x140589490);
 			const auto status = dwGetLogOnStatus(index);
-			
+
 			if (status == game::DW_LIVE_CONNECTING)
 			{
 				// dwLogOnComplete
@@ -109,7 +109,7 @@ namespace arxan
 			{
 				// dwLobbyPump
 				//reinterpret_cast<void(*)(size_t)>(0x1405918E0)(index);
-				
+
 				// DW_Frame
 				reinterpret_cast<void(*)(size_t)>(0x14000F9A6)(index);
 			}
@@ -143,6 +143,9 @@ namespace arxan
 
 		void post_unpack() override
 		{
+			// cba to implement sp, not sure if it's even needed
+			if (game::environment::is_sp()) return;
+
 			utils::hook::jump(0x1404FE1E0, 0x1404FE2D0); // idk
 			utils::hook::jump(0x140558C20, 0x140558CB0); // dwNetPump
 			utils::hook::jump(0x140591850, 0x1405918E0); // dwLobbyPump
