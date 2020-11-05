@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.0.0] - 2020-11-03
+
 ### Fixed
 
 -   2nd octet of the IP-address in status response is wrong. [#150](https://github.com/XLabsProject/iw6x-client/issues/150)
@@ -100,6 +102,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Add setviewpos, setviewang commands, add viewpos to drawfps [#38](https://github.com/XLabsProject/iw6x-client/pull/38) ([@fedddddd](https://github.com/fedddddd))
 -   Make stats look better [#36](https://github.com/XLabsProject/iw6x-client/pull/36) ([@FragsAreUs](https://github.com/FragsAreUs))
 
-[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.0-rc.1...HEAD
+[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.0...HEAD
+
+[v1.0.0]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.0-rc.1...v1.0.0
 
 [v1.0.0-rc.1]: https://github.com/XLabsProject/iw6x-client/compare/22c834e0655795870621ce505ea189ae522e8223...v1.0.0-rc.1
