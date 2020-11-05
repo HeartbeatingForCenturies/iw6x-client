@@ -185,13 +185,7 @@ namespace patches
 
 		game::Font_s* get_chat_font_handle()
 		{
-			static game::Font_s* chat_font = nullptr;
-			if (chat_font == nullptr)
-			{
-				chat_font = game::R_RegisterFont("fonts/bigFont");
-			}
-
-			return chat_font;
+			return game::R_RegisterFont("fonts/bigFont");
 		}
 	}
 
