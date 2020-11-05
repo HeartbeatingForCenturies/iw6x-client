@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Pull Requests
+
+-   Fix chat font on resolutions higher than 1080p [#176](https://github.com/XLabsProject/iw6x-client/pull/176) ([@skiff](https://github.com/skiff))
+-   Show infomation on title of the dedicated console [#166](https://github.com/XLabsProject/iw6x-client/pull/166) ([@GEEKiDoS](https://github.com/GEEKiDoS))
+
 ## [v1.0.0] - 2020-11-03
 
 ### Fixed
