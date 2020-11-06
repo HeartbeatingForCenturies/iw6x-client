@@ -225,8 +225,8 @@ namespace game
 	extern UI_LocalizeMapname_t UI_LocalizeMapname;
 	extern UI_LocalizeMapname_t UI_LocalizeGametype;
 
-	typedef DWOnlineStatus (*dwGetLogonStatus_t)(int);
-	extern dwGetLogonStatus_t dwGetLogonStatus;
+	typedef DWOnlineStatus (*dwGetLogOnStatus_t)(int);
+	extern dwGetLogOnStatus_t dwGetLogOnStatus;
 
 	extern int* keyCatchers;
 

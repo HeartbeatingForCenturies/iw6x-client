@@ -104,7 +104,7 @@ namespace arxan
 		BOOL WINAPI set_thread_context_stub(const HANDLE thread, CONTEXT* context)
 		{
 			if(!game::environment::is_sp()
-				&& game::dwGetLogonStatus(0) == game::DW_LIVE_CONNECTED
+				&& game::dwGetLogOnStatus(0) == game::DW_LIVE_CONNECTED
 				&& context->ContextFlags == CONTEXT_DEBUG_REGISTERS)
 			{
 				return TRUE;
@@ -113,28 +113,27 @@ namespace arxan
 			return SetThreadContext(thread, context);
 		}
 
-		void dw_frame_stub(const size_t index)
+		void dw_frame_stub(const int index)
 		{
-			const auto dwGetLogOnStatus = reinterpret_cast<game::DWOnlineStatus(*)(size_t)>(0x140589490);
-			const auto status = dwGetLogOnStatus(index);
+			const auto status = game::dwGetLogOnStatus(index);
 
 			if (status == game::DW_LIVE_CONNECTING)
 			{
 				// dwLogOnComplete
-				reinterpret_cast<void(*)(size_t)>(0x1405894D0)(index);
+				reinterpret_cast<void(*)(int)>(0x1405894D0)(index);
 			}
 			else if (status == game::DW_LIVE_DISCONNECTED)
 			{
 				// dwLogOnStart
-				reinterpret_cast<void(*)(size_t)>(0x140589E10)(index);
+				reinterpret_cast<void(*)(int)>(0x140589E10)(index);
 			}
 			else
 			{
 				// dwLobbyPump
-				//reinterpret_cast<void(*)(size_t)>(0x1405918E0)(index);
+				//reinterpret_cast<void(*)(int)>(0x1405918E0)(index);
 
 				// DW_Frame
-				reinterpret_cast<void(*)(size_t)>(0x14000F9A6)(index);
+				reinterpret_cast<void(*)(int)>(0x14000F9A6)(index);
 			}
 		}
 	}

@@ -99,7 +99,7 @@ namespace game
 	UI_LocalizeMapname_t UI_LocalizeMapname;
 	UI_LocalizeMapname_t UI_LocalizeGametype;
 
-	dwGetLogonStatus_t dwGetLogonStatus;
+	dwGetLogOnStatus_t dwGetLogOnStatus;
 
 	int* keyCatchers;
 
@@ -286,7 +286,7 @@ namespace game
 			UI_LocalizeMapname = UI_LocalizeMapname_t(SELECT_VALUE(0, 0x1404B96D0));
 			UI_LocalizeGametype = UI_LocalizeMapname_t(SELECT_VALUE(0, 0x1404B90F0));
 
-			dwGetLogonStatus = dwGetLogonStatus_t(SELECT_VALUE(0, 0x140589490));
+			dwGetLogOnStatus = dwGetLogOnStatus_t(SELECT_VALUE(0, 0x140589490));
 
 			keyCatchers = reinterpret_cast<int*>(SELECT_VALUE(0x1417CF6E0, 0x1419E1ADC));
 
