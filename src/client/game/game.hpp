@@ -134,6 +134,9 @@ namespace game
 	typedef Material* (*Material_RegisterHandle_t)(const char* material);
 	extern Material_RegisterHandle_t Material_RegisterHandle;
 
+	typedef void (*NET_OutOfBandPrint_t)(netsrc_t, netadr_s*, const char*);
+	extern NET_OutOfBandPrint_t NET_OutOfBandPrint;
+
 	typedef bool (*NET_StringToAdr_t)(const char* s, game::netadr_s* a);
 	extern NET_StringToAdr_t NET_StringToAdr;
 
