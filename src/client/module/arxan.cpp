@@ -87,15 +87,17 @@ namespace arxan
 		void remove_hardware_breakpoints()
 		{
 			CONTEXT context;
-			const auto thread = GetCurrentThread();
-
+			ZeroMemory(&context, sizeof(context));
 			context.ContextFlags = CONTEXT_DEBUG_REGISTERS;
+
+			auto* const thread = GetCurrentThread();
 			GetThreadContext(thread, &context);
 
 			context.Dr0 = 0;
 			context.Dr1 = 0;
 			context.Dr2 = 0;
 			context.Dr3 = 0;
+			context.Dr6 = 0;
 			context.Dr7 = 0;
 
 			SetThreadContext(thread, &context);
@@ -103,7 +105,7 @@ namespace arxan
 
 		BOOL WINAPI set_thread_context_stub(const HANDLE thread, CONTEXT* context)
 		{
-			if(!game::environment::is_sp()
+			if (!game::environment::is_sp()
 				&& game::dwGetLogOnStatus(0) == game::DW_LIVE_CONNECTED
 				&& context->ContextFlags == CONTEXT_DEBUG_REGISTERS)
 			{
