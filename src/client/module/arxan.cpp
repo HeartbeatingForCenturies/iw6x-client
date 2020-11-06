@@ -84,13 +84,36 @@ namespace arxan
 			*PDWORD(LPSTR(peb) + 0xBC) &= ~0x70;
 		}
 
+		void remove_hardware_breakpoints()
+		{
+			CONTEXT context;
+			const auto thread = GetCurrentThread();
+
+			context.ContextFlags = CONTEXT_DEBUG_REGISTERS;
+			GetThreadContext(thread, &context);
+
+			context.Dr0 = 0;
+			context.Dr1 = 0;
+			context.Dr2 = 0;
+			context.Dr3 = 0;
+			context.Dr7 = 0;
+
+			SetThreadContext(thread, &context);
+		}
+
 		BOOL WINAPI set_thread_context_stub(const HANDLE thread, CONTEXT* context)
 		{
-			// TODO: Disable HW breakpoints, once the dw frame is patched
+			if(!game::environment::is_sp()
+				&& game::dwGetLogonStatus(0) == game::DW_LIVE_CONNECTED
+				&& context->ContextFlags == CONTEXT_DEBUG_REGISTERS)
+			{
+				return TRUE;
+			}
+
 			return SetThreadContext(thread, context);
 		}
 
-		void dw_frame_stub(size_t index)
+		void dw_frame_stub(const size_t index)
 		{
 			const auto dwGetLogOnStatus = reinterpret_cast<game::DWOnlineStatus(*)(size_t)>(0x140589490);
 			const auto status = dwGetLogOnStatus(index);
@@ -157,6 +180,8 @@ namespace arxan
 
 			// Unfinished for now
 			//utils::hook::jump(0x1405881E0, dw_frame_stub);
+
+			scheduler::on_game_initialized(remove_hardware_breakpoints, scheduler::pipeline::main);
 		}
 	};
 }
