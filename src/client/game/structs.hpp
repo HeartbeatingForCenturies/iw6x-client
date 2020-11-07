@@ -9,6 +9,22 @@ namespace game
 	typedef vec_t vec3_t[3];
 	typedef vec_t vec4_t[4];
 
+	struct $9704E9D6F23D6A5E526351953F37E26F
+	{
+		unsigned int weaponIdx : 8;
+		unsigned int weaponVariation : 6;
+		unsigned int weaponScopes : 3;
+		unsigned int weaponUnderBarrels : 2;
+		unsigned int weaponOthers : 7;
+		unsigned int scopeVariation : 6;
+	};
+
+	union Weapon
+	{
+		$9704E9D6F23D6A5E526351953F37E26F __s0;
+		unsigned int data;
+	};
+
 	enum CodPlayMode
 	{
 		CODPLAYMODE_NONE = 0x0,

@@ -309,6 +309,22 @@ namespace command
 				game::mp::g_entities[client_num].client->ps.delta_angles[1] = std::strtof(params.get(2), nullptr);
 				game::mp::g_entities[client_num].client->ps.delta_angles[2] = std::strtof(params.get(3), nullptr);
 			});
+
+			add_sv("give", [](const int client_num, params_sv& params)
+			{
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
+					return;
+				}
+
+				auto ps = &game::mp::g_entities[client_num].client->ps;
+				auto wp = game::G_GetWeaponForName(params.get(1));
+				if (game::G_GivePlayerWeapon(ps, wp, 0, 0, 0))
+				{
+					game::G_InitializeAmmo(ps, wp, 0);
+				}
+			});
 		}
 	};
 }

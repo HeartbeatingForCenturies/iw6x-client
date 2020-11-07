@@ -44,6 +44,10 @@ namespace game
 	FS_ReadFile_t FS_ReadFile;
 	FS_FreeFile_t FS_FreeFile;
 
+	G_GivePlayerWeapon_t G_GivePlayerWeapon;
+	G_GetWeaponForName_t G_GetWeaponForName;
+	G_InitializeAmmo_t G_InitializeAmmo;
+
 	G_RunFrame_t G_RunFrame;
 
 	I_CleanStr_t I_CleanStr;
@@ -229,6 +233,10 @@ namespace game
 			Dvar_SetString = Dvar_SetString_t(SELECT_VALUE(0x14042D6E0, 0x1404F08E0));
 			Dvar_Sort = Dvar_Sort_t(SELECT_VALUE(0x14042DEF0, 0x1404F1210));
 			Dvar_ValueToString = Dvar_ValueToString_t(SELECT_VALUE(0x14042E710, 0x1404F1A30));
+
+			G_GivePlayerWeapon = G_GivePlayerWeapon_t(SELECT_VALUE(0, 0x1403DA5E0));
+			G_GetWeaponForName = G_GetWeaponForName_t(SELECT_VALUE(0, 0x1403DA060));
+			G_InitializeAmmo = G_InitializeAmmo_t(SELECT_VALUE(0, 0x14039AEA0));
 
 			G_RunFrame = G_RunFrame_t(SELECT_VALUE(0x0, 0x1403A05E0));
 

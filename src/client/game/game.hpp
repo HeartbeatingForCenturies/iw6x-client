@@ -113,6 +113,15 @@ namespace game
 	typedef void (*FS_FreeFile_t)(void* buffer);
 	extern FS_FreeFile_t FS_FreeFile;
 
+	typedef int (*G_GivePlayerWeapon_t)(game::mp::playerState_s* ps, game::Weapon weapon, int dualWield, int startInAltMode, int usedBefore);
+	extern G_GivePlayerWeapon_t G_GivePlayerWeapon;
+
+	typedef game::Weapon(*G_GetWeaponForName_t)(const char* name);
+	extern G_GetWeaponForName_t G_GetWeaponForName;
+
+	typedef void (*G_InitializeAmmo_t)(game::mp::playerState_s* ps, game::Weapon weapon, int hadWeapon);
+	extern G_InitializeAmmo_t G_InitializeAmmo;
+
 	typedef int (*G_RunFrame_t)(int server_time);
 	extern G_RunFrame_t G_RunFrame;
 
