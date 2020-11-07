@@ -32,7 +32,7 @@ namespace input
 				return;
 			}
 
-			if(!server_list::sl_key_event(key, down))
+			if(game::environment::is_mp() && !server_list::sl_key_event(key, down))
 			{
 				return;
 			}
