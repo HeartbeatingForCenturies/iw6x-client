@@ -229,6 +229,67 @@ namespace party
 				game::SV_KickClientNum(clientNum, "EXE_PLAYERKICKED");
 			});
 
+			scheduler::once([]()
+			{
+				game::Dvar_RegisterString("sv_sayName", "console", game::DvarFlags::DVAR_FLAG_NONE, "The name to pose as for 'say' commands");
+			}, scheduler::pipeline::main);
+
+			command::add("tell", [](command::params& params) 
+			{
+				if (params.size() < 3)
+				{
+					return;
+				}
+
+				auto clientNum = atoi(params.get(1));
+				std::string message = params.join(2);
+				std::string name = game::Dvar_FindVar("sv_sayName")->current.string;
+
+				game::SV_GameSendServerCommand(clientNum, 0, utils::string::va("%c \"%s: %s\"", 84, name.data(), message.data()));
+				printf("%s -> %i: %s\n", name.data(), clientNum, message.data());
+			});
+
+			command::add("tellraw", [](command::params& params) 
+			{
+				if (params.size() < 3)
+				{
+					return;
+				}
+
+				auto clientNum = atoi(params.get(1));
+				std::string message = params.join(2);
+
+				game::SV_GameSendServerCommand(clientNum, 0, utils::string::va("%c \"%s\"", 84, message.data()));
+				printf("%i: %s\n", clientNum, message.data());
+			});
+
+			command::add("say", [](command::params& params) 
+			{
+				if (params.size() < 2)
+				{
+					return;
+				}
+
+				std::string message = params.join(1);
+				std::string name = game::Dvar_FindVar("sv_sayName")->current.string;
+
+				game::SV_GameSendServerCommand(-1, 0, utils::string::va("%c \"%s: %s\"", 84, name.data(), message.data()));
+				printf("%s: %s\n", name.data(), message.data());
+			});
+
+			command::add("sayraw", [](command::params& params) 
+			{
+				if (params.size() < 2)
+				{
+					return;
+				}
+
+				std::string message = params.join(1);
+
+				game::SV_GameSendServerCommand(-1, 0, utils::string::va("%c \"%s\"", 84, message.data()));
+				printf("%s\n", message.data());
+			});
+
 			network::on("getInfo", [](const game::netadr_s& target, const std::string_view& data)
 			{
 				utils::info_string info{};
