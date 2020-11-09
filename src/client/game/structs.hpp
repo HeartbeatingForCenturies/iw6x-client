@@ -25,6 +25,18 @@ namespace game
 		unsigned int data;
 	};
 
+	enum errorParm
+	{
+		ERR_FATAL = 0,
+		ERR_DROP = 1,
+		ERR_SERVERDISCONNECT = 2,
+		ERR_DISCONNECT = 3,
+		ERR_SCRIPT = 4,
+		ERR_SCRIPT_DROP = 5,
+		ERR_LOCALIZATION = 6,
+		ERR_MAPLOADERRORSUMMARY = 7,
+	};
+
 	enum CodPlayMode
 	{
 		CODPLAYMODE_NONE = 0x0,

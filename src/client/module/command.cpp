@@ -318,7 +318,7 @@ namespace command
 					return;
 				}
 
-				auto ps = &game::mp::g_entities[client_num].client->ps;
+				auto ps = game::SV_GetPlayerstateForClientNum(client_num);
 				auto wp = game::G_GetWeaponForName(params.get(1));
 				if (game::G_GivePlayerWeapon(ps, wp, 0, 0, 0))
 				{
