@@ -1027,6 +1027,11 @@ namespace game
 			char __0x00[0x110];
 			gclient_s* client;
 		};
+
+		struct playerState_s
+		{
+
+		};
 	}
 
 	namespace mp
@@ -1363,4 +1368,10 @@ namespace game
 			char _0x41E94[0x416DC];
 		};
 	}
+
+	union playerState_s
+	{
+		sp::playerState_s* sp;
+		mp::playerState_s* mp;
+	};
 }

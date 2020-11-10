@@ -230,6 +230,21 @@ namespace command
 				game::CG_GameMessage(
 					0, utils::string::va("ufo %s", game::sp::g_entities[0].client->flags & 2 ? "^2on" : "^1off"));
 			});
+
+			add("give", [](params& params)
+			{
+				if (!game::SV_Loaded())
+				{
+					return;
+				}
+
+				auto ps = game::SV_GetPlayerstateForClientNum(0);
+				auto wp = game::G_GetWeaponForName(params.get(1));
+				if (game::G_GivePlayerWeapon(ps, wp, 0, 0, 0))
+				{
+					game::G_InitializeAmmo(ps, wp, 0);
+				}
+			});
 		}
 
 		void add_mp_commands()

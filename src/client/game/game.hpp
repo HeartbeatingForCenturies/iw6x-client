@@ -113,13 +113,13 @@ namespace game
 	typedef void (*FS_FreeFile_t)(void* buffer);
 	extern FS_FreeFile_t FS_FreeFile;
 
-	typedef int (*G_GivePlayerWeapon_t)(mp::playerState_s* ps, Weapon weapon, int dualWield, int startInAltMode, int usedBefore);
+	typedef int (*G_GivePlayerWeapon_t)(playerState_s* ps, Weapon weapon, int dualWield, int startInAltMode, int usedBefore);
 	extern G_GivePlayerWeapon_t G_GivePlayerWeapon;
 
 	typedef Weapon(*G_GetWeaponForName_t)(const char* name);
 	extern G_GetWeaponForName_t G_GetWeaponForName;
 
-	typedef void (*G_InitializeAmmo_t)(mp::playerState_s* ps, Weapon weapon, int hadWeapon);
+	typedef void (*G_InitializeAmmo_t)(playerState_s* ps, Weapon weapon, int hadWeapon);
 	extern G_InitializeAmmo_t G_InitializeAmmo;
 
 	typedef int (*G_RunFrame_t)(int server_time);
@@ -199,7 +199,7 @@ namespace game
 	typedef void (*SV_ExecuteClientCommand_t)(mp::client_t*, const char*, int);
 	extern SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
 
-	typedef mp::playerState_s* (*SV_GetPlayerstateForClientNum_t)(int num);
+	typedef playerState_s* (*SV_GetPlayerstateForClientNum_t)(int num);
 	extern SV_GetPlayerstateForClientNum_t SV_GetPlayerstateForClientNum;
 
 	typedef const char* (*SV_GetGuid_t)(int clientNum);
