@@ -249,6 +249,7 @@ namespace party
 			scheduler::once([]()
 			{
 				game::Dvar_RegisterString("sv_sayName", "console", game::DvarFlags::DVAR_FLAG_NONE, "The name to pose as for 'say' commands");
+				game::Dvar_RegisterString("didyouknow", "", game::DvarFlags::DVAR_FLAG_NONE, "");
 			}, scheduler::pipeline::main);
 
 			command::add("tell", [](command::params& params) 
