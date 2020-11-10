@@ -9,6 +9,34 @@ namespace game
 	typedef vec_t vec3_t[3];
 	typedef vec_t vec4_t[4];
 
+	struct $9704E9D6F23D6A5E526351953F37E26F
+	{
+		unsigned int weaponIdx : 8;
+		unsigned int weaponVariation : 6;
+		unsigned int weaponScopes : 3;
+		unsigned int weaponUnderBarrels : 2;
+		unsigned int weaponOthers : 7;
+		unsigned int scopeVariation : 6;
+	};
+
+	union Weapon
+	{
+		$9704E9D6F23D6A5E526351953F37E26F __s0;
+		unsigned int data;
+	};
+
+	enum errorParm
+	{
+		ERR_FATAL = 0,
+		ERR_DROP = 1,
+		ERR_SERVERDISCONNECT = 2,
+		ERR_DISCONNECT = 3,
+		ERR_SCRIPT = 4,
+		ERR_SCRIPT_DROP = 5,
+		ERR_LOCALIZATION = 6,
+		ERR_MAPLOADERRORSUMMARY = 7,
+	};
+
 	enum CodPlayMode
 	{
 		CODPLAYMODE_NONE = 0x0,
@@ -999,6 +1027,11 @@ namespace game
 			char __0x00[0x110];
 			gclient_s* client;
 		};
+
+		struct playerState_s
+		{
+
+		};
 	}
 
 	namespace mp
@@ -1335,4 +1368,10 @@ namespace game
 			char _0x41E94[0x416DC];
 		};
 	}
+
+	union playerState_s
+	{
+		sp::playerState_s* sp;
+		mp::playerState_s* mp;
+	};
 }

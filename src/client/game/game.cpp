@@ -44,6 +44,10 @@ namespace game
 	FS_ReadFile_t FS_ReadFile;
 	FS_FreeFile_t FS_FreeFile;
 
+	G_GivePlayerWeapon_t G_GivePlayerWeapon;
+	G_GetWeaponForName_t G_GetWeaponForName;
+	G_InitializeAmmo_t G_InitializeAmmo;
+
 	G_RunFrame_t G_RunFrame;
 
 	I_CleanStr_t I_CleanStr;
@@ -83,6 +87,7 @@ namespace game
 	SV_AddBot_t SV_AddBot;
 	SV_BotIsBot_t SV_BotIsBot;
 	SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
+	SV_GetPlayerstateForClientNum_t SV_GetPlayerstateForClientNum;
 	SV_GetGuid_t SV_GetGuid;
 	SV_KickClientNum_t SV_KickClientNum;
 	SV_SetConfigstring_t SV_SetConfigstring;
@@ -230,6 +235,10 @@ namespace game
 			Dvar_Sort = Dvar_Sort_t(SELECT_VALUE(0x14042DEF0, 0x1404F1210));
 			Dvar_ValueToString = Dvar_ValueToString_t(SELECT_VALUE(0x14042E710, 0x1404F1A30));
 
+			G_GivePlayerWeapon = G_GivePlayerWeapon_t(SELECT_VALUE(0x140359E20, 0x1403DA5E0));
+			G_GetWeaponForName = G_GetWeaponForName_t(SELECT_VALUE(0x140359890, 0x1403DA060));
+			G_InitializeAmmo = G_InitializeAmmo_t(SELECT_VALUE(0x140311F00, 0x14039AEA0));
+
 			G_RunFrame = G_RunFrame_t(SELECT_VALUE(0x0, 0x1403A05E0));
 
 			I_CleanStr = I_CleanStr_t(SELECT_VALUE(0x140432460, 0x1404F63C0));
@@ -270,6 +279,7 @@ namespace game
 			SV_AddBot = SV_AddBot_t(SELECT_VALUE(0, 0x140470920));
 			SV_BotIsBot = SV_BotIsBot_t(SELECT_VALUE(0, 0x140461340));
 			SV_ExecuteClientCommand = SV_ExecuteClientCommand_t(SELECT_VALUE(0, 0x140472430));
+			SV_GetPlayerstateForClientNum = SV_GetPlayerstateForClientNum_t(SELECT_VALUE(0x140490F80, 0x140475A10));
 			SV_GetGuid = SV_GetGuid_t(SELECT_VALUE(0, 0x140475990));
 			SV_KickClientNum = SV_KickClientNum_t(SELECT_VALUE(0, 0x14046F730));
 			SV_SetConfigstring = SV_SetConfigstring_t(SELECT_VALUE(0, 0x140477450));
