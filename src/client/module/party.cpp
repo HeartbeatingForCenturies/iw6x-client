@@ -12,6 +12,7 @@
 #include "utils/string.hpp"
 #include "utils/info_string.hpp"
 #include "utils/cryptography.hpp"
+#include "utils/hook.hpp"
 
 namespace party
 {
@@ -22,6 +23,10 @@ namespace party
 			game::netadr_s host{};
 			std::string challenge{};
 		} connect_state;
+
+		utils::hook::detour didyouknow_hook;
+
+		std::string sv_motd;
 
 		void switch_gamemode_if_necessary(const std::string& gametype)
 		{
@@ -152,6 +157,16 @@ namespace party
 		}
 	}
 
+	void didyouknow_stub(game::dvar_t* dvar, const char* string) 
+	{
+		if (dvar->name == "didyouknow"s && !party::sv_motd.empty())
+		{
+			string = party::sv_motd.data();
+		}
+
+		return didyouknow_hook.invoke<void>(dvar, string);
+	}
+
 	class module final : public module_interface
 	{
 	public:
@@ -161,6 +176,8 @@ namespace party
 			{
 				return;
 			}
+
+			didyouknow_hook.create(game::Dvar_SetString, didyouknow_stub);
 
 			command::add("map", [](command::params& argument)
 			{
@@ -232,6 +249,8 @@ namespace party
 			scheduler::once([]()
 			{
 				game::Dvar_RegisterString("sv_sayName", "console", game::DvarFlags::DVAR_FLAG_NONE, "The name to pose as for 'say' commands");
+				game::Dvar_RegisterString("sv_motd", "", game::DvarFlags::DVAR_FLAG_NONE, "Custom message of the day for servers");
+				game::Dvar_RegisterString("didyouknow", "", game::DvarFlags::DVAR_FLAG_NONE, "");
 			}, scheduler::pipeline::main);
 
 			command::add("tell", [](command::params& params) 
@@ -297,6 +316,7 @@ namespace party
 				info.set("gamename", "IW6");
 				info.set("hostname", get_dvar_string("sv_hostname"));
 				info.set("gametype", get_dvar_string("g_gametype"));
+				info.set("sv_motd", get_dvar_string("sv_motd"));
 				info.set("xuid", utils::string::va("%llX", steam::SteamUser()->GetSteamID().bits));
 				info.set("mapname", get_dvar_string("mapname"));
 				info.set("isPrivate", get_dvar_string("g_password").empty() ? "0" : "1");
@@ -338,6 +358,15 @@ namespace party
 					printf("Invalid gametype.\n");
 					return;
 				}
+
+				const auto gamename = info.get("gamename");
+				if (gamename != "IW6"s)
+				{
+					printf("Invalid gamename.\n");
+					return;
+				}
+
+				party::sv_motd = info.get("sv_motd");
 
 				connect_to_party(target, mapname, gametype);
 			});
