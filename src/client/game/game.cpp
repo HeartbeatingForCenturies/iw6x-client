@@ -87,6 +87,7 @@ namespace game
 	SV_AddBot_t SV_AddBot;
 	SV_BotIsBot_t SV_BotIsBot;
 	SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
+	SV_FastRestart_t SV_FastRestart;
 	SV_GetPlayerstateForClientNum_t SV_GetPlayerstateForClientNum;
 	SV_GetGuid_t SV_GetGuid;
 	SV_KickClientNum_t SV_KickClientNum;
@@ -279,6 +280,7 @@ namespace game
 			SV_AddBot = SV_AddBot_t(SELECT_VALUE(0, 0x140470920));
 			SV_BotIsBot = SV_BotIsBot_t(SELECT_VALUE(0, 0x140461340));
 			SV_ExecuteClientCommand = SV_ExecuteClientCommand_t(SELECT_VALUE(0, 0x140472430));
+			SV_FastRestart = SV_FastRestart_t(SELECT_VALUE(0x14048B890, 0x14046F440));
 			SV_GetPlayerstateForClientNum = SV_GetPlayerstateForClientNum_t(SELECT_VALUE(0x140490F80, 0x140475A10));
 			SV_GetGuid = SV_GetGuid_t(SELECT_VALUE(0, 0x140475990));
 			SV_KickClientNum = SV_KickClientNum_t(SELECT_VALUE(0, 0x14046F730));
