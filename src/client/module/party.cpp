@@ -100,17 +100,20 @@ namespace party
 		}
 	}
 
-	int get_client_num_from_name(std::string name)
+	int get_client_num_from_name(const std::string& name)
 	{
 		for (auto i = 0; !name.empty() && i < *game::mp::svs_numclients; ++i)
 		{
-			char client_name[16] = { 0 };
-			strncpy_s(client_name, game::mp::g_entities[i].client->sess.cs.name, 16);
-			game::I_CleanStr(client_name);
-
-			if (client_name == name)
+			if (game::mp::g_entities[i].client)
 			{
-				return i;
+				char client_name[16] = {0};
+				strncpy_s(client_name, game::mp::g_entities[i].client->sess.cs.name, 16);
+				game::I_CleanStr(client_name);
+
+				if (client_name == name)
+				{
+					return i;
+				}
 			}
 		}
 		return -1;
@@ -169,6 +172,14 @@ namespace party
 				start_map(argument[1]);
 			});
 
+			command::add("fast_restart", []()
+			{
+				if (game::SV_Loaded())
+				{
+					game::SV_FastRestart();
+				}
+			});
+
 			command::add("connect", [](command::params& argument)
 			{
 				if (argument.size() != 2)
@@ -224,6 +235,70 @@ namespace party
 				}
 
 				game::SV_KickClientNum(clientNum, "EXE_PLAYERKICKED");
+			});
+
+			scheduler::once([]()
+			{
+				game::Dvar_RegisterString("sv_sayName", "console", game::DvarFlags::DVAR_FLAG_NONE,
+				                          "The name to pose as for 'say' commands");
+			}, scheduler::pipeline::main);
+
+			command::add("tell", [](command::params& params)
+			{
+				if (params.size() < 3)
+				{
+					return;
+				}
+
+				auto clientNum = atoi(params.get(1));
+				std::string message = params.join(2);
+				std::string name = game::Dvar_FindVar("sv_sayName")->current.string;
+
+				game::SV_GameSendServerCommand(clientNum, 0,
+				                               utils::string::va("%c \"%s: %s\"", 84, name.data(), message.data()));
+				printf("%s -> %i: %s\n", name.data(), clientNum, message.data());
+			});
+
+			command::add("tellraw", [](command::params& params)
+			{
+				if (params.size() < 3)
+				{
+					return;
+				}
+
+				auto clientNum = atoi(params.get(1));
+				std::string message = params.join(2);
+
+				game::SV_GameSendServerCommand(clientNum, 0, utils::string::va("%c \"%s\"", 84, message.data()));
+				printf("%i: %s\n", clientNum, message.data());
+			});
+
+			command::add("say", [](command::params& params)
+			{
+				if (params.size() < 2)
+				{
+					return;
+				}
+
+				std::string message = params.join(1);
+				std::string name = game::Dvar_FindVar("sv_sayName")->current.string;
+
+				game::SV_GameSendServerCommand(
+					-1, 0, utils::string::va("%c \"%s: %s\"", 84, name.data(), message.data()));
+				printf("%s: %s\n", name.data(), message.data());
+			});
+
+			command::add("sayraw", [](command::params& params)
+			{
+				if (params.size() < 2)
+				{
+					return;
+				}
+
+				std::string message = params.join(1);
+
+				game::SV_GameSendServerCommand(-1, 0, utils::string::va("%c \"%s\"", 84, message.data()));
+				printf("%s\n", message.data());
 			});
 
 			network::on("getInfo", [](const game::netadr_s& target, const std::string_view& data)

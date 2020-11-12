@@ -1,5 +1,6 @@
 #include <std_include.hpp>
 #include "steam/steam.hpp"
+#include "utils/cryptography.hpp"
 
 namespace steam
 {
@@ -9,10 +10,8 @@ namespace steam
 
 		steam_id generate_steam_id()
 		{
-			srand(uint32_t(time(nullptr)));
-
 			steam_id id;
-			id.bits = 0x110000100000000 | (rand() & ~0x80000000);
+			id.bits = 0x110000100000000 | (::utils::cryptography::random::get_integer() & ~0x80000000);
 			return id;
 		}
 	}

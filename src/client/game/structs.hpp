@@ -9,6 +9,34 @@ namespace game
 	typedef vec_t vec3_t[3];
 	typedef vec_t vec4_t[4];
 
+	struct $9704E9D6F23D6A5E526351953F37E26F
+	{
+		unsigned int weaponIdx : 8;
+		unsigned int weaponVariation : 6;
+		unsigned int weaponScopes : 3;
+		unsigned int weaponUnderBarrels : 2;
+		unsigned int weaponOthers : 7;
+		unsigned int scopeVariation : 6;
+	};
+
+	union Weapon
+	{
+		$9704E9D6F23D6A5E526351953F37E26F __s0;
+		unsigned int data;
+	};
+
+	enum errorParm
+	{
+		ERR_FATAL = 0,
+		ERR_DROP = 1,
+		ERR_SERVERDISCONNECT = 2,
+		ERR_DISCONNECT = 3,
+		ERR_SCRIPT = 4,
+		ERR_SCRIPT_DROP = 5,
+		ERR_LOCALIZATION = 6,
+		ERR_MAPLOADERRORSUMMARY = 7,
+	};
+
 	enum CodPlayMode
 	{
 		CODPLAYMODE_NONE = 0x0,
@@ -985,6 +1013,95 @@ namespace game
 		unsigned char v;
 	};
 
+	enum class he_type_t
+	{
+		HE_TYPE_FREE = 0x0,
+		HE_TYPE_TEXT = 0x1,
+		HE_TYPE_VALUE = 0x2,
+		HE_TYPE_PLAYERNAME = 0x3,
+		HE_TYPE_MATERIAL = 0x4,
+		HE_TYPE_TIMER_DOWN = 0x5,
+		HE_TYPE_TIMER_UP = 0x6,
+		HE_TYPE_TIMER_STATIC = 0x7,
+		HE_TYPE_TENTHS_TIMER_DOWN = 0x8,
+		HE_TYPE_TENTHS_TIMER_UP = 0x9,
+		HE_TYPE_TENTHS_TIMER_STATIC = 0xA,
+		HE_TYPE_CLOCK_DOWN = 0xB,
+		HE_TYPE_CLOCK_UP = 0xC,
+		HE_TYPE_WAYPOINT = 0xD,
+		HE_TYPE_COUNT = 0xE,
+	};
+
+	struct $C96EA5EC2ACBB9C0BF22693F316ACC67
+	{
+		unsigned char r;
+		unsigned char g;
+		unsigned char b;
+		unsigned char a;
+	};
+
+	/* 1446 */
+	union hudelem_color_t
+	{
+		$C96EA5EC2ACBB9C0BF22693F316ACC67 _s0;
+		unsigned int rgba;
+	};
+
+	struct hudelem_s
+	{
+		he_type_t type;
+		float x;
+		float y;
+		float z;
+		int targetEntNum;
+		float fontScale;
+		float fromFontScale;
+		int fontScaleStartTime;
+		int fontScaleTime;
+		int font;
+		int alignOrg;
+		int alignScreen;
+		hudelem_color_t color;
+		hudelem_color_t fromColor;
+		int fadeStartTime;
+		int fadeTime;
+		int label;
+		int width;
+		int height;
+		int materialIndex;
+		int fromWidth;
+		int fromHeight;
+		int scaleStartTime;
+		int scaleTime;
+		float fromX;
+		float fromY;
+		int fromAlignOrg;
+		int fromAlignScreen;
+		int moveStartTime;
+		int moveTime;
+		int time;
+		int duration;
+		float value;
+		int text;
+		float sort;
+		hudelem_color_t glowColor;
+		int fxBirthTime;
+		int fxLetterTime;
+		int fxDecayStartTime;
+		int fxDecayDuration;
+		int soundID;
+		int flags;
+	};
+
+	struct game_hudelem_s
+	{
+		hudelem_s elem;
+		int clientNum;
+		int team;
+		int archived;
+		int currentShowInKillcam;
+	};
+
 	namespace sp
 	{
 		// very shit structures for the moment cuz i cba mapping the whole thing out right now...
@@ -998,6 +1115,11 @@ namespace game
 		{
 			char __0x00[0x110];
 			gclient_s* client;
+		};
+
+		struct playerState_s
+		{
+
 		};
 	}
 
@@ -1335,4 +1457,10 @@ namespace game
 			char _0x41E94[0x416DC];
 		};
 	}
+
+	union playerState_s
+	{
+		sp::playerState_s* sp;
+		mp::playerState_s* mp;
+	};
 }

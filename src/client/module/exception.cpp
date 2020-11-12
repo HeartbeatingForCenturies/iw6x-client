@@ -1,5 +1,6 @@
 #include <std_include.hpp>
 #include "loader/module_loader.hpp"
+#include "system_check.hpp"
 #include "utils/hook.hpp"
 #include "utils/io.hpp"
 #include "utils/string.hpp"
@@ -17,6 +18,16 @@ namespace exception
 				error_str = utils::string::va("Fatal error (0x%08X) at 0x%p.",
 				                              exceptioninfo->ExceptionRecord->ExceptionCode,
 				                              exceptioninfo->ExceptionRecord->ExceptionAddress);
+
+				error_str += "\n\n";
+				if (!system_check::is_valid())
+				{
+					error_str += "Make sure to get supported game files to avoid such crashes!";
+				}
+				else
+				{
+					error_str += "Make sure to update your graphics card drivers and install operating system updates!";
+				}
 			}
 
 			MessageBoxA(nullptr, error_str.data(), "ERROR", MB_ICONERROR);

@@ -230,6 +230,21 @@ namespace command
 				game::CG_GameMessage(
 					0, utils::string::va("ufo %s", game::sp::g_entities[0].client->flags & 2 ? "^2on" : "^1off"));
 			});
+
+			add("give", [](params& params)
+			{
+				if (!game::SV_Loaded())
+				{
+					return;
+				}
+
+				auto ps = game::SV_GetPlayerstateForClientNum(0);
+				auto wp = game::G_GetWeaponForName(params.get(1));
+				if (game::G_GivePlayerWeapon(ps, wp, 0, 0, 0))
+				{
+					game::G_InitializeAmmo(ps, wp, 0);
+				}
+			});
 		}
 
 		void add_mp_commands()
@@ -278,10 +293,10 @@ namespace command
 
 				game::mp::g_entities[client_num].client->flags ^= 2;
 				game::SV_GameSendServerCommand(client_num, 1,
-					utils::string::va("f \"ufo %s\"",
-						game::mp::g_entities[client_num].client->flags & 2
-						? "^2on"
-						: "^1off"));
+				                               utils::string::va("f \"ufo %s\"",
+				                                                 game::mp::g_entities[client_num].client->flags & 2
+					                                                 ? "^2on"
+					                                                 : "^1off"));
 			});
 
 			add_sv("setviewpos", [&](const int client_num, params_sv& params)
@@ -308,6 +323,22 @@ namespace command
 				game::mp::g_entities[client_num].client->ps.delta_angles[0] = std::strtof(params.get(1), nullptr);
 				game::mp::g_entities[client_num].client->ps.delta_angles[1] = std::strtof(params.get(2), nullptr);
 				game::mp::g_entities[client_num].client->ps.delta_angles[2] = std::strtof(params.get(3), nullptr);
+			});
+
+			add_sv("give", [](const int client_num, params_sv& params)
+			{
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
+					return;
+				}
+
+				auto ps = game::SV_GetPlayerstateForClientNum(client_num);
+				auto wp = game::G_GetWeaponForName(params.get(1));
+				if (game::G_GivePlayerWeapon(ps, wp, 0, 0, 0))
+				{
+					game::G_InitializeAmmo(ps, wp, 0);
+				}
 			});
 		}
 	};

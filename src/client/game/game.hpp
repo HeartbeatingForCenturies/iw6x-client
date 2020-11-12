@@ -18,7 +18,7 @@ namespace game
 	typedef const char* (*Com_Parse_t)(char const**);
 	extern Com_Parse_t Com_Parse;
 
-	typedef void (*Com_Error_t)(int type, const char* message, ...);
+	typedef void (*Com_Error_t)(errorParm code, const char* message, ...);
 	extern Com_Error_t Com_Error;
 
 	typedef void (*Com_Quit_t)();
@@ -113,8 +113,24 @@ namespace game
 	typedef void (*FS_FreeFile_t)(void* buffer);
 	extern FS_FreeFile_t FS_FreeFile;
 
+	typedef int (*G_GivePlayerWeapon_t)(playerState_s* ps, Weapon weapon, int dualWield, int startInAltMode, int usedBefore);
+	extern G_GivePlayerWeapon_t G_GivePlayerWeapon;
+
+	typedef Weapon(*G_GetWeaponForName_t)(const char* name);
+	extern G_GetWeaponForName_t G_GetWeaponForName;
+
+	typedef void (*G_InitializeAmmo_t)(playerState_s* ps, Weapon weapon, int hadWeapon);
+	extern G_InitializeAmmo_t G_InitializeAmmo;
+
+	typedef unsigned int (*G_FindConfigstringIndex_t)(const char* name, /*ConfigString*/ const unsigned int start,
+	                                                  const unsigned int max, const int create, const char* errormsg);
+	extern G_FindConfigstringIndex_t G_FindConfigstringIndex;
+
 	typedef int (*G_RunFrame_t)(int server_time);
 	extern G_RunFrame_t G_RunFrame;
+
+	typedef game_hudelem_s* (*HudElem_Alloc_t)(int clientNum, int teamNum);
+	extern HudElem_Alloc_t HudElem_Alloc;
 
 	typedef char* (*I_CleanStr_t)(char* string);
 	extern I_CleanStr_t I_CleanStr;
@@ -133,6 +149,9 @@ namespace game
 
 	typedef Material* (*Material_RegisterHandle_t)(const char* material);
 	extern Material_RegisterHandle_t Material_RegisterHandle;
+
+	typedef void (*NET_OutOfBandPrint_t)(netsrc_t, netadr_s*, const char*);
+	extern NET_OutOfBandPrint_t NET_OutOfBandPrint;
 
 	typedef bool (*NET_StringToAdr_t)(const char* s, game::netadr_s* a);
 	extern NET_StringToAdr_t NET_StringToAdr;
@@ -157,10 +176,10 @@ namespace game
 	typedef ScreenPlacement* (*ScrPlace_GetViewPlacement_t)();
 	extern ScrPlace_GetViewPlacement_t ScrPlace_GetViewPlacement;
 
-	typedef float(*Scr_GetFloat_t)(int index);
+	typedef float (*Scr_GetFloat_t)(int index);
 	extern Scr_GetFloat_t Scr_GetFloat;
 
-	typedef int(*Scr_GetNumParam_t)();
+	typedef int (*Scr_GetNumParam_t)();
 	extern Scr_GetNumParam_t Scr_GetNumParam;
 
 	typedef const char* (*SEH_StringEd_GetString_t)(const char*);
@@ -186,6 +205,12 @@ namespace game
 
 	typedef void (*SV_ExecuteClientCommand_t)(mp::client_t*, const char*, int);
 	extern SV_ExecuteClientCommand_t SV_ExecuteClientCommand;
+
+	typedef void (*SV_FastRestart_t)();
+	extern SV_FastRestart_t SV_FastRestart;
+
+	typedef playerState_s* (*SV_GetPlayerstateForClientNum_t)(int num);
+	extern SV_GetPlayerstateForClientNum_t SV_GetPlayerstateForClientNum;
 
 	typedef const char* (*SV_GetGuid_t)(int clientNum);
 	extern SV_GetGuid_t SV_GetGuid;
@@ -221,6 +246,9 @@ namespace game
 	typedef const char* (*UI_LocalizeMapname_t)(const char*);
 	extern UI_LocalizeMapname_t UI_LocalizeMapname;
 	extern UI_LocalizeMapname_t UI_LocalizeGametype;
+
+	typedef DWOnlineStatus (*dwGetLogOnStatus_t)(int);
+	extern dwGetLogOnStatus_t dwGetLogOnStatus;
 
 	extern int* keyCatchers;
 

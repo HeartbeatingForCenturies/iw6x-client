@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   SP crashes on mouse scroll [#186](https://github.com/XLabsProject/iw6x-client/issues/186)
+
+### Pull Requests
+
+-   Change steam_id generation to a more suitable random [#178](https://github.com/XLabsProject/iw6x-client/pull/178) ([@skiff](https://github.com/skiff))
+
 ## [v1.0.1] - 2020-11-05
 
 ### Pull Requests

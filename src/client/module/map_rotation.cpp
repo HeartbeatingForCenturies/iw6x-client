@@ -110,7 +110,16 @@ namespace map_rotation
 
 		void trigger_map_rotation()
 		{
-			command::execute("map_rotate");
+			scheduler::schedule([]()
+			{
+				if (game::CL_IsCgameInitialized())
+				{
+					return scheduler::cond_continue;
+				}
+
+				command::execute("map_rotate", false);
+				return scheduler::cond_end;
+			}, scheduler::pipeline::main, 1s);
 		}
 	}
 
@@ -133,7 +142,8 @@ namespace map_rotation
 			command::add("map_rotate", &perform_map_rotation);
 
 			// Hook SV_MatchEnd in GScr_ExitLevel 
-			utils::hook::call(0x1403CBC6C, &trigger_map_rotation);
+			utils::hook::jump(0x1403CBC30, &trigger_map_rotation);
+			//utils::hook::call(0x1403CBC6C, &trigger_map_rotation);
 		}
 	};
 }
