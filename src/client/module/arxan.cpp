@@ -149,6 +149,7 @@ namespace arxan
 			{
 				return set_thread_context_stub;
 			}
+
 			return nullptr;
 		}
 

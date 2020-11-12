@@ -110,7 +110,16 @@ namespace map_rotation
 
 		void trigger_map_rotation()
 		{
-			command::execute("map_rotate", false);
+			scheduler::schedule([]()
+			{
+				if (game::CL_IsCgameInitialized())
+				{
+					return scheduler::cond_continue;
+				}
+
+				command::execute("map_rotate", false);
+				return scheduler::cond_end;
+			}, scheduler::pipeline::main, 1s);
 		}
 	}
 
