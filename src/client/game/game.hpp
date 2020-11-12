@@ -113,8 +113,15 @@ namespace game
 	typedef void (*FS_FreeFile_t)(void* buffer);
 	extern FS_FreeFile_t FS_FreeFile;
 
+	typedef unsigned int (*G_FindConfigstringIndex_t)(const char* name, /*ConfigString*/ const unsigned int start,
+	                                                  const unsigned int max, const int create, const char* errormsg);
+	extern G_FindConfigstringIndex_t G_FindConfigstringIndex;
+
 	typedef int (*G_RunFrame_t)(int server_time);
 	extern G_RunFrame_t G_RunFrame;
+
+	typedef game_hudelem_s* (*HudElem_Alloc_t)(int clientNum, int teamNum);
+	extern HudElem_Alloc_t HudElem_Alloc;
 
 	typedef char* (*I_CleanStr_t)(char* string);
 	extern I_CleanStr_t I_CleanStr;
@@ -160,10 +167,10 @@ namespace game
 	typedef ScreenPlacement* (*ScrPlace_GetViewPlacement_t)();
 	extern ScrPlace_GetViewPlacement_t ScrPlace_GetViewPlacement;
 
-	typedef float(*Scr_GetFloat_t)(int index);
+	typedef float (*Scr_GetFloat_t)(int index);
 	extern Scr_GetFloat_t Scr_GetFloat;
 
-	typedef int(*Scr_GetNumParam_t)();
+	typedef int (*Scr_GetNumParam_t)();
 	extern Scr_GetNumParam_t Scr_GetNumParam;
 
 	typedef const char* (*SEH_StringEd_GetString_t)(const char*);

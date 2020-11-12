@@ -182,86 +182,6 @@ namespace command
 		}
 	}
 
-	enum he_type_t
-	{
-		HE_TYPE_FREE = 0x0,
-		HE_TYPE_TEXT = 0x1,
-		HE_TYPE_VALUE = 0x2,
-		HE_TYPE_PLAYERNAME = 0x3,
-		HE_TYPE_MATERIAL = 0x4,
-		HE_TYPE_TIMER_DOWN = 0x5,
-		HE_TYPE_TIMER_UP = 0x6,
-		HE_TYPE_TIMER_STATIC = 0x7,
-		HE_TYPE_TENTHS_TIMER_DOWN = 0x8,
-		HE_TYPE_TENTHS_TIMER_UP = 0x9,
-		HE_TYPE_TENTHS_TIMER_STATIC = 0xA,
-		HE_TYPE_CLOCK_DOWN = 0xB,
-		HE_TYPE_CLOCK_UP = 0xC,
-		HE_TYPE_WAYPOINT = 0xD,
-		HE_TYPE_COUNT = 0xE,
-	};
-
-	struct $C96EA5EC2ACBB9C0BF22693F316ACC67
-	{
-		unsigned char r;
-		unsigned char g;
-		unsigned char b;
-		unsigned char a;
-	};
-
-	/* 1446 */
-	union hudelem_color_t
-	{
-		$C96EA5EC2ACBB9C0BF22693F316ACC67 _s0;
-		int rgba;
-	};
-
-	struct hudelem_s
-	{
-		he_type_t type;
-		float x;
-		float y;
-		float z;
-		int targetEntNum;
-		float fontScale;
-		float fromFontScale;
-		int fontScaleStartTime;
-		int fontScaleTime;
-		int font;
-		int alignOrg;
-		int alignScreen;
-		hudelem_color_t color;
-		hudelem_color_t fromColor;
-		int fadeStartTime;
-		int fadeTime;
-		int label;
-		int width;
-		int height;
-		int materialIndex;
-		int fromWidth;
-		int fromHeight;
-		int scaleStartTime;
-		int scaleTime;
-		float fromX;
-		float fromY;
-		int fromAlignOrg;
-		int fromAlignScreen;
-		int moveStartTime;
-		int moveTime;
-		int time;
-		int duration;
-		float value;
-		int text;
-		float sort;
-		hudelem_color_t glowColor;
-		int fxBirthTime;
-		int fxLetterTime;
-		int fxDecayStartTime;
-		int fxDecayDuration;
-		int soundID;
-		int flags;
-	};
-
 	class module final : public module_interface
 	{
 	public:
@@ -278,37 +198,6 @@ namespace command
 				if (game::environment::is_mp())
 				{
 					add_mp_commands();
-
-					add("hudelem", [&]()
-					{
-						auto text = "Mod support in IW6x?";;
-						auto index = ((int(*)(const char*, size_t, size_t,size_t, const char*))0x140161F90)(text, 541, 0x258u, 1, "");
-
-						auto hudelem = ((hudelem_s*(*)(int, int))0x1403997E0)(0x7FF, 0);
-						hudelem->fontScale = 2.0f;
-						hudelem->x = 100;
-						hudelem->color.rgba = 0xFF000000;
-						hudelem->glowColor.rgba = 0xFF00FFAE;
-						hudelem->text = index;
-						hudelem->type = HE_TYPE_TEXT;
-						hudelem->flags |= 1;
-
-
-						text = "^1Not ^2yet, ^3but ^5soon!";
-						index = ((int(*)(const char*, size_t, size_t,size_t, const char*))0x140161F90)(text, 541, 0x258u, 1, "");
-
-						hudelem = ((hudelem_s*(*)(int, int))0x1403997E0)(0x7FF, 0);
-						hudelem->fontScale = 2.0f;
-						hudelem->x = 100;
-						hudelem->y = 50;
-						hudelem->color.rgba = 0xFFFFFFFF;
-						hudelem->text = index;
-						hudelem->type = HE_TYPE_TEXT;
-						hudelem->flags |= 1;
-						
-						//auto x = *((size_t*)0x14086F810 + 7 * 0);
-						//*(DWORD*)(hudelem + x) = index;
-					});
 				}
 			}
 		}
