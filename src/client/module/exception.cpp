@@ -19,10 +19,14 @@ namespace exception
 				                              exceptioninfo->ExceptionRecord->ExceptionCode,
 				                              exceptioninfo->ExceptionRecord->ExceptionAddress);
 
+				error_str += "\n\n";
 				if (!system_check::is_valid())
 				{
-					error_str += "\n\n";
 					error_str += "Make sure to get supported game files to avoid such crashes!";
+				}
+				else
+				{
+					error_str += "Make sure to update your graphics card drivers and install operating system updates!";
 				}
 			}
 
