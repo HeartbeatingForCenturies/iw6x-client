@@ -47,8 +47,10 @@ namespace game
 	G_GivePlayerWeapon_t G_GivePlayerWeapon;
 	G_GetWeaponForName_t G_GetWeaponForName;
 	G_InitializeAmmo_t G_InitializeAmmo;
-
+	G_FindConfigstringIndex_t G_FindConfigstringIndex;
 	G_RunFrame_t G_RunFrame;
+
+	HudElem_Alloc_t HudElem_Alloc;
 
 	I_CleanStr_t I_CleanStr;
 
@@ -239,8 +241,10 @@ namespace game
 			G_GivePlayerWeapon = G_GivePlayerWeapon_t(SELECT_VALUE(0x140359E20, 0x1403DA5E0));
 			G_GetWeaponForName = G_GetWeaponForName_t(SELECT_VALUE(0x140359890, 0x1403DA060));
 			G_InitializeAmmo = G_InitializeAmmo_t(SELECT_VALUE(0x140311F00, 0x14039AEA0));
-
+			G_FindConfigstringIndex = G_FindConfigstringIndex_t(SELECT_VALUE(0x0, 0x140161F90));
 			G_RunFrame = G_RunFrame_t(SELECT_VALUE(0x0, 0x1403A05E0));
+
+			HudElem_Alloc = HudElem_Alloc_t(SELECT_VALUE(0x0, 0x1403997E0));
 
 			I_CleanStr = I_CleanStr_t(SELECT_VALUE(0x140432460, 0x1404F63C0));
 
