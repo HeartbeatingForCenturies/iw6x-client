@@ -100,17 +100,20 @@ namespace party
 		}
 	}
 
-	int get_client_num_from_name(std::string name)
+	int get_client_num_from_name(const std::string& name)
 	{
 		for (auto i = 0; !name.empty() && i < *game::mp::svs_numclients; ++i)
 		{
-			char client_name[16] = { 0 };
-			strncpy_s(client_name, game::mp::g_entities[i].client->sess.cs.name, 16);
-			game::I_CleanStr(client_name);
-
-			if (client_name == name)
+			if (game::mp::g_entities[i].client)
 			{
-				return i;
+				char client_name[16] = {0};
+				strncpy_s(client_name, game::mp::g_entities[i].client->sess.cs.name, 16);
+				game::I_CleanStr(client_name);
+
+				if (client_name == name)
+				{
+					return i;
+				}
 			}
 		}
 		return -1;

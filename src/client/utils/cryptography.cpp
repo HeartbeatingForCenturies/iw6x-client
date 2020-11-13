@@ -365,6 +365,11 @@ namespace utils::cryptography
 			register_prng(&fortuna_desc);
 			rng_make_prng(128, find_prng("fortuna"), &state, nullptr);
 
+			int i[4]; // uninitialized data
+			auto i_ptr = &i;
+			fortuna_add_entropy(reinterpret_cast<unsigned char*>(&i), sizeof(i), &state);
+			fortuna_add_entropy(reinterpret_cast<unsigned char*>(&i_ptr), sizeof(i_ptr), &state);
+
 			auto t = time(nullptr);
 			fortuna_add_entropy(reinterpret_cast<unsigned char*>(&t), sizeof(t), &state);
 

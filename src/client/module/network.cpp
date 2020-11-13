@@ -83,6 +83,15 @@ namespace network
 		{
 			return net_compare_base_address(a1, a2) && a1->port == a2->port;
 		}
+
+		void reconnect_migratated_client(game::mp::client_t*, game::netadr_s* from, const int, const int, const char*, const char*, bool)
+		{
+			// This happens when a client tries to rejoin after being recently disconnected, OR by a duplicated guid
+			// We don't want this to do anything. It decides to crash seemingly randomly
+			// Rather than try and let the player in, just tell them they are a duplicate player and reject connection
+			
+			game::NET_OutOfBandPrint(game::NS_SERVER, from, "error\nYou are already connected to the server.");
+		}
 	}
 
 	void on(const std::string& command, const callback& callback)
@@ -233,6 +242,9 @@ namespace network
 
 				// don't read checksum
 				utils::hook::jump(0x1405019CB, 0x1405019F3);
+
+				// don't try to reconnect client
+				utils::hook::call(0x14047197E, reconnect_migratated_client);
 
 				// ignore built in "print" oob command and add in our own
 				utils::hook::set<uint8_t>(0x1402C6AA4, 0xEB);

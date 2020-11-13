@@ -58,6 +58,7 @@ namespace game
 
 	Material_RegisterHandle_t Material_RegisterHandle;
 
+	NET_OutOfBandPrint_t NET_OutOfBandPrint;
 	NET_StringToAdr_t NET_StringToAdr;
 
 	R_AddCmdDrawStretchPic_t R_AddCmdDrawStretchPic;
@@ -97,6 +98,8 @@ namespace game
 
 	UI_LocalizeMapname_t UI_LocalizeMapname;
 	UI_LocalizeMapname_t UI_LocalizeGametype;
+
+	dwGetLogOnStatus_t dwGetLogOnStatus;
 
 	int* keyCatchers;
 
@@ -244,6 +247,7 @@ namespace game
 
 			Material_RegisterHandle = Material_RegisterHandle_t(SELECT_VALUE(0x140523D90, 0x1405F0E20));
 
+			NET_OutOfBandPrint = NET_OutOfBandPrint_t(SELECT_VALUE(0, 0x14041D5C0));
 			NET_StringToAdr = NET_StringToAdr_t(SELECT_VALUE(0, 0x14041D870));
 
 			R_AddCmdDrawStretchPic = R_AddCmdDrawStretchPic_t(SELECT_VALUE(0x140234460, 0x140600BE0));
@@ -281,6 +285,8 @@ namespace game
 
 			UI_LocalizeMapname = UI_LocalizeMapname_t(SELECT_VALUE(0, 0x1404B96D0));
 			UI_LocalizeGametype = UI_LocalizeMapname_t(SELECT_VALUE(0, 0x1404B90F0));
+
+			dwGetLogOnStatus = dwGetLogOnStatus_t(SELECT_VALUE(0, 0x140589490));
 
 			keyCatchers = reinterpret_cast<int*>(SELECT_VALUE(0x1417CF6E0, 0x1419E1ADC));
 

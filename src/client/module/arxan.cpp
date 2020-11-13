@@ -84,34 +84,58 @@ namespace arxan
 			*PDWORD(LPSTR(peb) + 0xBC) &= ~0x70;
 		}
 
+		void remove_hardware_breakpoints()
+		{
+			CONTEXT context;
+			ZeroMemory(&context, sizeof(context));
+			context.ContextFlags = CONTEXT_DEBUG_REGISTERS;
+
+			auto* const thread = GetCurrentThread();
+			GetThreadContext(thread, &context);
+
+			context.Dr0 = 0;
+			context.Dr1 = 0;
+			context.Dr2 = 0;
+			context.Dr3 = 0;
+			context.Dr6 = 0;
+			context.Dr7 = 0;
+
+			SetThreadContext(thread, &context);
+		}
+
 		BOOL WINAPI set_thread_context_stub(const HANDLE thread, CONTEXT* context)
 		{
-			// TODO: Disable HW breakpoints, once the dw frame is patched
+			if (!game::environment::is_sp()
+				&& game::dwGetLogOnStatus(0) == game::DW_LIVE_CONNECTED
+				&& context->ContextFlags == CONTEXT_DEBUG_REGISTERS)
+			{
+				return TRUE;
+			}
+
 			return SetThreadContext(thread, context);
 		}
 
-		void dw_frame_stub(size_t index)
+		void dw_frame_stub(const int index)
 		{
-			const auto dwGetLogOnStatus = reinterpret_cast<game::DWOnlineStatus(*)(size_t)>(0x140589490);
-			const auto status = dwGetLogOnStatus(index);
+			const auto status = game::dwGetLogOnStatus(index);
 
 			if (status == game::DW_LIVE_CONNECTING)
 			{
 				// dwLogOnComplete
-				reinterpret_cast<void(*)(size_t)>(0x1405894D0)(index);
+				reinterpret_cast<void(*)(int)>(0x1405894D0)(index);
 			}
 			else if (status == game::DW_LIVE_DISCONNECTED)
 			{
 				// dwLogOnStart
-				reinterpret_cast<void(*)(size_t)>(0x140589E10)(index);
+				reinterpret_cast<void(*)(int)>(0x140589E10)(index);
 			}
 			else
 			{
 				// dwLobbyPump
-				//reinterpret_cast<void(*)(size_t)>(0x1405918E0)(index);
+				//reinterpret_cast<void(*)(int)>(0x1405918E0)(index);
 
 				// DW_Frame
-				reinterpret_cast<void(*)(size_t)>(0x14000F9A6)(index);
+				reinterpret_cast<void(*)(int)>(0x14000F9A6)(index);
 			}
 		}
 	}
@@ -157,6 +181,8 @@ namespace arxan
 
 			// Unfinished for now
 			//utils::hook::jump(0x1405881E0, dw_frame_stub);
+
+			scheduler::on_game_initialized(remove_hardware_breakpoints, scheduler::pipeline::main);
 		}
 	};
 }
