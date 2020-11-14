@@ -3,6 +3,9 @@
 
 namespace game
 {
+	AddRefToValue_t AddRefToValue;
+	AddRefToValue_t RemoveRefToValue;
+
 	Sys_ShowConsole_t Sys_ShowConsole;
 
 	Com_Frame_Try_Block_Function_t Com_Frame_Try_Block_Function;
@@ -202,6 +205,9 @@ namespace game
 
 		void initialize()
 		{
+			AddRefToValue = AddRefToValue_t(SELECT_VALUE(0x1403D7740, 0x1404326E0));
+			RemoveRefToValue = AddRefToValue_t(SELECT_VALUE(0x1403D90F0, 0x1404340C0));
+
 			Sys_ShowConsole = Sys_ShowConsole_t(SELECT_VALUE(0x14043E650, 0x140503130));
 			Conbuf_AppendText = Conbuf_AppendText_t(SELECT_VALUE(0x14043DDE0, 0x1405028C0));
 

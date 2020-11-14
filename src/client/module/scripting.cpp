@@ -8,17 +8,47 @@ namespace scripting
 {
 	namespace
 	{
+		struct script_value
+		{
+			game::VariableValue value;
+
+			script_value(const game::VariableValue& value_)
+				: value(value_)
+			{
+				game::AddRefToValue(this->value.type, this->value.u);
+			}
+
+			~script_value()
+			{
+				game::RemoveRefToValue(this->value.type, this->value.u);
+			}
+		};
+
+		struct event
+		{
+			std::string name;
+			unsigned int entity_id;
+			std::vector<script_value> arguments;
+		};
+
 		utils::hook::detour vm_notify_hook;
 	
-		void vm_notify_stub(unsigned int notifyListOwnerId, game::scr_string_t stringValue, game::VariableValue *top)
+		void vm_notify_stub(const unsigned int notify_list_owner_id, const game::scr_string_t string_value, game::VariableValue *top)
 		{
-			const auto* string = game::SL_ConvertToString(stringValue);
+			const auto* string = game::SL_ConvertToString(string_value);
 			if (string)
 			{
-				//printf("Event: %s\n", string);
+				event e;
+				e.name = string;
+				e.entity_id = notify_list_owner_id;
+
+				for (auto* value = top; value->type != game::VAR_PRECODEPOS; --value)
+				{
+					e.arguments.emplace_back(*value);
+				}
 			}
 			
-			vm_notify_hook.invoke<void>(notifyListOwnerId, stringValue, top);
+			vm_notify_hook.invoke<void>(notify_list_owner_id, string_value, top);
 		}
 	}
 

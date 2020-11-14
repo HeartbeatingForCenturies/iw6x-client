@@ -9,6 +9,10 @@
 
 namespace game
 {
+	typedef void (*AddRefToValue_t)(int type, VariableUnion u);
+	extern AddRefToValue_t AddRefToValue;
+	extern AddRefToValue_t RemoveRefToValue;
+
 	typedef void (*Sys_ShowConsole_t)();
 	extern Sys_ShowConsole_t Sys_ShowConsole;
 
