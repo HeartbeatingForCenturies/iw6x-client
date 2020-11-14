@@ -80,6 +80,8 @@ namespace game
 
 	SEH_StringEd_GetString_t SEH_StringEd_GetString;
 
+	SL_ConvertToString_t SL_ConvertToString;
+
 	SV_GameSendServerCommand_t SV_GameSendServerCommand;
 	SV_Loaded_t SV_Loaded;
 
@@ -276,6 +278,8 @@ namespace game
 			Scr_GetNumParam = Scr_GetNumParam_t(SELECT_VALUE(0, 0x140438EC0));
 
 			SEH_StringEd_GetString = SEH_StringEd_GetString_t(SELECT_VALUE(0x0, 0x1404A5F60));
+
+			SL_ConvertToString = SL_ConvertToString_t(SELECT_VALUE(0x1403D6870, 0x1404317F0));
 
 			SV_GameSendServerCommand = SV_GameSendServerCommand_t(SELECT_VALUE(0x140490F40, 0x1404758C0));
 			SV_Loaded = SV_Loaded_t(SELECT_VALUE(0x140491820, 0x1404770C0));

@@ -1040,7 +1040,6 @@ namespace game
 		unsigned char a;
 	};
 
-	/* 1446 */
 	union hudelem_color_t
 	{
 		$C96EA5EC2ACBB9C0BF22693F316ACC67 _s0;
@@ -1100,6 +1099,40 @@ namespace game
 		int team;
 		int archived;
 		int currentShowInKillcam;
+	};
+
+	struct VariableStackBuffer
+	{
+		const char *pos;
+		unsigned __int16 size;
+		unsigned __int16 bufLen;
+		unsigned __int16 localId;
+		char time;
+		char buf[1];
+	};
+
+	union VariableUnion
+	{
+		int intValue;
+		unsigned int uintValue;
+		float floatValue;
+		unsigned int stringValue;
+		const float *vectorValue;
+		const char *codePosValue;
+		unsigned int pointerValue;
+		VariableStackBuffer *stackValue;
+		unsigned int entityOffset;
+	};
+
+	struct VariableValue
+	{
+		VariableUnion u;
+		int type;
+	};
+
+	enum scr_string_t
+	{
+		scr_string_t_dummy = 0x0,
 	};
 
 	namespace sp

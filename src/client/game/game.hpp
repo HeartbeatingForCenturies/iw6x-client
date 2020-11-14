@@ -185,6 +185,9 @@ namespace game
 	typedef const char* (*SEH_StringEd_GetString_t)(const char*);
 	extern SEH_StringEd_GetString_t SEH_StringEd_GetString;
 
+	typedef const char* (*SL_ConvertToString_t)(scr_string_t stringValue);
+	extern SL_ConvertToString_t SL_ConvertToString;
+
 	typedef void (*SV_GameSendServerCommand_t)(int, int, const char*);
 	extern SV_GameSendServerCommand_t SV_GameSendServerCommand;
 
