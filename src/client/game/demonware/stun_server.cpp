@@ -1,7 +1,7 @@
 #include <std_include.hpp>
 #include <utility>
 
-#include "module/demonware.hpp"
+#include "component/demonware.hpp"
 #include "game/demonware/stun_server.hpp"
 #include "utils/cryptography.hpp"
 #include "byte_buffer.hpp"

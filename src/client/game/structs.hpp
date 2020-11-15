@@ -9,6 +9,34 @@ namespace game
 	typedef vec_t vec3_t[3];
 	typedef vec_t vec4_t[4];
 
+	struct $9704E9D6F23D6A5E526351953F37E26F
+	{
+		unsigned int weaponIdx : 8;
+		unsigned int weaponVariation : 6;
+		unsigned int weaponScopes : 3;
+		unsigned int weaponUnderBarrels : 2;
+		unsigned int weaponOthers : 7;
+		unsigned int scopeVariation : 6;
+	};
+
+	union Weapon
+	{
+		$9704E9D6F23D6A5E526351953F37E26F __s0;
+		unsigned int data;
+	};
+
+	enum errorParm
+	{
+		ERR_FATAL = 0,
+		ERR_DROP = 1,
+		ERR_SERVERDISCONNECT = 2,
+		ERR_DISCONNECT = 3,
+		ERR_SCRIPT = 4,
+		ERR_SCRIPT_DROP = 5,
+		ERR_LOCALIZATION = 6,
+		ERR_MAPLOADERRORSUMMARY = 7,
+	};
+
 	enum CodPlayMode
 	{
 		CODPLAYMODE_NONE = 0x0,
@@ -985,6 +1013,163 @@ namespace game
 		unsigned char v;
 	};
 
+	enum class he_type_t
+	{
+		HE_TYPE_FREE = 0x0,
+		HE_TYPE_TEXT = 0x1,
+		HE_TYPE_VALUE = 0x2,
+		HE_TYPE_PLAYERNAME = 0x3,
+		HE_TYPE_MATERIAL = 0x4,
+		HE_TYPE_TIMER_DOWN = 0x5,
+		HE_TYPE_TIMER_UP = 0x6,
+		HE_TYPE_TIMER_STATIC = 0x7,
+		HE_TYPE_TENTHS_TIMER_DOWN = 0x8,
+		HE_TYPE_TENTHS_TIMER_UP = 0x9,
+		HE_TYPE_TENTHS_TIMER_STATIC = 0xA,
+		HE_TYPE_CLOCK_DOWN = 0xB,
+		HE_TYPE_CLOCK_UP = 0xC,
+		HE_TYPE_WAYPOINT = 0xD,
+		HE_TYPE_COUNT = 0xE,
+	};
+
+	struct $C96EA5EC2ACBB9C0BF22693F316ACC67
+	{
+		unsigned char r;
+		unsigned char g;
+		unsigned char b;
+		unsigned char a;
+	};
+
+	union hudelem_color_t
+	{
+		$C96EA5EC2ACBB9C0BF22693F316ACC67 _s0;
+		unsigned int rgba;
+	};
+
+	struct hudelem_s
+	{
+		he_type_t type;
+		float x;
+		float y;
+		float z;
+		int targetEntNum;
+		float fontScale;
+		float fromFontScale;
+		int fontScaleStartTime;
+		int fontScaleTime;
+		int font;
+		int alignOrg;
+		int alignScreen;
+		hudelem_color_t color;
+		hudelem_color_t fromColor;
+		int fadeStartTime;
+		int fadeTime;
+		int label;
+		int width;
+		int height;
+		int materialIndex;
+		int fromWidth;
+		int fromHeight;
+		int scaleStartTime;
+		int scaleTime;
+		float fromX;
+		float fromY;
+		int fromAlignOrg;
+		int fromAlignScreen;
+		int moveStartTime;
+		int moveTime;
+		int time;
+		int duration;
+		float value;
+		int text;
+		float sort;
+		hudelem_color_t glowColor;
+		int fxBirthTime;
+		int fxLetterTime;
+		int fxDecayStartTime;
+		int fxDecayDuration;
+		int soundID;
+		int flags;
+	};
+
+	struct game_hudelem_s
+	{
+		hudelem_s elem;
+		int clientNum;
+		int team;
+		int archived;
+		int currentShowInKillcam;
+	};
+
+	enum $FD98F345744F17A4648B6B03866DCD88
+	{
+		VAR_UNDEFINED = 0x0,
+		VAR_BEGIN_REF = 0x1,
+		VAR_POINTER = 0x1,
+		VAR_STRING = 0x2,
+		VAR_ISTRING = 0x3,
+		VAR_VECTOR = 0x4,
+		VAR_END_REF = 0x5,
+		VAR_FLOAT = 0x5,
+		VAR_INTEGER = 0x6,
+		VAR_CODEPOS = 0x7,
+		VAR_PRECODEPOS = 0x8,
+		VAR_FUNCTION = 0x9,
+		VAR_BUILTIN_FUNCTION = 0xA,
+		VAR_BUILTIN_METHOD = 0xB,
+		VAR_STACK = 0xC,
+		VAR_ANIMATION = 0xD,
+		VAR_PRE_ANIMATION = 0xE,
+		VAR_THREAD = 0xF,
+		VAR_NOTIFY_THREAD = 0x10,
+		VAR_TIME_THREAD = 0x11,
+		VAR_CHILD_THREAD = 0x12,
+		VAR_OBJECT = 0x13,
+		VAR_DEAD_ENTITY = 0x14,
+		VAR_ENTITY = 0x15,
+		VAR_ARRAY = 0x16,
+		VAR_DEAD_THREAD = 0x17,
+		VAR_COUNT = 0x18,
+		VAR_FREE = 0x18,
+		VAR_THREAD_LIST = 0x19,
+		VAR_ENDON_LIST = 0x1A,
+		VAR_TOTAL_COUNT = 0x1B,
+	};
+
+	struct VariableStackBuffer
+	{
+		const char *pos;
+		unsigned __int16 size;
+		unsigned __int16 bufLen;
+		unsigned __int16 localId;
+		char time;
+		char buf[1];
+	};
+
+	union VariableUnion
+	{
+		int intValue;
+		unsigned int uintValue;
+		float floatValue;
+		unsigned int stringValue;
+		const float *vectorValue;
+		const char *codePosValue;
+		unsigned int pointerValue;
+		VariableStackBuffer *stackValue;
+		unsigned int entityOffset;
+	};
+
+	struct VariableValue
+	{
+		VariableUnion u;
+		int type;
+	};
+
+	enum scr_string_t
+	{
+		scr_string_t_dummy = 0x0,
+	};
+
 	namespace sp
 	{
 		// very shit structures for the moment cuz i cba mapping the whole thing out right now...
@@ -998,6 +1183,11 @@ namespace game
 		{
 			char __0x00[0x110];
 			gclient_s* client;
+		};
+
+		struct playerState_s
+		{
+
 		};
 	}
 
@@ -1335,4 +1525,10 @@ namespace game
 			char _0x41E94[0x416DC];
 		};
 	}
+
+	union playerState_s
+	{
+		sp::playerState_s* sp;
+		mp::playerState_s* mp;
+	};
 }

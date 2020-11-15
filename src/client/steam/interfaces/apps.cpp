@@ -78,8 +78,7 @@ namespace steam
 
 	bool apps::GetCurrentBetaName(char *pchName, int cchNameBufferSize)
 	{
-		pchName = "public";
-		cchNameBufferSize = 7;
+		strncpy_s(pchName, cchNameBufferSize, "public", cchNameBufferSize);
 		return true;
 	}
 
