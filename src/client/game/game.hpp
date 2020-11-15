@@ -47,12 +47,6 @@ namespace game
 			return reinterpret_cast<T*>(get());
 		}
 
-		template <typename... Args>
-		auto operator()(Args... args)
-		{
-			return reinterpret_cast<T*>(get())(args...);
-		}
-		
 	private:
 		size_t sp_address_{0};
 		size_t mp_address_{0};
