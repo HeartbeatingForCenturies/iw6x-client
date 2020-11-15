@@ -145,7 +145,6 @@ int main()
 
 			verify_ghost_version();
 
-			game::environment::initialize();
 			if (!module_loader::post_load()) return 0;
 
 			premature_shutdown = false;
