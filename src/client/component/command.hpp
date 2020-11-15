@@ -28,6 +28,8 @@ namespace command
 		}
 	};
 
+	void read_startup_variable(const std::string& dvar);
+
 	void add_raw(const char* name, void (*callback)());
 	void add(const char* name, const std::function<void(params&)>& callback);
 	void add(const char* name, const std::function<void()>& callback);
