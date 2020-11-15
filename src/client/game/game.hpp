@@ -21,10 +21,10 @@ namespace game
 	}
 
 	template <typename T>
-	class Object
+	class Symbol
 	{
 	public:
-		Object(const size_t sp_address, const size_t mp_address)
+		Symbol(const size_t sp_address, const size_t mp_address)
 			: sp_address_(sp_address)
 			  , mp_address_(mp_address)
 		{
@@ -62,4 +62,4 @@ namespace game
 	const char* SV_Cmd_Argv(int index);
 }
 
-#include "objects.hpp"
+#include "symbols.hpp"
