@@ -1,21 +1,21 @@
 #include <std_include.hpp>
 #include "launcher/launcher.hpp"
 #include "loader/loader.hpp"
-#include "loader/module_loader.hpp"
+#include "loader/component_loader.hpp"
 #include "game/game.hpp"
 #include "utils/flags.hpp"
 #include "utils/io.hpp"
 
 DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 {
-	module_loader::pre_destroy();
+	component_loader::pre_destroy();
 	exit(code);
 }
 
 
 BOOL WINAPI system_parameters_info_a(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni)
 {
-	module_loader::post_unpack();
+	component_loader::post_unpack();
 	return SystemParametersInfoA(uiAction, uiParam, pvParam, fWinIni);
 }
 
@@ -59,7 +59,7 @@ FARPROC load_binary(const launcher::mode mode)
 			return system_parameters_info_a;
 		}
 
-		return module_loader::load_import(library, function);
+		return component_loader::load_import(library, function);
 	});
 
 	std::string binary;
@@ -119,13 +119,13 @@ int main()
 		{
 			if (premature_shutdown)
 			{
-				module_loader::pre_destroy();
+				component_loader::pre_destroy();
 			}
 		});
 
 		try
 		{
-			if (!module_loader::post_start()) return 0;
+			if (!component_loader::post_start()) return 0;
 
 			auto mode = detect_mode_from_arguments();
 			if (mode == launcher::mode::none)
@@ -145,7 +145,7 @@ int main()
 
 			verify_ghost_version();
 
-			if (!module_loader::post_load()) return 0;
+			if (!component_loader::post_load()) return 0;
 
 			premature_shutdown = false;
 		}
