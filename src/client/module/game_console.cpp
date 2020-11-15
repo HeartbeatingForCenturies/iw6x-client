@@ -149,7 +149,7 @@ namespace game_console
 		{
 			game::R_AddCmdDrawText(str, 0x7FFFFFFF, console_font, con.globals.x,
 			                       con.globals.y + con.globals.font_height, 1.0f,
-			                       1.0f, 0.0, color, 0);
+			                       1.0f, 0.0f, color, 0);
 			con.globals.x = game::R_TextWidth(str, 0, console_font) + con.globals.x + 6.0f;
 		}
 
@@ -360,9 +360,8 @@ namespace game_console
 					break;
 				}
 
-				game::R_AddCmdDrawText(con.output.at(index).c_str(), 0x7FFF, console_font, x, y + offset, 1.0f, 1.0f,
-				                       0.0,
-				                       color_white, 0);
+				game::R_AddCmdDrawText(con.output.at(index).data(), 0x7FFF, console_font, x, y + offset, 1.0f, 1.0f,
+				                       0.0f, color_white, 0);
 			}
 		}
 
@@ -377,7 +376,7 @@ namespace game_console
 			const auto height = ((con.screen_max[1] - con.screen_min[1]) - 32.0f) - 12.0f;
 
 			game::R_AddCmdDrawText(game::Dvar_FindVar("version")->current.string, 0x7FFFFFFF, console_font, x,
-			                       ((height - 16.0f) + y) + console_font->pixelHeight, 1.0f, 1.0f, 0.0, color_iw6, 0);
+			                       ((height - 16.0f) + y) + console_font->pixelHeight, 1.0f, 1.0f, 0.0f, color_iw6, 0);
 
 			draw_output_scrollbar(x, y, width, height);
 			draw_output_text(x, y);
