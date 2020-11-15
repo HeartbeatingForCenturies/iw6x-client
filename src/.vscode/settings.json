@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "*.luadec": "lua",
-        "memory": "cpp",
-        "functional": "cpp"
-    }
-}
