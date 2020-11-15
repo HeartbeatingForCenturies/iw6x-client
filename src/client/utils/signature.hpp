@@ -33,8 +33,8 @@ namespace utils::hook
 			std::vector<size_t> matches_;
 		};
 		
-		explicit signature(const std::string& pattern, const nt::module module = {})
-			: signature(pattern, module.get_ptr(), module.get_optional_header()->SizeOfImage)
+		explicit signature(const std::string& pattern, const nt::library library = {})
+			: signature(pattern, library.get_ptr(), library.get_optional_header()->SizeOfImage)
 		{
 		}
 

@@ -62,14 +62,14 @@ namespace steam_proxy
 			}
 		}
 
-		const utils::nt::module& get_overlay_module() const
+		const utils::nt::library& get_overlay_module() const
 		{
 			return steam_overlay_module_;
 		}
 
 	private:
-		utils::nt::module steam_client_module_{};
-		utils::nt::module steam_overlay_module_{};
+		utils::nt::library steam_client_module_{};
+		utils::nt::library steam_overlay_module_{};
 
 		steam::interface client_engine_{};
 		steam::interface client_user_{};
@@ -98,10 +98,10 @@ namespace steam_proxy
 			const std::filesystem::path steam_path = steam::SteamAPI_GetSteamInstallPath();
 			if (steam_path.empty()) return;
 
-			utils::nt::module::load(steam_path / "tier0_s64.dll");
-			utils::nt::module::load(steam_path / "vstdlib_s64.dll");
-			this->steam_overlay_module_ = utils::nt::module::load(steam_path / "gameoverlayrenderer64.dll");
-			this->steam_client_module_ = utils::nt::module::load(steam_path / "steamclient64.dll");
+			utils::nt::library::load(steam_path / "tier0_s64.dll");
+			utils::nt::library::load(steam_path / "vstdlib_s64.dll");
+			this->steam_overlay_module_ = utils::nt::library::load(steam_path / "gameoverlayrenderer64.dll");
+			this->steam_client_module_ = utils::nt::library::load(steam_path / "steamclient64.dll");
 			if (!this->steam_client_module_) return;
 
 			this->client_engine_ = load_client_engine();
@@ -165,14 +165,14 @@ namespace steam_proxy
 				this->steam_pipe_ = nullptr;
 				this->global_user_ = nullptr;
 
-				this->steam_client_module_ = utils::nt::module{nullptr};
+				this->steam_client_module_ = utils::nt::library{nullptr};
 
 				return scheduler::cond_end;
 			});
 		}
 	};
 
-	const utils::nt::module& get_overlay_module()
+	const utils::nt::library& get_overlay_module()
 	{
 		// TODO: Find a better way to do this
 		return module_loader::get<module>()->get_overlay_module();

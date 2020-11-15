@@ -67,7 +67,7 @@ namespace updater
 
 		void relaunch_self()
 		{
-			const utils::nt::module self;
+			const utils::nt::library self;
 
 			STARTUPINFOA startup_info;
 			PROCESS_INFORMATION process_info;
@@ -114,7 +114,7 @@ namespace updater
 
 		bool try_updating()
 		{
-			const utils::nt::module self;
+			const utils::nt::library self;
 			const auto self_file = self.get_path();
 			const auto dead_file = self_file + ".old";
 

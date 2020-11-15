@@ -109,7 +109,7 @@ namespace utils::hook
 		void* original_{};
 	};
 
-	bool iat(nt::module module, const std::string& target_module, const std::string& process, void* stub);
+	bool iat(nt::library library, const std::string& target_library, const std::string& process, void* stub);
 	
 	void nop(void* place, size_t length);
 	void nop(size_t place, size_t length);

@@ -59,7 +59,7 @@ namespace cursor
 			show_cursor(true);
 		}
 
-		void* load_import(const std::string& module, const std::string& function) override
+		void* load_import(const std::string& library, const std::string& function) override
 		{
 			if (function == "ShowCursor")
 			{

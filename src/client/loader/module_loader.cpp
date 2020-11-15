@@ -72,13 +72,13 @@ void module_loader::pre_destroy()
 	}
 }
 
-void* module_loader::load_import(const std::string& module, const std::string& function)
+void* module_loader::load_import(const std::string& library, const std::string& function)
 {
 	void* function_ptr = nullptr;
 
 	for (const auto& module_ : get_modules())
 	{
-		const auto module_function_ptr = module_->load_import(module, function);
+		const auto module_function_ptr = module_->load_import(library, function);
 		if (module_function_ptr)
 		{
 			function_ptr = module_function_ptr;

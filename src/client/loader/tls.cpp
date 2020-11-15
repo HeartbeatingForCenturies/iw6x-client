@@ -22,7 +22,7 @@ namespace tls
 		already_allocated = true;
 
 		const auto dll_path = tls_dll_file.get_extracted_file();
-		const auto tls_dll = utils::nt::module::load(dll_path);
+		const auto tls_dll = utils::nt::library::load(dll_path);
 		if (!tls_dll)
 		{
 			throw std::runtime_error("Failed to load TLS DLL");

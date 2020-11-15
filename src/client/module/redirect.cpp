@@ -9,7 +9,7 @@ namespace redirect
 	{
 		void launch_complementary_game(const bool singleplayer)
 		{
-			const utils::nt::module self;
+			const utils::nt::library self;
 
 			STARTUPINFOA startup_info;
 			PROCESS_INFORMATION process_info;
@@ -55,9 +55,9 @@ namespace redirect
 	class module final : public module_interface
 	{
 	public:
-		void* load_import(const std::string& module, const std::string& function) override
+		void* load_import(const std::string& library, const std::string& function) override
 		{
-			if (module == "SHELL32.dll")
+			if (library == "SHELL32.dll")
 			{
 				if (function == "ShellExecuteA")
 				{

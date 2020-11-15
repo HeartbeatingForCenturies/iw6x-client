@@ -143,7 +143,7 @@ namespace arxan
 	class module final : public module_interface
 	{
 	public:
-		void* load_import(const std::string& module, const std::string& function) override
+		void* load_import(const std::string& library, const std::string& function) override
 		{
 			if (function == "SetThreadContext")
 			{
@@ -158,7 +158,7 @@ namespace arxan
 			hide_being_debugged();
 			scheduler::loop(hide_being_debugged, scheduler::pipeline::async);
 
-			const utils::nt::module ntdll("ntdll.dll");
+			const utils::nt::library ntdll("ntdll.dll");
 			nt_close_hook.create(ntdll.get_proc<void*>("NtClose"), nt_close_stub);
 			nt_query_information_process_hook.create(ntdll.get_proc<void*>("NtQueryInformationProcess"),
 			                                         nt_query_information_process_stub);

@@ -45,7 +45,7 @@ public:
 	static void post_unpack();
 	static void pre_destroy();
 
-	static void* load_import(const std::string& module, const std::string& function);
+	static void* load_import(const std::string& library, const std::string& function);
 
 	static void trigger_premature_shutdown();
 

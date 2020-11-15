@@ -3,5 +3,5 @@
 
 namespace steam_proxy
 {
-	const utils::nt::module& get_overlay_module();
+	const utils::nt::library& get_overlay_module();
 }

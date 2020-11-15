@@ -90,7 +90,7 @@ namespace seh
 
 	void setup_handler(void* module_base, void* module_end, PRUNTIME_FUNCTION runtime_functions, const DWORD entryCount)
 	{
-		const utils::nt::module ntdll("ntdll.dll");
+		const utils::nt::library ntdll("ntdll.dll");
 
 		seh::override_start = DWORD64(module_base);
 		seh::override_end = DWORD64(module_end);

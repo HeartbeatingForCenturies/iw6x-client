@@ -11,7 +11,7 @@ namespace splash
 	public:
 		void post_start() override
 		{
-			const utils::nt::module self;
+			const utils::nt::library self;
 			image_ = LoadImageA(self, MAKEINTRESOURCE(IMAGE_SPLASH), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR);
 		}
 
@@ -69,7 +69,7 @@ namespace splash
 			{
 				ShowWindow(this->window_, SW_HIDE);
 				DestroyWindow(this->window_);
-				UnregisterClassA("IW6x Splash Screen", utils::nt::module{});
+				UnregisterClassA("IW6x Splash Screen", utils::nt::library{});
 			}
 		}
 
@@ -77,7 +77,7 @@ namespace splash
 		{
 			WNDCLASSA wnd_class;
 
-			const utils::nt::module self;
+			const utils::nt::library self;
 
 			wnd_class.style = CS_DROPSHADOW;
 			wnd_class.cbClsExtra = 0;

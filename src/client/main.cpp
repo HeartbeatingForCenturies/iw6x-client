@@ -42,11 +42,11 @@ launcher::mode detect_mode_from_arguments()
 FARPROC load_binary(const launcher::mode mode)
 {
 	loader loader;
-	utils::nt::module self;
+	utils::nt::library self;
 
-	loader.set_import_resolver([self](const std::string& module, const std::string& function) -> void*
+	loader.set_import_resolver([self](const std::string& library, const std::string& function) -> void*
 	{
-		if (module == "steam_api64.dll")
+		if (library == "steam_api64.dll")
 		{
 			return self.get_proc<FARPROC>(function);
 		}
@@ -59,7 +59,7 @@ FARPROC load_binary(const launcher::mode mode)
 			return system_parameters_info_a;
 		}
 
-		return module_loader::load_import(module, function);
+		return module_loader::load_import(library, function);
 	});
 
 	std::string binary;
@@ -89,7 +89,7 @@ FARPROC load_binary(const launcher::mode mode)
 
 void remove_crash_file()
 {
-	const utils::nt::module self;
+	const utils::nt::library self;
 	auto name = self.get_name();
 	name = std::filesystem::path(name).replace_extension("").generic_string();
 

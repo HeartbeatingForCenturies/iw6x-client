@@ -344,7 +344,7 @@ namespace demonware
 
 			bool register_hook(const std::string& process, void* stub)
 			{
-				const utils::nt::module main;
+				const utils::nt::library main;
 
 				auto result = false;
 				result = result || utils::hook::iat(main, "wsock32.dll", process, stub);
