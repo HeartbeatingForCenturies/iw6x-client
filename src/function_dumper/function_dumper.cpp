@@ -34,11 +34,6 @@ std::string read_file(const std::string& file)
 	                   std::istreambuf_iterator<char>());
 }
 
-std::string read_dedi()
-{
-	return read_file("iw6_ds.exe");
-}
-
 std::string read_link_map()
 {
 	return read_file("iw6_ds.map");
@@ -84,13 +79,6 @@ std::unordered_map<uint64_t, std::string> get_function_map()
 	const auto linker_map = read_link_map();
 	return parse_linker_functions(linker_map);
 }
-
-struct BuiltinMethodDef
-{
-	unsigned int name;
-	uint64_t actionFunc;
-	int type;
-};
 
 void load_dedi()
 {
