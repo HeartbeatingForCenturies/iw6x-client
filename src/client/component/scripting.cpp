@@ -3,6 +3,7 @@
 
 #include "game/game.hpp"
 #include "utils/hook.hpp"
+#include "utils/string.hpp"
 
 namespace scripting
 {
@@ -11,7 +12,11 @@ namespace scripting
 		class script_value
 		{
 		public:
-			game::VariableValue value{0, game::VAR_UNDEFINED};
+			game::VariableValue value{{0}, game::VAR_UNDEFINED};
+
+			script_value()
+			{
+			}
 
 			script_value(const game::VariableValue& value_)
 			{
@@ -215,6 +220,38 @@ namespace scripting
 			*game::g_script_error_level -= 1;
 			return true;
 		}
+
+		bool set_entity_field(const game::scr_entref_t entref, const int offset)
+		{
+			*game::g_script_error_level += 1;
+			if (setjmp(game::g_script_error[*game::g_script_error_level]))
+			{
+				*game::g_script_error_level -= 1;
+				return false;
+			}
+
+			game::Scr_SetObjectField(entref.classnum, entref.entnum, offset);
+
+			*game::g_script_error_level -= 1;
+			return true;
+		}
+
+		bool get_entity_field(const game::scr_entref_t entref, const int offset, game::VariableValue* value)
+		{
+			*game::g_script_error_level += 1;
+			if (setjmp(game::g_script_error[*game::g_script_error_level]))
+			{
+				value->type = game::VAR_UNDEFINED;
+				value->u.intValue = 0;
+				*game::g_script_error_level -= 1;
+				return false;
+			}
+
+			game::GetEntityFieldValue(value, entref.classnum, entref.entnum, offset);
+
+			*game::g_script_error_level -= 1;
+			return true;
+		}
 #pragma warning(pop)
 
 		void safe_call(const script_function function, const game::scr_entref_t& entref)
@@ -242,6 +279,20 @@ namespace scripting
 			return value_ptr;
 		}
 
+		script_value get_return_value()
+		{
+			if (game::scr_VmPub->inparamcount == 0)
+			{
+				return {};
+			}
+
+			game::Scr_ClearOutParams();
+			game::scr_VmPub->outparamcount = game::scr_VmPub->inparamcount;
+			game::scr_VmPub->inparamcount = 0;
+
+			return script_value(game::scr_VmPub->top[1 - game::scr_VmPub->outparamcount]);
+		}
+
 		void push_string(const std::string& string)
 		{
 			auto* value_ptr = allocate_argument();
@@ -249,19 +300,112 @@ namespace scripting
 			value_ptr->u.stringValue = game::SL_GetString(string.data(), 0);
 		}
 
+		void notify(const entity& entity, const std::string& event)
+		{
+			const auto event_id = game::SL_GetString(event.data(), 0);
+			game::Scr_NotifyId(entity.get_entity_id(), event_id, game::scr_VmPub->inparamcount);
+		}
+
+		int get_field_id(const int classnum, const std::string& field)
+		{
+			const auto field_name = utils::string::to_lower(field);
+			const auto class_id = game::g_classMap[classnum].id;
+			const auto field_str = game::SL_GetString(field_name.data(), 1);
+			const auto _ = gsl::finally([field_str]()
+			{
+				game::RemoveRefToValue(game::VAR_STRING, {int(field_str)});
+			});
+
+			const auto offset = game::FindVariable(class_id, field_str);
+			if (offset)
+			{
+				const auto index = 3 * (offset + 0xC800 * (class_id & 1));
+				const auto id = PINT64(SELECT_VALUE(0x145359F80, 0x144AF3080))[index];
+				return static_cast<int>(id);
+			}
+
+			return -1;
+		}
+
+		void safe_set_entity_field(const std::string& field, const unsigned int entity_id,
+		                           const script_value& value)
+		{
+			const auto entref = game::Scr_GetEntityIdRef(entity_id);
+			const int id = get_field_id(entref.classnum, field);
+
+			if (id != -1)
+			{
+				stack_isolation _;
+				*allocate_argument() = value.value;
+
+				game::scr_VmPub->outparamcount = game::scr_VmPub->inparamcount;
+				game::scr_VmPub->inparamcount = 0;
+
+				if (!set_entity_field(entref, id))
+				{
+					throw std::runtime_error("Failed to set value for field '" + field + "'");
+				}
+			}
+			else
+			{
+				// Read custom fields
+			}
+		}
+
+		script_value safe_get_entity_field(const std::string& field, const unsigned int entity_id)
+		{
+			const auto entref = game::Scr_GetEntityIdRef(entity_id);
+			const auto id = get_field_id(entref.classnum, field);
+
+			if (id != -1)
+			{
+				stack_isolation _;
+
+				game::VariableValue value{};
+				if (!get_entity_field(entref, id, &value))
+				{
+					throw std::runtime_error("Failed to get value for field '" + field + "'");
+				}
+
+				const auto $ = gsl::finally([value]()
+				{
+					game::RemoveRefToValue(value.type, value.u);
+				});
+
+				return value;
+			}
+			else
+			{
+				// Add custom fields
+			}
+
+			return {};
+		}
+
 		void test_call(const event& e)
 		{
 			const entity player(e.entity_id);
 			const auto function = get_function_by_index(0x8264); // iclientprintlnbold
 
+			const auto value = safe_get_entity_field("name", player.get_entity_id());
+
+			std::string name = "<Unknown>";
+			if (value.value.type == game::VAR_STRING)
+			{
+				name = game::SL_ConvertToString(static_cast<game::scr_string_t>(value.value.u.stringValue));
+			}
+
 			stack_isolation _;
 
-			push_string("^1Hello ^2player^5!");
+			push_string("^1Hello ^2" + name + "^5!");
 
 			game::scr_VmPub->outparamcount = game::scr_VmPub->inparamcount;
 			game::scr_VmPub->inparamcount = 0;
 
-			safe_call(function, player.get_entity_reference());
+			if (function)
+			{
+				safe_call(function, player.get_entity_reference());
+			}
 		}
 
 		utils::hook::detour vm_notify_hook;

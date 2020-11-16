@@ -103,10 +103,13 @@ namespace game
 
 	static Symbol<ScreenPlacement*()> ScrPlace_GetViewPlacement{0x14024D150, 0x1402F6D40};
 
+	static Symbol<unsigned int (unsigned int parentId, unsigned int name)> FindVariable{0x1403D84F0, 0x1404334A0};
+	static Symbol<void (VariableValue *result, unsigned int classnum, int entnum, int offset)> GetEntityFieldValue{0x1403DC810, 0x140437860};
 	static Symbol<float (int index)> Scr_GetFloat{0, 0x140438D60};
 	static Symbol<int ()> Scr_GetNumParam{0x1403DDF60, 0x140438EC0};
 	static Symbol<void ()> Scr_ClearOutParams{0x1403DD500, 0x140438600};
 	static Symbol<scr_entref_t (unsigned int entId)> Scr_GetEntityIdRef{0x1403DBDC0, 0x140436E10};
+	static Symbol<int (unsigned int classnum, int entnum, int offset)> Scr_SetObjectField{0x140350E70, 0x1403D3FE0};
 	static Symbol<void (int id, scr_string_t stringValue, unsigned int paramcount)> Scr_NotifyId{
 		0x1403DE730, 0x140439700
 	};
@@ -166,6 +169,7 @@ namespace game
 
 	static Symbol<int> g_script_error_level{0x1455B1F98, 0x144D535C4};
 	static Symbol<jmp_buf> g_script_error{0x1455BA5E0, 0x144D536E0};
+	static Symbol<scr_classStruct_t> g_classMap{0x140873E20, 0x1409EBFC0};
 
 	static Symbol<scrVmPub_t> scr_VmPub{0x1455B1FA0, 0x144D4B090};
 	static Symbol<unsigned int> scr_levelEntityId{0x1452A9F30, 0x144A43020};

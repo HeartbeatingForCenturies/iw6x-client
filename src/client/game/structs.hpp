@@ -1204,6 +1204,14 @@ namespace game
 		VariableValue stack[2048];
 	};
 
+	struct scr_classStruct_t
+	{
+		unsigned __int16 id;
+		unsigned __int16 entArrayId;
+		char charId;
+		const char* name;
+	};
+
 	namespace sp
 	{
 		// very shit structures for the moment cuz i cba mapping the whole thing out right now...
