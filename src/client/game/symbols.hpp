@@ -35,6 +35,9 @@ namespace game
 		0x1403B3B10, 0x1403F7680
 	};
 
+	static Symbol<void(XZoneInfo* zoneInfo, unsigned int zoneCount, DBSyncMode syncMode)> DB_LoadXAssets{0x140273FD0, 0x140320F20};
+	static Symbol<void(void* buffer, int size)> DB_ReadXFileUncompressed{0x140250FB0, 0x1402FC9C0};
+
 	static Symbol<dvar_t*(const char* name)> Dvar_FindVar{0x140429E70, 0x1404ECB60};
 	static Symbol<void (char* buffer, int index)> Dvar_GetCombinedString{0x1403BFD80, 0x140416B30};
 	static Symbol<const char*(const char* dvarName, const char* defaultValue)> Dvar_GetVariantStringWithDefault{

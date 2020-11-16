@@ -9,6 +9,23 @@ namespace game
 	typedef vec_t vec3_t[3];
 	typedef vec_t vec4_t[4];
 
+	struct XZoneInfo
+	{
+		const char* name;
+		int allocFlags;
+		int freeFlags;
+	};
+
+	enum DBSyncMode
+	{
+		DB_LOAD_ASYNC = 0x0,
+		DB_LOAD_SYNC = 0x1,
+		DB_LOAD_ASYNC_WAIT_ALLOC = 0x2,
+		DB_LOAD_ASYNC_FORCE_FREE = 0x3,
+		DB_LOAD_ASYNC_NO_SYNC_THREADS = 0x4,
+		DB_LOAD_SYNC_SKIP_ALWAYS_LOADED = 0x5,
+	};
+
 	struct $9704E9D6F23D6A5E526351953F37E26F
 	{
 		unsigned int weaponIdx : 8;
