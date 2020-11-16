@@ -8,19 +8,67 @@ namespace scripting
 {
 	namespace
 	{
-		struct script_value
+		class script_value
 		{
-			game::VariableValue value;
+		public:
+			game::VariableValue value{0, game::VAR_UNDEFINED};
 
 			script_value(const game::VariableValue& value_)
-				: value(value_)
 			{
-				game::AddRefToValue(this->value.type, this->value.u);
+				this->assign(value_);
+			}
+
+			script_value(const script_value& other) noexcept
+			{
+				this->operator=(other);
+			}
+
+			script_value(script_value&& other) noexcept
+			{
+				this->operator=(std::move(other));
+			}
+
+			script_value& operator=(const script_value& other) noexcept
+			{
+				if (this != &other)
+				{
+					this->release();
+					this->assign(other.value);
+				}
+
+				return *this;
+			}
+
+			script_value& operator=(script_value&& other) noexcept
+			{
+				if (this != &other)
+				{
+					this->operator=(other);
+					other.release();
+				}
+
+				return *this;
 			}
 
 			~script_value()
 			{
-				game::RemoveRefToValue(this->value.type, this->value.u);
+				this->release();
+			}
+
+		private:
+			void assign(const game::VariableValue& value_)
+			{
+				this->value = value_;
+				game::AddRefToValue(this->value.type, this->value.u);
+			}
+
+			void release()
+			{
+				if (this->value.type != game::VAR_UNDEFINED)
+				{
+					game::RemoveRefToValue(this->value.type, this->value.u);
+					this->value.type = game::VAR_UNDEFINED;
+				}
 			}
 		};
 
@@ -32,8 +80,9 @@ namespace scripting
 		};
 
 		utils::hook::detour vm_notify_hook;
-	
-		void vm_notify_stub(const unsigned int notify_list_owner_id, const game::scr_string_t string_value, game::VariableValue *top)
+
+		void vm_notify_stub(const unsigned int notify_list_owner_id, const game::scr_string_t string_value,
+		                    game::VariableValue* top)
 		{
 			const auto* string = game::SL_ConvertToString(string_value);
 			if (string)
@@ -47,7 +96,7 @@ namespace scripting
 					e.arguments.emplace_back(*value);
 				}
 			}
-			
+
 			vm_notify_hook.invoke<void>(notify_list_owner_id, string_value, top);
 		}
 	}
