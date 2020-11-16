@@ -1138,7 +1138,7 @@ namespace game
 
 	struct VariableStackBuffer
 	{
-		const char *pos;
+		const char* pos;
 		unsigned __int16 size;
 		unsigned __int16 bufLen;
 		unsigned __int16 localId;
@@ -1152,10 +1152,10 @@ namespace game
 		unsigned int uintValue;
 		float floatValue;
 		unsigned int stringValue;
-		const float *vectorValue;
-		const char *codePosValue;
+		const float* vectorValue;
+		const char* codePosValue;
 		unsigned int pointerValue;
-		VariableStackBuffer *stackValue;
+		VariableStackBuffer* stackValue;
 		unsigned int entityOffset;
 	};
 
@@ -1165,9 +1165,43 @@ namespace game
 		int type;
 	};
 
+	struct scr_entref_t
+	{
+		unsigned short entnum;
+		unsigned short classnum;
+	};
+
 	enum scr_string_t
 	{
 		scr_string_t_dummy = 0x0,
+	};
+
+	struct function_stack_t
+	{
+		const char* pos;
+		unsigned int localId;
+		unsigned int localVarCount;
+		VariableValue* top;
+		VariableValue* startTop;
+	};
+
+	struct function_frame_t
+	{
+		function_stack_t fs;
+		int topType;
+	};
+
+	struct scrVmPub_t
+	{
+		unsigned int* localVars;
+		VariableValue* maxstack;
+		int function_count;
+		function_frame_t* function_frame;
+		VariableValue* top;
+		unsigned int inparamcount;
+		unsigned int outparamcount;
+		function_frame_t function_frame_start[32];
+		VariableValue stack[2048];
 	};
 
 	namespace sp
@@ -1187,7 +1221,6 @@ namespace game
 
 		struct playerState_s
 		{
-
 		};
 	}
 

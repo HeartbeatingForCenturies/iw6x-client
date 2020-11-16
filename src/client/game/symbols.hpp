@@ -104,11 +104,17 @@ namespace game
 	static Symbol<ScreenPlacement*()> ScrPlace_GetViewPlacement{0x14024D150, 0x1402F6D40};
 
 	static Symbol<float (int index)> Scr_GetFloat{0, 0x140438D60};
-	static Symbol<int ()> Scr_GetNumParam{0, 0x140438EC0};
+	static Symbol<int ()> Scr_GetNumParam{0x1403DDF60, 0x140438EC0};
+	static Symbol<void ()> Scr_ClearOutParams{0x1403DD500, 0x140438600};
+	static Symbol<scr_entref_t (unsigned int entId)> Scr_GetEntityIdRef{0x1403DBDC0, 0x140436E10};
+	static Symbol<void (int id, scr_string_t stringValue, unsigned int paramcount)> Scr_NotifyId{
+		0x1403DE730, 0x140439700
+	};
 
 	static Symbol<const char*(const char*)> SEH_StringEd_GetString{0x0, 0x1404A5F60};
 
 	static Symbol<const char*(scr_string_t stringValue)> SL_ConvertToString{0x1403D6870, 0x1404317F0};
+	static Symbol<scr_string_t(const char* str, unsigned int user)> SL_GetString{0x1403D6CD0, 0x140431C70};
 
 	static Symbol<void (int, int, const char*)> SV_GameSendServerCommand{0x140490F40, 0x1404758C0};
 	static Symbol<bool ()> SV_Loaded{0x140491820, 0x1404770C0};
@@ -157,6 +163,12 @@ namespace game
 	static Symbol<SOCKET> query_socket{0, 0x147AD1A78};
 
 	static Symbol<const char*> command_whitelist{0x14086AA70, 0x1409E3AB0};
+
+	static Symbol<int> g_script_error_level{0x1455B1F98, 0x144D535C4};
+	static Symbol<jmp_buf> g_script_error{0x1455BA5E0, 0x144D536E0};
+
+	static Symbol<scrVmPub_t> scr_VmPub{0x1455B1FA0, 0x144D4B090};
+	static Symbol<unsigned int> scr_levelEntityId{0x1452A9F30, 0x144A43020};
 
 	namespace sp
 	{
