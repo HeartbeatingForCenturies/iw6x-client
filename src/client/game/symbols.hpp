@@ -64,10 +64,13 @@ namespace game
 	static Symbol<long long (const char* qpath, char** buffer)> FS_ReadFile{0x14041D0B0, 0x1404DE900};
 	static Symbol<void (void* buffer)> FS_FreeFile{0x14041D0A0, 0x1404DE8F0};
 
+	static Symbol<Weapon(const char* pickupName, int model)> G_FindItem{0x140462490, 0x14021B7E0};
 	static Symbol<int (playerState_s* ps, Weapon weapon, int dualWield, int startInAltMode, int usedBefore)>
 	G_GivePlayerWeapon{0x140359E20, 0x1403DA5E0};
 	static Symbol<Weapon(const char* name)> G_GetWeaponForName{0x140359890, 0x1403DA060};
 	static Symbol<void (playerState_s* ps, Weapon weapon, int hadWeapon)> G_InitializeAmmo{0x140311F00, 0x14039AEA0};
+	static Symbol<void(int clientNum, Weapon weapon)> G_SelectWeapon{0x14035A200, 0x1403DA880};
+	static Symbol<int(playerState_s* ps, Weapon weapon)> G_TakePlayerWeapon{0x14035A350, 0x1403DA9C0};
 	static Symbol<unsigned int (const char* name, /*ConfigString*/ unsigned int start, unsigned int max, int create,
 	                            const char* errormsg)> G_FindConfigstringIndex{0x0, 0x140161F90};
 	static Symbol<int (int server_time)> G_RunFrame{0x0, 0x1403A05E0};
