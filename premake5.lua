@@ -313,6 +313,20 @@ includedirs {"./src/runner", "%{prj.location}/src"}
 
 resincludedirs {"$(ProjectDir)src"}
 
+project "function_dumper"
+kind "ConsoleApp"
+language "C++"
+
+buildoptions {"/Zc:threadSafeInit-"}
+
+files {"./src/function_dumper/**.rc", "./src/function_dumper/**.hpp", "./src/function_dumper/**.cpp", "./src/runner/function_dumper/**.*"}
+
+includedirs {"./src/function_dumper", "%{prj.location}/src"}
+
+resincludedirs {"$(ProjectDir)src"}
+
+dependencies.imports()
+
 group "Dependencies"
 dependencies.projects()
 
