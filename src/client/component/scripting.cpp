@@ -7,8 +7,60 @@
 
 namespace scripting
 {
+	extern std::unordered_map<std::string, unsigned> method_map;
+	extern std::unordered_map<std::string, unsigned> function_map;
+
+	std::unordered_map<std::string, unsigned> lowercase_map(const std::unordered_map<std::string, unsigned>& old_map)
+	{
+		std::unordered_map<std::string, unsigned> new_map{};
+		for (auto& entry : old_map)
+		{
+			new_map[utils::string::to_lower(entry.first)] = entry.second;
+		}
+
+		return new_map;
+	}
+
+	const std::unordered_map<std::string, unsigned>& get_methods()
+	{
+		static auto methods = lowercase_map(method_map);
+		return methods;
+	}
+
+	const std::unordered_map<std::string, unsigned>& get_functions()
+	{
+		static auto function = lowercase_map(function_map);
+		return function;
+	}
+
 	namespace
 	{
+		int find_function_index(const std::string& name, const bool prefer_global)
+		{
+			const auto target = utils::string::to_lower(name);
+
+			const auto& primary_map = prefer_global
+				                          ? get_functions()
+				                          : get_methods();
+			const auto& secondary_map = !prefer_global
+				                            ? get_functions()
+				                            : get_methods();
+
+			auto function_entry = primary_map.find(target);
+			if (function_entry != primary_map.end())
+			{
+				return function_entry->second;
+			}
+
+			function_entry = secondary_map.find(target);
+			if (function_entry != secondary_map.end())
+			{
+				return function_entry->second;
+			}
+
+			return -1;
+		}
+
 		class script_value
 		{
 		public:
@@ -100,6 +152,19 @@ namespace scripting
 				: entity_id_(entity_id)
 			{
 				this->add();
+			}
+
+			entity(const script_value& script_entity)
+				: entity_id_(script_entity.value.u.entityOffset)
+			{
+				if (script_entity.value.type == game::VAR_POINTER)
+				{
+					this->add();
+				}
+				else
+				{
+					this->entity_id_ = 0;
+				}
 			}
 
 			~entity()
@@ -254,31 +319,6 @@ namespace scripting
 		}
 #pragma warning(pop)
 
-		void safe_call(const script_function function, const game::scr_entref_t& entref)
-		{
-			if (!call(function, entref))
-			{
-				throw std::runtime_error("Error executing function");
-			}
-		}
-
-		script_function get_function_by_index(const unsigned index)
-		{
-			if (index < 0x25D)
-			{
-				return reinterpret_cast<script_function*>(SELECT_VALUE(0x144E1E6F0, 0x1446B77A0))[index];
-			}
-
-			return reinterpret_cast<script_function*>(SELECT_VALUE(0x144E1F9E0, 0x1446B8A90))[index - 0x8000];
-		}
-
-		game::VariableValue* allocate_argument()
-		{
-			game::VariableValue* value_ptr = ++game::scr_VmPub->top;
-			++game::scr_VmPub->inparamcount;
-			return value_ptr;
-		}
-
 		script_value get_return_value()
 		{
 			if (game::scr_VmPub->inparamcount == 0)
@@ -291,6 +331,59 @@ namespace scripting
 			game::scr_VmPub->inparamcount = 0;
 
 			return script_value(game::scr_VmPub->top[1 - game::scr_VmPub->outparamcount]);
+		}
+
+		script_value safe_call(const script_function function, const game::scr_entref_t& entref)
+		{
+			if (!call(function, entref))
+			{
+				throw std::runtime_error("Error executing function");
+			}
+
+			return get_return_value();
+		}
+
+		script_function get_function_by_index(const unsigned index)
+		{
+			if (index < 0x25D)
+			{
+				return reinterpret_cast<script_function*>(SELECT_VALUE(0x144E1E6F0, 0x1446B77A0))[index];
+			}
+
+			return reinterpret_cast<script_function*>(SELECT_VALUE(0x144E1F9E0, 0x1446B8A90))[index - 0x8000];
+		}
+
+		script_value call_function(const std::string& name,
+		                           const game::scr_entref_t& entref = {
+			                           static_cast<uint16_t>(~0), static_cast<uint16_t>(~0)
+		                           })
+		{
+			game::scr_VmPub->outparamcount = game::scr_VmPub->inparamcount;
+			game::scr_VmPub->inparamcount = 0;
+
+			const auto is_method_call = *reinterpret_cast<const int*>(&entref) != -1;
+			const auto index = find_function_index(name, !is_method_call);
+			if (index < 0)
+			{
+				game::Scr_ClearOutParams();
+				return {};
+			}
+
+			const auto function = get_function_by_index(index);
+			if (!function)
+			{
+				game::Scr_ClearOutParams();
+				return {};
+			}
+
+			return safe_call(function, entref);
+		}
+
+		game::VariableValue* allocate_argument()
+		{
+			game::VariableValue* value_ptr = ++game::scr_VmPub->top;
+			++game::scr_VmPub->inparamcount;
+			return value_ptr;
 		}
 
 		void push_string(const std::string& string)
@@ -385,8 +478,6 @@ namespace scripting
 		void test_call(const event& e)
 		{
 			const entity player(e.entity_id);
-			const auto function = get_function_by_index(0x8264); // iclientprintlnbold
-
 			const auto value = safe_get_entity_field("name", player.get_entity_id());
 
 			std::string name = "<Unknown>";
@@ -397,15 +488,17 @@ namespace scripting
 
 			stack_isolation _;
 
+			const entity hudelem = call_function("newHudElem", player.get_entity_reference());
+
+			game::VariableValue _value;
+			_value.type = game::VAR_INTEGER;
+			_value.u.intValue = 1;
+
+			safe_set_entity_field("fontscale", hudelem.get_entity_id(), _value);
+			safe_set_entity_field("alpha", hudelem.get_entity_id(), _value);
+
 			push_string("^1Hello ^2" + name + "^5!");
-
-			game::scr_VmPub->outparamcount = game::scr_VmPub->inparamcount;
-			game::scr_VmPub->inparamcount = 0;
-
-			if (function)
-			{
-				safe_call(function, player.get_entity_reference());
-			}
+			call_function("setText", hudelem.get_entity_reference());
 		}
 
 		utils::hook::detour vm_notify_hook;
