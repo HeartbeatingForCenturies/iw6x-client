@@ -145,6 +145,7 @@ namespace scripting
 		{"missileCreateRepulsorOrigin", 402},
 		{"missileDeleteAttractor", 403},
 		{"newClientHudElem", 406},
+		{"newHudElem", 405},
 		{"newTeamHudElem", 407},
 		{"nodeExposedToSky", 506},
 		{"objectiveCurrent", 462},

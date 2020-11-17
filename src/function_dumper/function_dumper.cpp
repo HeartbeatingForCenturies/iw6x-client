@@ -255,8 +255,11 @@ int main()
 
 	const auto function_name_map = get_function_map();
 
-	const auto method_map = map_name_to_function(methods, function_name_map);
-	const auto function_map = map_name_to_function(functions, function_name_map);
+	auto method_map = map_name_to_function(methods, function_name_map);
+	auto function_map = map_name_to_function(functions, function_name_map);
+
+	// Add some missing entries
+	function_map["newHudElem"] = 405;
 
 	table_writer writer;
 	writer.add_table("method_map", method_map);
