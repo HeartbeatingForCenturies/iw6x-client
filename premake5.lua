@@ -293,8 +293,6 @@ project "tlsdll"
 kind "SharedLib"
 language "C++"
 
-buildoptions {"/Zc:threadSafeInit-"}
-
 files {"./src/tlsdll/**.rc", "./src/tlsdll/**.hpp", "./src/tlsdll/**.cpp", "./src/tlsdll/resources/**.*"}
 
 includedirs {"./src/tlsdll", "%{prj.location}/src"}
@@ -304,8 +302,6 @@ resincludedirs {"$(ProjectDir)src"}
 project "runner"
 kind "WindowedApp"
 language "C++"
-
-buildoptions {"/Zc:threadSafeInit-"}
 
 files {"./src/runner/**.rc", "./src/runner/**.hpp", "./src/runner/**.cpp", "./src/runner/resources/**.*"}
 
@@ -317,9 +313,7 @@ project "function_dumper"
 kind "ConsoleApp"
 language "C++"
 
-buildoptions {"/Zc:threadSafeInit-"}
-
-files {"./src/function_dumper/**.rc", "./src/function_dumper/**.hpp", "./src/function_dumper/**.cpp", "./src/runner/function_dumper/**.*"}
+files {"./src/function_dumper/**.rc", "./src/function_dumper/**.hpp", "./src/function_dumper/**.cpp", "./src/function_dumper/resources/**.*"}
 
 includedirs {"./src/function_dumper", "%{prj.location}/src"}
 
