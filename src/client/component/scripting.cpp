@@ -4,7 +4,6 @@
 #include "game/game.hpp"
 #include "utils/hook.hpp"
 
-#include "game/scripting/script_value.hpp"
 #include "game/scripting/entity.hpp"
 #include "game/scripting/execution.hpp"
 #include "game/scripting/event.hpp"

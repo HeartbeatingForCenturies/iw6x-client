@@ -1,7 +1,6 @@
 #include <std_include.hpp>
 #include "functions.hpp"
 
-#include "safe_execution.hpp"
 #include "utils/string.hpp"
 
 namespace scripting
@@ -65,7 +64,7 @@ namespace scripting
 		{
 			static const auto function_table = SELECT_VALUE(0x144E1E6F0, 0x1446B77A0);
 			static const auto method_table = SELECT_VALUE(0x144E1F9E0, 0x1446B8A90);
-			
+
 			if (index < 0x25D)
 			{
 				return reinterpret_cast<script_function*>(function_table)[index];
@@ -78,7 +77,7 @@ namespace scripting
 	script_function find_function(const std::string& name, const bool prefer_global)
 	{
 		const auto index = find_function_index(name, prefer_global);
-		if(index < 0) return nullptr;
+		if (index < 0) return nullptr;
 
 		return get_function_by_index(index);
 	}

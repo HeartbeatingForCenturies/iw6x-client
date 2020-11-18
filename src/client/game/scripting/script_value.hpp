@@ -18,10 +18,10 @@ namespace scripting
 
 		script_value(float value);
 		script_value(double value);
-		
+
 		script_value(const char* value);
 		script_value(const std::string& value);
-		
+
 		script_value(const entity& value);
 
 		template <typename T>

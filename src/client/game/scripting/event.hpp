@@ -1,9 +1,8 @@
 #pragma once
-#include "game/game.hpp"
 #include "script_value.hpp"
 
 namespace scripting
-{	
+{
 	struct event
 	{
 		std::string name;

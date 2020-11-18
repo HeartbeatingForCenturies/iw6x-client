@@ -3,7 +3,7 @@
 #include "script_value.hpp"
 
 namespace scripting
-{	
+{
 	class entity final
 	{
 	public:
@@ -20,7 +20,7 @@ namespace scripting
 
 		void set(const std::string& field, const script_value& value) const;
 
-		template<typename T = script_value>
+		template <typename T = script_value>
 		T get(const std::string& field) const
 		{
 			return this->get<script_value>(field).as<T>();
@@ -38,6 +38,6 @@ namespace scripting
 		void release() const;
 	};
 
-	template<>
+	template <>
 	script_value entity::get(const std::string& field) const;
 }

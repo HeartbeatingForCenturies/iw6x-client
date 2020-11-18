@@ -92,7 +92,7 @@ namespace scripting
 		set_entity_field(*this, field, value);
 	}
 
-	template<>
+	template <>
 	script_value entity::get<script_value>(const std::string& field) const
 	{
 		return get_entity_field(*this, field);
