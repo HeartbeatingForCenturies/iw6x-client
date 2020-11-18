@@ -21,10 +21,7 @@ namespace scripting
 		void set(const std::string& field, const script_value& value) const;
 
 		template <typename T = script_value>
-		T get(const std::string& field) const
-		{
-			return this->get<script_value>(field).as<T>();
-		}
+		T get(const std::string& field) const;
 
 		script_value call(const std::string& name, const std::vector<script_value>& arguments) const;
 
@@ -40,4 +37,10 @@ namespace scripting
 
 	template <>
 	script_value entity::get(const std::string& field) const;
+
+	template <typename T>
+	T entity::get(const std::string& field) const
+	{
+		return this->get<script_value>(field).as<T>();
+	}
 }
