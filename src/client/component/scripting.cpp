@@ -8,11 +8,13 @@
 #include "game/scripting/execution.hpp"
 #include "game/scripting/event.hpp"
 
+#include "scheduler.hpp"
+
 namespace scripting
 {
 	namespace
 	{
-		void test_call(const event& e)
+		void test_hud_elem(const event& e)
 		{
 			const auto& player = e.entity;
 			const auto name = player.get<std::string>("name");
@@ -22,6 +24,40 @@ namespace scripting
 			hudelem.set("alpha", 1);
 
 			hudelem.call("setText", {"^1Hello ^2" + name + "^5!"});
+
+			player.call("iclientprintlnbold", {"^1The heli is following you!"});
+		}
+
+		void test_heli(const event& e)
+		{
+			test_hud_elem(e);
+
+			const auto& player = e.entity;
+			auto origin = player.get<vector>("origin");
+			const auto angles = player.get<vector>("angles");
+
+			origin[2] += 1000;
+
+			player.call("freezeControls", {false});
+
+			const auto heli = call<entity>("spawnhelicopter", {
+				                               player, origin, angles, "cobra_mp", "vehicle_battle_hind"
+			                               });
+
+			heli.call("setturningability", {1});
+			//heli.call("setlookatent", {player});
+			heli.call("setspeed", {40, 15, 5});
+			heli.call("setcandamage", {false});
+
+			// This is bad. Need good scheduling
+			scheduler::loop([player, heli]()
+			{
+				auto origin = player.get<vector>("origin");
+
+				origin[2] += 1000;
+
+				heli.call("setvehgoalpos", {origin, 1});
+			}, scheduler::pipeline::server, 5s);
 		}
 
 		utils::hook::detour vm_notify_hook;
@@ -44,7 +80,7 @@ namespace scripting
 #ifdef DEV_BUILD
 				if (e.name == "spawned_player")
 				{
-					test_call(e);
+					test_heli(e);
 				}
 #endif
 			}

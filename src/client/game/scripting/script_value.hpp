@@ -1,6 +1,7 @@
 #pragma once
 #include "game/game.hpp"
 #include "variable_value.hpp"
+#include "vector.hpp"
 
 namespace scripting
 {
@@ -23,6 +24,8 @@ namespace scripting
 		script_value(const std::string& value);
 
 		script_value(const entity& value);
+
+		script_value(const vector& value);
 
 		template <typename T>
 		bool is() const;

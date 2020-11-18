@@ -105,6 +105,7 @@ namespace game
 
 	static Symbol<unsigned int (unsigned int parentId, unsigned int name)> FindVariable{0x1403D84F0, 0x1404334A0};
 	static Symbol<void (VariableValue *result, unsigned int classnum, int entnum, int offset)> GetEntityFieldValue{0x1403DC810, 0x140437860};
+	static Symbol<const float * (const float *v)> Scr_AllocVector{0x1403D9AF0, 0x140434A10};
 	static Symbol<float (int index)> Scr_GetFloat{0, 0x140438D60};
 	static Symbol<int ()> Scr_GetNumParam{0x1403DDF60, 0x140438EC0};
 	static Symbol<void ()> Scr_ClearOutParams{0x1403DD500, 0x140438600};

@@ -23,7 +23,7 @@ namespace scripting
 		template <typename T = script_value>
 		T get(const std::string& field) const;
 
-		script_value call(const std::string& name, const std::vector<script_value>& arguments) const;
+		script_value call(const std::string& name, const std::vector<script_value>& arguments = {}) const;
 
 		unsigned int get_entity_id() const;
 		game::scr_entref_t get_entity_reference() const;
