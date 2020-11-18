@@ -172,17 +172,6 @@ namespace patches
 			return 0;
 		}
 
-		int sync_gpu_stub()
-		{
-			if (!game::CL_IsCgameInitialized())
-			{
-				// g_maxFpsWaitTime
-				*reinterpret_cast<int*>(SELECT_VALUE(0x145FFDC9C, 0x1480AA080)) = 0;
-			}
-
-			return game::Sys_Milliseconds();
-		}
-
 		game::Font_s* get_chat_font_handle()
 		{
 			return game::R_RegisterFont("fonts/bigFont");
@@ -209,9 +198,8 @@ namespace patches
 				utils::nt::raise_hard_exception();
 			});
 
-			// 60 fps in main menu
-			utils::hook::call(SELECT_VALUE(0x14051BBA8, 0x1405E8668), sync_gpu_stub);
-			utils::hook::call(SELECT_VALUE(0x14055AE33, 0x140627FC3), game::Sys_Milliseconds); // Patch CL_ScaledMilliseconds
+			// Unlock fps in main menu
+			utils::hook::set<BYTE>(SELECT_VALUE(0x140242DDB, 0x1402CF58B), 0xEB);
 
 
 			// set it to 3 to display both voice dlc announcers did only show 1
