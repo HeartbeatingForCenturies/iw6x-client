@@ -266,7 +266,7 @@ int main()
 	writer.add_table("function_map", function_map);
 	const auto data = writer.write();
 
-	std::ofstream out("../../../../src/client/game/scripting/functions.cpp");
+	std::ofstream out("../../../../src/client/game/scripting/function_tables.cpp");
 	out.write(data.data(), data.size());
 	out.close();
 

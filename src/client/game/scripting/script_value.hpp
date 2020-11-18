@@ -1,10 +1,11 @@
 #pragma once
 #include "game/game.hpp"
 #include "variable_value.hpp"
-#include "entity.hpp"
 
 namespace scripting
 {
+	class entity;
+
 	class script_value
 	{
 	public:

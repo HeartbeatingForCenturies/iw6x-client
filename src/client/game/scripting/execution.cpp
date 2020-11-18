@@ -7,61 +7,8 @@
 
 namespace scripting
 {
-	extern std::unordered_map<std::string, unsigned> method_map;
-	extern std::unordered_map<std::string, unsigned> function_map;
-
 	namespace
 	{
-		std::unordered_map<std::string, unsigned> lowercase_map(
-			const std::unordered_map<std::string, unsigned>& old_map)
-		{
-			std::unordered_map<std::string, unsigned> new_map{};
-			for (auto& entry : old_map)
-			{
-				new_map[utils::string::to_lower(entry.first)] = entry.second;
-			}
-
-			return new_map;
-		}
-
-		const std::unordered_map<std::string, unsigned>& get_methods()
-		{
-			static auto methods = lowercase_map(method_map);
-			return methods;
-		}
-
-		const std::unordered_map<std::string, unsigned>& get_functions()
-		{
-			static auto function = lowercase_map(function_map);
-			return function;
-		}
-
-		int find_function_index(const std::string& name, const bool prefer_global)
-		{
-			const auto target = utils::string::to_lower(name);
-
-			const auto& primary_map = prefer_global
-				                          ? get_functions()
-				                          : get_methods();
-			const auto& secondary_map = !prefer_global
-				                            ? get_functions()
-				                            : get_methods();
-
-			auto function_entry = primary_map.find(target);
-			if (function_entry != primary_map.end())
-			{
-				return function_entry->second;
-			}
-
-			function_entry = secondary_map.find(target);
-			if (function_entry != secondary_map.end())
-			{
-				return function_entry->second;
-			}
-
-			return -1;
-		}
-
 		game::VariableValue* allocate_argument()
 		{
 			game::VariableValue* value_ptr = ++game::scr_VmPub->top;
@@ -118,18 +65,6 @@ namespace scripting
 
 			return script_value(game::scr_VmPub->top[1 - game::scr_VmPub->outparamcount]);
 		}
-
-		safe_execution::script_function get_function_by_index(const unsigned index)
-		{
-			if (index < 0x25D)
-			{
-				return reinterpret_cast<safe_execution::script_function*>(SELECT_VALUE(0x144E1E6F0, 0x1446B77A0))[index
-				];
-			}
-
-			return reinterpret_cast<safe_execution::script_function*>(SELECT_VALUE(0x144E1F9E0, 0x1446B8A90))[index -
-				0x8000];
-		}
 	}
 
 	script_value call_function(const std::string& name, const entity& entity,
@@ -138,13 +73,7 @@ namespace scripting
 		const auto entref = entity.get_entity_reference();
 
 		const auto is_method_call = *reinterpret_cast<const int*>(&entref) != -1;
-		const auto index = find_function_index(name, !is_method_call);
-		if (index < 0)
-		{
-			return {};
-		}
-
-		const auto function = get_function_by_index(index);
+		const auto function = find_function(name, !is_method_call);
 		if (!function)
 		{
 			return {};
@@ -171,6 +100,12 @@ namespace scripting
 	script_value call_function(const std::string& name, const std::vector<script_value>& arguments)
 	{
 		return call_function(name, entity(), arguments);
+	}
+
+	template <>
+	script_value call(const std::string& name, const std::vector<script_value>& arguments)
+	{
+		return call_function(name, arguments);
 	}
 
 	void set_entity_field(const entity& entity, const std::string& field, const script_value& value)

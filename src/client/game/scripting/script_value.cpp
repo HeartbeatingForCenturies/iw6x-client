@@ -1,5 +1,6 @@
 #include <std_include.hpp>
 #include "script_value.hpp"
+#include "entity.hpp"
 
 
 namespace scripting

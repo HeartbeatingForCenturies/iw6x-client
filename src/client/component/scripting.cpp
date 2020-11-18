@@ -7,24 +7,18 @@
 #include "game/scripting/script_value.hpp"
 #include "game/scripting/entity.hpp"
 #include "game/scripting/execution.hpp"
+#include "game/scripting/event.hpp"
 
 namespace scripting
 {
 	namespace
 	{
-		struct event
-		{
-			std::string name;
-			unsigned int entity_id{};
-			std::vector<script_value> arguments;
-		};
-
 		void test_call(const event& e)
 		{
-			const entity player(e.entity_id);
-			const auto name = player.get("name").as<std::string>();
+			const auto& player = e.entity;
+			const auto name = player.get<std::string>("name");
 
-			const auto hudelem = call_function("newHudElem", {}).as<entity>();
+			const auto hudelem = call<entity>("newHudElem");
 			hudelem.set("fontscale", 1);
 			hudelem.set("alpha", 1);
 
@@ -41,7 +35,7 @@ namespace scripting
 			{
 				event e;
 				e.name = string;
-				e.entity_id = notify_list_owner_id;
+				e.entity = notify_list_owner_id;
 
 				for (auto* value = top; value->type != game::SCRIPT_END; --value)
 				{
