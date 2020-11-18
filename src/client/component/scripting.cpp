@@ -80,7 +80,7 @@ namespace scripting
 #ifdef DEV_BUILD
 				if (e.name == "spawned_player")
 				{
-					test_heli(e);
+					//test_heli(e);
 				}
 #endif
 			}
