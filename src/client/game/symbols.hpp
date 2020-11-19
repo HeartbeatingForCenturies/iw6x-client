@@ -11,6 +11,8 @@ namespace game
 	WEAK Symbol<void(int type, VariableUnion u)> AddRefToValue{0x1403D7740, 0x1404326E0};
 	WEAK Symbol<void(int type, VariableUnion u)> RemoveRefToValue{0x1403D90F0, 0x1404340C0};
 
+	WEAK Symbol<void(void*, void*)> AimAssist_AddToTargetList{0, 0x140139D80};
+
 	WEAK Symbol<void()> Sys_ShowConsole{0x14043E650, 0x140503130};
 
 	WEAK Symbol<void ()> Com_Frame_Try_Block_Function{0x1403BC980, 0x1404131A0};

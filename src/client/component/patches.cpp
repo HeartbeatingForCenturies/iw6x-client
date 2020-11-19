@@ -177,37 +177,13 @@ namespace patches
 			return game::R_RegisterFont("fonts/bigFont");
 		}
 
-		const auto aim_assist_add_to_target_list = utils::hook::assemble([](utils::hook::assembler& a)
+		void aim_assist_add_to_target_list(void* a1, void* a2)
 		{
-			const auto no_aa = a.newLabel();
+			if (!dvars::aimassist_enabled->current.enabled)
+				return;
 
-			// check server sided dvar
-			a.push(rax);
-			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::sv_allow_aimassist)));
-			a.mov(al, byte_ptr(rax, 0x10));
-			a.cmp(al, 0);
-			a.pop(rax);
-			a.je(no_aa);
-
-			// if server allows aim assist, check if player has it disabled
-			a.push(rax);
-			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::aimassist_enabled)));
-			a.mov(al, byte_ptr(rax, 0x10));
-			a.cmp(al, 0);
-			a.pop(rax);
-			a.je(no_aa);
-
-			// do aim assist
-			a.mov(ptr(rsp, 0x10), rsi);
-			a.push(rdi);
-			a.sub(rsp, 0x30);
-			a.mov(r11d, ptr(rcx, 0x12AC));
-			a.jmp(0x140139D91);
-
-			// no aim assist
-			a.bind(no_aa);
-			a.ret();
-		});
+			game::AimAssist_AddToTargetList(a1, a2);
+		}
 	}
 
 	class component final : public component_interface
@@ -350,8 +326,7 @@ namespace patches
 			utils::hook::call(0x1402C3699, get_chat_font_handle);
 
 			dvars::aimassist_enabled = game::Dvar_RegisterBool("aimassist_enabled", true, game::DvarFlags::DVAR_FLAG_SAVED, "Enables aim assist for controllers"); //client side aim assist dvar
-			dvars::sv_allow_aimassist = game::Dvar_RegisterBool("sv_allow_aimassist", true, game::DvarFlags::DVAR_FLAG_REPLICATED, "Allow aim assist for controllers player in this server"); //server side aim assist dvar
-			utils::hook::jump(0x140139D80, aim_assist_add_to_target_list, true);
+			utils::hook::call(0x14013B9AC, aim_assist_add_to_target_list);
 		}
 
 		void patch_sp() const

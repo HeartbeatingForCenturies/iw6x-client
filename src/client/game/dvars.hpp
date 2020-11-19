@@ -20,7 +20,6 @@ namespace dvars
 
 	extern game::dvar_t* pm_bouncing;
 
-	extern game::dvar_t* sv_allow_aimassist;
 	extern game::dvar_t* aimassist_enabled;
 
 	std::string dvar_get_vector_domain(const int components, const game::dvar_limits& domain);
