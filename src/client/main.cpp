@@ -1,21 +1,21 @@
 #include <std_include.hpp>
 #include "launcher/launcher.hpp"
 #include "loader/loader.hpp"
-#include "loader/module_loader.hpp"
+#include "loader/component_loader.hpp"
 #include "game/game.hpp"
 #include "utils/flags.hpp"
 #include "utils/io.hpp"
 
 DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 {
-	module_loader::pre_destroy();
+	component_loader::pre_destroy();
 	exit(code);
 }
 
 
 BOOL WINAPI system_parameters_info_a(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni)
 {
-	module_loader::post_unpack();
+	component_loader::post_unpack();
 	return SystemParametersInfoA(uiAction, uiParam, pvParam, fWinIni);
 }
 
@@ -42,11 +42,11 @@ launcher::mode detect_mode_from_arguments()
 FARPROC load_binary(const launcher::mode mode)
 {
 	loader loader;
-	utils::nt::module self;
+	utils::nt::library self;
 
-	loader.set_import_resolver([self](const std::string& module, const std::string& function) -> void*
+	loader.set_import_resolver([self](const std::string& library, const std::string& function) -> void*
 	{
-		if (module == "steam_api64.dll")
+		if (library == "steam_api64.dll")
 		{
 			return self.get_proc<FARPROC>(function);
 		}
@@ -59,7 +59,7 @@ FARPROC load_binary(const launcher::mode mode)
 			return system_parameters_info_a;
 		}
 
-		return module_loader::load_import(module, function);
+		return component_loader::load_import(library, function);
 	});
 
 	std::string binary;
@@ -89,7 +89,7 @@ FARPROC load_binary(const launcher::mode mode)
 
 void remove_crash_file()
 {
-	const utils::nt::module self;
+	const utils::nt::library self;
 	auto name = self.get_name();
 	name = std::filesystem::path(name).replace_extension("").generic_string();
 
@@ -119,13 +119,13 @@ int main()
 		{
 			if (premature_shutdown)
 			{
-				module_loader::pre_destroy();
+				component_loader::pre_destroy();
 			}
 		});
 
 		try
 		{
-			if (!module_loader::post_start()) return 0;
+			if (!component_loader::post_start()) return 0;
 
 			auto mode = detect_mode_from_arguments();
 			if (mode == launcher::mode::none)
@@ -145,8 +145,7 @@ int main()
 
 			verify_ghost_version();
 
-			game::environment::initialize();
-			if (!module_loader::post_load()) return 0;
+			if (!component_loader::post_load()) return 0;
 
 			premature_shutdown = false;
 		}

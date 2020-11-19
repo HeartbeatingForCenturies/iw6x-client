@@ -109,7 +109,7 @@ namespace utils::hook
 		void* original_{};
 	};
 
-	bool iat(nt::module module, const std::string& target_module, const std::string& process, void* stub);
+	bool iat(nt::library library, const std::string& target_library, const std::string& process, void* stub);
 	
 	void nop(void* place, size_t length);
 	void nop(size_t place, size_t length);
@@ -117,7 +117,7 @@ namespace utils::hook
 	void copy(void* place, const void* data, size_t length);
 	void copy(size_t place, const void* data, size_t length);
 
-	bool is_relatively_far(void* pointer, void* data, int offset = 5);
+	bool is_relatively_far(const void* pointer, const void* data, int offset = 5);
 
 	void call(void* pointer, void* data);
 	void call(size_t pointer, void* data);
@@ -129,8 +129,8 @@ namespace utils::hook
 
 	void* assemble(const std::function<void(assembler&)>& asm_function);
 
-	void inject(void* pointer, void* data);
-	void inject(size_t pointer, void* data);
+	void inject(void* pointer, const void* data);
+	void inject(size_t pointer, const void* data);
 
 	template <typename T>
 	T extract(void* address)
