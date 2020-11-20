@@ -25,24 +25,19 @@ namespace game
 	{
 	public:
 		Symbol(const size_t sp_address, const size_t mp_address)
-			: sp_address_(sp_address)
-			  , mp_address_(mp_address)
+			: sp_object_(reinterpret_cast<T*>(sp_address))
+			  , mp_object_(reinterpret_cast<T*>(mp_address))
 		{
-		}
-
-		[[nodiscard]] size_t get() const
-		{
-			if (environment::is_sp())
-			{
-				return sp_address_;
-			}
-
-			return mp_address_;
 		}
 
 		operator T*() const
 		{
-			return reinterpret_cast<T*>(get());
+			if (environment::is_sp())
+			{
+				return sp_object_;
+			}
+
+			return mp_object_;
 		}
 
 		T* operator->() const
@@ -51,8 +46,8 @@ namespace game
 		}
 
 	private:
-		size_t sp_address_{0};
-		size_t mp_address_{0};
+		T* sp_object_;
+		T* mp_object_;
 	};
 
 	int Cmd_Argc();

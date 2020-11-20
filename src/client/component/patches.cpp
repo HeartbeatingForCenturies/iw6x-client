@@ -172,20 +172,17 @@ namespace patches
 			return 0;
 		}
 
-		int sync_gpu_stub()
-		{
-			if (!game::CL_IsCgameInitialized())
-			{
-				// g_maxFpsWaitTime
-				*reinterpret_cast<int*>(SELECT_VALUE(0x145FFDC9C, 0x1480AA080)) = 0;
-			}
-
-			return game::Sys_Milliseconds();
-		}
-
 		game::Font_s* get_chat_font_handle()
 		{
 			return game::R_RegisterFont("fonts/bigFont");
+		}
+
+		void aim_assist_add_to_target_list(void* a1, void* a2)
+		{
+			if (!dvars::aimassist_enabled->current.enabled)
+				return;
+
+			game::AimAssist_AddToTargetList(a1, a2);
 		}
 	}
 
@@ -209,9 +206,8 @@ namespace patches
 				utils::nt::raise_hard_exception();
 			});
 
-			// 60 fps in main menu
-			utils::hook::call(SELECT_VALUE(0x14051BBA8, 0x1405E8668), sync_gpu_stub);
-			utils::hook::call(SELECT_VALUE(0x14055AE33, 0x140627FC3), game::Sys_Milliseconds); // Patch CL_ScaledMilliseconds
+			// Unlock fps in main menu
+			utils::hook::set<BYTE>(SELECT_VALUE(0x140242DDB, 0x1402CF58B), 0xEB);
 
 
 			// set it to 3 to display both voice dlc announcers did only show 1
@@ -328,6 +324,9 @@ namespace patches
 			utils::hook::call(0x14025C825, get_chat_font_handle);
 			utils::hook::call(0x1402BC42F, get_chat_font_handle);
 			utils::hook::call(0x1402C3699, get_chat_font_handle);
+
+			dvars::aimassist_enabled = game::Dvar_RegisterBool("aimassist_enabled", true, game::DvarFlags::DVAR_FLAG_SAVED, "Enables aim assist for controllers"); //client side aim assist dvar
+			utils::hook::call(0x14013B9AC, aim_assist_add_to_target_list);
 		}
 
 		void patch_sp() const

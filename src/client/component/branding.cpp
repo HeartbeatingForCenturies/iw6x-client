@@ -8,6 +8,8 @@
 #include "utils/hook.hpp"
 #include "utils/string.hpp"
 
+#include "version.hpp"
+
 namespace branding
 {
 	namespace
