@@ -36,6 +36,14 @@ namespace localized_strings
 
 			return seh_string_ed_get_string_hook.invoke<const char*>(reference);
 		}
+
+		unsigned int g_localized_string_index_stub(const char* name, /*ConfigString*/ unsigned int start,
+		                                           unsigned int max, int create,
+		                                           const char* errormsg)
+		{
+			create = 1;
+			return game::G_FindConfigstringIndex(name, start, max, create, errormsg);
+		}
 	}
 
 	void override(const std::string& key, const std::string& value)
@@ -51,6 +59,12 @@ namespace localized_strings
 		{
 			// Change some localized strings
 			seh_string_ed_get_string_hook.create(SELECT_VALUE(0x1403F42D0, 0x1404A5F60), &seh_string_ed_get_string);
+
+			if (!game::environment::is_sp())
+			{
+				// Allocate localized strings after pre_main
+				utils::hook::call(0x140163D0A, g_localized_string_index_stub);
+			}
 		}
 	};
 }

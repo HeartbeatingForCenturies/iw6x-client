@@ -1,6 +1,6 @@
 ![license](https://img.shields.io/github/license/XLabsProject/iw6x-client.svg)
 [![open bugs](https://img.shields.io/github/issues/XLabsProject/iw6x-client/bug?label=bugs)](https://github.com/XLabsProject/iw6x-client/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
-[![Build status](https://ci.appveyor.com/api/projects/status/9v0mvgqxiltl2eai/branch/master?svg=true)](https://ci.appveyor.com/project/XLabsProject/iw6x-client/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/9v0mvgqxiltl2eai/branch/develop?svg=true)](https://ci.appveyor.com/project/XLabsProject/iw6x-client/branch/develop)
 [![Build](https://github.com/XLabsProject/iw6x-client/workflows/Build/badge.svg)](https://github.com/XLabsProject/iw6x-client/actions)
 [![discord](https://img.shields.io/endpoint?url=https://momo5502.com/iw4x/members-badge.php)](https://discord.gg/sKeVmR3)
 <!---
