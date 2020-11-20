@@ -176,6 +176,14 @@ namespace patches
 		{
 			return game::R_RegisterFont("fonts/bigFont");
 		}
+
+		void aim_assist_add_to_target_list(void* a1, void* a2)
+		{
+			if (!dvars::aimassist_enabled->current.enabled)
+				return;
+
+			game::AimAssist_AddToTargetList(a1, a2);
+		}
 	}
 
 	class component final : public component_interface
@@ -316,6 +324,9 @@ namespace patches
 			utils::hook::call(0x14025C825, get_chat_font_handle);
 			utils::hook::call(0x1402BC42F, get_chat_font_handle);
 			utils::hook::call(0x1402C3699, get_chat_font_handle);
+
+			dvars::aimassist_enabled = game::Dvar_RegisterBool("aimassist_enabled", true, game::DvarFlags::DVAR_FLAG_SAVED, "Enables aim assist for controllers"); //client side aim assist dvar
+			utils::hook::call(0x14013B9AC, aim_assist_add_to_target_list);
 		}
 
 		void patch_sp() const
