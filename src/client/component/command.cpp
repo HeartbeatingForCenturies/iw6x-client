@@ -235,12 +235,37 @@ namespace command
 					return;
 				}
 
+				if (params.size() < 2)
+				{
+					game::CG_GameMessage(0, "You did not specify a weapon name");
+					return;
+				}
+
 				auto ps = game::SV_GetPlayerstateForClientNum(0);
 				auto wp = game::G_GetWeaponForName(params.get(1));
 				if (game::G_GivePlayerWeapon(ps, wp, 0, 0, 0))
 				{
 					game::G_InitializeAmmo(ps, wp, 0);
+					game::G_SelectWeapon(0, wp);
 				}
+			});
+
+			add("take", [](params& params)
+			{
+				if (!game::SV_Loaded())
+				{
+					return;
+				}
+
+				if (params.size() < 2)
+				{
+					game::CG_GameMessage(0, "You did not specify a weapon name");
+					return;
+				}
+
+				auto ps = game::SV_GetPlayerstateForClientNum(0);
+				auto wp = game::G_GetWeaponForName(params.get(1));
+				game::G_TakePlayerWeapon(ps, wp);
 			});
 		}
 
@@ -353,7 +378,27 @@ namespace command
 				if (game::G_GivePlayerWeapon(ps, wp, 0, 0, 0))
 				{
 					game::G_InitializeAmmo(ps, wp, 0);
+					game::G_SelectWeapon(client_num, wp);
 				}
+			});
+
+			add_sv("take", [](const int client_num, params_sv& params)
+			{
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
+					return;
+				}
+
+				if (params.size() < 2)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"You did not specify a weapon name\"");
+					return;
+				}
+
+				auto ps = game::SV_GetPlayerstateForClientNum(client_num);
+				auto wp = game::G_GetWeaponForName(params.get(1));
+				game::G_TakePlayerWeapon(ps, wp);
 			});
 		}
 	};
