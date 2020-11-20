@@ -9,6 +9,7 @@
 
 #include "utils/string.hpp"
 #include "utils/hook.hpp"
+#include "version.hpp"
 
 #define console_font game::R_RegisterFont("fonts/consolefont")
 #define material_white game::Material_RegisterHandle("white")
@@ -229,7 +230,7 @@ namespace game_console
 			con.globals.left_x = con.screen_min[0] + 6.0f;
 
 			draw_input_box(1, dvars::con_inputBoxColor->current.vector);
-			draw_input_text_and_over("IW6x: Pre-Release>", color_iw6);
+			draw_input_text_and_over("IW6x: " VERSION ">", color_iw6);
 
 			con.globals.left_x = con.globals.x;
 			con.globals.auto_complete_choice[0] = 0;

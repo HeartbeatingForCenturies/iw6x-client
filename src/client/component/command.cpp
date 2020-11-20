@@ -195,10 +195,7 @@ namespace command
 			{
 				utils::hook::call(0x14041213C, &parse_commandline_stub);
 
-				if (game::environment::is_mp())
-				{
-					add_mp_commands();
-				}
+				add_mp_commands();
 			}
 		}
 
@@ -320,6 +317,12 @@ namespace command
 					return;
 				}
 
+				if (params.size() < 4)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"You did not specify the correct number of coordinates\"");
+					return;
+				}
+
 				game::mp::g_entities[client_num].client->ps.origin[0] = std::strtof(params.get(1), nullptr);
 				game::mp::g_entities[client_num].client->ps.origin[1] = std::strtof(params.get(2), nullptr);
 				game::mp::g_entities[client_num].client->ps.origin[2] = std::strtof(params.get(3), nullptr);
@@ -333,6 +336,12 @@ namespace command
 					return;
 				}
 
+				if (params.size() < 4)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"You did not specify the correct number of coordinates\"");
+					return;
+				}
+
 				game::mp::g_entities[client_num].client->ps.delta_angles[0] = std::strtof(params.get(1), nullptr);
 				game::mp::g_entities[client_num].client->ps.delta_angles[1] = std::strtof(params.get(2), nullptr);
 				game::mp::g_entities[client_num].client->ps.delta_angles[2] = std::strtof(params.get(3), nullptr);
@@ -343,6 +352,12 @@ namespace command
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
 					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
+					return;
+				}
+
+				if (params.size() < 2)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"You did not specify a weapon name\"");
 					return;
 				}
 
