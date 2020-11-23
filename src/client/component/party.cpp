@@ -234,7 +234,7 @@ namespace party
 					printf("usage: kick <name>\n");
 					return;
 				}
-				auto name = params.get(1);
+				const auto name = params.get(1);
 
 				if (name == "all"s)
 				{
