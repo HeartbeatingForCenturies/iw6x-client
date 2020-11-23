@@ -13,8 +13,6 @@ namespace game
 
 	WEAK Symbol<void(void*, void*)> AimAssist_AddToTargetList{0, 0x140139D80};
 
-	WEAK Symbol<void()> Sys_ShowConsole{0x14043E650, 0x140503130};
-
 	WEAK Symbol<void ()> Com_Frame_Try_Block_Function{0x1403BC980, 0x1404131A0};
 	WEAK Symbol<const char*(char const**)> Com_Parse{0, 0x1404F50E0};
 	WEAK Symbol<void (errorParm code, const char* message, ...)> Com_Error{0x1403BBFF0, 0x140412740};
@@ -148,7 +146,9 @@ namespace game
 
 	WEAK Symbol<bool ()> Sys_IsDatabaseReady2{0x1403C2D40, 0x140423920};
 	WEAK Symbol<int ()> Sys_Milliseconds{0x14043D2A0, 0x140501CA0};
+	WEAK Symbol<void()> Sys_ShowConsole{0x14043E650, 0x140503130};
 	WEAK Symbol<bool (int, void const*, const netadr_s*)> Sys_SendPacket{0x14043D000, 0x140501A00};
+	WEAK Symbol<void*(int valueIndex)> Sys_GetValue{0x1403C2C30, 0x1404237D0};
 
 	WEAK Symbol<void ()> SwitchToCoreMode{0, 0x1401FA4A0};
 	WEAK Symbol<void ()> SwitchToAliensMode{0, 0x1401FA4D0};
@@ -158,6 +158,9 @@ namespace game
 	WEAK Symbol<const char*(const char*)> UI_LocalizeGametype{0, 0x1404B90F0};
 
 	WEAK Symbol<DWOnlineStatus (int)> dwGetLogOnStatus{0, 0x140589490};
+
+	WEAK Symbol<void* (jmp_buf* Buf, int Value)> longjmp{0x14062E030, 0x140738060};
+	WEAK Symbol<int (jmp_buf* Buf)> _setjmp{0x14062F030, 0x140739060};
 
 	/***************************************************************
 	 * Variables

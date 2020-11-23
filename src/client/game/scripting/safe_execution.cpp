@@ -8,7 +8,7 @@ namespace scripting::safe_execution
 {
 	bool has_failed(jmp_buf& buffer)
 	{
-		if (setjmp(buffer))
+		if (game::_setjmp(&buffer))
 		{
 			return true;
 		}

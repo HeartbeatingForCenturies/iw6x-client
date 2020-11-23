@@ -105,10 +105,20 @@ void verify_ghost_version()
 	}
 }
 
+void enable_dpi_awareness()
+{
+	const utils::nt::library user32{"user32.dll"};
+	const auto set_dpi = user32 ? user32.get_proc<BOOL(WINAPI *)(DPI_AWARENESS_CONTEXT)>("SetProcessDpiAwarenessContext") : nullptr;
+	if(set_dpi)
+	{
+		set_dpi(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+	}
+}
+
 int main()
 {
 	FARPROC entry_point;
-	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+	enable_dpi_awareness();
 
 	srand(uint32_t(time(nullptr)));
 	remove_crash_file();
