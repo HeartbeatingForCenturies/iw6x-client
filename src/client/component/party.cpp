@@ -6,6 +6,8 @@
 #include "network.hpp"
 #include "scheduler.hpp"
 #include "server_list.hpp"
+#include "arxan.hpp"
+#include "dedicated.hpp"
 
 #include "steam/steam.hpp"
 
@@ -153,6 +155,14 @@ namespace party
 		{
 			printf("Starting map: %s\n", mapname.data());
 			switch_gamemode_if_necessary(get_dvar_string("g_gametype"));
+
+			// This is bad, but it works for now
+			if(arxan::save_state())
+			{
+				arxan::trigger_reset_error();
+				return;
+			}
+
 			game::SV_StartMapForParty(0, mapname.data(), false, false);
 		}
 	}

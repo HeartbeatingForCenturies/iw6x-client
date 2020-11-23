@@ -70,11 +70,47 @@ namespace arxan
 			return STATUS_INVALID_HANDLE;
 		}
 
-		LONG WINAPI exception_filter(LPEXCEPTION_POINTERS info)
+		jmp_buf* get_buffer()
 		{
-			return (info->ExceptionRecord->ExceptionCode == STATUS_INVALID_HANDLE)
-				       ? EXCEPTION_CONTINUE_EXECUTION
-				       : EXCEPTION_CONTINUE_SEARCH;
+			static thread_local jmp_buf old_buffer;
+			return &old_buffer;
+		}
+
+		void reset_state()
+		{
+			game::longjmp(get_buffer(), -1);
+		}
+
+		size_t get_reset_state_stub()
+		{
+			static auto* stub = utils::hook::assemble([](utils::hook::assembler& a)
+			{
+				a.sub(rsp, 0x10);
+				a.or_(rsp, 0x8);
+				a.jmp(reset_state);
+			});
+
+			return reinterpret_cast<size_t>(stub);
+		}
+
+		LONG WINAPI exception_filter(const LPEXCEPTION_POINTERS info)
+		{
+			if (info->ExceptionRecord->ExceptionCode == STATUS_INVALID_HANDLE)
+			{
+				return EXCEPTION_CONTINUE_EXECUTION;
+			}
+			
+			if (info->ExceptionRecord->ExceptionCode == STATUS_ACCESS_VIOLATION)
+			{
+				const auto address = reinterpret_cast<size_t>(info->ExceptionRecord->ExceptionAddress);
+				if((address & ~0xFFFFFFF) == 0x280000000)
+				{
+					info->ContextRecord->Rip = get_reset_state_stub();
+					return EXCEPTION_CONTINUE_EXECUTION;
+				}
+			}
+			
+			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
 		void hide_being_debugged()
@@ -138,6 +174,72 @@ namespace arxan
 				reinterpret_cast<void(*)(int)>(0x14000F9A6)(index);
 			}
 		}
+
+		volatile bool trigger_error = false;
+		utils::hook::detour frame_hook;
+	
+		void frame_stub()
+		{
+			if(trigger_error)
+			{
+				trigger_error = false;
+				game::Com_Error(game::ERR_DROP, "An Arxan error occured.");
+			}
+
+			frame_hook.invoke<void>();
+		}
+	}
+
+	bool save_state()
+	{
+		// Backup the stack
+		static thread_local char backup_stack[0x1000];
+		memmove(backup_stack, _AddressOfReturnAddress(), sizeof(backup_stack));
+		
+		const auto recovered = game::_setjmp(get_buffer()) != 0;
+		if(recovered)
+		{
+			// Restore the stack, as it was destroyed by arxan :(
+			memmove(_AddressOfReturnAddress(), backup_stack, sizeof(backup_stack));
+			
+			printf("Recovering from arxan error...\n");
+		}
+
+		return recovered;
+	}
+
+	void relaunch_self()
+	{
+		const utils::nt::library self;
+
+		STARTUPINFOA startup_info;
+		PROCESS_INFORMATION process_info;
+
+		ZeroMemory(&startup_info, sizeof(startup_info));
+		ZeroMemory(&process_info, sizeof(process_info));
+		startup_info.cb = sizeof(startup_info);
+
+		char current_dir[MAX_PATH];
+		GetCurrentDirectoryA(sizeof(current_dir), current_dir);
+		auto* const command_line = GetCommandLineA();
+
+		CreateProcessA(self.get_path().data(), command_line, nullptr, nullptr, false, NULL, nullptr, current_dir,
+		               &startup_info, &process_info);
+
+		if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE) CloseHandle(process_info.hThread);
+		if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE) CloseHandle(
+			process_info.hProcess);
+	}
+
+	void trigger_reset_error()
+	{
+		if(game::environment::is_dedi())
+		{
+			relaunch_self();
+			TerminateProcess(GetCurrentProcess(), 0);
+		}
+		
+		trigger_error = true;
 	}
 
 	class component final : public component_interface
@@ -175,6 +277,8 @@ namespace arxan
 			utils::hook::jump(0x140558C20, 0x140558CB0); // dwNetPump
 			utils::hook::jump(0x140591850, 0x1405918E0); // dwLobbyPump
 			utils::hook::jump(0x140589480, 0x140589490); // dwGetLogonStatus
+
+			frame_hook.create(0x140500070, frame_stub);
 
 			// These two are inlined with their synchronization. Need to work around that
 			//utils::hook::jump(0x14015EB9A, 0x140589E10); // dwLogOnStart
