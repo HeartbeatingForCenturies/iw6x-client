@@ -82,11 +82,11 @@ namespace utils::hook
 		return this->original_;
 	}
 
-	bool iat(nt::module module, const std::string& target_module, const std::string& process, void* stub)
+	bool iat(nt::library library, const std::string& target_library, const std::string& process, void* stub)
 	{
-		if (!module.is_valid()) return false;
+		if (!library.is_valid()) return false;
 
-		auto ptr = module.get_iat_entry(target_module, process);
+		auto ptr = library.get_iat_entry(target_library, process);
 		if (!ptr) return false;
 
 		DWORD protect;
@@ -130,7 +130,7 @@ namespace utils::hook
 		copy(reinterpret_cast<void*>(place), data, length);
 	}
 
-	bool is_relatively_far(void* pointer, void* data, int offset)
+	bool is_relatively_far(const void* pointer, const void* data, int offset)
 	{
 		const int64_t diff = size_t(data) - (size_t(pointer) + offset);
 		const auto small_diff = int32_t(diff);
@@ -211,7 +211,7 @@ namespace utils::hook
 		return result;
 	}
 
-	void inject(void* pointer, void* data)
+	void inject(void* pointer, const void* data)
 	{
 		if (is_relatively_far(pointer, data, 4))
 		{
@@ -221,7 +221,7 @@ namespace utils::hook
 		set<int32_t>(pointer, int32_t(size_t(data) - (size_t(pointer) + 4)));
 	}
 
-	void inject(const size_t pointer, void* data)
+	void inject(const size_t pointer, const void* data)
 	{
 		return inject(reinterpret_cast<void*>(pointer), data);
 	}

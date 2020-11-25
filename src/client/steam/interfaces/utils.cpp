@@ -1,6 +1,6 @@
 #include <std_include.hpp>
 #include "steam/steam.hpp"
-#include "module/steam_proxy.hpp"
+#include "component/steam_proxy.hpp"
 
 namespace steam
 {

@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.0.3] - 2020-11-25
+
+### Fixed
+
+-   Dedicated server incompatible with older Windows [#167](https://github.com/XLabsProject/iw6x-client/issues/167)
+-   Fatal Error Server Crash [#119](https://github.com/XLabsProject/iw6x-client/issues/119)
+
+### Pull Requests
+
+-   Implement sv_motd [#203](https://github.com/XLabsProject/iw6x-client/pull/203) ([@fedddddd](https://github.com/fedddddd))
+-   MP command fixes, Game console version, Aim assist [#208](https://github.com/XLabsProject/iw6x-client/pull/208) ([@skiff](https://github.com/skiff))
+-   Add fastfiles component [#199](https://github.com/XLabsProject/iw6x-client/pull/199) ([@Joelrau](https://github.com/Joelrau))
+-   update give command & add take command [#198](https://github.com/XLabsProject/iw6x-client/pull/198) ([@Joelrau](https://github.com/Joelrau))
+
 ## [v1.0.2] - 2020-11-12
 
 ### Fixed
@@ -119,7 +133,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Add setviewpos, setviewang commands, add viewpos to drawfps [#38](https://github.com/XLabsProject/iw6x-client/pull/38) ([@fedddddd](https://github.com/fedddddd))
 -   Make stats look better [#36](https://github.com/XLabsProject/iw6x-client/pull/36) ([@FragsAreUs](https://github.com/FragsAreUs))
 
-[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.3...HEAD
+
+[v1.0.3]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.2...v1.0.3
 
 [v1.0.2]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.1...v1.0.2
 

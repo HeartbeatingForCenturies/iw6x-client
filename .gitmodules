@@ -13,7 +13,7 @@
 [submodule "deps/protobuf"]
 	path = deps/protobuf
 	url = https://github.com/google/protobuf.git
-	branch = 3.13.x
+	branch = 3.14.x
 [submodule "deps/minhook"]
 	path = deps/minhook
 	url = https://github.com/TsudaKageyu/minhook.git
@@ -32,3 +32,6 @@
 [submodule "deps/discord-rpc"]
 	path = deps/discord-rpc
 	url = https://github.com/discord/discord-rpc.git
+[submodule "deps/msvc-demangler"]
+	path = deps/msvc-demangler
+	url = https://github.com/rui314/msvc-demangler.git

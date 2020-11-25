@@ -1,5 +1,5 @@
 #include <std_include.hpp>
-#include "module/demonware.hpp"
+#include "component/demonware.hpp"
 #include "game/demonware/service_server.hpp"
 #include "utils/cryptography.hpp"
 
