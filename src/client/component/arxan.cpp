@@ -279,6 +279,14 @@ namespace arxan
 
 			frame_hook.create(0x140500070, frame_stub);
 
+			// Fix arxan crashes
+			// Are these opaque predicates?
+			utils::hook::nop(0x14AE2B384, 6); // 0000000140035EA7
+			utils::hook::nop(0x14A31E98E, 4); // 000000014B1A892E
+			utils::hook::nop(0x14A920E10, 4); // 000000014AEF4F39
+			utils::hook::nop(0x14A1A2425, 4); // 000000014A0B52A8
+			utils::hook::nop(0x14AE07CEA, 4); // 000000014A143BFF
+
 			// These two are inlined with their synchronization. Need to work around that
 			//utils::hook::jump(0x14015EB9A, 0x140589E10); // dwLogOnStart
 			//utils::hook::call(0x140588306, 0x1405894D0); // dwLogOnComplete
