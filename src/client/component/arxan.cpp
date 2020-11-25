@@ -99,17 +99,17 @@ namespace arxan
 			{
 				return EXCEPTION_CONTINUE_EXECUTION;
 			}
-			
+
 			if (info->ExceptionRecord->ExceptionCode == STATUS_ACCESS_VIOLATION)
 			{
 				const auto address = reinterpret_cast<size_t>(info->ExceptionRecord->ExceptionAddress);
-				if((address & ~0xFFFFFFF) == 0x280000000)
+				if ((address & ~0xFFFFFFF) == 0x280000000)
 				{
 					info->ContextRecord->Rip = get_reset_state_stub();
 					return EXCEPTION_CONTINUE_EXECUTION;
 				}
 			}
-			
+
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
@@ -177,10 +177,10 @@ namespace arxan
 
 		volatile bool trigger_error = false;
 		utils::hook::detour frame_hook;
-	
+
 		void frame_stub()
 		{
-			if(trigger_error)
+			if (trigger_error)
 			{
 				trigger_error = false;
 				game::Com_Error(game::ERR_DROP, "An Arxan error occured.");
@@ -195,13 +195,13 @@ namespace arxan
 		// Backup the stack
 		static thread_local char backup_stack[0x1000];
 		memmove(backup_stack, _AddressOfReturnAddress(), sizeof(backup_stack));
-		
+
 		const auto recovered = game::_setjmp(get_buffer()) != 0;
-		if(recovered)
+		if (recovered)
 		{
 			// Restore the stack, as it was destroyed by arxan :(
 			memmove(_AddressOfReturnAddress(), backup_stack, sizeof(backup_stack));
-			
+
 			printf("Recovering from arxan error...\n");
 		}
 
@@ -227,18 +227,17 @@ namespace arxan
 		               &startup_info, &process_info);
 
 		if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE) CloseHandle(process_info.hThread);
-		if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE) CloseHandle(
-			process_info.hProcess);
+		if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE) CloseHandle(process_info.hProcess);
 	}
 
 	void trigger_reset_error()
 	{
-		if(game::environment::is_dedi())
+		if (game::environment::is_dedi())
 		{
 			relaunch_self();
 			TerminateProcess(GetCurrentProcess(), 0);
 		}
-		
+
 		trigger_error = true;
 	}
 

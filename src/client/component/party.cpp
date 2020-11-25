@@ -7,7 +7,6 @@
 #include "scheduler.hpp"
 #include "server_list.hpp"
 #include "arxan.hpp"
-#include "dedicated.hpp"
 
 #include "steam/steam.hpp"
 
@@ -157,7 +156,7 @@ namespace party
 			switch_gamemode_if_necessary(get_dvar_string("g_gametype"));
 
 			// This is bad, but it works for now
-			if(arxan::save_state())
+			if (arxan::save_state())
 			{
 				arxan::trigger_reset_error();
 				return;
@@ -166,8 +165,8 @@ namespace party
 			game::SV_StartMapForParty(0, mapname.data(), false, false);
 		}
 	}
-	
-	void didyouknow_stub(game::dvar_t* dvar, const char* string) 
+
+	void didyouknow_stub(game::dvar_t* dvar, const char* string)
 	{
 		if (dvar->name == "didyouknow"s && !party::sv_motd.empty())
 		{
