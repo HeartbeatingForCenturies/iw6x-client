@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Dedicated server incompatible with older Windows [#167](https://github.com/XLabsProject/iw6x-client/issues/167)
+-   Fatal Error Server Crash [#119](https://github.com/XLabsProject/iw6x-client/issues/119)
+
+### Pull Requests
+
+-   Implement sv_motd [#203](https://github.com/XLabsProject/iw6x-client/pull/203) ([@fedddddd](https://github.com/fedddddd))
+-   MP command fixes, Game console version, Aim assist [#208](https://github.com/XLabsProject/iw6x-client/pull/208) ([@skiff](https://github.com/skiff))
+
 ## [v1.0.2] - 2020-11-12
 
 ### Fixed
