@@ -1,13 +1,15 @@
-#include <std_include.hpp>
 #include "flags.hpp"
 #include "string.hpp"
+#include "nt.hpp"
+
+#include <shellapi.h>
 
 namespace utils::flags
 {
 	void parse_flags(std::vector<std::string>& flags)
 	{
 		int num_args;
-		const auto argv = CommandLineToArgvW(GetCommandLineW(), &num_args);
+		auto* const argv = CommandLineToArgvW(GetCommandLineW(), &num_args);
 
 		flags.clear();
 
@@ -18,7 +20,8 @@ namespace utils::flags
 				std::wstring wide_flag(argv[i]);
 				if (wide_flag[0] == L'-')
 				{
-					flags.emplace_back(wide_flag.begin() + 1, wide_flag.end());
+					wide_flag.erase(wide_flag.begin());
+					flags.emplace_back(string::convert(wide_flag));
 				}
 			}
 

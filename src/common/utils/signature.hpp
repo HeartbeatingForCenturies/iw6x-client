@@ -1,5 +1,6 @@
 #pragma once
 #include "nt.hpp"
+#include <cstdint>
 
 namespace utils::hook
 {

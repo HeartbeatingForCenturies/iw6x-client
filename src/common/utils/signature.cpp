@@ -1,5 +1,8 @@
-#include <std_include.hpp>
 #include "signature.hpp"
+#include <thread>
+#include <mutex>
+
+#include <intrin.h>
 
 namespace utils::hook
 {

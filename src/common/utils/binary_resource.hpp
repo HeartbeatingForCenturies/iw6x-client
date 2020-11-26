@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace utils
 {
 	class binary_resource

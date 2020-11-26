@@ -1,4 +1,3 @@
-#include <std_include.hpp>
 #include "binary_resource.hpp"
 #include "nt.hpp"
 #include "io.hpp"

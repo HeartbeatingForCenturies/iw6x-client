@@ -1,5 +1,9 @@
-#include <std_include.hpp>
 #include "string.hpp"
+#include <sstream>
+#include <cstdarg>
+#include <algorithm>
+
+#include "nt.hpp"
 
 namespace utils::string
 {
@@ -34,7 +38,7 @@ namespace utils::string
 	{
 		std::transform(text.begin(), text.end(), text.begin(), [](const char input)
 		{
-			return CHAR(tolower(input));
+			return static_cast<char>(tolower(input));
 		});
 
 		return text;
@@ -44,7 +48,7 @@ namespace utils::string
 	{
 		std::transform(text.begin(), text.end(), text.begin(), [](const char input)
 		{
-			return CHAR(toupper(input));
+			return static_cast<char>(toupper(input));
 		});
 
 		return text;
@@ -104,7 +108,7 @@ namespace utils::string
 		while (*in != 0 && current < max)
 		{
 			const auto color_index = (*(in + 1) - 48) >= 0xC ? 7 : (*(in + 1) - 48);
-			
+
 			if (*in == '^' && (color_index != 7 || *(in + 1) == '7'))
 			{
 				++in;
@@ -120,4 +124,33 @@ namespace utils::string
 		}
 		*out = '\0';
 	}
+
+#pragma warning(push)
+#pragma warning(disable: 4100)
+	std::string convert(const std::wstring& wstr)
+	{
+		std::string result;
+		result.reserve(wstr.size());
+
+		for(const auto& chr : wstr)
+		{
+			result.push_back(static_cast<char>(chr));
+		}
+		
+		return result;
+	}
+
+	std::wstring convert(const std::string& str)
+	{
+		std::wstring result;
+		result.reserve(str.size());
+
+		for(const auto& chr : str)
+		{
+			result.push_back(static_cast<wchar_t>(chr));
+		}
+		
+		return result;
+	}
+#pragma warning(pop)
 }

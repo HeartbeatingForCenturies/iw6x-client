@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <tomcrypt.h>
+
 namespace utils::cryptography
 {
 	class ecc final

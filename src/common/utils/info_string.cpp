@@ -1,4 +1,3 @@
-#include <std_include.hpp>
 #include "info_string.hpp"
 #include "string.hpp"
 

@@ -262,6 +262,42 @@ defines {"DEBUG", "_DEBUG"}
 
 configuration {}
 
+project "common"
+kind "StaticLib"
+language "C++"
+
+files {"./src/common/**.hpp", "./src/common/**.cpp"}
+
+includedirs {"./src/common", "%{prj.location}/src"}
+
+resincludedirs {"$(ProjectDir)src"}
+
+dependencies.imports()
+
+project "runner"
+kind "WindowedApp"
+language "C++"
+
+files {"./src/runner/**.rc", "./src/runner/**.hpp", "./src/runner/**.cpp", "./src/runner/resources/**.*"}
+
+includedirs {"./src/runner", "./src/common", "%{prj.location}/src"}
+
+resincludedirs {"$(ProjectDir)src"}
+
+project "function_dumper"
+kind "ConsoleApp"
+language "C++"
+
+files {"./src/function_dumper/**.rc", "./src/function_dumper/**.hpp", "./src/function_dumper/**.cpp", "./src/function_dumper/resources/**.*"}
+
+includedirs {"./src/function_dumper", "./src/common", "%{prj.location}/src"}
+
+resincludedirs {"$(ProjectDir)src"}
+
+links {"common"}
+
+dependencies.imports()
+
 project "client"
 kind "ConsoleApp"
 language "C++"
@@ -275,11 +311,13 @@ linkoptions {"/IGNORE:4254", "/DYNAMICBASE:NO", "/SAFESEH:NO", "/LARGEADDRESSAWA
 
 files {"./src/client/**.rc", "./src/client/**.hpp", "./src/client/**.cpp", "./src/client/resources/**.*"}
 
-includedirs {"./src/client", "%{prj.location}/src"}
+includedirs {"./src/client", "./src/common", "%{prj.location}/src"}
 
 resincludedirs {"$(ProjectDir)src"}
 
 dependson {"tlsdll", "runner"}
+
+links {"common"}
 
 prebuildcommands {"pushd %{_MAIN_SCRIPT_DIR}", "tools\\premake5 generate-buildinfo", "popd"}
 
@@ -297,6 +335,8 @@ files {"./src/tlsdll/**.rc", "./src/tlsdll/**.hpp", "./src/tlsdll/**.cpp", "./sr
 
 includedirs {"./src/tlsdll", "%{prj.location}/src"}
 
+links {"common"}
+
 resincludedirs {"$(ProjectDir)src"}
 
 project "runner"
@@ -305,7 +345,9 @@ language "C++"
 
 files {"./src/runner/**.rc", "./src/runner/**.hpp", "./src/runner/**.cpp", "./src/runner/resources/**.*"}
 
-includedirs {"./src/runner", "%{prj.location}/src"}
+includedirs {"./src/runner", "./src/common", "%{prj.location}/src"}
+
+links {"common"}
 
 resincludedirs {"$(ProjectDir)src"}
 
@@ -315,9 +357,11 @@ language "C++"
 
 files {"./src/function_dumper/**.rc", "./src/function_dumper/**.hpp", "./src/function_dumper/**.cpp", "./src/function_dumper/resources/**.*"}
 
-includedirs {"./src/function_dumper", "%{prj.location}/src"}
+includedirs {"./src/function_dumper", "./src/common", "%{prj.location}/src"}
 
 resincludedirs {"$(ProjectDir)src"}
+
+links {"common"}
 
 dependencies.imports()
 

@@ -1,6 +1,9 @@
 #pragma once
 #include "signature.hpp"
 
+#include <asmjit/core/jitruntime.h>
+#include <asmjit/x86/x86assembler.h>
+
 using namespace asmjit::x86;
 
 namespace utils::hook

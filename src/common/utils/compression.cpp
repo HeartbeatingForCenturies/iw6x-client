@@ -1,6 +1,7 @@
-#include <std_include.hpp>
 #include "memory.hpp"
 #include "compression.hpp"
+
+#include <zlib.h>
 
 namespace utils::compression
 {
@@ -26,7 +27,7 @@ namespace utils::compression
 	std::string zlib::decompress(const std::string& data)
 	{
 		z_stream stream;
-		ZeroMemory(&stream, sizeof(stream));
+		memset(&stream, 0, sizeof(stream));
 		std::string buffer;
 
 		if (inflateInit(&stream) != Z_OK)

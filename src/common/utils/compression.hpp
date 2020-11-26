@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #define CHUNK 16384u
 
 namespace utils::compression

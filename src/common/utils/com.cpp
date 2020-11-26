@@ -1,5 +1,12 @@
-#include <std_include.hpp>
 #include "com.hpp"
+#include "nt.hpp"
+#include "string.hpp"
+
+#include <stdexcept>
+
+#include <ShlObj.h>
+#include <gsl/gsl>
+
 
 namespace utils::com
 {
@@ -111,8 +118,8 @@ namespace utils::com
 			CoTaskMemFree(raw_path);
 		});
 
-		std::wstring result_path = raw_path;
-		out_folder = std::string(result_path.begin(), result_path.end());
+		const std::wstring result_path = raw_path;
+		out_folder = string::convert(result_path);
 
 		return true;
 	}

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <mutex>
+#include <memory>
+
 namespace utils
 {
 	template <typename T>

@@ -1,6 +1,6 @@
-#include <std_include.hpp>
 #include "string.hpp"
 #include "cryptography.hpp"
+#include "nt.hpp"
 
 /// http://www.opensource.apple.com/source/CommonCrypto/CommonCrypto-55010/Source/libtomcrypt/doc/libTomCryptDoc.pdf
 
@@ -149,7 +149,7 @@ namespace utils::cryptography
 		rsa_key new_key;
 		rsa_import(PBYTE(key.data()), ULONG(key.size()), &new_key);
 
-		prng_state yarrow;
+		static thread_local prng_state yarrow;
 		rng_make_prng(128, prng_id, &yarrow, nullptr);
 
 		unsigned char buffer[0x80];
