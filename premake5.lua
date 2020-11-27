@@ -167,7 +167,7 @@ newaction {
 
 			print ("Update " .. oldVersion .. " -> " .. gitDescribeOutputQuoted)
 
-			-- write out to version.txt for preliminary updater
+			-- write to version.txt for preliminary updater
 			-- NOTE - remove this once we have a proper updater and proper release versioning
 			local versionFile = assert(io.open(wks.location .. "/version.txt", "w"))
 			versionFile:write(gitCommitHash)
