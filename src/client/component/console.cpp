@@ -120,7 +120,7 @@ namespace console
 
 				{
 					std::lock_guard _(this->mutex_);
-					message_queue_copy = this->message_queue_;
+					message_queue_copy = std::move(this->message_queue_);
 					this->message_queue_ = {};
 				}
 
@@ -183,7 +183,7 @@ namespace console
 		// TODO: fill the SP address(I didn't downloaded the SP part of the game).
 		if (!game::environment::is_sp())
 		{
-			auto logoWindow = *reinterpret_cast<HWND*>(0x147AD1DC0);
+			const auto logoWindow = *reinterpret_cast<HWND*>(0x147AD1DC0);
 			SetWindowPos(logoWindow, 0, 5, 5, width - 25, 60, 0);
 		}
 	}
