@@ -16,7 +16,7 @@ branches:
 skip_branch_with_pr: true
 
 cache:
-  - build/obj
+  - build
 
 configuration:
   - Debug
