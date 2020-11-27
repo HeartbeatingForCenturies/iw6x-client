@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Game pad crashes due to missing steam-api interfaces [#173](https://github.com/XLabsProject/iw6x-client/issues/173)
+
+### Added
+
+-   Analyze Arxan exception handlers to get rid of them [#146](https://github.com/XLabsProject/iw6x-client/issues/146)
+
 ## [v1.0.3] - 2020-11-25
 
 ### Fixed
