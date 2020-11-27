@@ -28,5 +28,9 @@ namespace steam
 		virtual bool IsOverlayEnabled();
 		virtual bool BOverlayNeedsPresent();
 		virtual unsigned long long CheckFileSignature(const char* szFileName);
+
+		virtual bool ShowGamepadTextInput(int eInputMode, int eInputLineMode, const char *szText, unsigned int uMaxLength);
+		virtual unsigned int GetEnteredGamepadTextLength();
+		virtual bool GetEnteredGamepadTextInput(char *pchValue, unsigned int cchValueMax);
 	};
 }

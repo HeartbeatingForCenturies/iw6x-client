@@ -106,4 +106,19 @@ namespace steam
 	{
 		return 0;
 	}
+
+	bool utils::ShowGamepadTextInput(int eInputMode, int eInputLineMode, const char *szText, unsigned int uMaxLength)
+	{
+		return false;
+	}
+
+	unsigned int utils::GetEnteredGamepadTextLength()
+	{
+		return 0;
+	}
+
+	bool utils::GetEnteredGamepadTextInput(char *pchValue, unsigned int cchValueMax)
+	{
+		return false;
+	}
 }
