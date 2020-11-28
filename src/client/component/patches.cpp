@@ -184,6 +184,12 @@ namespace patches
 
 			game::AimAssist_AddToTargetList(a1, a2);
 		}
+
+		game::dvar_t* register_cg_fov_stub(const char* name, float value, float min, float /*max*/, const unsigned int flags,
+	                      const char* description)
+		{
+			return game::Dvar_RegisterFloat(name, value, min, 160, flags | 1, description);
+		}
 	}
 
 	class component final : public component_interface
@@ -208,6 +214,13 @@ namespace patches
 
 			// Unlock fps in main menu
 			utils::hook::set<BYTE>(SELECT_VALUE(0x140242DDB, 0x1402CF58B), 0xEB);
+
+			// Unlock cg_fov
+			utils::hook::call(SELECT_VALUE(0x1401F3E96, 0x14027273C), register_cg_fov_stub);
+			if(game::environment::is_sp())
+			{
+				utils::hook::call(0x1401F3EC7, register_cg_fov_stub);
+			}
 
 			// set it to 3 to display both voice dlc announcers did only show 1
 			game::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0,
@@ -301,10 +314,6 @@ namespace patches
 
 		void patch_mp() const
 		{
-			// Unlock cg_fov
-			static const auto max_fov = 160.0f;
-			utils::hook::inject(0x140272712, &max_fov);
-
 			// Use name dvar and add "saved" flags to it
 			utils::hook::set<uint8_t>(0x1402C836D, 0x01);
 			live_get_local_client_name_hook.create(0x1404FDAA0, &live_get_local_client_name);
