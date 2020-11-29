@@ -689,7 +689,7 @@ namespace game_console
 			strncpy_s(con.globals.auto_complete_choice, "", 64);
 
 			// add clear command
-			command::add("clear", [&]([[maybe_unused]] command::params& params)
+			command::add("clear", [&]()
 			{
 				clear();
 				con.line_count = 0;

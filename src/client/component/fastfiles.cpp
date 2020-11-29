@@ -25,7 +25,7 @@ namespace fastfiles
 		{
 			db_try_load_x_file_internal_hook.create(SELECT_VALUE(0x140275850, 0x1403237F0), &db_try_load_x_file_internal);
 
-			command::add("loadzone", [](command::params& params)
+			command::add("loadzone", [](const command::params& params)
 			{
 				if (params.size() < 2)
 				{

@@ -75,7 +75,7 @@ namespace bots
 				return;
 			}
 
-			command::add("spawnBot", [](command::params& params)
+			command::add("spawnBot", [](const command::params& params)
 			{
 				if (!game::SV_Loaded()) return;
 

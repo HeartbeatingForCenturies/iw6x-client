@@ -160,7 +160,7 @@ namespace command
 		game::Cmd_AddCommandInternal(name, callback, utils::memory::get_allocator()->allocate<game::cmd_function_s>());
 	}
 
-	void add(const char* name, const std::function<void(params&)>& callback)
+	void add(const char* name, const std::function<void(const params&)>& callback)
 	{
 		const auto command = utils::string::to_lower(name);
 
@@ -172,7 +172,7 @@ namespace command
 
 	void add(const char* name, const std::function<void()>& callback)
 	{
-		add(name, [callback](params&)
+		add(name, [callback](const params&)
 		{
 			callback();
 		});
@@ -249,7 +249,7 @@ namespace command
 					0, utils::string::va("ufo %s", game::sp::g_entities[0].client->flags & 2 ? "^2on" : "^1off"));
 			});
 
-			add("give", [](params& params)
+			add("give", [](const params& params)
 			{
 				if (!game::SV_Loaded())
 				{
@@ -271,7 +271,7 @@ namespace command
 				}
 			});
 
-			add("take", [](params& params)
+			add("take", [](const params& params)
 			{
 				if (!game::SV_Loaded())
 				{
