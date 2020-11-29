@@ -23,7 +23,7 @@ namespace binding
 				const auto* const key_button = game::Key_KeynumToString(key_index, 0, 1);
 				auto value = game::playerKeys->keys[key_index].binding;
 
-				if (game::playerKeys->keys[key_index].binding && game::playerKeys->keys[key_index].binding < 100)
+				if (value && value < 100)
 				{
 					const auto len = sprintf_s(&buffer[bytes_used], (buffer_size_align - bytes_used), "bind %s \"%s\"\n", key_button, game::command_whitelist[value]);
 
@@ -34,10 +34,10 @@ namespace binding
 
 					bytes_used += len;
 				}
-				else if (game::playerKeys->keys[key_index].binding >= 100)
+				else if (value >= 100)
 				{
 					value -= 100;
-					if (value < custom_binds.size() && !custom_binds[value].empty())
+					if (static_cast<size_t>(value) < custom_binds.size() && !custom_binds[value].empty())
 					{
 						const auto len = sprintf_s(&buffer[bytes_used], (buffer_size_align - bytes_used), "bind %s \"%s\"\n", key_button, custom_binds[value].data());
 
@@ -67,7 +67,7 @@ namespace binding
 				index++;
 			}
 
-			custom_binds.push_back(command);
+			custom_binds.emplace_back(command);
 			index = static_cast<unsigned int>(custom_binds.size()) - 1;
 
 			return index;
@@ -94,7 +94,7 @@ namespace binding
 			{
 				key -= 100;
 
-				if (key < custom_binds.size() && !custom_binds[key].empty())
+				if (static_cast<size_t>(key) < custom_binds.size() && !custom_binds[key].empty())
 				{
 					game::Cbuf_AddText(local_client_num, utils::string::va("%s\n", custom_binds[key].data()));
 				}
