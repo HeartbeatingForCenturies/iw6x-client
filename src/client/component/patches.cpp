@@ -23,7 +23,7 @@ namespace patches
 
 		utils::hook::detour sv_kick_client_num_hook;
 
-		void sv_kick_client_num(int clientNum, const char* reason)
+		void sv_kick_client_num(const int clientNum, const char* reason)
 		{
 			// Don't kick bot to equalize team balance.
 			if (reason == "EXE_PLAYERKICKED_BOT_BALANCE"s)
@@ -35,28 +35,28 @@ namespace patches
 
 		utils::hook::detour dvar_register_int_hook;
 
-		game::dvar_t* dvar_register_int(const char* dvarName, int value, int min, int max, unsigned int flags,
+		game::dvar_t* dvar_register_int(const char* name, int value, const int min, const int max, const unsigned int flags,
 		                                const char* description)
 		{
 			// enable map selection in extinction
-			if (!strcmp(dvarName, "extinction_map_selection_enabled"))
+			if (!strcmp(name, "extinction_map_selection_enabled"))
 			{
 				value = true;
 			}
 
 				// enable extra loadouts
-			else if (!strcmp(dvarName, "extendedLoadoutsEnable"))
+			else if (!strcmp(name, "extendedLoadoutsEnable"))
 			{
 				value = true;
 			}
 
 				// show all in-game store items
-			else if (strstr(dvarName, "igs_"))
+			else if (strstr(name, "igs_"))
 			{
 				value = true;
 			}
 
-			return dvar_register_int_hook.invoke<game::dvar_t*>(dvarName, value, min, max, flags, description);
+			return dvar_register_int_hook.invoke<game::dvar_t*>(name, value, min, max, flags, description);
 		}
 
 		game::dvar_t* register_fovscale_stub(const char* name, float /*value*/, float /*min*/, float /*max*/,
@@ -88,7 +88,7 @@ namespace patches
 
 		bool cmd_exec_patch()
 		{
-			command::params exec_params;
+			const command::params exec_params{};
 			if (exec_params.size() == 2)
 			{
 				std::string file_name = exec_params.get(1);
@@ -142,7 +142,7 @@ namespace patches
 
 		int dvar_command_patch() // game makes this return an int and compares with eax instead of al -_-
 		{
-			command::params args{};
+			const command::params args{};
 
 			if (args.size() <= 0)
 				return 0;
@@ -312,7 +312,7 @@ namespace patches
 			}
 		}
 
-		void patch_mp() const
+		static void patch_mp()
 		{
 			// Use name dvar and add "saved" flags to it
 			utils::hook::set<uint8_t>(0x1402C836D, 0x01);
@@ -341,7 +341,7 @@ namespace patches
 			utils::hook::call(0x14013B9AC, aim_assist_add_to_target_list);
 		}
 
-		void patch_sp() const
+		static void patch_sp()
 		{
 			// SP doesn't initialize WSA
 			WSADATA wsa_data;
