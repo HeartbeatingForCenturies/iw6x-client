@@ -127,7 +127,7 @@ namespace fps
 			const auto* draw_ping = game::Dvar_FindVar("cg_drawPing");
 			if (draw_ping && draw_ping->current.integer != 0 && game::CL_IsCgameInitialized())
 			{
-				int ping = *reinterpret_cast<int *>(0x1419E5100);
+				const auto ping = *reinterpret_cast<int *>(0x1419E5100);
 
 				auto* font = game::R_RegisterFont("fonts/normalfont");
 				if (!font) return;
@@ -145,7 +145,7 @@ namespace fps
 			}
 		}
 
-		void cg_draw_fps_register_stub(const char* name, const char** _enum, const int value, unsigned int flags,
+		void cg_draw_fps_register_stub(const char* name, const char** _enum, const int value, unsigned int /*flags*/,
 		                               const char* desc)
 		{
 			game::Dvar_RegisterEnum(name, _enum, value, 0x1, desc);

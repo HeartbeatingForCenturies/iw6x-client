@@ -243,8 +243,8 @@ namespace party
 					printf("usage: kick <name>\n");
 					return;
 				}
-				const auto name = params.get(1);
-
+				
+				const std::string name = params.get(1);
 				if (name == "all"s)
 				{
 					for (auto i = 0; i < *game::mp::svs_numclients; ++i)
@@ -279,7 +279,7 @@ namespace party
 
 				const auto clientNum = atoi(params.get(1));
 				const auto message = params.join(2);
-				const auto name = game::Dvar_FindVar("sv_sayName")->current.string;
+				auto* const name = game::Dvar_FindVar("sv_sayName")->current.string;
 
 				game::SV_GameSendServerCommand(clientNum, 0,
 				                               utils::string::va("%c \"%s: %s\"", 84, name, message.data()));
@@ -308,7 +308,7 @@ namespace party
 				}
 
 				const auto message = params.join(1);
-				const auto name = game::Dvar_FindVar("sv_sayName")->current.string;
+				const auto* const name = game::Dvar_FindVar("sv_sayName")->current.string;
 
 				game::SV_GameSendServerCommand(
 					-1, 0, utils::string::va("%c \"%s: %s\"", 84, name, message.data()));

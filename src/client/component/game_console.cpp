@@ -118,7 +118,7 @@ namespace game_console
 			}
 		}
 
-		void draw_box(float x, float y, float w, float h, float* color)
+		void draw_box(const float x, const float y, const float w, const float h, float* color)
 		{
 			game::vec4_t dark_color;
 
@@ -136,7 +136,7 @@ namespace game_console
 			                             material_white);
 		}
 
-		void draw_input_box([[maybe_unused]] int lines, float* color)
+		void draw_input_box(const int lines, float* color)
 		{
 			draw_box(
 				con.globals.x - 6.0f,
@@ -518,7 +518,7 @@ namespace game_console
 		return true;
 	}
 
-	bool console_key_event(int localClientNum, int key, int down)
+	bool console_key_event(const int localClientNum, const int key, const int down)
 	{
 		if (key == game::keyNum_t::K_F10)
 		{

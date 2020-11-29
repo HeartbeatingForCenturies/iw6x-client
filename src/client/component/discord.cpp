@@ -100,7 +100,7 @@ namespace discord
 	private:
 		bool initialized_ = false;
 
-		static void ready(const DiscordUser* request)
+		static void ready(const DiscordUser* /*request*/)
 		{
 			ZeroMemory(&discord_presence, sizeof(discord_presence));
 
