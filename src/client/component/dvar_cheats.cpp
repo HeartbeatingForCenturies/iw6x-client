@@ -4,7 +4,6 @@
 #include "utils/string.hpp"
 #include "game/game.hpp"
 
-#include "command.hpp"
 #include "game_console.hpp"
 #include "scheduler.hpp"
 
@@ -108,7 +107,7 @@ namespace dvar_cheats
 		a.jmp(0x1404F0D74);
 	});
 
-	void cg_set_client_dvar_from_server(int local_client_num, game::mp::cg_s* cg, const char* dvar_id, const char* value)
+	void cg_set_client_dvar_from_server(const int local_client_num, game::mp::cg_s* cg, const char* dvar_id, const char* value)
 	{
 		const auto* dvar = game::Dvar_FindVar(dvar_id);
 		if (dvar)
@@ -124,7 +123,7 @@ namespace dvar_cheats
 		}
 	}
 
-	void set_client_dvar_by_string(int entity_num, const char* value)
+	void set_client_dvar_by_string(const int entity_num, const char* value)
 	{
 		const auto* dvar = game::Scr_GetString(0); // grab the original dvar again since it's never stored on stack
 		const auto* command = utils::string::va("q %s \"%s\"", dvar, value);
