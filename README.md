@@ -23,17 +23,17 @@
 
 <p>
   <center>
-    <img src="https://cdn.discordapp.com/attachments/768362250334765067/773279641540231259/iw6x-release.PNG" width="45%" />
+    <img src="https://cdn.discordapp.com/attachments/768362250334765067/773279641540231259/iw6x-release.PNG" width="40%" />
     <img width="3%" />
-    <img src="https://cdn.discordapp.com/attachments/768362250334765067/774973455052963880/mod-support.PNG" width="45%" />
+    <img src="https://cdn.discordapp.com/attachments/768362250334765067/774973455052963880/mod-support.PNG" width="40%" />
   </center>
 </p>
 
 <p>
   <center>
-    <img src="https://cdn.discordapp.com/attachments/768362250334765067/768377199899836466/unknown_14.png" width="45%" />
+    <img src="https://cdn.discordapp.com/attachments/768362250334765067/768377199899836466/unknown_14.png" width="40%" />
     <img width="3%" />
-    <img src="https://cdn.discordapp.com/attachments/768362250334765067/768377317000085514/unknown.png" width="45%" />
+    <img src="https://cdn.discordapp.com/attachments/768362250334765067/768377317000085514/unknown.png" width="40%" />
   </center>
 </p>
 ## Compile from source
