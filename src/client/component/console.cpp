@@ -26,7 +26,7 @@ namespace console
 			scheduler::loop([this]()
 			{
 				this->log_messages();
-			});
+			}, scheduler::pipeline::main);
 
 			this->console_runner_ = std::thread([this]
 			{
