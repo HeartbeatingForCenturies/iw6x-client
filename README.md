@@ -21,9 +21,13 @@
 
 ## Showcase
 
-| <img src="https://cdn.discordapp.com/attachments/768362250334765067/773279641540231259/iw6x-release.PNG" /> | <img src="https://pbs.twimg.com/media/EmTRxMJWEAIF6a9?format=jpg&name=large" /> |
-|:----------------------------|:-----------------------------------------------|
+| <img src="https://cdn.discordapp.com/attachments/768362250334765067/773279641540231259/iw6x-release.PNG" /> | <img src="https://cdn.discordapp.com/attachments/768362250334765067/774973455052963880/mod-support.PNG" /> |
+|:-:|:-:|
+| Server list | Scripting support |
+
 | <img src="https://cdn.discordapp.com/attachments/768362250334765067/768377199899836466/unknown_14.png" /> | <img src="https://cdn.discordapp.com/attachments/768362250334765067/768377317000085514/unknown.png" /> |
+|:-:|:-:|
+| Custom maps (soon™) | Mod support (soon™) |
 
 ## Compile from source
 
