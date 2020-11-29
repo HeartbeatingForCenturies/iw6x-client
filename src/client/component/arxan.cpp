@@ -18,7 +18,7 @@ namespace arxan
 		utils::hook::detour nt_query_information_process_hook;
 
 		NTSTATUS WINAPI nt_query_information_process_stub(const HANDLE handle, const PROCESSINFOCLASS info_class,
-		                                                  PVOID info,
+		                                                  const PVOID info,
 		                                                  const ULONG info_length, const PULONG ret_length)
 		{
 			auto* orig = static_cast<decltype(NtQueryInformationProcess)*>(nt_query_information_process_hook.

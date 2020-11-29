@@ -56,7 +56,7 @@ namespace command
 			auto& com_num_console_lines = *reinterpret_cast<int*>(0x1445CFF98);
 			auto* com_console_lines = reinterpret_cast<char**>(0x1445CFFA0);
 
-			auto inq = 0;
+			auto inq = false;
 			com_console_lines[0] = command_line;
 			com_num_console_lines = 0;
 
@@ -90,21 +90,32 @@ namespace command
 		}
 	}
 
-	int params::size()
+	params::params()
+		:nesting_(game::cmd_args->nesting)
 	{
-		return game::Cmd_Argc();
+		
 	}
 
-	const char* params::get(int index)
+	int params::size() const
 	{
-		return game::Cmd_Argv(index);
+		return game::cmd_args->argc[this->nesting_];
 	}
 
-	std::string params::join(int index)
+	const char* params::get(const int index) const
+	{
+		if(index >= this->size())
+		{
+			return "";
+		}
+
+		return game::cmd_args->argv[this->nesting_][index];
+	}
+
+	std::string params::join(const int index) const
 	{
 		std::string result = {};
 
-		for (int i = index; i < this->size(); i++)
+		for (auto i = index; i < this->size(); i++)
 		{
 			if (i > index) result.append(" ");
 			result.append(this->get(i));
@@ -112,21 +123,31 @@ namespace command
 		return result;
 	}
 
-	int params_sv::size()
+	params_sv::params_sv()
+		:nesting_(game::sv_cmd_args->nesting)
 	{
-		return game::SV_Cmd_Argc();
 	}
 
-	const char* params_sv::get(const int index)
+	int params_sv::size() const
 	{
-		return game::SV_Cmd_Argv(index);
+		return game::sv_cmd_args->argc[this->nesting_];
 	}
 
-	std::string params_sv::join(const int index)
+	const char* params_sv::get(const int index) const
+	{
+		if(index >= this->size())
+		{
+			return "";
+		}
+
+		return game::sv_cmd_args->argv[this->nesting_][index];
+	}
+
+	std::string params_sv::join(const int index) const
 	{
 		std::string result = {};
 
-		for (int i = index; i < this->size(); i++)
+		for (auto i = index; i < this->size(); i++)
 		{
 			if (i > index) result.append(" ");
 			result.append(this->get(i));
@@ -165,7 +186,7 @@ namespace command
 		const auto command = utils::string::to_lower(name);
 
 		if (handlers_sv.find(command) == handlers_sv.end())
-			handlers_sv[command] = callback;
+			handlers_sv[command] = std::move(callback);
 	}
 
 	void execute(std::string command, const bool sync)
@@ -269,7 +290,7 @@ namespace command
 			});
 		}
 
-		void add_mp_commands()
+		static void add_mp_commands()
 		{
 			client_command_hook.create(0x1403929B0, &client_command);
 

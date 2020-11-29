@@ -5,27 +5,37 @@ namespace command
 	class params
 	{
 	public:
-		int size();
-		const char* get(int index);
-		std::string join(int index);
+		params();
+		
+		int size() const;
+		const char* get(int index) const;
+		std::string join(int index) const;
 
-		const char* operator[](const int index)
+		const char* operator[](const int index) const
 		{
 			return this->get(index); //
 		}
+
+	private:
+		int nesting_;
 	};
 
 	class params_sv
 	{
 	public:
-		int size();
-		const char* get(int index);
-		std::string join(int index);
+		params_sv();
+		
+		int size() const;
+		const char* get(int index) const;
+		std::string join(int index) const;
 
 		const char* operator[](const int index)
 		{
 			return this->get(index); //
 		}
+		
+	private:
+		int nesting_;
 	};
 
 	void add_raw(const char* name, void (*callback)());

@@ -88,7 +88,7 @@ namespace binding
 			return 100 + get_binding_for_custom_command(command);
 		}
 
-		void cl_execute_key_stub(int local_client_num, int key, int down, unsigned int time)
+		void cl_execute_key_stub(const int local_client_num, int key, const int down, const unsigned int time)
 		{
 			if (key >= 100)
 			{
