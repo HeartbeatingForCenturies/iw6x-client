@@ -61,9 +61,9 @@ namespace colors
 			return rgb;
 		}
 
-		char color_index(const char c)
+		int color_index(const char c)
 		{
-			const char index = c - 48;
+			const auto index = c - 48;
 			return index >= 0xC ? 7 : index;
 		}
 
