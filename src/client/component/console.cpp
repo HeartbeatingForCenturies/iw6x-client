@@ -63,7 +63,7 @@ namespace console
 			// Async console is not ready yet :/
 			//this->initialize();
 
-			std::lock_guard _(this->mutex_);
+			std::lock_guard<std::mutex> _(this->mutex_);
 			this->console_initialized_ = true;
 		}
 
@@ -85,7 +85,7 @@ namespace console
 				game::Sys_ShowConsole();
 
 				{
-					std::lock_guard _(this->mutex_);
+					std::lock_guard<std::mutex> _(this->mutex_);
 					this->console_initialized_ = true;
 				}
 
@@ -119,7 +119,7 @@ namespace console
 				std::queue<std::string> message_queue_copy;
 
 				{
-					std::lock_guard _(this->mutex_);
+					std::lock_guard<std::mutex> _(this->mutex_);
 					message_queue_copy = std::move(this->message_queue_);
 					this->message_queue_ = {};
 				}
@@ -150,7 +150,7 @@ namespace console
 				const auto len = _read(this->handles_[0], buffer, sizeof(buffer));
 				if (len > 0)
 				{
-					std::lock_guard _(this->mutex_);
+					std::lock_guard<std::mutex> _(this->mutex_);
 					this->message_queue_.push(std::string(buffer, len));
 				}
 				else
@@ -178,13 +178,13 @@ namespace console
 		RECT rect;
 		GetWindowRect(get_window(), &rect);
 
-		SetWindowPos(get_window(), 0, rect.left, rect.top, width, height, 0);
+		SetWindowPos(get_window(), nullptr, rect.left, rect.top, width, height, 0);
 
 		// TODO: fill the SP address(I didn't downloaded the SP part of the game).
 		if (!game::environment::is_sp())
 		{
-			const auto logoWindow = *reinterpret_cast<HWND*>(0x147AD1DC0);
-			SetWindowPos(logoWindow, 0, 5, 5, width - 25, 60, 0);
+			auto* const logoWindow = *reinterpret_cast<HWND*>(0x147AD1DC0);
+			SetWindowPos(logoWindow, nullptr, 5, 5, width - 25, 60, 0);
 		}
 	}
 }
