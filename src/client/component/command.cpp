@@ -91,9 +91,8 @@ namespace command
 	}
 
 	params::params()
-		:nesting_(game::cmd_args->nesting)
+		: nesting_(game::cmd_args->nesting)
 	{
-		
 	}
 
 	int params::size() const
@@ -103,7 +102,7 @@ namespace command
 
 	const char* params::get(const int index) const
 	{
-		if(index >= this->size())
+		if (index >= this->size())
 		{
 			return "";
 		}
@@ -124,7 +123,7 @@ namespace command
 	}
 
 	params_sv::params_sv()
-		:nesting_(game::sv_cmd_args->nesting)
+		: nesting_(game::sv_cmd_args->nesting)
 	{
 	}
 
@@ -135,7 +134,7 @@ namespace command
 
 	const char* params_sv::get(const int index) const
 	{
-		if(index >= this->size())
+		if (index >= this->size())
 		{
 			return "";
 		}
@@ -352,7 +351,8 @@ namespace command
 
 				if (params.size() < 4)
 				{
-					game::SV_GameSendServerCommand(client_num, 1, "f \"You did not specify the correct number of coordinates\"");
+					game::SV_GameSendServerCommand(client_num, 1,
+					                               "f \"You did not specify the correct number of coordinates\"");
 					return;
 				}
 
@@ -371,7 +371,8 @@ namespace command
 
 				if (params.size() < 4)
 				{
-					game::SV_GameSendServerCommand(client_num, 1, "f \"You did not specify the correct number of coordinates\"");
+					game::SV_GameSendServerCommand(client_num, 1,
+					                               "f \"You did not specify the correct number of coordinates\"");
 					return;
 				}
 

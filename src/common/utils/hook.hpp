@@ -15,43 +15,22 @@ namespace utils::hook
 		using Assembler::call;
 		using Assembler::jmp;
 
-		void pushad64()
-		{
-			this->push(rax);
-			this->push(rcx);
-			this->push(rdx);
-			this->push(rbx);
-			this->push(rsp);
-			this->push(rbp);
-			this->push(rsi);
-			this->push(rdi);
+		void pushad64();
+		void popad64();
 
-			this->sub(rsp, 0x40);
+		void prepare_stack_for_call();
+		void restore_stack_after_call();
+
+		template <typename T>
+		void call_aligned(T&& target)
+		{
+			this->prepare_stack_for_call();
+			this->call(std::forward<T>(target));
+			this->restore_stack_after_call();
 		}
 
-		void popad64()
-		{
-			this->add(rsp, 0x40);
-
-			this->pop(rdi);
-			this->pop(rsi);
-			this->pop(rbp);
-			this->pop(rsp);
-			this->pop(rbx);
-			this->pop(rdx);
-			this->pop(rcx);
-			this->pop(rax);
-		}
-
-		asmjit::Error call(void* target)
-		{
-			return Assembler::call(size_t(target));
-		}
-
-		asmjit::Error jmp(void* target)
-		{
-			return Assembler::jmp(size_t(target));
-		}
+		asmjit::Error call(void* target);
+		asmjit::Error jmp(void* target);
 	};
 
 	class detour
@@ -66,13 +45,13 @@ namespace utils::hook
 		{
 			this->operator=(std::move(other));
 		}
-		
-		detour& operator= (detour&& other) noexcept
+
+		detour& operator=(detour&& other) noexcept
 		{
-			if(this != &other)
+			if (this != &other)
 			{
 				this->~detour();
-				
+
 				this->place_ = other.place_;
 				this->original_ = other.original_;
 
@@ -84,7 +63,7 @@ namespace utils::hook
 		}
 
 		detour(const detour&) = delete;
-		detour& operator= (const detour&) = delete;
+		detour& operator=(const detour&) = delete;
 
 		void enable() const;
 		void disable() const;
@@ -100,7 +79,7 @@ namespace utils::hook
 		}
 
 		template <typename T, typename... Args>
-		T invoke(Args... args)
+		T invoke(Args ... args)
 		{
 			return static_cast<T(*)(Args ...)>(this->get_original())(args...);
 		}
@@ -113,7 +92,7 @@ namespace utils::hook
 	};
 
 	bool iat(nt::library library, const std::string& target_library, const std::string& process, void* stub);
-	
+
 	void nop(void* place, size_t length);
 	void nop(size_t place, size_t length);
 
@@ -140,7 +119,7 @@ namespace utils::hook
 	{
 		const auto data = static_cast<uint8_t*>(address);
 		const auto offset = *reinterpret_cast<int32_t*>(data);
-		return  reinterpret_cast<T>(data + offset + 4);
+		return reinterpret_cast<T>(data + offset + 4);
 	}
 
 	void* follow_branch(void* address);
@@ -164,13 +143,13 @@ namespace utils::hook
 	}
 
 	template <typename T, typename... Args>
-	static T invoke(size_t func, Args... args)
+	static T invoke(size_t func, Args ... args)
 	{
 		return reinterpret_cast<T(*)(Args ...)>(func)(args...);
 	}
 
 	template <typename T, typename... Args>
-	static T invoke(void* func, Args... args)
+	static T invoke(void* func, Args ... args)
 	{
 		return static_cast<T(*)(Args ...)>(func)(args...);
 	}

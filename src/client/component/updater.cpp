@@ -84,8 +84,9 @@ namespace updater
 			               &startup_info, &process_info);
 
 			if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE) CloseHandle(process_info.hThread);
-			if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE) CloseHandle(
-				process_info.hProcess);
+			if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE)
+				CloseHandle(
+					process_info.hProcess);
 		}
 
 		void perform_update(const std::string& target)

@@ -243,7 +243,7 @@ namespace party
 					printf("usage: kick <name>\n");
 					return;
 				}
-				
+
 				const std::string name = params.get(1);
 				if (name == "all"s)
 				{

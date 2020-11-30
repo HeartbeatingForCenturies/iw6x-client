@@ -19,7 +19,7 @@ namespace dvar_cheats
 				value->enabled = dvar->current.enabled;
 			}
 
-			// if sv_cheats was enabled and it changes to disabled, we need to reset all cheat dvars
+				// if sv_cheats was enabled and it changes to disabled, we need to reset all cheat dvars
 			else if (dvar->current.enabled && !value->enabled)
 			{
 				for (auto i = 0; i < *game::dvarCount; ++i)
@@ -54,7 +54,8 @@ namespace dvar_cheats
 			const auto cl_ingame = game::Dvar_FindVar("cl_ingame");
 			const auto sv_running = game::Dvar_FindVar("sv_running");
 
-			if ((dvar->flags & game::DvarFlags::DVAR_FLAG_REPLICATED) && (cl_ingame && cl_ingame->current.enabled) && (sv_running && !sv_running->current.enabled))
+			if ((dvar->flags & game::DvarFlags::DVAR_FLAG_REPLICATED) && (cl_ingame && cl_ingame->current.enabled) && (
+				sv_running && !sv_running->current.enabled))
 			{
 				game_console::print(game_console::con_type_error, "%s can only be changed by the server", dvar->name);
 				return false;
@@ -81,7 +82,7 @@ namespace dvar_cheats
 		a.mov(r8, rdi);
 		a.mov(edx, esi);
 		a.mov(rcx, rbx);
-		a.call(apply_sv_cheats); //check if we are setting sv_cheats
+		a.call_aligned(apply_sv_cheats); //check if we are setting sv_cheats
 		a.popad64();
 		a.cmp(esi, 0);
 		a.jz(zero_source); //if the SetSource is 0 (INTERNAL) ignore flag checks
@@ -89,7 +90,7 @@ namespace dvar_cheats
 		a.pushad64();
 		a.mov(edx, esi); //source
 		a.mov(rcx, rbx); //dvar
-		a.call(dvar_flag_checks); //protect read/write/cheat/replicated dvars
+		a.call_aligned(dvar_flag_checks); //protect read/write/cheat/replicated dvars
 		a.cmp(al, 1);
 		a.jz(can_set_value);
 
@@ -101,7 +102,7 @@ namespace dvar_cheats
 		a.bind(can_set_value);
 		a.popad64(); // if I do this before the jz it won't work. for some reason the popad64 is affecting the ZR flag
 		a.jmp(0x1404F0D2E);
-		
+
 		// if we get here, we are zero source and ignore flags
 		a.bind(zero_source);
 		a.jmp(0x1404F0D74);
@@ -167,6 +168,7 @@ namespace dvar_cheats
 			utils::hook::nop(0x1404F0D13, 4); // let our stub handle zero-source sets
 			utils::hook::jump(0x1404F0D1A, dvar_flag_checks_stub, true); // check extra dvar flags when setting values
 
+
 			utils::hook::nop(0x14038A553, 5); // remove error in PlayerCmd_SetClientDvar if setting a non-network dvar
 			utils::hook::set<uint8_t>(0x14038A520, 0x1E); // don't check flags on the dvars, send any existing dvar instead
 			utils::hook::jump(0x14038A59A, player_cmd_set_client_dvar, true); // send non-network dvars as string
@@ -174,7 +176,8 @@ namespace dvar_cheats
 			
 			scheduler::once([]()
 			{
-				game::Dvar_RegisterBool("sv_cheats", false, game::DvarFlags::DVAR_FLAG_REPLICATED, "Allow cheat commands and dvars on this server");
+				game::Dvar_RegisterBool("sv_cheats", false, game::DvarFlags::DVAR_FLAG_REPLICATED,
+				                        "Allow cheat commands and dvars on this server");
 			}, scheduler::pipeline::main);
 		}
 	};

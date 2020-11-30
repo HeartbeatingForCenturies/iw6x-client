@@ -40,7 +40,7 @@ namespace discord
 
 				auto* const host_name = reinterpret_cast<char*>(0x14187EBC4);
 				utils::string::strip(host_name, host_name, static_cast<int>(strlen(host_name)) + 1);
-				
+
 				discord_presence.state = host_name;
 
 				discord_presence.partySize = game::mp::cgArray->snap != nullptr

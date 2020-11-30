@@ -24,7 +24,7 @@ namespace game
 
 	WEAK Symbol<void (int localClientNum, const char* text)> Cbuf_AddText{0x1403B3050, 0x1403F6B50};
 	WEAK Symbol<void (int localClientNum, int controllerIndex, const char* buffer,
-	                    void (int, int, const char*))> Cbuf_ExecuteBufferInternal{0x1403B3160, 0x1403F6C60};
+	                  void (int, int, const char*))> Cbuf_ExecuteBufferInternal{0x1403B3160, 0x1403F6C60};
 
 	WEAK Symbol<bool ()> CL_IsCgameInitialized{0x140234DA0, 0x1402B9A70};
 
@@ -38,7 +38,9 @@ namespace game
 		0x1403B3B10, 0x1403F7680
 	};
 
-	WEAK Symbol<void(XZoneInfo* zoneInfo, unsigned int zoneCount, DBSyncMode syncMode)> DB_LoadXAssets{0x140273FD0, 0x140320F20};
+	WEAK Symbol<void(XZoneInfo* zoneInfo, unsigned int zoneCount, DBSyncMode syncMode)> DB_LoadXAssets{
+		0x140273FD0, 0x140320F20
+	};
 	WEAK Symbol<void(void* buffer, int size)> DB_ReadXFileUncompressed{0x140250FB0, 0x1402FC9C0};
 
 	WEAK Symbol<dvar_t*(const char* name)> Dvar_FindVar{0x140429E70, 0x1404ECB60};
@@ -49,17 +51,17 @@ namespace game
 	WEAK Symbol<dvar_t*(const char* dvarName, bool value, unsigned int flags, const char* description)>
 	Dvar_RegisterBool{0x14042AF10, 0x1404EDD60};
 	WEAK Symbol<dvar_t*(const char* dvarName, const char** valueList, int defaultIndex, unsigned int flags,
-	                      const char* description)> Dvar_RegisterEnum{0x14042B220, 0x1404EE070};
+	                    const char* description)> Dvar_RegisterEnum{0x14042B220, 0x1404EE070};
 	WEAK Symbol<dvar_t*(const char* dvarName, float value, float min, float max, unsigned int flags,
-	                      const char* description)> Dvar_RegisterFloat{0x14042B330, 0x1404EE180};
+	                    const char* description)> Dvar_RegisterFloat{0x14042B330, 0x1404EE180};
 	WEAK Symbol<dvar_t*(const char* dvarName, int value, int min, int max, unsigned int flags, const char* desc)>
 	Dvar_RegisterInt{0x14042B420, 0x1404EE270};
 	WEAK Symbol<dvar_t*(const char* dvarName, const char* value, unsigned int flags, const char* description)>
 	Dvar_RegisterString{0x14042B7A0, 0x1404EE660};
 	WEAK Symbol<dvar_t*(const char* dvarName, float x, float y, float min, float max, unsigned int flags,
-	                      const char* description)> Dvar_RegisterVec2{0x14042B880, 0x1404EE740};
+	                    const char* description)> Dvar_RegisterVec2{0x14042B880, 0x1404EE740};
 	WEAK Symbol<dvar_t*(const char* dvarName, float x, float y, float z, float w, float min, float max,
-	                      unsigned int flags, const char* description)> Dvar_RegisterVec4{0x14042BC10, 0x1404EEA50};
+	                    unsigned int flags, const char* description)> Dvar_RegisterVec4{0x14042BC10, 0x1404EEA50};
 	WEAK Symbol<void (dvar_t* dvar, DvarSetSource source)> Dvar_Reset{0x14042C150, 0x1404EF020};
 	WEAK Symbol<void (dvar_t* dvar, bool value)> Dvar_SetBool{0x14042C370, 0x1404EF1A0};
 	WEAK Symbol<void (const char* dvar, const char* buffer)> Dvar_SetCommand{0x14042C8E0, 0x1404EF790};
@@ -79,7 +81,7 @@ namespace game
 	WEAK Symbol<void(int clientNum, Weapon weapon)> G_SelectWeapon{0x14035A200, 0x1403DA880};
 	WEAK Symbol<int(playerState_s* ps, Weapon weapon)> G_TakePlayerWeapon{0x14035A350, 0x1403DA9C0};
 	WEAK Symbol<unsigned int (const char* name, /*ConfigString*/ unsigned int start, unsigned int max, int create,
-	                            const char* errormsg)> G_FindConfigstringIndex{0x0, 0x140161F90};
+	                          const char* errormsg)> G_FindConfigstringIndex{0x0, 0x140161F90};
 	WEAK Symbol<int (int server_time)> G_RunFrame{0x0, 0x1403A05E0};
 
 	WEAK Symbol<game_hudelem_s*(int clientNum, int teamNum)> HudElem_Alloc{0x0, 0x1403997E0};
@@ -102,7 +104,7 @@ namespace game
 	WEAK Symbol<bool (const char* s, game::netadr_s* a)> NET_StringToAdr{0, 0x14041D870};
 
 	WEAK Symbol<void (float x, float y, float width, float height, float s0, float t0, float s1, float t1,
-	                    float* color, Material* material)> R_AddCmdDrawStretchPic{0x140234460, 0x140600BE0};
+	                  float* color, Material* material)> R_AddCmdDrawStretchPic{0x140234460, 0x140600BE0};
 	WEAK Symbol<void (const char*, int, Font_s*, float, float, float, float, float, float*, int)> R_AddCmdDrawText{
 		0x140533E40, 0x140601070
 	};
@@ -162,7 +164,7 @@ namespace game
 
 	WEAK Symbol<DWOnlineStatus (int)> dwGetLogOnStatus{0, 0x140589490};
 
-	WEAK Symbol<void* (jmp_buf* Buf, int Value)> longjmp{0x14062E030, 0x140738060};
+	WEAK Symbol<void*(jmp_buf* Buf, int Value)> longjmp{0x14062E030, 0x140738060};
 	WEAK Symbol<int (jmp_buf* Buf)> _setjmp{0x14062F030, 0x140739060};
 
 	/***************************************************************

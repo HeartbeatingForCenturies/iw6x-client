@@ -41,7 +41,8 @@ namespace slowmotion
 
 			const auto _delay = (start > end) ? 150 : 0;
 
-			game::SV_SetConfigstring(game::CS_TIMESCALE, utils::string::va("%i %i %g %g", *game::mp::gameTime, duration, start, end));
+			game::SV_SetConfigstring(game::CS_TIMESCALE,
+			                         utils::string::va("%i %i %g %g", *game::mp::gameTime, duration, start, end));
 			game::Com_SetSlowMotion(start, end, duration - _delay);
 
 			delay = _delay;

@@ -22,7 +22,7 @@ namespace stats
 				utils::hook::set<short>(0x1445A34A0, 5000); // squad points
 
 				// unlocks all camos
-				for (int i = 0; i < 0x2D0; i++)
+				for (auto i = 0; i < 0x2D0; i++)
 				{
 					utils::hook::set<short>(0x1445A2B40 + i, 0xFF);
 				}
@@ -34,7 +34,7 @@ namespace stats
 				}
 
 				//squad members unlocked
-				for (int i = 0; i < 9; i++)
+				for (auto i = 0; i < 9; i++)
 				{
 					utils::hook::set<short>(0x14459FD97 + (0x564 * i), 0x0100);
 				}

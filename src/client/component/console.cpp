@@ -162,7 +162,7 @@ namespace console
 			std::this_thread::yield();
 		}
 	};
-	
+
 	HWND get_window()
 	{
 		return *reinterpret_cast<HWND*>((SELECT_VALUE(0x145A7B490, 0x147AD1DB0)));
