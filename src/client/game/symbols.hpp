@@ -29,6 +29,7 @@ namespace game
 	WEAK Symbol<bool ()> CL_IsCgameInitialized{0x140234DA0, 0x1402B9A70};
 
 	WEAK Symbol<void (int localClientNum, const char* message)> CG_GameMessage{0x1401F2E20, 0x140271320};
+	WEAK Symbol<void (int localClientNum, mp::cg_s* cg, const char* dvar, const char* value)> CG_SetClientDvarFromServer{0x0, 0x14028A2C0 };
 
 	WEAK Symbol<void (const char* cmdName, void (), cmd_function_s* allocedCmd)> Cmd_AddCommandInternal{
 		0x1403B3570, 0x1403F7070
@@ -65,6 +66,7 @@ namespace game
 	WEAK Symbol<void (dvar_t* dvar, bool value)> Dvar_SetBool{0x14042C370, 0x1404EF1A0};
 	WEAK Symbol<void (const char* dvar, const char* buffer)> Dvar_SetCommand{0x14042C8E0, 0x1404EF790};
 	WEAK Symbol<void (dvar_t* dvar, const char* string)> Dvar_SetString{0x14042D6E0, 0x1404F08E0};
+	WEAK Symbol<void (const char*, const char*, DvarSetSource)> Dvar_SetFromStringByNameFromSource{0x14042D000, 0x1404F00B0};
 	WEAK Symbol<void ()> Dvar_Sort{0x14042DEF0, 0x1404F1210};
 	WEAK Symbol<const char*(dvar_t* dvar, dvar_value value)> Dvar_ValueToString{0x14042E710, 0x1404F1A30};
 
@@ -114,10 +116,9 @@ namespace game
 	WEAK Symbol<ScreenPlacement*()> ScrPlace_GetViewPlacement{0x14024D150, 0x1402F6D40};
 
 	WEAK Symbol<unsigned int (unsigned int parentId, unsigned int name)> FindVariable{0x1403D84F0, 0x1404334A0};
-	WEAK Symbol<void (VariableValue* result, unsigned int classnum, int entnum, int offset)> GetEntityFieldValue{
-		0x1403DC810, 0x140437860
-	};
-	WEAK Symbol<const float *(const float* v)> Scr_AllocVector{0x1403D9AF0, 0x140434A10};
+	WEAK Symbol<void (VariableValue *result, unsigned int classnum, int entnum, int offset)> GetEntityFieldValue{0x1403DC810, 0x140437860};
+	WEAK Symbol<const float * (const float *v)> Scr_AllocVector{0x1403D9AF0, 0x140434A10};
+	WEAK Symbol<const char* (int index)> Scr_GetString{0, 0x140439160};
 	WEAK Symbol<float (int index)> Scr_GetFloat{0, 0x140438D60};
 	WEAK Symbol<int ()> Scr_GetNumParam{0x1403DDF60, 0x140438EC0};
 	WEAK Symbol<void ()> Scr_ClearOutParams{0x1403DD500, 0x140438600};
