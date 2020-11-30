@@ -153,7 +153,7 @@ namespace dvar_cheats
 		a.bind(set_by_string);
 		a.movzx(ecx, word_ptr(rsp, 0x8C0)); //entity_num 
 		a.lea(rdx, ptr(rsp, 0xB0)); //value
-		a.call(set_client_dvar_by_string);
+		a.call_aligned(set_client_dvar_by_string);
 		a.popad64();
 		a.jmp(0x14038A5CD);
 	});
@@ -167,7 +167,6 @@ namespace dvar_cheats
 
 			utils::hook::nop(0x1404F0D13, 4); // let our stub handle zero-source sets
 			utils::hook::jump(0x1404F0D1A, dvar_flag_checks_stub, true); // check extra dvar flags when setting values
-
 
 			utils::hook::nop(0x14038A553, 5); // remove error in PlayerCmd_SetClientDvar if setting a non-network dvar
 			utils::hook::set<uint8_t>(0x14038A520, 0x1E); // don't check flags on the dvars, send any existing dvar instead
