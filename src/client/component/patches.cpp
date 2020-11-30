@@ -35,7 +35,8 @@ namespace patches
 
 		utils::hook::detour dvar_register_int_hook;
 
-		game::dvar_t* dvar_register_int(const char* name, int value, const int min, const int max, const unsigned int flags,
+		game::dvar_t* dvar_register_int(const char* name, int value, const int min, const int max,
+		                                const unsigned int flags,
 		                                const char* description)
 		{
 			// enable map selection in extinction
@@ -185,8 +186,9 @@ namespace patches
 			game::AimAssist_AddToTargetList(a1, a2);
 		}
 
-		game::dvar_t* register_cg_fov_stub(const char* name, float value, float min, float /*max*/, const unsigned int flags,
-	                      const char* description)
+		game::dvar_t* register_cg_fov_stub(const char* name, float value, float min, float /*max*/,
+		                                   const unsigned int flags,
+		                                   const char* description)
 		{
 			return game::Dvar_RegisterFloat(name, value, min, 160, flags | 1, description);
 		}
@@ -221,7 +223,7 @@ namespace patches
 
 			// Unlock cg_fov
 			utils::hook::call(SELECT_VALUE(0x1401F3E96, 0x14027273C), register_cg_fov_stub);
-			if(game::environment::is_sp())
+			if (game::environment::is_sp())
 			{
 				utils::hook::call(0x1401F3EC7, register_cg_fov_stub);
 			}
@@ -341,7 +343,10 @@ namespace patches
 			utils::hook::call(0x1402BC42F, get_chat_font_handle);
 			utils::hook::call(0x1402C3699, get_chat_font_handle);
 
-			dvars::aimassist_enabled = game::Dvar_RegisterBool("aimassist_enabled", true, game::DvarFlags::DVAR_FLAG_SAVED, "Enables aim assist for controllers"); //client side aim assist dvar
+			dvars::aimassist_enabled = game::Dvar_RegisterBool("aimassist_enabled", true,
+			                                                   game::DvarFlags::DVAR_FLAG_SAVED,
+			                                                   "Enables aim assist for controllers");
+			//client side aim assist dvar
 			utils::hook::call(0x14013B9AC, aim_assist_add_to_target_list);
 		}
 

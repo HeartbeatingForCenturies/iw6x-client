@@ -18,7 +18,7 @@ namespace dvar_cheats
 				value->enabled = dvar->current.enabled;
 			}
 
-			// if sv_cheats was enabled and it changes to disabled, we need to reset all cheat dvars
+				// if sv_cheats was enabled and it changes to disabled, we need to reset all cheat dvars
 			else if (dvar->current.enabled && !value->enabled)
 			{
 				for (auto i = 0; i < *game::dvarCount; ++i)
@@ -53,7 +53,8 @@ namespace dvar_cheats
 			const auto cl_ingame = game::Dvar_FindVar("cl_ingame");
 			const auto sv_running = game::Dvar_FindVar("sv_running");
 
-			if ((dvar->flags & game::DvarFlags::DVAR_FLAG_REPLICATED) && (cl_ingame && cl_ingame->current.enabled) && (sv_running && !sv_running->current.enabled))
+			if ((dvar->flags & game::DvarFlags::DVAR_FLAG_REPLICATED) && (cl_ingame && cl_ingame->current.enabled) && (
+				sv_running && !sv_running->current.enabled))
 			{
 				game_console::print(game_console::con_type_error, "%s can only be changed by the server", dvar->name);
 				return false;
@@ -100,7 +101,7 @@ namespace dvar_cheats
 		a.bind(can_set_value);
 		a.popad64(); // if I do this before the jz it won't work. for some reason the popad64 is affecting the ZR flag
 		a.jmp(0x1404F0D2E);
-		
+
 		// if we get here, we are zero source and ignore flags
 		a.bind(zero_source);
 		a.jmp(0x1404F0D74);
@@ -115,10 +116,11 @@ namespace dvar_cheats
 
 			utils::hook::nop(0x1404F0D13, 4); // let our stub handle zero-source sets
 			utils::hook::jump(0x1404F0D1A, dvar_flag_checks_stub, true); // check extra dvar flags when setting values
-			
+
 			scheduler::once([]()
 			{
-				game::Dvar_RegisterBool("sv_cheats", false, game::DvarFlags::DVAR_FLAG_REPLICATED, "Allow cheat commands and dvars on this server");
+				game::Dvar_RegisterBool("sv_cheats", false, game::DvarFlags::DVAR_FLAG_REPLICATED,
+				                        "Allow cheat commands and dvars on this server");
 			}, scheduler::pipeline::main);
 		}
 	};

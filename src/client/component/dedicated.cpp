@@ -5,7 +5,6 @@
 #include "network.hpp"
 #include "command.hpp"
 #include "utils/hook.hpp"
-#include "utils/binary_resource.hpp"
 #include "game/game.hpp"
 #include "utils/string.hpp"
 
@@ -115,7 +114,7 @@ namespace dedicated
 
 		void glass_update()
 		{
-			if(*reinterpret_cast<void**>(0x14424C068))
+			if (*reinterpret_cast<void**>(0x14424C068))
 			{
 				reinterpret_cast<void(*)()>(0x140397450)();
 			}

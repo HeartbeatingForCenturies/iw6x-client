@@ -12,7 +12,7 @@ namespace binding
 		std::vector<std::string> custom_binds = {};
 
 		utils::hook::detour cl_execute_key_hook;
-		
+
 		int key_write_bindings_to_buffer_stub(int /*localClientNum*/, char* buffer, const int buffer_size)
 		{
 			auto bytes_used = 0;
@@ -25,7 +25,8 @@ namespace binding
 
 				if (value && value < 100)
 				{
-					const auto len = sprintf_s(&buffer[bytes_used], (buffer_size_align - bytes_used), "bind %s \"%s\"\n", key_button, game::command_whitelist[value]);
+					const auto len = sprintf_s(&buffer[bytes_used], (buffer_size_align - bytes_used),
+					                           "bind %s \"%s\"\n", key_button, game::command_whitelist[value]);
 
 					if (len < 0)
 					{
@@ -39,7 +40,8 @@ namespace binding
 					value -= 100;
 					if (static_cast<size_t>(value) < custom_binds.size() && !custom_binds[value].empty())
 					{
-						const auto len = sprintf_s(&buffer[bytes_used], (buffer_size_align - bytes_used), "bind %s \"%s\"\n", key_button, custom_binds[value].data());
+						const auto len = sprintf_s(&buffer[bytes_used], (buffer_size_align - bytes_used),
+						                           "bind %s \"%s\"\n", key_button, custom_binds[value].data());
 
 						if (len < 0)
 						{
@@ -105,7 +107,7 @@ namespace binding
 			cl_execute_key_hook.invoke<void>(local_client_num, key, down, time);
 		}
 	}
-	
+
 	class component final : public component_interface
 	{
 	public:

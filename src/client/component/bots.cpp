@@ -15,15 +15,15 @@ namespace bots
 			scheduler::once([entity_num]()
 			{
 				game::SV_ExecuteClientCommand(&game::mp::svs_clients[entity_num],
-					utils::string::va("lui 68 2 %i", *game::mp::sv_serverId_value),
-					false);
+				                              utils::string::va("lui 68 2 %i", *game::mp::sv_serverId_value),
+				                              false);
 
 				// scheduler the select class call
 				scheduler::once([entity_num]()
 				{
 					game::SV_ExecuteClientCommand(&game::mp::svs_clients[entity_num],
-						utils::string::va("lui 5 %i %i", (rand() % 5) + 10,
-							*game::mp::sv_serverId_value), false);
+					                              utils::string::va("lui 5 %i %i", (rand() % 5) + 10,
+					                                                *game::mp::sv_serverId_value), false);
 				}, scheduler::pipeline::server, 1s);
 			}, scheduler::pipeline::server, 1s);
 		}

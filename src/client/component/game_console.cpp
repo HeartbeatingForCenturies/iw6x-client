@@ -488,7 +488,7 @@ namespace game_console
 				if (con.cursor > 0)
 				{
 					memmove(con.buffer + con.cursor - 1, con.buffer + con.cursor,
-						strlen(con.buffer) + 1 - con.cursor);
+					        strlen(con.buffer) + 1 - con.cursor);
 					con.cursor--;
 				}
 
@@ -542,7 +542,7 @@ namespace game_console
 			}
 
 			toggle_console();
-			
+
 			return false;
 		}
 

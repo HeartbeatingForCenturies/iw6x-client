@@ -55,7 +55,7 @@ namespace rcon
 
 			return 0;
 		}
-		
+
 		std::string build_status_buffer()
 		{
 			const auto sv_maxclients = game::Dvar_FindVar("sv_maxclients");
@@ -63,33 +63,39 @@ namespace rcon
 
 			std::string buffer = ""s;
 			buffer.append(utils::string::va("map: %s\n", mapname->current.string));
-			buffer.append("num score bot ping guid                             name             address               qport\n");
-			buffer.append("--- ----- --- ---- -------------------------------- ---------------- --------------------- -----\n");
+			buffer.append(
+				"num score bot ping guid                             name             address               qport\n");
+			buffer.append(
+				"--- ----- --- ---- -------------------------------- ---------------- --------------------- -----\n");
 
 			for (int i = 0; i < sv_maxclients->current.integer; i++)
 			{
 				const auto client = &game::mp::svs_clients[i];
 				auto self = &game::mp::g_entities[i];
 
-				char clean_name[32] = { 0 };
+				char clean_name[32] = {0};
 				strncpy_s(clean_name, self->client->sess.cs.name, 32);
 				game::I_CleanStr(clean_name);
 
 				if (client->header.state >= 1 && self && self->client)
 				{
 					buffer.append(utils::string::va("%3i %5i %3s %s %32s %16s %21s %5i\n",
-						i,
-						self->client->sess.scores.score,
-						game::SV_BotIsBot(i) ? "Yes" : "No",
-						(client->header.state == 2) ? "CNCT" : (client->header.state == 1) ? "ZMBI" : utils::string::va("%4i", client->ping),
-						game::SV_GetGuid(i),
-						clean_name,
-						network::net_adr_to_string(client->header.netchan.remoteAddress),
-						client->header.netchan.remoteAddress.port)
+					                                i,
+					                                self->client->sess.scores.score,
+					                                game::SV_BotIsBot(i) ? "Yes" : "No",
+					                                (client->header.state == 2)
+						                                ? "CNCT"
+						                                : (client->header.state == 1)
+						                                ? "ZMBI"
+						                                : utils::string::va("%4i", client->ping),
+					                                game::SV_GetGuid(i),
+					                                clean_name,
+					                                network::net_adr_to_string(client->header.netchan.remoteAddress),
+					                                client->header.netchan.remoteAddress.port)
 					);
 				}
 			}
-			
+
 			return buffer;
 		}
 
@@ -130,7 +136,8 @@ namespace rcon
 
 			scheduler::once([]()
 			{
-				game::Dvar_RegisterString("rcon_password", "", game::DvarFlags::DVAR_FLAG_NONE, "The password for remote console");
+				game::Dvar_RegisterString("rcon_password", "", game::DvarFlags::DVAR_FLAG_NONE,
+				                          "The password for remote console");
 			}, scheduler::pipeline::main);
 
 			command::add("status", [&]()
@@ -186,7 +193,7 @@ namespace rcon
 
 				network::on("rcon", [](const game::netadr_s& addr, const std::string_view& data)
 				{
-					const auto message = std::string{ data };
+					const auto message = std::string{data};
 					const auto pos = message.find_first_of(" ");
 					if (pos == std::string::npos)
 					{
@@ -197,7 +204,8 @@ namespace rcon
 					const auto password = message.substr(0, pos);
 					const auto command = message.substr(pos + 1);
 					const auto rcon_password = game::Dvar_FindVar("rcon_password");
-					if (command.empty() || !rcon_password || !rcon_password->current.string || !strlen(rcon_password->current.string))
+					if (command.empty() || !rcon_password || !rcon_password->current.string || !strlen(
+						rcon_password->current.string))
 					{
 						return;
 					}

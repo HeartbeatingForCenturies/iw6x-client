@@ -97,7 +97,8 @@ namespace scheduler
 		}, type, delay);
 	}
 
-	void on_game_initialized(const std::function<void()>& callback, const pipeline type, const std::chrono::milliseconds delay)
+	void on_game_initialized(const std::function<void()>& callback, const pipeline type,
+	                         const std::chrono::milliseconds delay)
 	{
 		schedule([=]()
 		{

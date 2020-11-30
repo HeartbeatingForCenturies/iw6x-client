@@ -6,7 +6,7 @@ namespace command
 	{
 	public:
 		params();
-		
+
 		int size() const;
 		const char* get(int index) const;
 		std::string join(int index) const;
@@ -24,7 +24,7 @@ namespace command
 	{
 	public:
 		params_sv();
-		
+
 		int size() const;
 		const char* get(int index) const;
 		std::string join(int index) const;
@@ -33,7 +33,7 @@ namespace command
 		{
 			return this->get(index); //
 		}
-		
+
 	private:
 		int nesting_;
 	};

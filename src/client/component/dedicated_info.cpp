@@ -52,9 +52,12 @@ namespace dedicated_info
 				std::string cleaned_hostname;
 				cleaned_hostname.resize(static_cast<int>(strlen(sv_hostname->current.string) + 1));
 
-				utils::string::strip(sv_hostname->current.string, cleaned_hostname.data(), static_cast<int>(strlen(sv_hostname->current.string)) + 1);
+				utils::string::strip(sv_hostname->current.string, cleaned_hostname.data(),
+				                     static_cast<int>(strlen(sv_hostname->current.string)) + 1);
 
-				console::set_title(utils::string::va("%s on %s [%d/%d]", cleaned_hostname.data(), mapname->current.string, clientCount, sv_maxclients->current.integer));
+				console::set_title(utils::string::va("%s on %s [%d/%d]", cleaned_hostname.data(),
+				                                     mapname->current.string, clientCount,
+				                                     sv_maxclients->current.integer));
 			}, scheduler::pipeline::main, 1s);
 		}
 	};

@@ -83,7 +83,8 @@ namespace branding
 				auto* font = game::R_RegisterFont("fonts/normalfont");
 				if (!font) return;
 
-				game::R_AddCmdDrawText(text, 0x7FFFFFFF, font, static_cast<float>(x), y + static_cast<float>(font->pixelHeight) * scale,
+				game::R_AddCmdDrawText(text, 0x7FFFFFFF, font, static_cast<float>(x),
+				                       y + static_cast<float>(font->pixelHeight) * scale,
 				                       scale, scale, 0.0f, color, 0);
 			}, scheduler::pipeline::renderer);
 		}
