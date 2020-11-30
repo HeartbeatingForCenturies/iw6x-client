@@ -43,7 +43,7 @@ namespace network
 			a.mov(rdx, rdi); // command
 			a.mov(rcx, r14); // netaddr
 
-			a.call(handle_command);
+			a.call_aligned(handle_command);
 
 			a.test(al, al);
 			a.jz(return_unhandled);
@@ -154,7 +154,7 @@ namespace network
 		a.jne(return_regular);
 
 		// Do the original work
-		a.call(return_regular);
+		a.call_aligned(return_regular);
 
 		// Jump to success branch
 		a.mov(rax, 0x14047771E);

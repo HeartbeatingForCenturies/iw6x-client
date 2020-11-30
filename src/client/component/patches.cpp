@@ -111,7 +111,7 @@ namespace patches
 			const auto success = a.newLabel();
 
 			a.pushad64();
-			a.call(cmd_exec_patch);
+			a.call_aligned(cmd_exec_patch);
 			a.test(al, al);
 			a.popad64();
 
@@ -128,7 +128,7 @@ namespace patches
 			const auto success = a.newLabel();
 
 			a.pushad64();
-			a.call(cmd_exec_patch);
+			a.call_aligned(cmd_exec_patch);
 			a.test(al, al);
 			a.popad64();
 

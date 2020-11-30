@@ -80,7 +80,7 @@ namespace dvar_cheats
 		a.mov(r8, rdi);
 		a.mov(edx, esi);
 		a.mov(rcx, rbx);
-		a.call(apply_sv_cheats); //check if we are setting sv_cheats
+		a.call_aligned(apply_sv_cheats); //check if we are setting sv_cheats
 		a.popad64();
 		a.cmp(esi, 0);
 		a.jz(zero_source); //if the SetSource is 0 (INTERNAL) ignore flag checks
@@ -88,7 +88,7 @@ namespace dvar_cheats
 		a.pushad64();
 		a.mov(edx, esi); //source
 		a.mov(rcx, rbx); //dvar
-		a.call(dvar_flag_checks); //protect read/write/cheat/replicated dvars
+		a.call_aligned(dvar_flag_checks); //protect read/write/cheat/replicated dvars
 		a.cmp(al, 1);
 		a.jz(can_set_value);
 
