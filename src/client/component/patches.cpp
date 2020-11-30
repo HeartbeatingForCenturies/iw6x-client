@@ -197,6 +197,10 @@ namespace patches
 	public:
 		void post_unpack() override
 		{
+			// Increment ref-count on these
+			LoadLibraryA("PhysXDevice64.dll");
+			LoadLibraryA("PhysXUpdateLoader64.dll");
+
 			command::add("quit", []()
 			{
 				game::Com_Quit();
