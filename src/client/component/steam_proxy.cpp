@@ -3,9 +3,9 @@
 #include "steam_proxy.hpp"
 #include "scheduler.hpp"
 
-#include "utils/nt.hpp"
-#include "utils/string.hpp"
-#include "utils/binary_resource.hpp"
+#include <utils/nt.hpp>
+#include <utils/string.hpp>
+#include <utils/binary_resource.hpp>
 
 #include "game/game.hpp"
 

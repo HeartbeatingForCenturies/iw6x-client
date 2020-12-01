@@ -1,8 +1,11 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+
 #include "scheduler.hpp"
-#include "utils/thread.hpp"
+
 #include "game/game.hpp"
+
+#include <utils/thread.hpp>
 
 namespace thread_names
 {

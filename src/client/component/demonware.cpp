@@ -2,10 +2,10 @@
 #include "loader/component_loader.hpp"
 #include "demonware.hpp"
 
-#include "utils/hook.hpp"
-#include "utils/nt.hpp"
-#include "utils/cryptography.hpp"
-#include "utils/thread.hpp"
+#include <utils/hook.hpp>
+#include <utils/nt.hpp>
+#include <utils/cryptography.hpp>
+#include <utils/thread.hpp>
 
 #include "game/game.hpp"
 

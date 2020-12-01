@@ -2,7 +2,8 @@
 #include "loader/component_loader.hpp"
 #include "scheduler.hpp"
 #include "game/game.hpp"
-#include "utils/hook.hpp"
+
+#include <utils/hook.hpp>
 
 namespace cursor
 {

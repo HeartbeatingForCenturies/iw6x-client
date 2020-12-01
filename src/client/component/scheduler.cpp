@@ -2,9 +2,9 @@
 #include "loader/component_loader.hpp"
 #include "scheduler.hpp"
 #include "game/game.hpp"
-#include "utils/concurrent_list.hpp"
-#include "utils/hook.hpp"
-#include "utils/thread.hpp"
+#include <utils/concurrent_list.hpp>
+#include <utils/hook.hpp>
+#include <utils/thread.hpp>
 
 namespace scheduler
 {

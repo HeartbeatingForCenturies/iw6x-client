@@ -3,8 +3,9 @@
 #include "loader/loader.hpp"
 #include "loader/component_loader.hpp"
 #include "game/game.hpp"
-#include "utils/flags.hpp"
-#include "utils/io.hpp"
+
+#include <utils/flags.hpp>
+#include <utils/io.hpp>
 
 DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 {

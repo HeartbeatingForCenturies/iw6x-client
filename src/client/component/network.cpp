@@ -3,8 +3,8 @@
 #include "network.hpp"
 #include "game_console.hpp"
 
-#include "utils/hook.hpp"
-#include "utils/string.hpp"
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 namespace network
 {

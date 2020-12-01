@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "launcher.hpp"
-#include "utils/nt.hpp"
+
+#include <utils/nt.hpp>
 
 launcher::launcher()
 {

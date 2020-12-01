@@ -4,9 +4,10 @@
 #include "server_list.hpp"
 #include "network.hpp"
 #include "command.hpp"
-#include "utils/hook.hpp"
 #include "game/game.hpp"
-#include "utils/string.hpp"
+
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 namespace dedicated
 {

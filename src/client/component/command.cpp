@@ -3,9 +3,10 @@
 #include "command.hpp"
 
 #include "game/game.hpp"
-#include "utils/hook.hpp"
-#include "utils/string.hpp"
-#include "utils/memory.hpp"
+
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
+#include <utils/memory.hpp>
 
 namespace command
 {
