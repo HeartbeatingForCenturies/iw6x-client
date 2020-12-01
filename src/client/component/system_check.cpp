@@ -1,9 +1,11 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "system_check.hpp"
-#include "utils/io.hpp"
-#include "utils/cryptography.hpp"
+
 #include "game/game.hpp"
+
+#include <utils/io.hpp>
+#include <utils/cryptography.hpp>
 
 namespace system_check
 {

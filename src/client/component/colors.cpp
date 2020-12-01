@@ -4,8 +4,8 @@
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 
-#include "utils/hook.hpp"
-#include "utils/string.hpp"
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 namespace colors
 {

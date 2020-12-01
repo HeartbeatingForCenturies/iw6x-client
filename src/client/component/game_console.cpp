@@ -7,8 +7,8 @@
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 
-#include "utils/string.hpp"
-#include "utils/hook.hpp"
+#include <utils/string.hpp>
+#include <utils/hook.hpp>
 #include "version.hpp"
 
 #define console_font game::R_RegisterFont("fonts/consolefont")

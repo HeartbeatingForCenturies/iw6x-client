@@ -3,7 +3,7 @@
 #include "scheduler.hpp"
 #include "game/game.hpp"
 
-#include "utils/string.hpp"
+#include <utils/string.hpp>
 
 #include <discord_rpc.h>
 

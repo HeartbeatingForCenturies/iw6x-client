@@ -1,7 +1,7 @@
 #include <std_include.hpp>
 #include "window.hpp"
 
-#include "utils/nt.hpp"
+#include <utils/nt.hpp>
 
 std::mutex window::mutex_;
 std::vector<window*> window::windows_;

@@ -2,7 +2,8 @@
 #include "loader.hpp"
 #include "seh.hpp"
 #include "tls.hpp"
-#include "utils/string.hpp"
+
+#include <utils/string.hpp>
 
 FARPROC loader::load(const utils::nt::library& library, const std::string& buffer) const
 {

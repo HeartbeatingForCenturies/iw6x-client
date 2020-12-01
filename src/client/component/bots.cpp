@@ -3,7 +3,8 @@
 #include "command.hpp"
 #include "scheduler.hpp"
 #include "game/game.hpp"
-#include "utils/string.hpp"
+
+#include <utils/string.hpp>
 
 namespace bots
 {

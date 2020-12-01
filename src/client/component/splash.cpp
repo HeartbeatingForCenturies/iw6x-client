@@ -1,8 +1,9 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
-#include "utils/nt.hpp"
-#include "utils/hook.hpp"
 #include "game/game.hpp"
+
+#include <utils/nt.hpp>
+#include <utils/hook.hpp>
 
 namespace splash
 {

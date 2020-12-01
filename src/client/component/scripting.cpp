@@ -2,7 +2,7 @@
 #include "loader/component_loader.hpp"
 
 #include "game/game.hpp"
-#include "utils/hook.hpp"
+#include <utils/hook.hpp>
 
 #include "game/scripting/entity.hpp"
 #include "game/scripting/execution.hpp"

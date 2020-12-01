@@ -1,7 +1,7 @@
 #include <std_include.hpp>
 #include "functions.hpp"
 
-#include "utils/string.hpp"
+#include <utils/string.hpp>
 
 namespace scripting
 {

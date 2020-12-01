@@ -10,10 +10,10 @@
 
 #include "steam/steam.hpp"
 
-#include "utils/string.hpp"
-#include "utils/info_string.hpp"
-#include "utils/cryptography.hpp"
-#include "utils/hook.hpp"
+#include <utils/string.hpp>
+#include <utils/info_string.hpp>
+#include <utils/cryptography.hpp>
+#include <utils/hook.hpp>
 
 namespace party
 {

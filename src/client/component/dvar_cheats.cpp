@@ -1,11 +1,13 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
-#include "utils/hook.hpp"
-#include "utils/string.hpp"
+
 #include "game/game.hpp"
 
 #include "game_console.hpp"
 #include "scheduler.hpp"
+
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 namespace dvar_cheats
 {

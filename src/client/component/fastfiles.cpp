@@ -2,9 +2,11 @@
 #include "loader/component_loader.hpp"
 
 #include "game/game.hpp"
-#include "utils/hook.hpp"
+
 #include "command.hpp"
 #include "game_console.hpp"
+
+#include <utils/hook.hpp>
 
 namespace fastfiles
 {

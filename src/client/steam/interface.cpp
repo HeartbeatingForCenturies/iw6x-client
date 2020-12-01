@@ -1,7 +1,8 @@
 #include <std_include.hpp>
 #include "interface.hpp"
-#include "utils/memory.hpp"
-#include "utils/nt.hpp"
+
+#include <utils/memory.hpp>
+#include <utils/nt.hpp>
 
 namespace steam
 {

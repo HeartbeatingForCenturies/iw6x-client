@@ -7,8 +7,8 @@
 #include "filesystem.hpp"
 #include "scheduler.hpp"
 
-#include "utils/hook.hpp"
-#include "utils/nt.hpp"
+#include <utils/hook.hpp>
+#include <utils/nt.hpp>
 
 namespace patches
 {

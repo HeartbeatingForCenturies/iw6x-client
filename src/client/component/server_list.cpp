@@ -9,9 +9,9 @@
 #include "party.hpp"
 #include "game/game.hpp"
 
-#include "utils/cryptography.hpp"
-#include "utils/string.hpp"
-#include "utils/hook.hpp"
+#include <utils/cryptography.hpp>
+#include <utils/string.hpp>
+#include <utils/hook.hpp>
 
 namespace server_list
 {

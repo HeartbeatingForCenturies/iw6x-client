@@ -6,7 +6,7 @@
 #include "game_console.hpp"
 #include "server_list.hpp"
 
-#include "utils/hook.hpp"
+#include <utils/hook.hpp>
 
 namespace input
 {
