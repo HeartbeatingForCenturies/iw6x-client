@@ -111,6 +111,7 @@ namespace game
 	WEAK Symbol<void (const char*, int, Font_s*, float, float, float, float, float, const float*, int, int, char)>
 	R_AddCmdDrawTextWithCursor{0x140534170, 0x1406013A0};
 	WEAK Symbol<Font_s*(const char* font)> R_RegisterFont{0x1405130B0, 0x1405DFAC0};
+	WEAK Symbol<void()> R_SyncRenderThread{ 0x140535AF0, 0x140602D30 };
 	WEAK Symbol<int (const char* text, int maxChars, Font_s* font)> R_TextWidth{0x140513390, 0x1405DFDB0};
 
 	WEAK Symbol<ScreenPlacement*()> ScrPlace_GetViewPlacement{0x14024D150, 0x1402F6D40};
@@ -192,6 +193,8 @@ namespace game
 
 	WEAK Symbol<scrVmPub_t> scr_VmPub{0x1455B1FA0, 0x144D4B090};
 	WEAK Symbol<unsigned int> scr_levelEntityId{0x1452A9F30, 0x144A43020};
+
+	WEAK Symbol<GfxDrawMethod_s> gfxDrawMethod{ 0x145F525A8, 0x1480350D8 };
 
 	namespace sp
 	{

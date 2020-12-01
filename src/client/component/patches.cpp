@@ -308,6 +308,10 @@ namespace patches
 				SetThreadExecutionState(ES_DISPLAY_REQUIRED);
 			}, scheduler::pipeline::main);
 
+			// Allow kbam input when gamepad is enabled
+			utils::hook::nop(SELECT_VALUE(0x14023D490, 0x1402C3099), 2);
+			utils::hook::nop(SELECT_VALUE(0x14023B3AC, 0x1402C0CE0), 6);
+
 			if (game::environment::is_sp())
 			{
 				patch_sp();

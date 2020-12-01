@@ -19,6 +19,8 @@ namespace dvars
 
 	game::dvar_t* pm_bouncing = nullptr;
 
+    game::dvar_t* r_fullbright = nullptr;
+
     game::dvar_t* aimassist_enabled = nullptr;
 
     std::string dvar_get_vector_domain(const int components, const game::dvar_limits& domain)
