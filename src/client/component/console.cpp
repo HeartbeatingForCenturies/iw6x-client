@@ -4,6 +4,8 @@
 #include "game/game.hpp"
 #include "scheduler.hpp"
 
+#include <utils/thread.hpp>
+
 namespace console
 {
 	class component final : public component_interface
@@ -28,7 +30,7 @@ namespace console
 				this->log_messages();
 			}, scheduler::pipeline::main);
 
-			this->console_runner_ = std::thread([this]
+			this->console_runner_ = utils::thread::create_named_thread("Console IO", [this]
 			{
 				this->runner();
 			});
@@ -79,7 +81,7 @@ namespace console
 
 		void initialize()
 		{
-			std::thread([this]()
+			utils::thread::create_named_thread("Console", [this]()
 			{
 				std::this_thread::sleep_for(500ms);
 				game::Sys_ShowConsole();

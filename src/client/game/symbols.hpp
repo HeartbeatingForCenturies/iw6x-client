@@ -14,7 +14,7 @@ namespace game
 	WEAK Symbol<void(void*, void*)> AimAssist_AddToTargetList{0, 0x140139D80};
 
 	WEAK Symbol<void ()> Com_Frame_Try_Block_Function{0x1403BC980, 0x1404131A0};
-	WEAK Symbol<const char*(char const**)> Com_Parse{0, 0x1404F50E0};
+	WEAK Symbol<const char*(char const**)> Com_Parse{0x1404313E0, 0x1404F50E0};
 	WEAK Symbol<void (errorParm code, const char* message, ...)> Com_Error{0x1403BBFF0, 0x140412740};
 	WEAK Symbol<void ()> Com_Quit{0x1403BDDD0, 0x140414920};
 	WEAK Symbol<CodPlayMode ()> Com_GetCurrentCoDPlayMode{0, 0x1404f6140};

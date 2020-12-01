@@ -5,6 +5,7 @@
 #include "utils/hook.hpp"
 #include "utils/nt.hpp"
 #include "utils/cryptography.hpp"
+#include "utils/thread.hpp"
 
 #include "game/game.hpp"
 
@@ -401,7 +402,7 @@ namespace demonware
 
 		void post_load() override
 		{
-			message_thread = std::thread(server_thread);
+			message_thread = utils::thread::create_named_thread("Demonware", server_thread);
 
 			io::register_hook("send", io::send);
 			io::register_hook("recv", io::recv);

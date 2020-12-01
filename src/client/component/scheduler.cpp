@@ -4,6 +4,7 @@
 #include "game/game.hpp"
 #include "utils/concurrent_list.hpp"
 #include "utils/hook.hpp"
+#include "utils/thread.hpp"
 
 namespace scheduler
 {
@@ -118,7 +119,7 @@ namespace scheduler
 	public:
 		void post_start() override
 		{
-			thread = std::thread([]()
+			thread = utils::thread::create_named_thread("Async Scheduler", []()
 			{
 				while (!kill)
 				{
