@@ -55,8 +55,8 @@ namespace utils::compression
 		std::string decompress(const std::string& data)
 		{
 			std::string buffer{};
-			zlib_stream streamContainer{};
-			if (!streamContainer.is_valid())
+			zlib_stream stream_container{};
+			if (!stream_container.is_valid())
 			{
 				return {};
 			}
@@ -64,12 +64,12 @@ namespace utils::compression
 			int ret{};
 			size_t offset = 0;
 			static thread_local uint8_t dest[CHUNK] = {0};
-			auto& stream = streamContainer.get();
+			auto& stream = stream_container.get();
 
 			do
 			{
-				const auto inputSize = std::min(sizeof(dest), data.size() - offset);
-				stream.avail_in = static_cast<uInt>(inputSize);
+				const auto input_size = std::min(sizeof(dest), data.size() - offset);
+				stream.avail_in = static_cast<uInt>(input_size);
 				stream.next_in = reinterpret_cast<const Bytef*>(data.data()) + offset;
 				offset += stream.avail_in;
 
