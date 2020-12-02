@@ -42,7 +42,7 @@ namespace server_list
 		std::mutex mutex;
 		std::vector<server_info> servers;
 
-		size_t server_list_index = 0;
+		volatile size_t server_list_index = 0;
 
 		void lui_open_menu_stub(int /*controllerIndex*/, const char* /*menu*/, int /*a3*/, int /*a4*/,
 		                        unsigned int /*a5*/)
@@ -141,10 +141,24 @@ namespace server_list
 			return "";
 		}
 
+		void sort_serverlist()
+		{
+			std::stable_sort(servers.begin(), servers.end(), [](const server_info& a, const server_info& b)
+			{
+				if(a.clients == b.clients)
+				{
+					return a.ping < b.ping;
+				}
+
+				return a.clients > b.clients;
+			});
+		}
+
 		void insert_server(server_info&& server)
 		{
 			std::lock_guard<std::mutex> _(mutex);
 			servers.emplace_back(std::move(server));
+			sort_serverlist();
 			trigger_refresh();
 		}
 
