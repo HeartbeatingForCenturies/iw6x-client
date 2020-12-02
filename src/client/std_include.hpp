@@ -73,6 +73,7 @@
 #include <optional>
 
 #include <zlib.h>
+#include <zip.h>
 #include <gsl/gsl>
 #include <udis86.h>
 #include <MinHook.h>
