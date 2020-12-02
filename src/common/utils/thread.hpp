@@ -16,4 +16,10 @@ namespace utils::thread
 		set_name(t, name);
 		return t;
 	}
+
+	std::vector<DWORD> get_thread_ids();
+	void for_each_thread(const std::function<void(HANDLE)>& callback);
+
+	void suspend_other_threads();
+	void resume_other_threads();
 }

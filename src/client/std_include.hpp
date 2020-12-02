@@ -46,7 +46,6 @@
 #include <urlmon.h>
 #include <atlbase.h>
 #include <iphlpapi.h>
-#include <TlHelp32.h>
 
 // min and max is required by gdi, therefore NOMINMAX won't work
 #ifdef max
@@ -72,8 +71,6 @@
 #include <sstream>
 #include <optional>
 
-#include <zlib.h>
-#include <zip.h>
 #include <gsl/gsl>
 #include <udis86.h>
 #include <MinHook.h>

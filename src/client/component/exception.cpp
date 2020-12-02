@@ -7,6 +7,8 @@
 #include <utils/hook.hpp>
 #include <utils/io.hpp>
 #include <utils/string.hpp>
+#include <utils/thread.hpp>
+#include <utils/compression.hpp>
 
 #include <exception/minidump.hpp>
 
@@ -39,17 +41,6 @@ namespace exception
 			MessageBoxA(nullptr, error_str.data(), "ERROR", MB_ICONERROR);
 		}
 
-		std::string get_exe_filename()
-		{
-			char exe_file_name[MAX_PATH] = {0};
-
-			GetModuleFileNameA(nullptr, exe_file_name, MAX_PATH);
-			PathStripPathA(exe_file_name);
-			PathRemoveExtensionA(exe_file_name);
-
-			return exe_file_name;
-		}
-
 		std::string get_timestamp()
 		{
 			tm ltime{};
@@ -57,88 +48,61 @@ namespace exception
 			const auto time = _time64(nullptr);
 
 			_localtime64_s(&ltime, &time);
-			strftime(timestamp, sizeof(timestamp) - 1, "%Y%m%d%H%M%S", &ltime);
+			strftime(timestamp, sizeof(timestamp) - 1, "%Y-%m-%d-%H-%M-%S", &ltime);
 
 			return timestamp;
 		}
 
-		std::string generate_minidump_filename()
+		std::string generate_crash_info(const LPEXCEPTION_POINTERS exceptioninfo)
 		{
-			const auto exe_ename = get_exe_filename();
-			const auto timestamp = get_timestamp();
-
-			char filepath[MAX_PATH] = {0};
-			utils::io::create_directory("minidumps");
-			const auto* const filename = utils::string::va("%s-%d-%s-%s.dmp", exe_ename.data(),
-			                                               game::environment::get_mode(),
-			                                               VERSION,
-			                                               timestamp.data());
-
-			PathCombineA(filepath, "minidumps\\", filename);
-
-			return filepath;
-		}
-
-		bool is_harmless_error(const LPEXCEPTION_POINTERS exceptioninfo)
-		{
-			const auto code = exceptioninfo->ExceptionRecord->ExceptionCode;
-			return code == STATUS_INTEGER_OVERFLOW || code == STATUS_FLOAT_OVERFLOW;
-		}
-
-
-		void write_minidump(const LPEXCEPTION_POINTERS exceptioninfo, const std::string& filename)
-		{
-			const auto data = create_minidump(exceptioninfo);
-			//data = utils::compression::zlib::compress(data);
-			utils::io::write_file(filename, data);
-		}
-
-		void suspend_other_threads()
-		{
-			auto* const h = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, GetCurrentProcessId());
-			if (h != INVALID_HANDLE_VALUE)
+			std::string info{};
+			const auto line = [&info](const std::string& text)
 			{
-				const auto _ = gsl::finally([h]()
-				{
-					CloseHandle(h);
-				});
+				info.append(text);
+				info.append("\r\n");
+			};
 
-				THREADENTRY32 entry;
-				entry.dwSize = sizeof(entry);
-				if (!Thread32First(h, &entry))
-				{
-					return;
-				}
+			line("IW6x Crash Dump");
+			line("");
+			line("Version: "s + VERSION);
+			line("Environment: "s + game::environment::get_string());
+			line("Timestamp: "s + get_timestamp());
+			line(utils::string::va("Exception: 0x%08X", exceptioninfo->ExceptionRecord->ExceptionCode));
+			line(utils::string::va("Address: 0x%llX", exceptioninfo->ExceptionRecord->ExceptionAddress));
 
-				do
-				{
-					const auto check_size = entry.dwSize < FIELD_OFFSET(THREADENTRY32, th32OwnerProcessID) + sizeof(
-						entry.th32OwnerProcessID);
-					entry.dwSize = sizeof(entry);
+#pragma warning(push)
+#pragma warning(disable: 4996)
+			OSVERSIONINFOEXA version_info;
+			ZeroMemory(&version_info, sizeof(version_info));
+			version_info.dwOSVersionInfoSize = sizeof(version_info);
+			GetVersionExA(reinterpret_cast<LPOSVERSIONINFOA>(&version_info));
+#pragma warning(pop)
 
-					if (!check_size)
-					{
-						continue;
-					}
+			line(utils::string::va("OS Version: %u.%u", version_info.dwMajorVersion, version_info.dwMinorVersion));
 
-					if (entry.th32ThreadID != GetCurrentThreadId() || entry.th32OwnerProcessID ==
-						GetCurrentProcessId())
-					{
-						const auto thread = OpenThread(THREAD_ALL_ACCESS, FALSE, entry.th32ThreadID);
-						if (thread != nullptr)
-						{
-							SuspendThread(thread);
-							CloseHandle(thread);
-						}
-					}
-				}
-				while (Thread32Next(h, &entry));
-			}
+			return info;
+		}
+
+		void write_minidump(const LPEXCEPTION_POINTERS exceptioninfo)
+		{
+			const std::string crash_name = utils::string::va("minidumps/iw6x-crash-%d-%s.zip",
+			                                                 game::environment::get_mode(), get_timestamp().data());
+
+			utils::compression::zip::archive zip_file{};
+			zip_file.add("crash.dmp", create_minidump(exceptioninfo));
+			zip_file.add("info.txt", generate_crash_info(exceptioninfo));
+			zip_file.write(crash_name, "IW6x Crash Dump");
 		}
 
 		void show_mouse_cursor()
 		{
 			while (ShowCursor(TRUE) < 0);
+		}
+
+		bool is_harmless_error(const LPEXCEPTION_POINTERS exceptioninfo)
+		{
+			const auto code = exceptioninfo->ExceptionRecord->ExceptionCode;
+			return code == STATUS_INTEGER_OVERFLOW || code == STATUS_FLOAT_OVERFLOW || code == STATUS_SINGLE_STEP;
 		}
 
 		LONG WINAPI exception_filter(const LPEXCEPTION_POINTERS exceptioninfo)
@@ -149,12 +113,11 @@ namespace exception
 					return EXCEPTION_CONTINUE_EXECUTION;
 				}
 
-				suspend_other_threads();
+				utils::thread::suspend_other_threads();
 				show_mouse_cursor();
 
+				write_minidump(exceptioninfo);
 				display_error_dialog(exceptioninfo);
-				const auto filename = generate_minidump_filename();
-				write_minidump(exceptioninfo, filename);
 			}
 
 			TerminateProcess(GetCurrentProcess(), exceptioninfo->ExceptionRecord->ExceptionCode);

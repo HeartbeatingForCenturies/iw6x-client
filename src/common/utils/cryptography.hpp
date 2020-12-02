@@ -5,9 +5,8 @@
 
 namespace utils::cryptography
 {
-	class ecc final
+	namespace ecc
 	{
-	public:
 		class key final
 		{
 		public:
@@ -34,73 +33,56 @@ namespace utils::cryptography
 			ecc_key key_storage_{};
 		};
 
-		static key generate_key(int bits);
-		static std::string sign_message(key key, const std::string& message);
-		static bool verify_message(key key, const std::string& message, const std::string& signature);
-	};
+		key generate_key(int bits);
+		std::string sign_message(key key, const std::string& message);
+		bool verify_message(key key, const std::string& message, const std::string& signature);
+	}
 
-	class rsa final
+	namespace rsa
 	{
-	public:
-		static std::string encrypt(const std::string& data, const std::string& hash, const std::string& key);
+		std::string encrypt(const std::string& data, const std::string& hash, const std::string& key);
+	}
 
-	private:
-		static void initialize();
-	};
-
-	class des3 final
+	namespace des3
 	{
-	public:
-		static std::string encrypt(const std::string& data, const std::string& iv, const std::string& key);
-		static std::string decrypt(const std::string& data, const std::string& iv, const std::string& key);
+		std::string encrypt(const std::string& data, const std::string& iv, const std::string& key);
+		std::string decrypt(const std::string& data, const std::string& iv, const std::string& key);
+	}
 
-	private:
-		static void initialize();
-	};
-
-	class tiger final
+	namespace tiger
 	{
-	public:
-		static std::string compute(const std::string& data, bool hex = false);
-		static std::string compute(const uint8_t* data, size_t length, bool hex = false);
-	};
+		std::string compute(const std::string& data, bool hex = false);
+		std::string compute(const uint8_t* data, size_t length, bool hex = false);
+	}
 
-	class sha1 final
+	namespace sha1
 	{
-	public:
-		static std::string compute(const std::string& data, bool hex = false);
-		static std::string compute(const uint8_t* data, size_t length, bool hex = false);
-	};
+		std::string compute(const std::string& data, bool hex = false);
+		std::string compute(const uint8_t* data, size_t length, bool hex = false);
+	}
 
-	class sha256 final
+	namespace sha256
 	{
-	public:
-		static std::string compute(const std::string& data, bool hex = false);
-		static std::string compute(const uint8_t* data, size_t length, bool hex = false);
-	};
+		std::string compute(const std::string& data, bool hex = false);
+		std::string compute(const uint8_t* data, size_t length, bool hex = false);
+	}
 
-	class sha512 final
+	namespace sha512
 	{
-	public:
-		static std::string compute(const std::string& data, bool hex = false);
-		static std::string compute(const uint8_t* data, size_t length, bool hex = false);
-	};
+		std::string compute(const std::string& data, bool hex = false);
+		std::string compute(const uint8_t* data, size_t length, bool hex = false);
+	}
 
-	class jenkins_one_at_a_time final
+	namespace jenkins_one_at_a_time
 	{
-	public:
-		static unsigned int compute(const std::string& data);
-		static unsigned int compute(const char* key, size_t len);
+		unsigned int compute(const std::string& data);
+		unsigned int compute(const char* key, size_t len);
 	};
 
-	class random final
+	namespace random
 	{
-	public:
-		static uint32_t get_integer();
-		static std::string get_challenge();
-		static void get_data(void* data, size_t size);
-
-	private:
-		static prng_state* get_prng_state();
-	};
+		uint32_t get_integer();
+		std::string get_challenge();
+		void get_data(void* data, size_t size);
+	}
 }

@@ -56,5 +56,27 @@ namespace game
 		{
 			mode = _mode;
 		}
+
+		std::string get_string()
+		{
+			const auto current_mode = get_mode();
+			switch (current_mode)
+			{
+			case launcher::mode::server:
+				return "Dedicated Server";
+
+			case launcher::mode::multiplayer:
+				return "Multiplayer";
+
+			case launcher::mode::singleplayer:
+				return "Multiplayer";
+
+			case launcher::mode::none:
+				return "None";
+
+			default:
+				return "Unknown (" + std::to_string(static_cast<int>(mode)) + ")";
+			}
+		}
 	}
 }
