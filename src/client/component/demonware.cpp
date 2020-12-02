@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "demonware.hpp"
+#include "game_module.hpp"
 
 #include <utils/hook.hpp>
 #include <utils/nt.hpp>
@@ -345,11 +346,11 @@ namespace demonware
 
 			bool register_hook(const std::string& process, void* stub)
 			{
-				const utils::nt::library main;
+				const auto game_module = game_module::get_game_module();
 
 				auto result = false;
-				result = result || utils::hook::iat(main, "wsock32.dll", process, stub);
-				result = result || utils::hook::iat(main, "WS2_32.dll", process, stub);
+				result = result || utils::hook::iat(game_module, "wsock32.dll", process, stub);
+				result = result || utils::hook::iat(game_module, "WS2_32.dll", process, stub);
 				return result;
 			}
 		}

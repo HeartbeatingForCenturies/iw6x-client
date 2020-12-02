@@ -4,6 +4,9 @@
 // SP: 0x079C6A00
 #define BINARY_PAYLOAD_SIZE 0x0B500000
 
+// Decide whether to load the game as lib or to inject it
+#define INJECT_HOST_AS_LIB
+
 #pragma warning(push)
 #pragma warning(disable: 4100)
 #pragma warning(disable: 4127)

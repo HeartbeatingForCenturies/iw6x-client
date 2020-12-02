@@ -4,6 +4,7 @@
 #include "tls.hpp"
 
 #include <utils/string.hpp>
+#include <utils/hook.hpp>
 
 FARPROC loader::load(const utils::nt::library& library, const std::string& buffer) const
 {
@@ -59,6 +60,18 @@ FARPROC loader::load(const utils::nt::library& library, const std::string& buffe
 		             IMAGE_SECTION_HEADER));
 
 	return FARPROC(library.get_ptr() + source.get_relative_entry_point());
+}
+
+FARPROC loader::load_library(const std::string& filename) const
+{
+	const auto target = utils::nt::library::load(filename);
+	if (!target)
+	{
+		throw std::runtime_error("Failed to map binary!");
+	}
+
+	this->load_imports(target, target);
+	return FARPROC(target.get_ptr() + target.get_relative_entry_point());
 }
 
 void loader::set_import_resolver(const std::function<void*(const std::string&, const std::string&)>& resolver)
@@ -150,7 +163,7 @@ void loader::load_imports(const utils::nt::library& target, const utils::nt::lib
 				                                           function_name.data(), name.data()));
 			}
 
-			*address_table_entry = reinterpret_cast<uintptr_t>(function);
+			utils::hook::set(address_table_entry, reinterpret_cast<uintptr_t>(function));
 
 			name_table_entry++;
 			address_table_entry++;

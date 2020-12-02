@@ -7,6 +7,7 @@ class loader final
 {
 public:
 	FARPROC load(const utils::nt::library& library, const std::string& buffer) const;
+	FARPROC load_library(const std::string& filename) const;
 
 	void set_import_resolver(const std::function<void*(const std::string&, const std::string&)>& resolver);
 
