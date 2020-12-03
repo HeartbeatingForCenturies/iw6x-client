@@ -7,6 +7,7 @@
 #include "game/scripting/entity.hpp"
 #include "game/scripting/execution.hpp"
 #include "game/scripting/event.hpp"
+#include "game/scripting/lua/lua_script.hpp"
 
 #include "scheduler.hpp"
 
@@ -94,6 +95,8 @@ namespace scripting
 	public:
 		void post_unpack() override
 		{
+			lua::test();
+			
 			vm_notify_hook.create(SELECT_VALUE(0x1403E29C0, 0x14043D9B0), vm_notify_stub);
 		}
 	};
