@@ -42,7 +42,7 @@ namespace server_list
 		std::mutex mutex;
 		std::vector<server_info> servers;
 
-		volatile size_t server_list_index = 0;
+		size_t server_list_index = 0;
 
 		void lui_open_menu_stub(int /*controllerIndex*/, const char* /*menu*/, int /*a3*/, int /*a4*/,
 		                        unsigned int /*a5*/)
@@ -320,7 +320,7 @@ namespace server_list
 			utils::hook::call(0x1401E7225, &ui_feeder_count);
 			utils::hook::call(0x1401E7405, &ui_feeder_item_text);
 
-			command::add("lui_open", [](command::params params)
+			command::add("lui_open", [](const command::params& params)
 			{
 				if (params.size() <= 1)
 				{
