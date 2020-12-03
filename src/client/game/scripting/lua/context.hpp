@@ -10,8 +10,8 @@ namespace scripting::lua
 	class context
 	{
 	public:
-		context();
-		~context() = default;
+		context(const std::string& file);
+		~context();
 
 		context(context&&) noexcept = default;
 		context& operator=(context&&) noexcept = default;
