@@ -9,12 +9,6 @@ namespace arxan
 {
 	namespace
 	{
-		typedef struct _OBJECT_HANDLE_ATTRIBUTE_INFORMATION
-		{
-			BOOLEAN Inherit;
-			BOOLEAN ProtectFromClose;
-		} OBJECT_HANDLE_ATTRIBUTE_INFORMATION;
-
 		utils::hook::detour nt_close_hook;
 		utils::hook::detour nt_query_information_process_hook;
 
@@ -30,14 +24,14 @@ namespace arxan
 			{
 				if (info_class == ProcessBasicInformation)
 				{
-					static DWORD explorerPid = 0;
-					if (!explorerPid)
+					static DWORD explorer_pid = 0;
+					if (!explorer_pid)
 					{
 						auto* const shell_window = GetShellWindow();
-						GetWindowThreadProcessId(shell_window, &explorerPid);
+						GetWindowThreadProcessId(shell_window, &explorer_pid);
 					}
 
-					static_cast<PPROCESS_BASIC_INFORMATION>(info)->Reserved3 = PVOID(DWORD64(explorerPid));
+					static_cast<PPROCESS_BASIC_INFORMATION>(info)->Reserved3 = PVOID(DWORD64(explorer_pid));
 				}
 				else if (info_class == 30) // ProcessDebugObjectHandle
 				{
@@ -61,8 +55,7 @@ namespace arxan
 		NTSTATUS NTAPI nt_close_stub(const HANDLE handle)
 		{
 			char info[16];
-			if (NtQueryObject(handle, OBJECT_INFORMATION_CLASS(4), &info, sizeof(OBJECT_HANDLE_ATTRIBUTE_INFORMATION),
-			                  nullptr) >= 0)
+			if (NtQueryObject(handle, OBJECT_INFORMATION_CLASS(4), &info, 2, nullptr) >= 0)
 			{
 				auto* orig = static_cast<decltype(NtClose)*>(nt_close_hook.get_original());
 				return orig(handle);
@@ -118,7 +111,7 @@ namespace arxan
 		{
 			auto* const peb = PPEB(__readgsqword(0x60));
 			peb->BeingDebugged = false;
-			*PDWORD(LPSTR(peb) + 0xBC) &= ~0x70;
+			*reinterpret_cast<PDWORD>(LPSTR(peb) + 0xBC) &= ~0x70;
 		}
 
 		void remove_hardware_breakpoints()
