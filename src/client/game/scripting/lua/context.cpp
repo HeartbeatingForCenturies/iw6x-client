@@ -7,9 +7,9 @@ namespace scripting::lua
 	{
 		script_value convert(const sol::lua_value& value)
 		{
-			if(value.is<int>())
+			if (value.is<int>())
 			{
-				return { value.as<int>() };
+				return {value.as<int>()};
 			}
 
 			return {};
@@ -17,7 +17,7 @@ namespace scripting::lua
 
 		sol::lua_value convert(sol::this_state& state, const script_value& value)
 		{
-			if(value.is<int>())
+			if (value.is<int>())
 			{
 				return {state, value.as<int>()};
 			}
@@ -27,16 +27,16 @@ namespace scripting::lua
 
 		void setup_entity_type(sol::state& state)
 		{
+			state["level"] = entity{*game::levelEntityId};
+
 			auto entity_type = state.new_usertype<entity>("entity");
-			entity_type["set"] = [](const entity& entity, sol::this_state s, const std::string& field, const sol::lua_value& value)
+			entity_type["set"] = [](const entity& entity, sol::this_state s, const std::string& field,
+			                        const sol::lua_value& value)
 			{
 				//entity.set(field, convert(value));
 				printf("Converting\n");
 				return convert(s, convert(value));
 			};
-
-			// TODO: Actually get the level entity
-			state["level"] = entity();
 		}
 	}
 
