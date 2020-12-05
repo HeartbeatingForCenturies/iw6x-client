@@ -24,13 +24,6 @@ namespace scripting
 			game::AddRefToValue(value_ptr->type, value_ptr->u);
 		}
 
-		// TODO: Finish
-		void notify(const entity& entity, const std::string& event)
-		{
-			const auto event_id = game::SL_GetString(event.data(), 0);
-			game::Scr_NotifyId(entity.get_entity_id(), event_id, game::scr_VmPub->inparamcount);
-		}
-
 		int get_field_id(const int classnum, const std::string& field)
 		{
 			const auto field_name = utils::string::to_lower(field);
@@ -38,14 +31,14 @@ namespace scripting
 			const auto field_str = game::SL_GetString(field_name.data(), 1);
 			const auto _ = gsl::finally([field_str]()
 			{
-				game::RemoveRefToValue(game::SCRIPT_STRING, {int(field_str)});
+				game::RemoveRefToValue(game::SCRIPT_STRING, {static_cast<int>(field_str)});
 			});
 
 			const auto offset = game::FindVariable(class_id, field_str);
 			if (offset)
 			{
 				const auto index = 3 * (offset + 0xC800 * (class_id & 1));
-				const auto id = PINT64(SELECT_VALUE(0x145359F80, 0x144AF3080))[index];
+				const auto id = reinterpret_cast<PINT64>(SELECT_VALUE(0x145359F80, 0x144AF3080))[index];
 				return static_cast<int>(id);
 			}
 
@@ -65,6 +58,18 @@ namespace scripting
 
 			return script_value(game::scr_VmPub->top[1 - game::scr_VmPub->outparamcount]);
 		}
+	}
+
+	void notify(const entity& entity, const std::string& event, const std::vector<script_value>& arguments)
+	{
+		stack_isolation _;
+		for (auto i = arguments.rbegin(); i != arguments.rend(); ++i)
+		{
+			push_value(*i);
+		}
+
+		const auto event_id = game::SL_GetString(event.data(), 0);
+		game::Scr_NotifyId(entity.get_entity_id(), event_id, game::scr_VmPub->inparamcount);
 	}
 
 	script_value call_function(const std::string& name, const entity& entity,

@@ -125,7 +125,7 @@ namespace game
 	WEAK Symbol<void ()> Scr_ClearOutParams{0x1403DD500, 0x140438600};
 	WEAK Symbol<scr_entref_t (unsigned int entId)> Scr_GetEntityIdRef{0x1403DBDC0, 0x140436E10};
 	WEAK Symbol<int (unsigned int classnum, int entnum, int offset)> Scr_SetObjectField{0x140350E70, 0x1403D3FE0};
-	WEAK Symbol<void (int id, scr_string_t stringValue, unsigned int paramcount)> Scr_NotifyId{
+	WEAK Symbol<void (unsigned int id, scr_string_t stringValue, unsigned int paramcount)> Scr_NotifyId{
 		0x1403DE730, 0x140439700
 	};
 
@@ -187,6 +187,7 @@ namespace game
 
 	WEAK Symbol<const char*> command_whitelist{0x14086AA70, 0x1409E3AB0};
 
+	WEAK Symbol<unsigned int> levelEntityId{0x1452A9F30, 0x144A43020};
 	WEAK Symbol<int> g_script_error_level{0x1455B1F98, 0x144D535C4};
 	WEAK Symbol<jmp_buf> g_script_error{0x1455BA5E0, 0x144D536E0};
 	WEAK Symbol<scr_classStruct_t> g_classMap{0x140873E20, 0x1409EBFC0};

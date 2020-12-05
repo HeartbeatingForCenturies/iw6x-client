@@ -194,6 +194,7 @@ namespace arxan
 		if (recovered)
 		{
 			// Restore the stack, as it was destroyed by arxan :(
+			// Lul, I'm retared, I destroy the stack by returning below...
 			memmove(_AddressOfReturnAddress(), backup_stack, sizeof(backup_stack));
 
 			printf("Recovering from arxan error...\n");
