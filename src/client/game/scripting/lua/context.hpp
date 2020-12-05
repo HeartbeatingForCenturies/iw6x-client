@@ -5,6 +5,8 @@
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
 
+#include "scheduler.hpp"
+
 namespace scripting::lua
 {
 	class context
@@ -13,8 +15,8 @@ namespace scripting::lua
 		context(const std::string& file);
 		~context();
 
-		context(context&&) noexcept = default;
-		context& operator=(context&&) noexcept = default;
+		context(context&&) noexcept = delete;
+		context& operator=(context&&) noexcept = delete;
 
 		context(const context&) = delete;
 		context& operator=(const context&) = delete;
@@ -24,5 +26,6 @@ namespace scripting::lua
 
 	private:
 		sol::state state_{};
+		scheduler scheduler_;
 	};
 }

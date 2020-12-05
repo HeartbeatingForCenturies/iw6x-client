@@ -8,9 +8,9 @@ namespace scripting::lua::engine
 {
 	namespace
 	{
-		std::vector<context>& get_scripts()
+		auto& get_scripts()
 		{
-			static std::vector<context> scripts{};
+			static std::vector<std::unique_ptr<context>> scripts{};
 			return scripts;
 		}
 
@@ -29,7 +29,7 @@ namespace scripting::lua::engine
 			{
 				if (script.size() > 4 && script.substr(script.find_last_of('.') + 1) == "lua")
 				{
-					get_scripts().emplace_back(script);
+					get_scripts().push_back(std::make_unique<context>(script));
 				}
 			}
 		}
@@ -62,7 +62,7 @@ namespace scripting::lua::engine
 	{
 		for (auto& script : get_scripts())
 		{
-			script.notify(e);
+			script->notify(e);
 		}
 	}
 
@@ -70,7 +70,7 @@ namespace scripting::lua::engine
 	{
 		for (auto& script : get_scripts())
 		{
-			script.run_frame();
+			script->run_frame();
 		}
 	}
 }
