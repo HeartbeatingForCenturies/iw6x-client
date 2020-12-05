@@ -43,14 +43,7 @@ namespace scripting::lua::engine
 			return;
 		}
 
-		try
-		{
-			load_scripts();
-		}
-		catch(std::exception&)
-		{
-
-		}
+		load_scripts();
 	}
 
 	void stop()

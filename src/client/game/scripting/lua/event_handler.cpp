@@ -1,5 +1,6 @@
 #include "std_include.hpp"
 #include "context.hpp"
+#include "error.hpp"
 #include "value_conversion.hpp"
 
 namespace scripting::lua
@@ -45,8 +46,7 @@ namespace scripting::lua
 				}
 				catch (std::exception& e)
 				{
-					printf("%s\n", e.what());
-					//throw std::runtime_error(e.pretty_print());
+					handle_error(e);
 				}
 			}
 		}

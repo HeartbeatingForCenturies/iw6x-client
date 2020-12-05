@@ -1,5 +1,6 @@
 #include <std_include.hpp>
 #include "context.hpp"
+#include "error.hpp"
 #include "value_conversion.hpp"
 
 #include "../execution.hpp"
@@ -98,10 +99,23 @@ namespace scripting::lua
 		, event_handler_(state_)
 
 	{
-		this->state_.open_libraries(sol::lib::base, sol::lib::package);
+		this->state_.open_libraries(sol::lib::base,
+			sol::lib::package,
+			sol::lib::io,
+			sol::lib::string,
+			sol::lib::os,
+			sol::lib::math);
+		
 		setup_entity_type(this->state_, this->event_handler_);
-
-		this->state_.safe_script_file(file);
+		
+		try
+		{
+			this->state_.safe_script_file(file);
+		}
+		catch(std::exception& e)
+		{
+			handle_error(e);
+		}
 	}
 
 	context::~context()

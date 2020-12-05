@@ -1,5 +1,6 @@
 #include "std_include.hpp"
 #include "context.hpp"
+#include "error.hpp"
 
 namespace scripting::lua
 {
@@ -36,7 +37,14 @@ namespace scripting::lua
 					this->tasks_.remove(task);
 				}
 
-				task->callback();
+				try
+				{
+					task->callback();
+				}
+				catch(std::exception& e)
+				{
+					handle_error(e);
+				}
 			}
 		}
 	}
