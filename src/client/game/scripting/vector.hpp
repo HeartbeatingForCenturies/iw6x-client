@@ -17,6 +17,14 @@ namespace scripting
 		game::vec_t& operator[](size_t i);
 		const game::vec_t& operator[](size_t i) const;
 
+		float get_x() const;
+		float get_y() const;
+		float get_z() const;
+		
+		void set_x(float value);
+		void set_y(float value);
+		void set_z(float value);
+		
 	private:
 		game::vec3_t value_{0};
 	};

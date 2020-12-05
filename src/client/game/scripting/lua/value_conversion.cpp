@@ -40,7 +40,10 @@ namespace scripting::lua
 			return {value.as<entity>()};
 		}
 
-		// TODO: Convert vector
+		if (value.is<vector>())
+		{
+			return {value.as<vector>()};
+		}
 		
 		return {};
 	}
@@ -67,7 +70,10 @@ namespace scripting::lua
 			return {state, value.as<entity>()};
 		}
 
-		// TODO: Support vector
+		if(value.is<vector>())
+		{
+			return {state, value.as<vector>()};
+		}
 
 		return {};
 	}

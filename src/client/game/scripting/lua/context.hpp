@@ -6,6 +6,7 @@
 #include <sol/sol.hpp>
 
 #include "scheduler.hpp"
+#include "event_handler.hpp"
 
 namespace scripting::lua
 {
@@ -27,5 +28,6 @@ namespace scripting::lua
 	private:
 		sol::state state_{};
 		scheduler scheduler_;
+		event_handler event_handler_;
 	};
 }
