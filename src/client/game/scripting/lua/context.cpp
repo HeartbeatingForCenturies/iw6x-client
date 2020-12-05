@@ -38,7 +38,7 @@ namespace scripting::lua
 			{
 				std::vector<script_value> arguments{};
 
-				for(auto arg : va)
+				for (auto arg : va)
 				{
 					arguments.push_back(convert(arg));
 				}
@@ -46,37 +46,40 @@ namespace scripting::lua
 				notify(entity, event, arguments);
 			};
 
-			entity_type["onNotify"] = [&handler](const entity& entity, const std::string& event, const event_callback& callback)
+			entity_type["onNotify"] = [&handler](const entity& entity, const std::string& event,
+			                                     const event_callback& callback)
 			{
 				event_listener listener{};
 				listener.callback = callback;
 				listener.entity_id = entity.get_entity_id();
 				listener.event = event;
 				listener.is_volatile = false;
-				
+
 				return handler.add_event_listener(std::move(listener));
 			};
 
-			entity_type["onNotifyOnce"] = [&handler](const entity& entity, const std::string& event, const event_callback& callback)
+			entity_type["onNotifyOnce"] = [&handler](const entity& entity, const std::string& event,
+			                                         const event_callback& callback)
 			{
 				event_listener listener{};
 				listener.callback = callback;
 				listener.entity_id = entity.get_entity_id();
 				listener.event = event;
 				listener.is_volatile = true;
-				
+
 				return handler.add_event_listener(std::move(listener));
 			};
 
-			entity_type["call"] = [](const entity& entity, const sol::this_state s, const std::string& function, sol::variadic_args va)
+			entity_type["call"] = [](const entity& entity, const sol::this_state s, const std::string& function,
+			                         sol::variadic_args va)
 			{
 				std::vector<script_value> arguments{};
 
-				for(auto arg : va)
+				for (auto arg : va)
 				{
 					arguments.push_back(convert(arg));
 				}
-				
+
 				return convert(s, entity.call(function, arguments));
 			};
 
@@ -84,11 +87,11 @@ namespace scripting::lua
 			{
 				std::vector<script_value> arguments{};
 
-				for(auto arg : va)
+				for (auto arg : va)
 				{
 					arguments.push_back(convert(arg));
 				}
-				
+
 				return convert(s, call(function, arguments));
 			};
 		}
@@ -96,23 +99,23 @@ namespace scripting::lua
 
 	context::context(const std::string& file)
 		: scheduler_(state_)
-		, event_handler_(state_)
+		  , event_handler_(state_)
 
 	{
 		this->state_.open_libraries(sol::lib::base,
-			sol::lib::package,
-			sol::lib::io,
-			sol::lib::string,
-			sol::lib::os,
-			sol::lib::math);
-		
+		                            sol::lib::package,
+		                            sol::lib::io,
+		                            sol::lib::string,
+		                            sol::lib::os,
+		                            sol::lib::math);
+
 		setup_entity_type(this->state_, this->event_handler_);
-		
+
 		try
 		{
 			this->state_.safe_script_file(file);
 		}
-		catch(std::exception& e)
+		catch (std::exception& e)
 		{
 			handle_error(e);
 		}

@@ -44,7 +44,7 @@ namespace scripting::lua
 		{
 			return {value.as<vector>()};
 		}
-		
+
 		return {};
 	}
 
@@ -70,7 +70,7 @@ namespace scripting::lua
 			return {state, value.as<entity>()};
 		}
 
-		if(value.is<vector>())
+		if (value.is<vector>())
 		{
 			return {state, value.as<vector>()};
 		}

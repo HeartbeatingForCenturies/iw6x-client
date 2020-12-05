@@ -15,12 +15,12 @@ namespace scripting::lua
 
 		state["setTimeout"] = [this](const std::function<void()>& callback, const long long milliseconds)
 		{
-		  return this->add(callback, milliseconds, true);
+			return this->add(callback, milliseconds, true);
 		};
 
 		state["setInterval"] = [this](const std::function<void()>& callback, const long long milliseconds)
 		{
-		  return this->add(callback, milliseconds, false);
+			return this->add(callback, milliseconds, false);
 		};
 	}
 
@@ -41,7 +41,7 @@ namespace scripting::lua
 				{
 					task->callback();
 				}
-				catch(std::exception& e)
+				catch (std::exception& e)
 				{
 					handle_error(e);
 				}
