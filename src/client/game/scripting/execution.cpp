@@ -81,7 +81,7 @@ namespace scripting
 		const auto function = find_function(name, !is_method_call);
 		if (!function)
 		{
-			return {};
+			throw std::runtime_error(utils::string::va("Unknown function %s", name.data()));
 		}
 
 		stack_isolation _;
