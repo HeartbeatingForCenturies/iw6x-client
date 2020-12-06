@@ -18,27 +18,136 @@ namespace exception
 {
 	namespace
 	{
-		void display_error_dialog(const LPEXCEPTION_POINTERS exceptioninfo)
+		thread_local struct
 		{
-			std::string error_str = "Termination because of a stack overflow.";
-			if (exceptioninfo->ExceptionRecord->ExceptionCode != EXCEPTION_STACK_OVERFLOW)
-			{
-				error_str = utils::string::va("Fatal error (0x%08X) at 0x%p.",
-				                              exceptioninfo->ExceptionRecord->ExceptionCode,
-				                              exceptioninfo->ExceptionRecord->ExceptionAddress);
+			DWORD code = 0;
+			PVOID address = nullptr;
+		} exception_data;
 
-				error_str += "\n\n";
-				if (!system_check::is_valid())
+		struct
+		{
+			std::chrono::time_point<std::chrono::high_resolution_clock> last_recovery{};
+			std::atomic<int> recovery_counts = {0};
+		} recovery_data;
+
+		bool is_game_thread()
+		{
+			const auto self_id = GetCurrentThreadId();
+			for (int i = 0; i < game::THREAD_CONTEXT_COUNT; ++i)
+			{
+				if (game::threadIds[i] == self_id)
 				{
-					error_str += "Make sure to get supported game files to avoid such crashes!";
-				}
-				else
-				{
-					error_str += "Make sure to update your graphics card drivers and install operating system updates!";
+					return true;
 				}
 			}
 
+			return false;
+		}
+
+		bool is_exception_interval_too_short()
+		{
+			const auto delta = std::chrono::high_resolution_clock::now() - recovery_data.last_recovery;
+			return delta < 1min;
+		}
+
+		bool too_many_exceptions_occured()
+		{
+			return recovery_data.recovery_counts >= 3;
+		}
+
+		bool is_recoverable()
+		{
+			return is_game_thread()
+				&& !is_exception_interval_too_short()
+				&& !too_many_exceptions_occured()
+				&& game::Live_SyncOnlineDataFlags(0) == 0; // Game must be initialized
+		}
+
+		void show_mouse_cursor()
+		{
+			while (ShowCursor(TRUE) < 0);
+		}
+
+		void display_error_dialog()
+		{
+			std::string error_str = utils::string::va("Fatal error (0x%08X) at 0x%p.\n"
+			                                          "A minidump has been written.\n\n",
+			                                          exception_data.code, exception_data.address);
+
+			if (!system_check::is_valid())
+			{
+				error_str += "Make sure to get supported game files to avoid such crashes!";
+			}
+			else
+			{
+				error_str += "Make sure to update your graphics card drivers and install operating system updates!";
+			}
+
+			utils::thread::suspend_other_threads();
+			show_mouse_cursor();
+
 			MessageBoxA(nullptr, error_str.data(), "ERROR", MB_ICONERROR);
+			TerminateProcess(GetCurrentProcess(), exception_data.code);
+		}
+
+		void relaunch_self()
+		{
+			const utils::nt::library self;
+
+			STARTUPINFOA startup_info;
+			PROCESS_INFORMATION process_info;
+
+			ZeroMemory(&startup_info, sizeof(startup_info));
+			ZeroMemory(&process_info, sizeof(process_info));
+			startup_info.cb = sizeof(startup_info);
+
+			char current_dir[MAX_PATH];
+			GetCurrentDirectoryA(sizeof(current_dir), current_dir);
+			auto* const command_line = GetCommandLineA();
+
+			CreateProcessA(self.get_path().data(), command_line, nullptr, nullptr, false, NULL, nullptr, current_dir,
+			               &startup_info, &process_info);
+
+			if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE) CloseHandle(process_info.hThread);
+			if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE)
+				CloseHandle(
+					process_info.hProcess);
+		}
+
+		void reset_state()
+		{
+			// TODO: Add a limit for dedi restarts
+			if (game::environment::is_dedi())
+			{
+				relaunch_self();
+				TerminateProcess(GetCurrentProcess(), exception_data.code);
+			}
+
+			if (is_recoverable())
+			{
+				recovery_data.last_recovery = std::chrono::high_resolution_clock::now();
+				++recovery_data.recovery_counts;
+				game::Com_Error(game::ERR_DROP, "Fatal error (0x%08X) at 0x%p.\nA minidump has been written.\n\n"
+				                "IW6x has tried to recover your game, but it might not run stable anymore.\n\n"
+				                "Make sure to update your graphics card drivers and install operating system updates!",
+				                exception_data.code, exception_data.address);
+			}
+			else
+			{
+				display_error_dialog();
+			}
+		}
+
+		size_t get_reset_state_stub()
+		{
+			static auto* stub = utils::hook::assemble([](utils::hook::assembler& a)
+			{
+				a.sub(rsp, 0x10);
+				a.or_(rsp, 0x8);
+				a.jmp(reset_state);
+			});
+
+			return reinterpret_cast<size_t>(stub);
 		}
 
 		std::string get_timestamp()
@@ -94,11 +203,6 @@ namespace exception
 			zip_file.write(crash_name, "IW6x Crash Dump");
 		}
 
-		void show_mouse_cursor()
-		{
-			while (ShowCursor(TRUE) < 0);
-		}
-
 		bool is_harmless_error(const LPEXCEPTION_POINTERS exceptioninfo)
 		{
 			const auto code = exceptioninfo->ExceptionRecord->ExceptionCode;
@@ -107,21 +211,18 @@ namespace exception
 
 		LONG WINAPI exception_filter(const LPEXCEPTION_POINTERS exceptioninfo)
 		{
+			if (is_harmless_error(exceptioninfo))
 			{
-				if (is_harmless_error(exceptioninfo))
-				{
-					return EXCEPTION_CONTINUE_EXECUTION;
-				}
-
-				utils::thread::suspend_other_threads();
-				show_mouse_cursor();
-
-				write_minidump(exceptioninfo);
-				display_error_dialog(exceptioninfo);
+				return EXCEPTION_CONTINUE_EXECUTION;
 			}
 
-			TerminateProcess(GetCurrentProcess(), exceptioninfo->ExceptionRecord->ExceptionCode);
-			return EXCEPTION_CONTINUE_SEARCH;
+			write_minidump(exceptioninfo);
+
+			exception_data.code = exceptioninfo->ExceptionRecord->ExceptionCode;
+			exception_data.address = exceptioninfo->ExceptionRecord->ExceptionAddress;
+			exceptioninfo->ContextRecord->Rip = get_reset_state_stub();
+
+			return EXCEPTION_CONTINUE_EXECUTION;
 		}
 
 		LPTOP_LEVEL_EXCEPTION_FILTER WINAPI set_unhandled_exception_filter_stub(LPTOP_LEVEL_EXCEPTION_FILTER)
