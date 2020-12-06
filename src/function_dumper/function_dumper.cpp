@@ -58,7 +58,7 @@ void foreach_linker_line(const std::string& linker_map, const std::function<void
 std::unordered_map<uint64_t, std::string> parse_linker_functions(const std::string& linker_map)
 {
 	std::unordered_map<uint64_t, std::string> result{};
-	std::regex function_matcher{R"(\s0001:[0-9a-f]+\s+([^ ]+) ([0-9a-f]+) f\s+.*)"};
+	std::regex function_matcher{R"(\s0001:[0-9a-f]+\s+([^]+) ([0-9a-f]+) f\s+.*)"};
 
 	foreach_linker_line(linker_map, [&](const std::string& line)
 	{
