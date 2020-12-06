@@ -38,18 +38,18 @@ namespace console
 
 		void pre_destroy() override
 		{
-			this->terminate_runner_ = true;
-
 			printf("\r\n");
 			_flushall();
 
-			_close(this->handles_[0]);
-			_close(this->handles_[1]);
+			this->terminate_runner_ = true;
 
 			if (this->console_runner_.joinable())
 			{
 				this->console_runner_.join();
 			}
+
+			_close(this->handles_[0]);
+			_close(this->handles_[1]);
 		}
 
 		void post_unpack() override

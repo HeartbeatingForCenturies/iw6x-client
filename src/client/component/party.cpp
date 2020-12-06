@@ -48,6 +48,17 @@ namespace party
 			}
 		}
 
+		void perform_game_initialization()
+		{
+			// This fixes several crashes and impure client stuff
+			command::execute("onlinegame 1", true);
+			command::execute("exec default_xboxlive.cfg", true);
+			command::execute("xstartprivateparty", true);
+			command::execute("xblive_rankedmatch 1", true);
+			command::execute("xblive_privatematch 1", true);
+			command::execute("startentitlements", true);
+		}
+
 		void connect_to_party(const game::netadr_s& target, const std::string& mapname, const std::string& gametype)
 		{
 			if (game::environment::is_sp())
@@ -65,14 +76,7 @@ namespace party
 			}
 
 			switch_gamemode_if_necessary(gametype);
-
-			// This fixes several crashes and impure client stuff
-			command::execute("onlinegame 1", true);
-			command::execute("exec default_xboxlive.cfg", true);
-			command::execute("xstartprivateparty", true);
-			command::execute("xblive_rankedmatch 1", true);
-			command::execute("xblive_privatematch 1", true);
-			command::execute("startentitlements", true);
+			perform_game_initialization();
 
 			// CL_ConnectFromParty
 			char session_info[0x100] = {};
@@ -154,6 +158,11 @@ namespace party
 		{
 			printf("Starting map: %s\n", mapname.data());
 			switch_gamemode_if_necessary(get_dvar_string("g_gametype"));
+
+			if (!game::environment::is_dedi())
+			{
+				perform_game_initialization();
+			}
 
 			// This is bad, but it works for now
 			if (arxan::save_state())
