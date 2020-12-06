@@ -3,6 +3,8 @@
 #include <mutex>
 #include <memory>
 
+// This class is trash. Need to get rid of it.
+
 namespace utils
 {
 	template <typename T>
@@ -82,13 +84,13 @@ namespace utils
 
 		element begin()
 		{
-			std::lock_guard _(this->mutex_);
+			std::lock_guard<std::recursive_mutex> _(this->mutex_);
 			return this->entry_ ? *this->entry_ : this->end();
 		}
 
 		element end()
 		{
-			std::lock_guard _(this->mutex_);
+			std::lock_guard<std::recursive_mutex> _(this->mutex_);
 			return element(&this->mutex_);
 		}
 
@@ -115,9 +117,17 @@ namespace utils
 
 		void add(const T& object)
 		{
-			std::lock_guard _(this->mutex_);
+			std::lock_guard<std::recursive_mutex> _(this->mutex_);
 
 			const auto object_ptr = std::make_shared<T>(object);
+			this->entry_ = std::make_shared<element>(&this->mutex_, object_ptr, this->entry_);
+		}
+
+		void add(T&& object)
+		{
+			std::lock_guard _(this->mutex_);
+
+			const auto object_ptr = std::make_shared<T>(std::move(object));
 			this->entry_ = std::make_shared<element>(&this->mutex_, object_ptr, this->entry_);
 		}
 

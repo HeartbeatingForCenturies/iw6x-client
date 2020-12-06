@@ -54,9 +54,10 @@ namespace scripting::lua
 
 	event_listener_handle event_handler::add_event_listener(event_listener&& listener)
 	{
-		listener.id = ++this->current_listener_id_;
-		this->event_listeners_.add(listener);
-		return {listener.id};
+		const uint64_t id = ++this->current_listener_id_;
+		listener.id = id;
+		this->event_listeners_.add(std::move(listener));
+		return {id};
 	}
 
 	void event_handler::clear()
