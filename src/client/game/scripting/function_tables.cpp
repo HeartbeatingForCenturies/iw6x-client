@@ -15,6 +15,7 @@ namespace scripting
 		{"addStruct", 395},
 		{"addTestClient", 352},
 		{"allClientsPrint", 355},
+		{"ambientPlay", 280},
 		{"ambientStop", 312},
 		{"angleClamp180", 221},
 		{"angleClamp360", 220},
