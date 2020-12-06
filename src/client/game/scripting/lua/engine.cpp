@@ -43,6 +43,7 @@ namespace scripting::lua::engine
 			return;
 		}
 
+		get_scripts().clear();
 		load_scripts();
 	}
 
