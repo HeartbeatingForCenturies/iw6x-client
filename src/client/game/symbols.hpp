@@ -29,7 +29,8 @@ namespace game
 	WEAK Symbol<bool ()> CL_IsCgameInitialized{0x140234DA0, 0x1402B9A70};
 
 	WEAK Symbol<void (int localClientNum, const char* message)> CG_GameMessage{0x1401F2E20, 0x140271320};
-	WEAK Symbol<void (int localClientNum, mp::cg_s* cg, const char* dvar, const char* value)> CG_SetClientDvarFromServer{0x0, 0x14028A2C0 };
+	WEAK Symbol<void (int localClientNum, mp::cg_s* cg, const char* dvar, const char* value)> CG_SetClientDvarFromServer
+		{0x0, 0x14028A2C0};
 
 	WEAK Symbol<void (const char* cmdName, void (), cmd_function_s* allocedCmd)> Cmd_AddCommandInternal{
 		0x1403B3570, 0x1403F7070
@@ -66,7 +67,9 @@ namespace game
 	WEAK Symbol<void (dvar_t* dvar, bool value)> Dvar_SetBool{0x14042C370, 0x1404EF1A0};
 	WEAK Symbol<void (const char* dvar, const char* buffer)> Dvar_SetCommand{0x14042C8E0, 0x1404EF790};
 	WEAK Symbol<void (dvar_t* dvar, const char* string)> Dvar_SetString{0x14042D6E0, 0x1404F08E0};
-	WEAK Symbol<void (const char*, const char*, DvarSetSource)> Dvar_SetFromStringByNameFromSource{0x14042D000, 0x1404F00B0};
+	WEAK Symbol<void (const char*, const char*, DvarSetSource)> Dvar_SetFromStringByNameFromSource{
+		0x14042D000, 0x1404F00B0
+	};
 	WEAK Symbol<void ()> Dvar_Sort{0x14042DEF0, 0x1404F1210};
 	WEAK Symbol<const char*(dvar_t* dvar, dvar_value value)> Dvar_ValueToString{0x14042E710, 0x1404F1A30};
 
@@ -111,15 +114,17 @@ namespace game
 	WEAK Symbol<void (const char*, int, Font_s*, float, float, float, float, float, const float*, int, int, char)>
 	R_AddCmdDrawTextWithCursor{0x140534170, 0x1406013A0};
 	WEAK Symbol<Font_s*(const char* font)> R_RegisterFont{0x1405130B0, 0x1405DFAC0};
-	WEAK Symbol<void()> R_SyncRenderThread{ 0x140535AF0, 0x140602D30 };
+	WEAK Symbol<void()> R_SyncRenderThread{0x140535AF0, 0x140602D30};
 	WEAK Symbol<int (const char* text, int maxChars, Font_s* font)> R_TextWidth{0x140513390, 0x1405DFDB0};
 
 	WEAK Symbol<ScreenPlacement*()> ScrPlace_GetViewPlacement{0x14024D150, 0x1402F6D40};
 
 	WEAK Symbol<unsigned int (unsigned int parentId, unsigned int name)> FindVariable{0x1403D84F0, 0x1404334A0};
-	WEAK Symbol<void (VariableValue *result, unsigned int classnum, int entnum, int offset)> GetEntityFieldValue{0x1403DC810, 0x140437860};
-	WEAK Symbol<const float * (const float *v)> Scr_AllocVector{0x1403D9AF0, 0x140434A10};
-	WEAK Symbol<const char* (int index)> Scr_GetString{0, 0x140439160};
+	WEAK Symbol<void (VariableValue* result, unsigned int classnum, int entnum, int offset)> GetEntityFieldValue{
+		0x1403DC810, 0x140437860
+	};
+	WEAK Symbol<const float *(const float* v)> Scr_AllocVector{0x1403D9AF0, 0x140434A10};
+	WEAK Symbol<const char*(int index)> Scr_GetString{0, 0x140439160};
 	WEAK Symbol<float (int index)> Scr_GetFloat{0, 0x140438D60};
 	WEAK Symbol<int ()> Scr_GetNumParam{0x1403DDF60, 0x140438EC0};
 	WEAK Symbol<void ()> Scr_ClearOutParams{0x1403DD500, 0x140438600};
@@ -195,7 +200,9 @@ namespace game
 	WEAK Symbol<scrVmPub_t> scr_VmPub{0x1455B1FA0, 0x144D4B090};
 	WEAK Symbol<unsigned int> scr_levelEntityId{0x1452A9F30, 0x144A43020};
 
-	WEAK Symbol<GfxDrawMethod_s> gfxDrawMethod{ 0x145F525A8, 0x1480350D8 };
+	WEAK Symbol<DWORD> threadIds{0x144DE6640, 0x1446B4960};
+
+	WEAK Symbol<GfxDrawMethod_s> gfxDrawMethod{0x145F525A8, 0x1480350D8};
 
 	namespace sp
 	{

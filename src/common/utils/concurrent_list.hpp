@@ -24,7 +24,7 @@ namespace utils
 
 			void remove(const std::shared_ptr<T>& element)
 			{
-				std::lock_guard _(*this->mutex_);
+				std::lock_guard<std::recursive_mutex> _(*this->mutex_);
 				if (!this->next_) return;
 
 				if (this->next_->entry_.get() == element.get())
@@ -39,26 +39,26 @@ namespace utils
 
 			[[nodiscard]] std::shared_ptr<element> get_next() const
 			{
-				std::lock_guard _(*this->mutex_);
+				std::lock_guard<std::recursive_mutex> _(*this->mutex_);
 				return this->next_;
 			}
 
 			std::shared_ptr<T> operator*() const
 			{
-				std::lock_guard _(*this->mutex_);
+				std::lock_guard<std::recursive_mutex> _(*this->mutex_);
 				return this->entry_;
 			}
 
 			element& operator++()
 			{
-				std::lock_guard _(*this->mutex_);
+				std::lock_guard<std::recursive_mutex> _(*this->mutex_);
 				*this = this->next_ ? *this->next_ : element(this->mutex_);
 				return *this;
 			}
 
 			element operator++(int)
 			{
-				std::lock_guard _(*this->mutex_);
+				std::lock_guard<std::recursive_mutex> _(*this->mutex_);
 				auto result = *this;
 				this->operator++();
 				return result;
@@ -66,13 +66,13 @@ namespace utils
 
 			bool operator==(const element& other)
 			{
-				std::lock_guard _(*this->mutex_);
+				std::lock_guard<std::recursive_mutex> _(*this->mutex_);
 				return this->entry_.get() == other.entry_.get();
 			}
 
 			bool operator!=(const element& other)
 			{
-				std::lock_guard _(*this->mutex_);
+				std::lock_guard<std::recursive_mutex> _(*this->mutex_);
 				return !(*this == other);
 			}
 
@@ -96,13 +96,13 @@ namespace utils
 
 		void remove(const element& entry)
 		{
-			std::lock_guard _(this->mutex_);
+			std::lock_guard<std::recursive_mutex> _(this->mutex_);
 			this->remove(*entry);
 		}
 
 		void remove(const std::shared_ptr<T>& element)
 		{
-			std::lock_guard _(this->mutex_);
+			std::lock_guard<std::recursive_mutex> _(this->mutex_);
 			if (!this->entry_) return;
 
 			if ((**this->entry_).get() == element.get())
@@ -125,7 +125,7 @@ namespace utils
 
 		void add(T&& object)
 		{
-			std::lock_guard _(this->mutex_);
+			std::lock_guard<std::recursive_mutex> _(this->mutex_);
 
 			const auto object_ptr = std::make_shared<T>(std::move(object));
 			this->entry_ = std::make_shared<element>(&this->mutex_, object_ptr, this->entry_);
@@ -133,7 +133,7 @@ namespace utils
 
 		void clear()
 		{
-			std::lock_guard _(this->mutex_);
+			std::lock_guard<std::recursive_mutex> _(this->mutex_);
 			this->entry_ = {};
 		}
 

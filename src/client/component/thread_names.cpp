@@ -45,7 +45,7 @@ namespace thread_names
 
 			for (const auto& thread_name : thread_names)
 			{
-				const auto id = PDWORD(SELECT_VALUE(0x144DE6640, 0x1446B4960))[thread_name.first];
+				const auto id = game::threadIds[thread_name.first];
 				if (id)
 				{
 					utils::thread::set_name(id, thread_name.second);

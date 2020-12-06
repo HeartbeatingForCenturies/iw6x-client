@@ -6,7 +6,6 @@
 #include "network.hpp"
 #include "scheduler.hpp"
 #include "server_list.hpp"
-#include "arxan.hpp"
 
 #include "steam/steam.hpp"
 
@@ -164,13 +163,6 @@ namespace party
 				perform_game_initialization();
 			}
 
-			// This is bad, but it works for now
-			if (arxan::save_state())
-			{
-				arxan::trigger_reset_error();
-				return;
-			}
-
 			game::SV_StartMapForParty(0, mapname.data(), false, false);
 		}
 	}
@@ -236,13 +228,13 @@ namespace party
 					printf("usage: clientkick <num>\n");
 					return;
 				}
-				const auto clientNum = atoi(params.get(1));
-				if (clientNum < 0 || clientNum >= *game::mp::svs_numclients)
+				const auto client_num = atoi(params.get(1));
+				if (client_num < 0 || client_num >= *game::mp::svs_numclients)
 				{
 					return;
 				}
 
-				game::SV_KickClientNum(clientNum, "EXE_PLAYERKICKED");
+				game::SV_KickClientNum(client_num, "EXE_PLAYERKICKED");
 			});
 
 			command::add("kick", [](const command::params& params)
@@ -263,13 +255,13 @@ namespace party
 					return;
 				}
 
-				const auto clientNum = get_client_num_from_name(name);
-				if (clientNum < 0 || clientNum >= *game::mp::svs_numclients)
+				const auto client_num = get_client_num_from_name(name);
+				if (client_num < 0 || client_num >= *game::mp::svs_numclients)
 				{
 					return;
 				}
 
-				game::SV_KickClientNum(clientNum, "EXE_PLAYERKICKED");
+				game::SV_KickClientNum(client_num, "EXE_PLAYERKICKED");
 			});
 
 			scheduler::once([]()
@@ -286,13 +278,13 @@ namespace party
 					return;
 				}
 
-				const auto clientNum = atoi(params.get(1));
+				const auto client_num = atoi(params.get(1));
 				const auto message = params.join(2);
 				const auto* const name = game::Dvar_FindVar("sv_sayName")->current.string;
 
-				game::SV_GameSendServerCommand(clientNum, 0,
+				game::SV_GameSendServerCommand(client_num, 0,
 				                               utils::string::va("%c \"%s: %s\"", 84, name, message.data()));
-				printf("%s -> %i: %s\n", name, clientNum, message.data());
+				printf("%s -> %i: %s\n", name, client_num, message.data());
 			});
 
 			command::add("tellraw", [](const command::params& params)
@@ -302,11 +294,11 @@ namespace party
 					return;
 				}
 
-				const auto clientNum = atoi(params.get(1));
+				const auto client_num = atoi(params.get(1));
 				const auto message = params.join(2);
 
-				game::SV_GameSendServerCommand(clientNum, 0, utils::string::va("%c \"%s\"", 84, message.data()));
-				printf("%i: %s\n", clientNum, message.data());
+				game::SV_GameSendServerCommand(client_num, 0, utils::string::va("%c \"%s\"", 84, message.data()));
+				printf("%i: %s\n", client_num, message.data());
 			});
 
 			command::add("say", [](const command::params& params)
