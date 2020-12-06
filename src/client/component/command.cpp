@@ -178,7 +178,7 @@ namespace command
 		});
 	}
 
-	void add_sv(const char* name, std::function<void(int, params_sv&)> callback)
+	void add_sv(const char* name, std::function<void(int, const params_sv&)> callback)
 	{
 		// doing this so the sv command would show up in the console
 		add_raw(name, nullptr);
@@ -294,7 +294,7 @@ namespace command
 		{
 			client_command_hook.create(0x1403929B0, &client_command);
 
-			add_sv("god", [&](const int client_num, params_sv&)
+			add_sv("god", [&](const int client_num, const params_sv&)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
@@ -310,7 +310,7 @@ namespace command
 					                                                 : "^1off"));
 			});
 
-			add_sv("noclip", [&](const int client_num, params_sv&)
+			add_sv("noclip", [&](const int client_num, const params_sv&)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
@@ -326,7 +326,7 @@ namespace command
 					                                                 : "^1off"));
 			});
 
-			add_sv("ufo", [&](const int client_num, params_sv&)
+			add_sv("ufo", [&](const int client_num, const params_sv&)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
@@ -342,7 +342,7 @@ namespace command
 					                                                 : "^1off"));
 			});
 
-			add_sv("setviewpos", [&](const int client_num, params_sv& params)
+			add_sv("setviewpos", [&](const int client_num, const params_sv& params)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
@@ -362,7 +362,7 @@ namespace command
 				game::mp::g_entities[client_num].client->ps.origin[2] = std::strtof(params.get(3), nullptr);
 			});
 
-			add_sv("setviewang", [&](const int client_num, params_sv& params)
+			add_sv("setviewang", [&](const int client_num, const params_sv& params)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
@@ -382,7 +382,7 @@ namespace command
 				game::mp::g_entities[client_num].client->ps.delta_angles[2] = std::strtof(params.get(3), nullptr);
 			});
 
-			add_sv("give", [](const int client_num, params_sv& params)
+			add_sv("give", [](const int client_num, const params_sv& params)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
@@ -405,7 +405,7 @@ namespace command
 				}
 			});
 
-			add_sv("take", [](const int client_num, params_sv& params)
+			add_sv("take", [](const int client_num, const params_sv& params)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
