@@ -192,6 +192,18 @@ namespace patches
 		{
 			return game::Dvar_RegisterFloat(name, value, min, 160, flags | 1, description);
 		}
+
+		void bsp_sys_error_stub(const char* error, const char* arg1)
+		{
+			if (game::environment::is_dedi())
+			{
+				game::Sys_Error(error, arg1);
+			}
+			else
+			{
+				game::Com_Error(game::ERR_DROP, error, arg1);
+			}
+		}
 	}
 
 	class component final : public component_interface
@@ -352,6 +364,9 @@ namespace patches
 			                                                   "Enables aim assist for controllers");
 			//client side aim assist dvar
 			utils::hook::call(0x14013B9AC, aim_assist_add_to_target_list);
+
+			// patch "Couldn't find the bsp for this map." error to not be fatal in mp
+			utils::hook::call(0x14031E8AB, bsp_sys_error_stub);
 		}
 
 		static void patch_sp()

@@ -150,6 +150,7 @@ namespace game
 	WEAK Symbol<void (int index, const char* string)> SV_SetConfigstring{0, 0x140477450};
 	WEAK Symbol<void (mp::gentity_s*)> SV_SpawnTestClient{0, 0x1404740A0};
 
+	WEAK Symbol<void (const char* error, ...)> Sys_Error{0x14043AC20, 0x1404FF510};
 	WEAK Symbol<bool ()> Sys_IsDatabaseReady2{0x1403C2D40, 0x140423920};
 	WEAK Symbol<int ()> Sys_Milliseconds{0x14043D2A0, 0x140501CA0};
 	WEAK Symbol<void()> Sys_ShowConsole{0x14043E650, 0x140503130};
