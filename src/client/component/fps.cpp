@@ -5,8 +5,8 @@
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 
-#include "utils/hook.hpp"
-#include "utils/string.hpp"
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 namespace fps
 {
@@ -19,18 +19,18 @@ namespace fps
 		struct cg_perf_data
 		{
 			std::chrono::time_point<std::chrono::steady_clock> perf_start;
-			std::int32_t current_ms;
-			std::int32_t previous_ms;
-			std::int32_t frame_ms;
-			std::int32_t history[32];
-			std::int32_t count;
-			std::int32_t index;
-			std::int32_t instant;
-			std::int32_t total;
-			float average;
-			float variance;
-			std::int32_t min;
-			std::int32_t max;
+			std::int32_t current_ms{};
+			std::int32_t previous_ms{};
+			std::int32_t frame_ms{};
+			std::int32_t history[32]{};
+			std::int32_t count{};
+			std::int32_t index{};
+			std::int32_t instant{};
+			std::int32_t total{};
+			float average{};
+			float variance{};
+			std::int32_t min{};
+			std::int32_t max{};
 		};
 
 		cg_perf_data cg_perf = cg_perf_data();
@@ -97,7 +97,7 @@ namespace fps
 				auto* font = game::R_RegisterFont("fonts/normalfont");
 				if (!font) return;
 
-				auto* const fps_string = utils::string::va("%i", fps);
+				const auto* const fps_string = utils::string::va("%i", fps);
 
 				const auto scale = 1.0f;
 
@@ -110,10 +110,13 @@ namespace fps
 
 				if (game::mp::g_entities && draw_fps->current.integer > 1 && game::SV_Loaded())
 				{
-					auto* const origin_string = utils::string::va("%f, %f, %f",
-					                                              game::mp::g_entities[0].client->ps.origin[0],
-					                                              game::mp::g_entities[0].client->ps.origin[1],
-					                                              game::mp::g_entities[0].client->ps.origin[2]);
+					const auto* const origin_string = utils::string::va("%f, %f, %f",
+					                                                    game::mp::g_entities[0].client->ps.origin[0] *
+					                                                    1.0,
+					                                                    game::mp::g_entities[0].client->ps.origin[1] *
+					                                                    1.0,
+					                                                    game::mp::g_entities[0].client->ps.origin[2] *
+					                                                    1.0);
 					const auto origin_x = (game::ScrPlace_GetViewPlacement()->realViewportSize[0] - 10.0f) -
 						game::R_TextWidth(origin_string, 0x7FFFFFFF, font) * scale;
 					game::R_AddCmdDrawText(origin_string, 0x7FFFFFFF, font, origin_x, y + 50, scale, scale, 0.0f,
@@ -127,7 +130,7 @@ namespace fps
 			const auto* draw_ping = game::Dvar_FindVar("cg_drawPing");
 			if (draw_ping && draw_ping->current.integer != 0 && game::CL_IsCgameInitialized())
 			{
-				int ping = *reinterpret_cast<int *>(0x1419E5100);
+				const auto ping = *reinterpret_cast<int*>(0x1419E5100);
 
 				auto* font = game::R_RegisterFont("fonts/normalfont");
 				if (!font) return;
@@ -137,7 +140,7 @@ namespace fps
 				const auto scale = 1.0f;
 
 				const auto x = (game::ScrPlace_GetViewPlacement()->realViewportSize[0] - 375.0f) - game::R_TextWidth(
-				ping_string, 0x7FFFFFFF, font) * scale;
+					ping_string, 0x7FFFFFFF, font) * scale;
 
 				const auto y = font->pixelHeight * 1.2f;
 
@@ -145,7 +148,7 @@ namespace fps
 			}
 		}
 
-		void cg_draw_fps_register_stub(const char* name, const char** _enum, const int value, unsigned int flags,
+		void cg_draw_fps_register_stub(const char* name, const char** _enum, const int value, unsigned int /*flags*/,
 		                               const char* desc)
 		{
 			game::Dvar_RegisterEnum(name, _enum, value, 0x1, desc);

@@ -2,7 +2,9 @@
 #include "loader.hpp"
 #include "seh.hpp"
 #include "tls.hpp"
-#include "utils/string.hpp"
+
+#include <utils/string.hpp>
+#include <utils/hook.hpp>
 
 FARPROC loader::load(const utils::nt::library& library, const std::string& buffer) const
 {
@@ -14,41 +16,10 @@ FARPROC loader::load(const utils::nt::library& library, const std::string& buffe
 	this->load_sections(library, source);
 	this->load_imports(library, source);
 	this->load_exception_table(library, source);
+	this->load_tls(library, source);
 
-	if (source.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size)
-	{
-		auto* target_tls = tls::allocate_tls_index();
-		/* target_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(library.get_ptr() + library.get_optional_header()
-				   ->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress); */
-		auto* const source_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(library.get_ptr() + source.get_optional_header()
-			->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
-
-		const auto tls_size = source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData;
-		const auto tls_index = *reinterpret_cast<DWORD*>(target_tls->AddressOfIndex);
-		*reinterpret_cast<DWORD*>(source_tls->AddressOfIndex) = tls_index;
-
-		// I made sure it's large enough for IW6.
-		/*if (tls_size > TLS_PAYLOAD_SIZE)
-		{
-			throw std::runtime_error(utils::string::va(
-				"TLS data is of size 0x%X, but we have only reserved 0x%X bytes!", tls_size, TLS_PAYLOAD_SIZE));
-		}*/
-
-		DWORD old_protect;
-		VirtualProtect(PVOID(target_tls->StartAddressOfRawData),
-		               source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData, PAGE_READWRITE,
-		               &old_protect);
-
-		auto* const tls_base = *reinterpret_cast<LPVOID*>(__readgsqword(0x58) + 8ull * tls_index);
-		std::memmove(tls_base, PVOID(source_tls->StartAddressOfRawData), tls_size);
-		std::memmove(PVOID(target_tls->StartAddressOfRawData), PVOID(source_tls->StartAddressOfRawData), tls_size);
-
-		VirtualProtect(target_tls, sizeof(*target_tls), PAGE_READWRITE, &old_protect);
-		*target_tls = *source_tls;
-	}
-
-	DWORD oldProtect;
-	VirtualProtect(library.get_nt_headers(), 0x1000, PAGE_EXECUTE_READWRITE, &oldProtect);
+	DWORD old_protect;
+	VirtualProtect(library.get_nt_headers(), 0x1000, PAGE_EXECUTE_READWRITE, &old_protect);
 
 	library.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT] = source
 		.get_optional_header()->DataDirectory[
@@ -58,6 +29,20 @@ FARPROC loader::load(const utils::nt::library& library, const std::string& buffe
 		             IMAGE_SECTION_HEADER));
 
 	return FARPROC(library.get_ptr() + source.get_relative_entry_point());
+}
+
+FARPROC loader::load_library(const std::string& filename) const
+{
+	const auto target = utils::nt::library::load(filename);
+	if (!target)
+	{
+		throw std::runtime_error("Failed to map binary!");
+	}
+
+	this->load_imports(target, target);
+	this->load_tls(target, target);
+
+	return FARPROC(target.get_ptr() + target.get_relative_entry_point());
 }
 
 void loader::set_import_resolver(const std::function<void*(const std::string&, const std::string&)>& resolver)
@@ -149,7 +134,7 @@ void loader::load_imports(const utils::nt::library& target, const utils::nt::lib
 				                                           function_name.data(), name.data()));
 			}
 
-			*address_table_entry = reinterpret_cast<uintptr_t>(function);
+			utils::hook::set(address_table_entry, reinterpret_cast<uintptr_t>(function));
 
 			name_table_entry++;
 			address_table_entry++;
@@ -193,4 +178,39 @@ void loader::load_exception_table(const utils::nt::library& target, const utils:
 
 	seh::setup_handler(target.get_ptr(), target.get_ptr() + source.get_optional_header()->SizeOfImage, function_list,
 	                   entry_count);
+}
+
+void loader::load_tls(const utils::nt::library& target, const utils::nt::library& source) const
+{
+	if (source.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size)
+	{
+		auto* target_tls = tls::allocate_tls_index();
+		/* target_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(library.get_ptr() + library.get_optional_header()
+				   ->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress); */
+		auto* const source_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(target.get_ptr() + source.get_optional_header()
+			->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
+
+		const auto tls_size = source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData;
+		const auto tls_index = *reinterpret_cast<DWORD*>(target_tls->AddressOfIndex);
+		*reinterpret_cast<DWORD*>(source_tls->AddressOfIndex) = tls_index;
+
+		// I made sure it's large enough for IW6.
+		/*if (tls_size > TLS_PAYLOAD_SIZE)
+		{
+			throw std::runtime_error(utils::string::va(
+				"TLS data is of size 0x%X, but we have only reserved 0x%X bytes!", tls_size, TLS_PAYLOAD_SIZE));
+		}*/
+
+		DWORD old_protect;
+		VirtualProtect(PVOID(target_tls->StartAddressOfRawData),
+		               source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData, PAGE_READWRITE,
+		               &old_protect);
+
+		auto* const tls_base = *reinterpret_cast<LPVOID*>(__readgsqword(0x58) + 8ull * tls_index);
+		std::memmove(tls_base, PVOID(source_tls->StartAddressOfRawData), tls_size);
+		std::memmove(PVOID(target_tls->StartAddressOfRawData), PVOID(source_tls->StartAddressOfRawData), tls_size);
+
+		VirtualProtect(target_tls, sizeof(*target_tls), PAGE_READWRITE, &old_protect);
+		*target_tls = *source_tls;
+	}
 }

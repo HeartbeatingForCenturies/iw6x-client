@@ -1,7 +1,8 @@
 #include <std_include.hpp>
 
 #include "steam/steam.hpp"
-#include "utils/string.hpp"
+
+#include <utils/string.hpp>
 
 namespace steam
 {

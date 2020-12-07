@@ -1,5 +1,6 @@
 #include <std_include.hpp>
-#include "utils/string.hpp"
+#include <utils/string.hpp>
+
 #include "game.hpp"
 
 namespace dvars
@@ -18,6 +19,8 @@ namespace dvars
 	game::dvar_t* g_speed = nullptr;
 
 	game::dvar_t* pm_bouncing = nullptr;
+
+    game::dvar_t* r_fullbright = nullptr;
 
     game::dvar_t* aimassist_enabled = nullptr;
 

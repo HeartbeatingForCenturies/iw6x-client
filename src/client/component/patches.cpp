@@ -7,8 +7,8 @@
 #include "filesystem.hpp"
 #include "scheduler.hpp"
 
-#include "utils/hook.hpp"
-#include "utils/nt.hpp"
+#include <utils/hook.hpp>
+#include <utils/nt.hpp>
 
 namespace patches
 {
@@ -23,7 +23,7 @@ namespace patches
 
 		utils::hook::detour sv_kick_client_num_hook;
 
-		void sv_kick_client_num(int clientNum, const char* reason)
+		void sv_kick_client_num(const int clientNum, const char* reason)
 		{
 			// Don't kick bot to equalize team balance.
 			if (reason == "EXE_PLAYERKICKED_BOT_BALANCE"s)
@@ -35,28 +35,29 @@ namespace patches
 
 		utils::hook::detour dvar_register_int_hook;
 
-		game::dvar_t* dvar_register_int(const char* dvarName, int value, int min, int max, unsigned int flags,
+		game::dvar_t* dvar_register_int(const char* name, int value, const int min, const int max,
+		                                const unsigned int flags,
 		                                const char* description)
 		{
 			// enable map selection in extinction
-			if (!strcmp(dvarName, "extinction_map_selection_enabled"))
+			if (!strcmp(name, "extinction_map_selection_enabled"))
 			{
 				value = true;
 			}
 
 				// enable extra loadouts
-			else if (!strcmp(dvarName, "extendedLoadoutsEnable"))
+			else if (!strcmp(name, "extendedLoadoutsEnable"))
 			{
 				value = true;
 			}
 
 				// show all in-game store items
-			else if (strstr(dvarName, "igs_"))
+			else if (strstr(name, "igs_"))
 			{
 				value = true;
 			}
 
-			return dvar_register_int_hook.invoke<game::dvar_t*>(dvarName, value, min, max, flags, description);
+			return dvar_register_int_hook.invoke<game::dvar_t*>(name, value, min, max, flags, description);
 		}
 
 		game::dvar_t* register_fovscale_stub(const char* name, float /*value*/, float /*min*/, float /*max*/,
@@ -88,7 +89,7 @@ namespace patches
 
 		bool cmd_exec_patch()
 		{
-			command::params exec_params;
+			const command::params exec_params{};
 			if (exec_params.size() == 2)
 			{
 				std::string file_name = exec_params.get(1);
@@ -111,7 +112,7 @@ namespace patches
 			const auto success = a.newLabel();
 
 			a.pushad64();
-			a.call(cmd_exec_patch);
+			a.call_aligned(cmd_exec_patch);
 			a.test(al, al);
 			a.popad64();
 
@@ -128,7 +129,7 @@ namespace patches
 			const auto success = a.newLabel();
 
 			a.pushad64();
-			a.call(cmd_exec_patch);
+			a.call_aligned(cmd_exec_patch);
 			a.test(al, al);
 			a.popad64();
 
@@ -142,7 +143,7 @@ namespace patches
 
 		int dvar_command_patch() // game makes this return an int and compares with eax instead of al -_-
 		{
-			command::params args{};
+			const command::params args{};
 
 			if (args.size() <= 0)
 				return 0;
@@ -184,6 +185,25 @@ namespace patches
 
 			game::AimAssist_AddToTargetList(a1, a2);
 		}
+
+		game::dvar_t* register_cg_fov_stub(const char* name, float value, float min, float /*max*/,
+		                                   const unsigned int flags,
+		                                   const char* description)
+		{
+			return game::Dvar_RegisterFloat(name, value, min, 160, flags | 1, description);
+		}
+
+		void bsp_sys_error_stub(const char* error, const char* arg1)
+		{
+			if (game::environment::is_dedi())
+			{
+				game::Sys_Error(error, arg1);
+			}
+			else
+			{
+				game::Com_Error(game::ERR_DROP, error, arg1);
+			}
+		}
 	}
 
 	class component final : public component_interface
@@ -191,6 +211,10 @@ namespace patches
 	public:
 		void post_unpack() override
 		{
+			// Increment ref-count on these
+			LoadLibraryA("PhysXDevice64.dll");
+			LoadLibraryA("PhysXUpdateLoader64.dll");
+
 			command::add("quit", []()
 			{
 				game::Com_Quit();
@@ -209,6 +233,12 @@ namespace patches
 			// Unlock fps in main menu
 			utils::hook::set<BYTE>(SELECT_VALUE(0x140242DDB, 0x1402CF58B), 0xEB);
 
+			// Unlock cg_fov
+			utils::hook::call(SELECT_VALUE(0x1401F3E96, 0x14027273C), register_cg_fov_stub);
+			if (game::environment::is_sp())
+			{
+				utils::hook::call(0x1401F3EC7, register_cg_fov_stub);
+			}
 
 			// set it to 3 to display both voice dlc announcers did only show 1
 			game::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0,
@@ -290,6 +320,10 @@ namespace patches
 				SetThreadExecutionState(ES_DISPLAY_REQUIRED);
 			}, scheduler::pipeline::main);
 
+			// Allow kbam input when gamepad is enabled
+			utils::hook::nop(SELECT_VALUE(0x14023D490, 0x1402C3099), 2);
+			utils::hook::nop(SELECT_VALUE(0x14023B3AC, 0x1402C0CE0), 6);
+
 			if (game::environment::is_sp())
 			{
 				patch_sp();
@@ -300,7 +334,7 @@ namespace patches
 			}
 		}
 
-		void patch_mp() const
+		static void patch_mp()
 		{
 			// Use name dvar and add "saved" flags to it
 			utils::hook::set<uint8_t>(0x1402C836D, 0x01);
@@ -325,11 +359,17 @@ namespace patches
 			utils::hook::call(0x1402BC42F, get_chat_font_handle);
 			utils::hook::call(0x1402C3699, get_chat_font_handle);
 
-			dvars::aimassist_enabled = game::Dvar_RegisterBool("aimassist_enabled", true, game::DvarFlags::DVAR_FLAG_SAVED, "Enables aim assist for controllers"); //client side aim assist dvar
+			dvars::aimassist_enabled = game::Dvar_RegisterBool("aimassist_enabled", true,
+			                                                   game::DvarFlags::DVAR_FLAG_SAVED,
+			                                                   "Enables aim assist for controllers");
+			//client side aim assist dvar
 			utils::hook::call(0x14013B9AC, aim_assist_add_to_target_list);
+
+			// patch "Couldn't find the bsp for this map." error to not be fatal in mp
+			utils::hook::call(0x14031E8AB, bsp_sys_error_stub);
 		}
 
-		void patch_sp() const
+		static void patch_sp()
 		{
 			// SP doesn't initialize WSA
 			WSADATA wsa_data;

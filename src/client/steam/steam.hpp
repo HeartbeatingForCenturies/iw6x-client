@@ -1,7 +1,8 @@
 #pragma once
 
 #define STEAM_EXPORT extern "C" __declspec(dllexport)
-#include "utils/nt.hpp"
+
+#include <utils/nt.hpp>
 
 struct raw_steam_id final
 {

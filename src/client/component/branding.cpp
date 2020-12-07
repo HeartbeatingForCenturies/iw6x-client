@@ -5,8 +5,8 @@
 #include "command.hpp"
 #include "game/game.hpp"
 
-#include "utils/hook.hpp"
-#include "utils/string.hpp"
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 #include "version.hpp"
 
@@ -66,7 +66,7 @@ namespace branding
 				localized_strings::override("LUA_MENU_MULTIPLAYER_CAPS", "IW6x: MULTIPLAYER\n");
 			}
 
-			localized_strings::override("LUA_MENU_LEGAL_COPYRIGHT", "IW6x: Pre-Release by X Labs.\n");
+			localized_strings::override("LUA_MENU_LEGAL_COPYRIGHT", "IW6x: " VERSION " by X Labs.\n");
 
 			utils::hook::call(SELECT_VALUE(0x1403BDABA, 0x140414424), dvar_set_string_stub);
 			ui_get_formatted_build_number_hook.create(
@@ -83,7 +83,8 @@ namespace branding
 				auto* font = game::R_RegisterFont("fonts/normalfont");
 				if (!font) return;
 
-				game::R_AddCmdDrawText(text, 0x7FFFFFFF, font, static_cast<float>(x), y + static_cast<float>(font->pixelHeight) * scale,
+				game::R_AddCmdDrawText(text, 0x7FFFFFFF, font, static_cast<float>(x),
+				                       y + static_cast<float>(font->pixelHeight) * scale,
 				                       scale, scale, 0.0f, color, 0);
 			}, scheduler::pipeline::renderer);
 		}

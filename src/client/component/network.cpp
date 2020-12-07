@@ -3,8 +3,8 @@
 #include "network.hpp"
 #include "game_console.hpp"
 
-#include "utils/hook.hpp"
-#include "utils/string.hpp"
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 namespace network
 {
@@ -43,7 +43,7 @@ namespace network
 			a.mov(rdx, rdi); // command
 			a.mov(rcx, r14); // netaddr
 
-			a.call(handle_command);
+			a.call_aligned(handle_command);
 
 			a.test(al, al);
 			a.jz(return_unhandled);
@@ -84,12 +84,12 @@ namespace network
 			return net_compare_base_address(a1, a2) && a1->port == a2->port;
 		}
 
-		void reconnect_migratated_client(game::mp::client_t*, game::netadr_s* from, const int, const int, const char*, const char*, bool)
+		void reconnect_migratated_client(game::mp::client_t*, game::netadr_s* from, const int, const int, const char*,
+		                                 const char*, bool)
 		{
 			// This happens when a client tries to rejoin after being recently disconnected, OR by a duplicated guid
 			// We don't want this to do anything. It decides to crash seemingly randomly
 			// Rather than try and let the player in, just tell them they are a duplicate player and reject connection
-			
 			game::NET_OutOfBandPrint(game::NS_SERVER, from, "error\nYou are already connected to the server.");
 		}
 	}
@@ -154,7 +154,7 @@ namespace network
 		a.jne(return_regular);
 
 		// Do the original work
-		a.call(return_regular);
+		a.call_aligned(return_regular);
 
 		// Jump to success branch
 		a.mov(rax, 0x14047771E);
@@ -250,7 +250,7 @@ namespace network
 				utils::hook::set<uint8_t>(0x1402C6AA4, 0xEB);
 				on("print", [](const game::netadr_s& addr, const std::string_view& data)
 				{
-					const std::string message{ data };
+					const std::string message{data};
 
 					if (game::environment::is_dedi())
 					{

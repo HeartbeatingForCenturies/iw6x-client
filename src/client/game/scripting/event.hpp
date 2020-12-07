@@ -1,5 +1,6 @@
 #pragma once
 #include "script_value.hpp"
+#include "entity.hpp"
 
 namespace scripting
 {
