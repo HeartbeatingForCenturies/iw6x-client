@@ -9,7 +9,7 @@ namespace scripting::safe_execution
 	bool call(const script_function function, const game::scr_entref_t& entref)
 	{
 		*game::g_script_error_level += 1;
-		if (setjmp(game::g_script_error[*game::g_script_error_level]))
+		if (game::_setjmp(&game::g_script_error[*game::g_script_error_level]))
 		{
 			*game::g_script_error_level -= 1;
 			return false;
@@ -24,7 +24,7 @@ namespace scripting::safe_execution
 	bool set_entity_field(const game::scr_entref_t& entref, const int offset)
 	{
 		*game::g_script_error_level += 1;
-		if (setjmp(game::g_script_error[*game::g_script_error_level]))
+		if (game::_setjmp(&game::g_script_error[*game::g_script_error_level]))
 		{
 			*game::g_script_error_level -= 1;
 			return false;
@@ -39,7 +39,7 @@ namespace scripting::safe_execution
 	bool get_entity_field(const game::scr_entref_t& entref, const int offset, game::VariableValue* value)
 	{
 		*game::g_script_error_level += 1;
-		if (setjmp(game::g_script_error[*game::g_script_error_level]))
+		if (game::_setjmp(&game::g_script_error[*game::g_script_error_level]))
 		{
 			value->type = game::SCRIPT_NONE;
 			value->u.intValue = 0;

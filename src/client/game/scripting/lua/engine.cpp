@@ -54,6 +54,12 @@ namespace scripting::lua::engine
 
 	void notify(const event& e)
 	{
+		if(e.entity.get_entity_id() == *game::levelEntityId
+			&& e.name == "exitLevel_called")
+		{
+			get_scripts().clear();
+		}
+
 		for (auto& script : get_scripts())
 		{
 			script->notify(e);
