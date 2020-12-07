@@ -28,7 +28,7 @@ namespace scripting
 		{
 			const auto field_name = utils::string::to_lower(field);
 			const auto class_id = game::g_classMap[classnum].id;
-			const auto field_str = game::SL_GetString(field_name.data(), 1);
+			const auto field_str = game::SL_GetString(field_name.data(), 0);
 			const auto _ = gsl::finally([field_str]()
 			{
 				game::RemoveRefToValue(game::SCRIPT_STRING, {static_cast<int>(field_str)});
