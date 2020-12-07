@@ -123,6 +123,7 @@ namespace scripting::lua
 
 	context::~context()
 	{
+		this->state_.collect_garbage();
 		this->scheduler_.clear();
 		this->event_handler_.clear();
 		this->state_ = {};
@@ -131,6 +132,7 @@ namespace scripting::lua
 	void context::run_frame()
 	{
 		this->scheduler_.run_frame();
+		this->state_.collect_garbage();
 	}
 
 	void context::notify(const event& e)

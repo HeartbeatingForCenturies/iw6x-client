@@ -20,7 +20,7 @@ namespace scripting
 		other.entity_id_ = 0;
 	}
 
-	entity::entity(unsigned int entity_id)
+	entity::entity(const unsigned int entity_id)
 		: entity_id_(entity_id)
 	{
 		this->add();
