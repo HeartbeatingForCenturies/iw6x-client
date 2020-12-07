@@ -113,6 +113,7 @@ namespace scripting::lua
 
 		try
 		{
+			printf("Loading script '%s'\n", file.data());
 			this->state_.safe_script_file(file);
 		}
 		catch (std::exception& e)
