@@ -71,6 +71,16 @@ namespace scripting
 		return game::Scr_GetEntityIdRef(this->get_entity_id());
 	}
 
+	bool entity::operator==(const entity& other) const noexcept
+	{
+		return this->get_entity_id() == other.get_entity_id();
+	}
+
+	bool entity::operator!=(const entity& other) const noexcept
+	{
+		return !this->operator==(other);
+	}
+
 	void entity::add() const
 	{
 		if (this->entity_id_)
