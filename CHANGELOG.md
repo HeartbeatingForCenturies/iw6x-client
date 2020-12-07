@@ -14,6 +14,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 -   Analyze Arxan exception handlers to get rid of them [#146](https://github.com/XLabsProject/iw6x-client/issues/146)
+-   Add proper support for fovs >= 90 [#153](https://github.com/XLabsProject/iw6x-client/issues/153)
+-   Set thread names for common threads [#226](https://github.com/XLabsProject/iw6x-client/issues/226)
+-   Add -no-steam parameter to disable steam integration [#227](https://github.com/XLabsProject/iw6x-client/issues/227)
+-   Create extended minidumps [#228](https://github.com/XLabsProject/iw6x-client/issues/228)
+-   Load game as library instead of injecting it [#230](https://github.com/XLabsProject/iw6x-client/issues/230)
+
+### Pull Requests
+
+-   added r_fullbright, kbam input patch and changed branding in sp [#229](https://github.com/XLabsProject/iw6x-client/pull/229) ([@Jemal](https://github.com/Jemal))
+-   allow PlayerCmd_SetClientDvar to change any dvar like old cods [#224](https://github.com/XLabsProject/iw6x-client/pull/224) ([@skiff](https://github.com/skiff))
+-   Update function_table and some other changes. [#232](https://github.com/XLabsProject/iw6x-client/pull/232) ([@Joelrau](https://github.com/Joelrau))
 
 ## [v1.0.3] - 2020-11-25
 
