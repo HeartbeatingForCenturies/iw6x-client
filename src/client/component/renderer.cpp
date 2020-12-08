@@ -43,7 +43,9 @@ namespace renderer
 		void post_unpack() override
 		{
 			if (game::environment::is_dedi())
+			{
 				return;
+			}
 
 			dvars::r_fullbright = game::Dvar_RegisterBool("r_fullbright", false, 1, "Toggles rendering without lighting");
 		
