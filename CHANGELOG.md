@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Singleplayer crashing with v1.0.4 [#234](https://github.com/XLabsProject/iw6x-client/issues/234)
+
 ## [v1.0.4] - 2020-12-07
 
 ### Fixed
