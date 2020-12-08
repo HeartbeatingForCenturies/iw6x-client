@@ -9,7 +9,19 @@ namespace utils::thread
 {
 	bool set_name(const HANDLE t, const std::string& name)
 	{
-		return SUCCEEDED(SetThreadDescription(t, string::convert(name).data()));
+		const nt::library kernel32("kernel32.dll");
+		if (!kernel32)
+		{
+			return false;
+		}
+
+		const auto set_description = kernel32.get_proc<HRESULT(WINAPI *)(HANDLE, PCWSTR)>("SetThreadDescription");
+		if (!set_description)
+		{
+			return false;
+		}
+
+		return SUCCEEDED(set_description(t, string::convert(name).data()));
 	}
 
 	bool set_name(const DWORD id, const std::string& name)
