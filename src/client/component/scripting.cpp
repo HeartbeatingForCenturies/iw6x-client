@@ -59,7 +59,7 @@ namespace scripting
 		{
 			vm_notify_hook.create(SELECT_VALUE(0x1403E29C0, 0x14043D9B0), vm_notify_stub);
 			// SP address is wrong, but should be ok
-			scr_load_level_hook.create(SELECT_VALUE(0x1403163D9, 0x1403C4E60), scr_load_level_stub);
+			scr_load_level_hook.create(SELECT_VALUE(0x14013D5D0, 0x1403C4E60), scr_load_level_stub);
 			g_shutdown_game_hook.create(SELECT_VALUE(0x140318C10, 0x1403A0DF0), g_shutdown_game_stub);
 
 			scheduler::loop([]()
