@@ -15,9 +15,9 @@ branches:
 
 skip_branch_with_pr: true
 
-cache:
-  - build
-  - deps
+# Doesn't work :(
+#cache:
+#  - build
 
 configuration:
   - Debug
@@ -30,7 +30,6 @@ install:
       Write-Host "Updating version information..." -ForegroundColor Cyan
       Update-AppveyorBuild -Version $(& tools/premake5.exe version | select -Last 1)
   - git submodule update --init --recursive
-  - git reset --hard
   - ps: |
       Write-Host "Generating project files with premake..." -ForegroundColor Cyan
       & "./tools/premake5.exe" $env:PREMAKE_ACTION
