@@ -12,26 +12,48 @@ namespace logfile
 {
 	namespace
 	{
-		utils::hook::detour client_command_hook;
-
-		void client_command_stub(const int clientNum, void* a2)
+		bool evaluate_say(char* text, game::mp::gentity_s* ent)
 		{
-			command::params_sv params = {};
-			const auto cmd = params.get(0);
+			auto hidden = false;
 
-			if (cmd == "say"s || cmd == "say_team"s)
+			const auto level = scripting::entity(*game::levelEntityId);
+			const auto player = scripting::call("getEntByNum", {ent->client->ps.clientNum}).as<scripting::entity>();
+
+			++text;
+
+			if (text[0] == '/')
 			{
-				const auto player = scripting::call("getEntByNum", {clientNum}).as<scripting::entity>();
-
-				auto msg = params.join(1);
-				msg.erase(0, 1);
-
-				scripting::notify(player, cmd, {msg});
+				hidden = true;
+				++text;
 			}
 
-			client_command_hook.invoke<void>(clientNum, a2);
+			scripting::notify(level, "say", {player, text});
+			scripting::notify(player, "say", {text});
+
+			return hidden;
 		}
 	}
+
+	const auto say_stub = utils::hook::assemble([](utils::hook::assembler& a)
+	{
+		const auto hidden = a.newLabel();
+
+		a.call(0x1404F63C0);
+
+		a.mov(rdx, rdi);
+		a.mov(rcx, rbx);
+
+		a.call(evaluate_say);
+
+		a.cmp(rax, 0);
+		a.jne(hidden);
+
+		a.lea(rcx, byte_ptr(rsp, 0x80));
+		a.jmp(0x140392A92);
+
+		a.bind(hidden);
+		a.jmp(0x140392C6E);
+	});
 
 	class component final : public component_interface
 	{
@@ -43,7 +65,7 @@ namespace logfile
 				return;
 			}
 
-			client_command_hook.create(0x1403929B6, client_command_stub);
+			utils::hook::jump(0x140392A85, say_stub, true);
 		}
 	};
 }
