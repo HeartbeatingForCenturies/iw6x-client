@@ -38,12 +38,12 @@ namespace logfile
 	{
 		const auto hidden = a.newLabel();
 
-		a.call(0x1404F63C0);
+		a.call_aligned(0x1404F63C0);
 
 		a.mov(rdx, rdi);
 		a.mov(rcx, rbx);
 
-		a.call(evaluate_say);
+		a.call_aligned(evaluate_say);
 
 		a.cmp(rax, 0);
 		a.jne(hidden);
