@@ -19,6 +19,8 @@ namespace game
 	WEAK Symbol<void ()> Com_Quit{0x1403BDDD0, 0x140414920};
 	WEAK Symbol<CodPlayMode ()> Com_GetCurrentCoDPlayMode{0, 0x1404f6140};
 	WEAK Symbol<void (float, float, int)> Com_SetSlowMotion{0, 0x1404158C0};
+	WEAK Symbol<void(const char* text_in)> Com_TokenizeString{0x1403B4150, 0x1403F7CC0};
+	WEAK Symbol<void()> Com_EndTokenizeString{0x1403B37C0, 0x1403F7330};
 
 	WEAK Symbol<void (const char* message)> Conbuf_AppendText{0x14043DDE0, 0x1405028C0};
 

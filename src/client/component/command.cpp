@@ -91,6 +91,28 @@ namespace command
 		}
 	}
 
+	void read_startup_variable(const std::string& dvar)
+	{
+		// parse the commandline if it's not parsed
+		parse_command_line();
+
+		auto& com_num_console_lines = *reinterpret_cast<int*>(0x1445CFF98);
+		auto* com_console_lines = reinterpret_cast<char**>(0x1445CFFA0);
+
+		for (int i = 0; i < com_num_console_lines; i++)
+		{
+			game::Com_TokenizeString(com_console_lines[i]);
+
+			// only +set dvar value
+			if (game::Cmd_Argc() >= 3 && game::Cmd_Argv(0) == "set"s && game::Cmd_Argv(1) == dvar)
+			{
+				game::Dvar_SetCommand(game::Cmd_Argv(1), game::Cmd_Argv(2));
+			}
+
+			game::Com_EndTokenizeString();
+		}
+	}
+
 	params::params()
 		: nesting_(game::cmd_args->nesting)
 	{

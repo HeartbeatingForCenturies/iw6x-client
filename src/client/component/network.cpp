@@ -1,5 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+
+#include "command.hpp"
 #include "network.hpp"
 #include "game_console.hpp"
 
@@ -172,6 +174,17 @@ namespace network
 		a.jmp(0x14041DFBD);
 	}
 
+	game::dvar_t* register_netport_stub(const char* dvarName, int value, int min, int max, unsigned int flags,
+		const char* description)
+	{
+		auto dvar = game::Dvar_RegisterInt("net_port", 27016, 0, 0xFFFFu, game::DVAR_FLAG_LATCHED, "Network port");
+
+		// read net_port from command line
+		command::read_startup_variable("net_port");
+
+		return dvar;
+	}
+
 	class component final : public component_interface
 	{
 	public:
@@ -245,6 +258,9 @@ namespace network
 
 				// don't try to reconnect client
 				utils::hook::call(0x14047197E, reconnect_migratated_client);
+
+				// allow server owner to modify net_port before the socket bind
+				utils::hook::call(0x140500FD0, register_netport_stub);
 
 				// ignore built in "print" oob command and add in our own
 				utils::hook::set<uint8_t>(0x1402C6AA4, 0xEB);

@@ -182,12 +182,8 @@ namespace console
 
 		SetWindowPos(get_window(), nullptr, rect.left, rect.top, width, height, 0);
 
-		// TODO: fill the SP address(I didn't downloaded the SP part of the game).
-		if (!game::environment::is_sp())
-		{
-			auto* const logoWindow = *reinterpret_cast<HWND*>(0x147AD1DC0);
-			SetWindowPos(logoWindow, nullptr, 5, 5, width - 25, 60, 0);
-		}
+		auto logoWindow = *reinterpret_cast<HWND*>(SELECT_VALUE(0x145A7B4A0, 0x147AD1DC0));
+		SetWindowPos(logoWindow, 0, 5, 5, width - 25, 60, 0);
 	}
 }
 
