@@ -107,6 +107,21 @@ namespace party
 
 			return count;
 		}
+
+		int get_bot_count()
+		{
+			auto count = 0;
+			for (auto i = 0; i < *game::mp::svs_numclients; ++i)
+			{
+				if (game::mp::svs_clients[i].header.state >= 3 &&
+					game::mp::svs_clients[i].testClient != game::TC_NONE)
+				{
+					++count;
+				}
+			}
+
+			return count;
+		}
 	}
 
 	int get_client_num_from_name(const std::string& name)
@@ -341,6 +356,7 @@ namespace party
 				info.set("mapname", get_dvar_string("mapname"));
 				info.set("isPrivate", get_dvar_string("g_password").empty() ? "0" : "1");
 				info.set("clients", utils::string::va("%i", get_client_count()));
+				info.set("bots", utils::string::va("%i", get_bot_count()));
 				info.set("sv_maxclients", utils::string::va("%i", *game::mp::svs_numclients));
 				info.set("protocol", utils::string::va("%i", PROTOCOL));
 				//info.set("shortversion", SHORTVERSION);

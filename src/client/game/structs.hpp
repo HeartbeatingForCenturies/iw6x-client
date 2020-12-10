@@ -678,6 +678,24 @@ namespace game
 		MAX_CONFIGSTRINGS = 0xD24,
 	};
 
+	enum LiveClientDropType
+	{
+		SV_LIVE_DROP_NONE = 0x0,
+		SV_LIVE_DROP_DISCONNECT = 0x1,
+		SV_LIVE_DROP_RMSG_LOST = 0x2,
+		SV_LIVE_DROP_INACTIVE = 0x3,
+		SV_LIVE_DROP_P2P_AUTH = 0x4,
+		SV_LIVE_DROP_COUNT = 0x5,
+	};
+
+	enum TestClientType
+	{
+		TC_NONE = 0x0,
+		TC_TEST_CLIENT = 0x1,
+		TC_BOT = 0x2,
+		TC_COUNT = 0x3,
+	};
+
 	struct Material
 	{
 		const char* name;
@@ -1574,15 +1592,31 @@ namespace game
 		struct client_t
 		{
 			clientHeader_t header;
-			char _0x818[0x41668];
+			char _0x818[0x41650];
+			gentity_s *gentity;
+			char name[16];
 			int lastPacketTime;
 			int lastConnectTime;
 			int nextSnapshotTime;
 			int timeoutCount;
 			int ping;
-			char _0x41E94[0x416DC];
+			int minPing;
+			int currFramePing;
+			int snapshotBackoffCount;
+			int rate;
+			int pureAuthentic;
+			unsigned int streamSyncWaitBits;
+			unsigned int streamSyncWaitTimeout;
+			LiveClientDropType liveDropRequest;
+			char playerGuid[17];
+			unsigned short scriptId;
+			int bIsSplitscreenClient;
+			TestClientType testClient;
+			char _0x41E94[0x416A0];
 		};
 	}
+
+	static_assert(sizeof(mp::client_t) == 0x83570);
 
 	union playerState_s
 	{
