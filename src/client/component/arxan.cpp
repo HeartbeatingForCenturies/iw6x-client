@@ -2,23 +2,18 @@
 #include "loader/component_loader.hpp"
 #include "scheduler.hpp"
 #include "game/game.hpp"
-#include "utils/hook.hpp"
+
+#include <utils/hook.hpp>
 
 namespace arxan
 {
 	namespace
 	{
-		typedef struct _OBJECT_HANDLE_ATTRIBUTE_INFORMATION
-		{
-			BOOLEAN Inherit;
-			BOOLEAN ProtectFromClose;
-		} OBJECT_HANDLE_ATTRIBUTE_INFORMATION;
-
 		utils::hook::detour nt_close_hook;
 		utils::hook::detour nt_query_information_process_hook;
 
 		NTSTATUS WINAPI nt_query_information_process_stub(const HANDLE handle, const PROCESSINFOCLASS info_class,
-		                                                  PVOID info,
+		                                                  const PVOID info,
 		                                                  const ULONG info_length, const PULONG ret_length)
 		{
 			auto* orig = static_cast<decltype(NtQueryInformationProcess)*>(nt_query_information_process_hook.
@@ -29,14 +24,14 @@ namespace arxan
 			{
 				if (info_class == ProcessBasicInformation)
 				{
-					static DWORD explorerPid = 0;
-					if (!explorerPid)
+					static DWORD explorer_pid = 0;
+					if (!explorer_pid)
 					{
 						auto* const shell_window = GetShellWindow();
-						GetWindowThreadProcessId(shell_window, &explorerPid);
+						GetWindowThreadProcessId(shell_window, &explorer_pid);
 					}
 
-					static_cast<PPROCESS_BASIC_INFORMATION>(info)->Reserved3 = PVOID(DWORD64(explorerPid));
+					static_cast<PPROCESS_BASIC_INFORMATION>(info)->Reserved3 = PVOID(DWORD64(explorer_pid));
 				}
 				else if (info_class == 30) // ProcessDebugObjectHandle
 				{
@@ -60,8 +55,7 @@ namespace arxan
 		NTSTATUS NTAPI nt_close_stub(const HANDLE handle)
 		{
 			char info[16];
-			if (NtQueryObject(handle, OBJECT_INFORMATION_CLASS(4), &info, sizeof(OBJECT_HANDLE_ATTRIBUTE_INFORMATION),
-			                  nullptr) >= 0)
+			if (NtQueryObject(handle, OBJECT_INFORMATION_CLASS(4), &info, 2, nullptr) >= 0)
 			{
 				auto* orig = static_cast<decltype(NtClose)*>(nt_close_hook.get_original());
 				return orig(handle);
@@ -70,18 +64,21 @@ namespace arxan
 			return STATUS_INVALID_HANDLE;
 		}
 
-		LONG WINAPI exception_filter(LPEXCEPTION_POINTERS info)
+		LONG WINAPI exception_filter(const LPEXCEPTION_POINTERS info)
 		{
-			return (info->ExceptionRecord->ExceptionCode == STATUS_INVALID_HANDLE)
-				       ? EXCEPTION_CONTINUE_EXECUTION
-				       : EXCEPTION_CONTINUE_SEARCH;
+			if (info->ExceptionRecord->ExceptionCode == STATUS_INVALID_HANDLE)
+			{
+				return EXCEPTION_CONTINUE_EXECUTION;
+			}
+
+			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
 		void hide_being_debugged()
 		{
 			auto* const peb = PPEB(__readgsqword(0x60));
 			peb->BeingDebugged = false;
-			*PDWORD(LPSTR(peb) + 0xBC) &= ~0x70;
+			*reinterpret_cast<PDWORD>(LPSTR(peb) + 0xBC) &= ~0x70;
 		}
 
 		void remove_hardware_breakpoints()
@@ -182,6 +179,14 @@ namespace arxan
 
 			// Unfinished for now
 			//utils::hook::jump(0x1405881E0, dw_frame_stub);
+
+			// Fix arxan crashes
+			// Are these opaque predicates?
+			utils::hook::nop(0x14AE2B384, 6); // 0000000140035EA7
+			utils::hook::nop(0x14A31E98E, 4); // 000000014B1A892E
+			utils::hook::nop(0x14A920E10, 4); // 000000014AEF4F39
+			utils::hook::nop(0x14A1A2425, 4); // 000000014A0B52A8
+			utils::hook::nop(0x14AE07CEA, 4); // 000000014A143BFF
 
 			scheduler::on_game_initialized(remove_hardware_breakpoints, scheduler::pipeline::main);
 		}

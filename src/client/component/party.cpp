@@ -9,9 +9,10 @@
 
 #include "steam/steam.hpp"
 
-#include "utils/string.hpp"
-#include "utils/info_string.hpp"
-#include "utils/cryptography.hpp"
+#include <utils/string.hpp>
+#include <utils/info_string.hpp>
+#include <utils/cryptography.hpp>
+#include <utils/hook.hpp>
 
 namespace party
 {
@@ -22,6 +23,10 @@ namespace party
 			game::netadr_s host{};
 			std::string challenge{};
 		} connect_state;
+
+		utils::hook::detour didyouknow_hook;
+
+		std::string sv_motd;
 
 		void switch_gamemode_if_necessary(const std::string& gametype)
 		{
@@ -42,6 +47,17 @@ namespace party
 			}
 		}
 
+		void perform_game_initialization()
+		{
+			// This fixes several crashes and impure client stuff
+			command::execute("onlinegame 1", true);
+			command::execute("exec default_xboxlive.cfg", true);
+			command::execute("xstartprivateparty", true);
+			command::execute("xblive_rankedmatch 1", true);
+			command::execute("xblive_privatematch 1", true);
+			command::execute("startentitlements", true);
+		}
+
 		void connect_to_party(const game::netadr_s& target, const std::string& mapname, const std::string& gametype)
 		{
 			if (game::environment::is_sp())
@@ -59,14 +75,7 @@ namespace party
 			}
 
 			switch_gamemode_if_necessary(gametype);
-
-			// This fixes several crashes and impure client stuff
-			command::execute("onlinegame 1", true);
-			command::execute("exec default_xboxlive.cfg", true);
-			command::execute("xstartprivateparty", true);
-			command::execute("xblive_rankedmatch 1", true);
-			command::execute("xblive_privatematch 1", true);
-			command::execute("startentitlements", true);
+			perform_game_initialization();
 
 			// CL_ConnectFromParty
 			char session_info[0x100] = {};
@@ -148,8 +157,24 @@ namespace party
 		{
 			printf("Starting map: %s\n", mapname.data());
 			switch_gamemode_if_necessary(get_dvar_string("g_gametype"));
+
+			if (!game::environment::is_dedi())
+			{
+				perform_game_initialization();
+			}
+
 			game::SV_StartMapForParty(0, mapname.data(), false, false);
 		}
+	}
+
+	void didyouknow_stub(game::dvar_t* dvar, const char* string)
+	{
+		if (dvar->name == "didyouknow"s && !party::sv_motd.empty())
+		{
+			string = party::sv_motd.data();
+		}
+
+		return didyouknow_hook.invoke<void>(dvar, string);
 	}
 
 	class component final : public component_interface
@@ -162,7 +187,9 @@ namespace party
 				return;
 			}
 
-			command::add("map", [](command::params& argument)
+			didyouknow_hook.create(game::Dvar_SetString, didyouknow_stub);
+
+			command::add("map", [](const command::params& argument)
 			{
 				if (argument.size() != 2)
 				{
@@ -180,7 +207,7 @@ namespace party
 				}
 			});
 
-			command::add("connect", [](command::params& argument)
+			command::add("connect", [](const command::params& argument)
 			{
 				if (argument.size() != 2)
 				{
@@ -194,31 +221,31 @@ namespace party
 				}
 			});
 
-			command::add("clientkick", [](command::params& params)
+			command::add("clientkick", [](const command::params& params)
 			{
 				if (params.size() < 2)
 				{
 					printf("usage: clientkick <num>\n");
 					return;
 				}
-				auto clientNum = atoi(params.get(1));
-				if (clientNum < 0 || clientNum >= *game::mp::svs_numclients)
+				const auto client_num = atoi(params.get(1));
+				if (client_num < 0 || client_num >= *game::mp::svs_numclients)
 				{
 					return;
 				}
 
-				game::SV_KickClientNum(clientNum, "EXE_PLAYERKICKED");
+				game::SV_KickClientNum(client_num, "EXE_PLAYERKICKED");
 			});
 
-			command::add("kick", [](command::params& params)
+			command::add("kick", [](const command::params& params)
 			{
 				if (params.size() < 2)
 				{
 					printf("usage: kick <name>\n");
 					return;
 				}
-				auto name = params.get(1);
 
+				const std::string name = params.get(1);
 				if (name == "all"s)
 				{
 					for (auto i = 0; i < *game::mp::svs_numclients; ++i)
@@ -228,74 +255,75 @@ namespace party
 					return;
 				}
 
-				auto clientNum = get_client_num_from_name(name);
-				if (clientNum < 0 || clientNum >= *game::mp::svs_numclients)
+				const auto client_num = get_client_num_from_name(name);
+				if (client_num < 0 || client_num >= *game::mp::svs_numclients)
 				{
 					return;
 				}
 
-				game::SV_KickClientNum(clientNum, "EXE_PLAYERKICKED");
+				game::SV_KickClientNum(client_num, "EXE_PLAYERKICKED");
 			});
 
 			scheduler::once([]()
 			{
 				game::Dvar_RegisterString("sv_sayName", "console", game::DvarFlags::DVAR_FLAG_NONE,
 				                          "The name to pose as for 'say' commands");
+				game::Dvar_RegisterString("didyouknow", "", game::DvarFlags::DVAR_FLAG_NONE, "");
 			}, scheduler::pipeline::main);
 
-			command::add("tell", [](command::params& params)
+			command::add("tell", [](const command::params& params)
 			{
 				if (params.size() < 3)
 				{
 					return;
 				}
 
-				auto clientNum = atoi(params.get(1));
-				std::string message = params.join(2);
-				std::string name = game::Dvar_FindVar("sv_sayName")->current.string;
+				const auto client_num = atoi(params.get(1));
+				const auto message = params.join(2);
+				const auto* const name = game::Dvar_FindVar("sv_sayName")->current.string;
 
-				game::SV_GameSendServerCommand(clientNum, 0,
-				                               utils::string::va("%c \"%s: %s\"", 84, name.data(), message.data()));
-				printf("%s -> %i: %s\n", name.data(), clientNum, message.data());
+				game::SV_GameSendServerCommand(client_num, 0,
+				                               utils::string::va("%c \"%s: %s\"", 84, name, message.data()));
+				printf("%s -> %i: %s\n", name, client_num, message.data());
 			});
 
-			command::add("tellraw", [](command::params& params)
+			command::add("tellraw", [](const command::params& params)
 			{
 				if (params.size() < 3)
 				{
 					return;
 				}
 
-				auto clientNum = atoi(params.get(1));
-				std::string message = params.join(2);
+				const auto client_num = atoi(params.get(1));
+				const auto message = params.join(2);
 
-				game::SV_GameSendServerCommand(clientNum, 0, utils::string::va("%c \"%s\"", 84, message.data()));
-				printf("%i: %s\n", clientNum, message.data());
+				game::SV_GameSendServerCommand(client_num, 0, utils::string::va("%c \"%s\"", 84, message.data()));
+				printf("%i: %s\n", client_num, message.data());
 			});
 
-			command::add("say", [](command::params& params)
+			command::add("say", [](const command::params& params)
 			{
 				if (params.size() < 2)
 				{
 					return;
 				}
 
-				std::string message = params.join(1);
-				std::string name = game::Dvar_FindVar("sv_sayName")->current.string;
+				const auto message = params.join(1);
+				const auto* const name = game::Dvar_FindVar("sv_sayName")->current.string;
 
 				game::SV_GameSendServerCommand(
-					-1, 0, utils::string::va("%c \"%s: %s\"", 84, name.data(), message.data()));
-				printf("%s: %s\n", name.data(), message.data());
+					-1, 0, utils::string::va("%c \"%s: %s\"", 84, name, message.data()));
+				printf("%s: %s\n", name, message.data());
 			});
 
-			command::add("sayraw", [](command::params& params)
+			command::add("sayraw", [](const command::params& params)
 			{
 				if (params.size() < 2)
 				{
 					return;
 				}
 
-				std::string message = params.join(1);
+				const auto message = params.join(1);
 
 				game::SV_GameSendServerCommand(-1, 0, utils::string::va("%c \"%s\"", 84, message.data()));
 				printf("%s\n", message.data());
@@ -308,6 +336,7 @@ namespace party
 				info.set("gamename", "IW6");
 				info.set("hostname", get_dvar_string("sv_hostname"));
 				info.set("gametype", get_dvar_string("g_gametype"));
+				info.set("sv_motd", get_dvar_string("sv_motd"));
 				info.set("xuid", utils::string::va("%llX", steam::SteamUser()->GetSteamID().bits));
 				info.set("mapname", get_dvar_string("mapname"));
 				info.set("isPrivate", get_dvar_string("g_password").empty() ? "0" : "1");
@@ -349,6 +378,15 @@ namespace party
 					printf("Invalid gametype.\n");
 					return;
 				}
+
+				const auto gamename = info.get("gamename");
+				if (gamename != "IW6"s)
+				{
+					printf("Invalid gamename.\n");
+					return;
+				}
+
+				party::sv_motd = info.get("sv_motd");
 
 				connect_to_party(target, mapname, gametype);
 			});

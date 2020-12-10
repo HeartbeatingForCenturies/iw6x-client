@@ -1,8 +1,11 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "system_check.hpp"
-#include "utils/io.hpp"
-#include "utils/cryptography.hpp"
+
+#include "game/game.hpp"
+
+#include <utils/io.hpp>
+#include <utils/cryptography.hpp>
 
 namespace system_check
 {
@@ -30,15 +33,8 @@ namespace system_check
 			return utils::cryptography::sha256::compute(data, true);
 		}
 
-		bool is_system_valid()
+		bool verify_hashes(const std::unordered_map<std::string, std::string>& zone_hashes)
 		{
-			static std::unordered_map<std::string, std::string> zone_hashes =
-			{
-				{"patch_common.ff", "883DB33A1E386420EC6EF19F25C0D8081D01C1945BA2BCAD9FBD5460A201D6AA"},
-				{"patch_common_mp.ff", "F1F08BFD03D0496199FAFD49CAA3E5786B70084A4C3C8841ACC4A7B7616D226C"},
-				{"patch_common_alien_mp.ff", "78B00BFF961F69F9A45446D40638A5A7F5C3462F1AF05A833066772C62FB5DB2"},
-			};
-
 			for (const auto& zone_hash : zone_hashes)
 			{
 				const auto hash = hash_zone(zone_hash.first);
@@ -49,6 +45,22 @@ namespace system_check
 			}
 
 			return true;
+		}
+
+		bool is_system_valid()
+		{
+			static std::unordered_map<std::string, std::string> mp_zone_hashes =
+			{
+				{"patch_common_mp.ff", "F1F08BFD03D0496199FAFD49CAA3E5786B70084A4C3C8841ACC4A7B7616D226C"},
+			};
+
+			static std::unordered_map<std::string, std::string> sp_zone_hashes =
+			{
+				{"patch_common.ff", "883DB33A1E386420EC6EF19F25C0D8081D01C1945BA2BCAD9FBD5460A201D6AA"},
+				{"patch_common_alien_mp.ff", "78B00BFF961F69F9A45446D40638A5A7F5C3462F1AF05A833066772C62FB5DB2"},
+			};
+
+			return verify_hashes(mp_zone_hashes) && (game::environment::is_dedi() || verify_hashes(sp_zone_hashes));
 		}
 	}
 

@@ -18,6 +18,8 @@ namespace game
 		bool is_dedi();
 
 		void set_mode(launcher::mode mode);
+
+		std::string get_string();
 	}
 
 	template <typename T>

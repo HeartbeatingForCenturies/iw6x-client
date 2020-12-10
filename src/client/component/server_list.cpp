@@ -9,9 +9,9 @@
 #include "party.hpp"
 #include "game/game.hpp"
 
-#include "utils/cryptography.hpp"
-#include "utils/string.hpp"
-#include "utils/hook.hpp"
+#include <utils/cryptography.hpp>
+#include <utils/string.hpp>
+#include <utils/hook.hpp>
 
 namespace server_list
 {
@@ -141,10 +141,24 @@ namespace server_list
 			return "";
 		}
 
+		void sort_serverlist()
+		{
+			std::stable_sort(servers.begin(), servers.end(), [](const server_info& a, const server_info& b)
+			{
+				if(a.clients == b.clients)
+				{
+					return a.ping < b.ping;
+				}
+
+				return a.clients > b.clients;
+			});
+		}
+
 		void insert_server(server_info&& server)
 		{
 			std::lock_guard<std::mutex> _(mutex);
 			servers.emplace_back(std::move(server));
+			sort_serverlist();
 			trigger_refresh();
 		}
 
@@ -306,7 +320,7 @@ namespace server_list
 			utils::hook::call(0x1401E7225, &ui_feeder_count);
 			utils::hook::call(0x1401E7405, &ui_feeder_item_text);
 
-			command::add("lui_open", [](command::params params)
+			command::add("lui_open", [](const command::params& params)
 			{
 				if (params.size() <= 1)
 				{

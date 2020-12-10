@@ -2,8 +2,9 @@
 #include "loader/component_loader.hpp"
 #include "scheduler.hpp"
 #include "game/game.hpp"
-#include "utils/concurrent_list.hpp"
-#include "utils/hook.hpp"
+#include <utils/concurrent_list.hpp>
+#include <utils/hook.hpp>
+#include <utils/thread.hpp>
 
 namespace scheduler
 {
@@ -97,7 +98,8 @@ namespace scheduler
 		}, type, delay);
 	}
 
-	void on_game_initialized(const std::function<void()>& callback, const pipeline type, const std::chrono::milliseconds delay)
+	void on_game_initialized(const std::function<void()>& callback, const pipeline type,
+	                         const std::chrono::milliseconds delay)
 	{
 		schedule([=]()
 		{
@@ -117,7 +119,7 @@ namespace scheduler
 	public:
 		void post_start() override
 		{
-			thread = std::thread([]()
+			thread = utils::thread::create_named_thread("Async Scheduler", []()
 			{
 				while (!kill)
 				{

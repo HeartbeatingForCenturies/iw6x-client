@@ -4,8 +4,8 @@
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 
-#include "utils/hook.hpp"
-#include "utils/string.hpp"
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 namespace colors
 {
@@ -61,9 +61,9 @@ namespace colors
 			return rgb;
 		}
 
-		char color_index(const char c)
+		int color_index(const char c)
 		{
-			const char index = c - 48;
+			const auto index = c - 48;
 			return index >= 0xC ? 7 : index;
 		}
 
@@ -86,10 +86,12 @@ namespace colors
 			return string;
 		}
 
-		size_t get_client_name_stub(const int local_client_num, const int index, char *buf, const int size, const size_t unk, const size_t unk2)
+		size_t get_client_name_stub(const int local_client_num, const int index, char* buf, const int size,
+		                            const size_t unk, const size_t unk2)
 		{
 			// CL_GetClientName (CL_GetClientNameAndClantag?)
-			const auto result = reinterpret_cast<size_t(*)(int, int, char*, int, size_t, size_t)>(0x1402CF790)(local_client_num, index, buf, size, unk, unk2);
+			const auto result = reinterpret_cast<size_t(*)(int, int, char*, int, size_t, size_t)>(0x1402CF790)(
+				local_client_num, index, buf, size, unk, unk2);
 
 			utils::string::strip(buf, buf, size);
 

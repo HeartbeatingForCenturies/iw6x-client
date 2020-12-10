@@ -1,7 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
-#include "utils/nt.hpp"
-#include "utils/string.hpp"
+#include <utils/nt.hpp>
+#include <utils/string.hpp>
 
 namespace redirect
 {

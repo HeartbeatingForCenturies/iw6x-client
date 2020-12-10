@@ -3,8 +3,9 @@
 #include "loader/loader.hpp"
 #include "loader/component_loader.hpp"
 #include "game/game.hpp"
-#include "utils/flags.hpp"
-#include "utils/io.hpp"
+
+#include <utils/flags.hpp>
+#include <utils/io.hpp>
 
 DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 {
@@ -84,7 +85,11 @@ FARPROC load_binary(const launcher::mode mode)
 			"Failed to read game binary! Please copy the iw6x.exe into you Call of Duty: Ghosts installation folder and run it from there.");
 	}
 
+#ifdef INJECT_HOST_AS_LIB
+	return loader.load_library(binary);
+#else
 	return loader.load(self, data);
+#endif
 }
 
 void remove_crash_file()
@@ -105,10 +110,22 @@ void verify_ghost_version()
 	}
 }
 
+void enable_dpi_awareness()
+{
+	const utils::nt::library user32{"user32.dll"};
+	const auto set_dpi = user32
+		                     ? user32.get_proc<BOOL(WINAPI *)(DPI_AWARENESS_CONTEXT)>("SetProcessDpiAwarenessContext")
+		                     : nullptr;
+	if (set_dpi)
+	{
+		set_dpi(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+	}
+}
+
 int main()
 {
 	FARPROC entry_point;
-	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+	enable_dpi_awareness();
 
 	srand(uint32_t(time(nullptr)));
 	remove_crash_file();

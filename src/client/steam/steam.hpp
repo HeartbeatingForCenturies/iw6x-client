@@ -1,7 +1,8 @@
 #pragma once
 
 #define STEAM_EXPORT extern "C" __declspec(dllexport)
-#include "utils/nt.hpp"
+
+#include <utils/nt.hpp>
 
 struct raw_steam_id final
 {
@@ -77,8 +78,13 @@ namespace steam
 		};
 
 		static uint64_t register_call();
+
 		static void register_callback(base* handler, int callback);
+		static void unregister_callback(base* handler);
+
 		static void register_call_result(uint64_t call, base* result);
+		static void unregister_call_result(uint64_t call, base* result);
+
 		static void return_call(void* data, int size, int type, uint64_t call);
 		static void run_callbacks();
 
@@ -97,8 +103,8 @@ namespace steam
 	STEAM_EXPORT void SteamAPI_RegisterCallback(callbacks::base* handler, int callback);
 	STEAM_EXPORT void SteamAPI_RunCallbacks();
 	STEAM_EXPORT void SteamAPI_Shutdown();
-	STEAM_EXPORT void SteamAPI_UnregisterCallResult();
-	STEAM_EXPORT void SteamAPI_UnregisterCallback();
+	STEAM_EXPORT void SteamAPI_UnregisterCallResult(callbacks::base* result, const uint64_t call);
+	STEAM_EXPORT void SteamAPI_UnregisterCallback(callbacks::base* handler);
 	STEAM_EXPORT const char* SteamAPI_GetSteamInstallPath();
 
 	STEAM_EXPORT bool SteamGameServer_Init();

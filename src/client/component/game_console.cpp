@@ -7,8 +7,9 @@
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 
-#include "utils/string.hpp"
-#include "utils/hook.hpp"
+#include <utils/string.hpp>
+#include <utils/hook.hpp>
+#include "version.hpp"
 
 #define console_font game::R_RegisterFont("fonts/consolefont")
 #define material_white game::Material_RegisterHandle("white")
@@ -117,7 +118,7 @@ namespace game_console
 			}
 		}
 
-		void draw_box(float x, float y, float w, float h, float* color)
+		void draw_box(const float x, const float y, const float w, const float h, float* color)
 		{
 			game::vec4_t dark_color;
 
@@ -135,7 +136,7 @@ namespace game_console
 			                             material_white);
 		}
 
-		void draw_input_box([[maybe_unused]] int lines, float* color)
+		void draw_input_box(const int lines, float* color)
 		{
 			draw_box(
 				con.globals.x - 6.0f,
@@ -229,7 +230,7 @@ namespace game_console
 			con.globals.left_x = con.screen_min[0] + 6.0f;
 
 			draw_input_box(1, dvars::con_inputBoxColor->current.vector);
-			draw_input_text_and_over("IW6x: Pre-Release>", color_iw6);
+			draw_input_text_and_over("IW6x: " VERSION ">", color_iw6);
 
 			con.globals.left_x = con.globals.x;
 			con.globals.auto_complete_choice[0] = 0;
@@ -487,7 +488,7 @@ namespace game_console
 				if (con.cursor > 0)
 				{
 					memmove(con.buffer + con.cursor - 1, con.buffer + con.cursor,
-						strlen(con.buffer) + 1 - con.cursor);
+					        strlen(con.buffer) + 1 - con.cursor);
 					con.cursor--;
 				}
 
@@ -517,7 +518,7 @@ namespace game_console
 		return true;
 	}
 
-	bool console_key_event(int localClientNum, int key, int down)
+	bool console_key_event(const int localClientNum, const int key, const int down)
 	{
 		if (key == game::keyNum_t::K_F10)
 		{
@@ -541,7 +542,7 @@ namespace game_console
 			}
 
 			toggle_console();
-			
+
 			return false;
 		}
 
@@ -688,7 +689,7 @@ namespace game_console
 			strncpy_s(con.globals.auto_complete_choice, "", 64);
 
 			// add clear command
-			command::add("clear", [&]([[maybe_unused]] command::params& params)
+			command::add("clear", [&]()
 			{
 				clear();
 				con.line_count = 0;

@@ -1,5 +1,5 @@
 #pragma once
-#include "utils/nt.hpp"
+#include <utils/nt.hpp>
 
 namespace steam_proxy
 {

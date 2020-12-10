@@ -3,7 +3,7 @@
 #include "scheduler.hpp"
 #include "game/game.hpp"
 
-#include "utils/string.hpp"
+#include <utils/string.hpp>
 
 #include <discord_rpc.h>
 
@@ -40,7 +40,7 @@ namespace discord
 
 				auto* const host_name = reinterpret_cast<char*>(0x14187EBC4);
 				utils::string::strip(host_name, host_name, static_cast<int>(strlen(host_name)) + 1);
-				
+
 				discord_presence.state = host_name;
 
 				discord_presence.partySize = game::mp::cgArray->snap != nullptr
@@ -100,7 +100,7 @@ namespace discord
 	private:
 		bool initialized_ = false;
 
-		static void ready(const DiscordUser* request)
+		static void ready(const DiscordUser* /*request*/)
 		{
 			ZeroMemory(&discord_presence, sizeof(discord_presence));
 

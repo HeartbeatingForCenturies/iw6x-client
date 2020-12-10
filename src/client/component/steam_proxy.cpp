@@ -3,9 +3,10 @@
 #include "steam_proxy.hpp"
 #include "scheduler.hpp"
 
-#include "utils/nt.hpp"
-#include "utils/string.hpp"
-#include "utils/binary_resource.hpp"
+#include <utils/nt.hpp>
+#include <utils/flags.hpp>
+#include <utils/string.hpp>
+#include <utils/binary_resource.hpp>
 
 #include "game/game.hpp"
 
@@ -17,6 +18,12 @@ namespace steam_proxy
 	namespace
 	{
 		utils::binary_resource runner_file(RUNNER, "runner.exe");
+
+		bool is_disabled()
+		{
+			static const auto disabled = utils::flags::has_flag("no-steam");
+			return disabled;
+		}
 	}
 
 	class component final : public component_interface
@@ -24,7 +31,7 @@ namespace steam_proxy
 	public:
 		void post_load() override
 		{
-			if (game::environment::is_dedi())
+			if (game::environment::is_dedi() || is_disabled())
 			{
 				return;
 			}

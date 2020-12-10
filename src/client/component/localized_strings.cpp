@@ -1,8 +1,8 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "localized_strings.hpp"
-#include "utils/hook.hpp"
-#include "utils/string.hpp"
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 #include "game/game.hpp"
 
 namespace localized_strings

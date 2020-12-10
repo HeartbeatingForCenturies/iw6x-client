@@ -28,6 +28,9 @@ namespace scripting
 		unsigned int get_entity_id() const;
 		game::scr_entref_t get_entity_reference() const;
 
+		bool operator ==(const entity& other) const noexcept;
+		bool operator !=(const entity& other) const noexcept;
+
 	private:
 		unsigned int entity_id_;
 

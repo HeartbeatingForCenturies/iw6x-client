@@ -1,6 +1,8 @@
 #include <std_include.hpp>
 #include "window.hpp"
 
+#include <utils/nt.hpp>
+
 std::mutex window::mutex_;
 std::vector<window*> window::windows_;
 
@@ -135,19 +137,25 @@ LRESULT window::processor(const UINT message, const WPARAM w_param, const LPARAM
 {
 	if (message == WM_DPICHANGED)
 	{
-		const auto dpi = GetDpiForWindow(*this);
-		if (dpi != this->last_dpi_)
+		const utils::nt::library user32{"user32.dll"};
+		const auto get_dpi = user32 ? user32.get_proc<UINT(WINAPI *)(HWND)>("GetDpiForWindow") : nullptr;
+		
+		if (get_dpi)
 		{
-			RECT rect;
-			GetWindowRect(*this, &rect);
+			const auto dpi = get_dpi(*this);
+			if (dpi != this->last_dpi_)
+			{
+				RECT rect;
+				GetWindowRect(*this, &rect);
 
-			const auto scale = dpi * 1.0 / this->last_dpi_;
-			this->last_dpi_ = dpi;
+				const auto scale = dpi * 1.0 / this->last_dpi_;
+				this->last_dpi_ = dpi;
 
-			const auto width = rect.right - rect.left;
-			const auto height = rect.bottom - rect.top;
+				const auto width = rect.right - rect.left;
+				const auto height = rect.bottom - rect.top;
 
-			MoveWindow(*this, rect.left, rect.top, int(width * scale), int(height * scale), TRUE);
+				MoveWindow(*this, rect.left, rect.top, int(width * scale), int(height * scale), TRUE);
+			}
 		}
 	}
 

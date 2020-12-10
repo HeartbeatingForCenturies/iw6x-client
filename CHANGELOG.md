@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.0.5] - 2020-12-08
+
+### Fixed
+
+-   Singleplayer crashing with v1.0.4 [#234](https://github.com/XLabsProject/iw6x-client/issues/234)
+
+## [v1.0.4] - 2020-12-07
+
+### Fixed
+
+-   Game pad crashes due to missing steam-api interfaces [#173](https://github.com/XLabsProject/iw6x-client/issues/173)
+
+### Added
+
+-   Analyze Arxan exception handlers to get rid of them [#146](https://github.com/XLabsProject/iw6x-client/issues/146)
+-   Add proper support for fovs >= 90 [#153](https://github.com/XLabsProject/iw6x-client/issues/153)
+-   Set thread names for common threads [#226](https://github.com/XLabsProject/iw6x-client/issues/226)
+-   Add -no-steam parameter to disable steam integration [#227](https://github.com/XLabsProject/iw6x-client/issues/227)
+-   Create extended minidumps [#228](https://github.com/XLabsProject/iw6x-client/issues/228)
+-   Load game as library instead of injecting it [#230](https://github.com/XLabsProject/iw6x-client/issues/230)
+
+### Pull Requests
+
+-   added r_fullbright, kbam input patch and changed branding in sp [#229](https://github.com/XLabsProject/iw6x-client/pull/229) ([@Jemal](https://github.com/Jemal))
+-   allow PlayerCmd_SetClientDvar to change any dvar like old cods [#224](https://github.com/XLabsProject/iw6x-client/pull/224) ([@skiff](https://github.com/skiff))
+-   Update function_table and some other changes. [#232](https://github.com/XLabsProject/iw6x-client/pull/232) ([@Joelrau](https://github.com/Joelrau))
+
+## [v1.0.3] - 2020-11-25
+
+### Fixed
+
+-   Dedicated server incompatible with older Windows [#167](https://github.com/XLabsProject/iw6x-client/issues/167)
+-   Fatal Error Server Crash [#119](https://github.com/XLabsProject/iw6x-client/issues/119)
+
+### Pull Requests
+
+-   Implement sv_motd [#203](https://github.com/XLabsProject/iw6x-client/pull/203) ([@fedddddd](https://github.com/fedddddd))
+-   MP command fixes, Game console version, Aim assist [#208](https://github.com/XLabsProject/iw6x-client/pull/208) ([@skiff](https://github.com/skiff))
+-   Add fastfiles component [#199](https://github.com/XLabsProject/iw6x-client/pull/199) ([@Joelrau](https://github.com/Joelrau))
+-   update give command & add take command [#198](https://github.com/XLabsProject/iw6x-client/pull/198) ([@Joelrau](https://github.com/Joelrau))
+
+## [v1.0.2] - 2020-11-12
+
 ### Fixed
 
 -   SP crashes on mouse scroll [#186](https://github.com/XLabsProject/iw6x-client/issues/186)
@@ -117,7 +160,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Add setviewpos, setviewang commands, add viewpos to drawfps [#38](https://github.com/XLabsProject/iw6x-client/pull/38) ([@fedddddd](https://github.com/fedddddd))
 -   Make stats look better [#36](https://github.com/XLabsProject/iw6x-client/pull/36) ([@FragsAreUs](https://github.com/FragsAreUs))
 
-[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.5...HEAD
+
+[v1.0.5]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.4...v1.0.5
+
+[v1.0.4]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.3...v1.0.4
+
+[v1.0.3]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.2...v1.0.3
+
+[v1.0.2]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.1...v1.0.2
 
 [v1.0.1]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.0...v1.0.1
 

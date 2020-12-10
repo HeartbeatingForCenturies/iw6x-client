@@ -35,3 +35,9 @@
 [submodule "deps/msvc-demangler"]
 	path = deps/msvc-demangler
 	url = https://github.com/rui314/msvc-demangler.git
+[submodule "deps/sol2"]
+	path = deps/sol2
+	url = https://github.com/ThePhD/sol2.git
+[submodule "deps/lua"]
+	path = deps/lua
+	url = https://github.com/lua/lua.git

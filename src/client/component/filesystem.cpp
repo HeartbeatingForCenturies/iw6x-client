@@ -3,7 +3,8 @@
 #include "filesystem.hpp"
 
 #include "game/game.hpp"
-#include "utils/hook.hpp"
+
+#include <utils/hook.hpp>
 
 namespace filesystem
 {
@@ -13,7 +14,7 @@ namespace filesystem
 		char* buffer{};
 		const auto size = game::FS_ReadFile(this->name_.data(), &buffer);
 
-		if (size >= 0)
+		if (size >= 0 && buffer)
 		{
 			this->valid_ = true;
 			this->buffer_.append(buffer, size);

@@ -1,10 +1,12 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "demonware.hpp"
+#include "game_module.hpp"
 
-#include "utils/hook.hpp"
-#include "utils/nt.hpp"
-#include "utils/cryptography.hpp"
+#include <utils/hook.hpp>
+#include <utils/nt.hpp>
+#include <utils/cryptography.hpp>
+#include <utils/thread.hpp>
 
 #include "game/game.hpp"
 
@@ -344,11 +346,11 @@ namespace demonware
 
 			bool register_hook(const std::string& process, void* stub)
 			{
-				const utils::nt::library main;
+				const auto game_module = game_module::get_game_module();
 
 				auto result = false;
-				result = result || utils::hook::iat(main, "wsock32.dll", process, stub);
-				result = result || utils::hook::iat(main, "WS2_32.dll", process, stub);
+				result = result || utils::hook::iat(game_module, "wsock32.dll", process, stub);
+				result = result || utils::hook::iat(game_module, "WS2_32.dll", process, stub);
 				return result;
 			}
 		}
@@ -401,7 +403,7 @@ namespace demonware
 
 		void post_load() override
 		{
-			message_thread = std::thread(server_thread);
+			message_thread = utils::thread::create_named_thread("Demonware", server_thread);
 
 			io::register_hook("send", io::send);
 			io::register_hook("recv", io::recv);

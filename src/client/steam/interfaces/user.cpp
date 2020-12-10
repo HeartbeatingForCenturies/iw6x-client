@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "steam/steam.hpp"
-#include "utils/cryptography.hpp"
+
+#include <utils/cryptography.hpp>
 
 namespace steam
 {

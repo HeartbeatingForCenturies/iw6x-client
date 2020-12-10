@@ -4,10 +4,10 @@
 #include "server_list.hpp"
 #include "network.hpp"
 #include "command.hpp"
-#include "utils/hook.hpp"
-#include "utils/binary_resource.hpp"
 #include "game/game.hpp"
-#include "utils/string.hpp"
+
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 namespace dedicated
 {
@@ -112,17 +112,60 @@ namespace dedicated
 
 			return dvar_get_string_hook.invoke<const char*>(dvar, default_value);
 		}
+
+		void glass_update()
+		{
+			if (*reinterpret_cast<void**>(0x14424C068))
+			{
+				reinterpret_cast<void(*)()>(0x140397450)();
+			}
+		}
+
+		HWND WINAPI set_focus_stub(const HWND hwnd)
+		{
+			return hwnd;
+		}
+	}
+
+	void initialize()
+	{
+		command::execute("exec default_xboxlive.cfg", true);
+
+		command::execute("xstartprivatematch", true);
+		command::execute("xstartpartyhost", true);
+
+		command::execute("exec default_mp_gamesettings.cfg", true);
+		command::execute("exec default_private.cfg", true);
+
+		command::execute("onlinegame 1", true);
+		command::execute("xblive_rankedmatch 1", true);
+		command::execute("xblive_privatematch 1", true);
 	}
 
 	class component final : public component_interface
 	{
 	public:
+		void* load_import(const std::string& library, const std::string& function) override
+		{
+			if(!game::environment::is_dedi()) return nullptr;
+
+			if(function == "SetFocus")
+			{
+				return set_focus_stub;
+			}
+
+			return nullptr;
+		}
+
 		void post_unpack() override
 		{
 			if (!game::environment::is_dedi())
 			{
 				return;
 			}
+
+			// Arxan error fix
+			utils::hook::call(0x1403A0AF9, glass_update);
 
 			// Make dedis ranked
 			dvar_get_string_hook.create(game::Dvar_GetVariantStringWithDefault, dvar_get_string_stub);
@@ -206,17 +249,7 @@ namespace dedicated
 
 			scheduler::on_game_initialized([]()
 			{
-				command::execute("exec default_xboxlive.cfg", true);
-
-				command::execute("xstartprivatematch", true);
-				command::execute("xstartpartyhost", true);
-
-				command::execute("exec default_mp_gamesettings.cfg", true);
-				command::execute("exec default_private.cfg", true);
-
-				command::execute("onlinegame 1", true);
-				command::execute("xblive_rankedmatch 1", true);
-				command::execute("xblive_privatematch 1", true);
+				initialize();
 
 				printf("==================================\n");
 				printf("Server started!\n");

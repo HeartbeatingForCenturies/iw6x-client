@@ -6,7 +6,7 @@
 #include "game_console.hpp"
 #include "server_list.hpp"
 
-#include "utils/hook.hpp"
+#include <utils/hook.hpp>
 
 namespace input
 {
@@ -14,14 +14,14 @@ namespace input
 	{
 		utils::hook::detour cl_char_event_hook;
 		utils::hook::detour cl_key_event_hook;
-		
+
 		void cl_char_event_stub(const int local_client_num, const int key)
 		{
-			if(!game_console::console_char_event(local_client_num, key))
+			if (!game_console::console_char_event(local_client_num, key))
 			{
 				return;
 			}
-			
+
 			cl_char_event_hook.invoke<void>(local_client_num, key);
 		}
 
@@ -32,15 +32,15 @@ namespace input
 				return;
 			}
 
-			if(game::environment::is_mp() && !server_list::sl_key_event(key, down))
+			if (game::environment::is_mp() && !server_list::sl_key_event(key, down))
 			{
 				return;
 			}
-			
+
 			cl_key_event_hook.invoke<void>(local_client_num, key, down);
 		}
 	}
-	
+
 	class component final : public component_interface
 	{
 	public:
