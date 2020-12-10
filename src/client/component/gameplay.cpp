@@ -201,23 +201,23 @@ namespace gameplay
 
 			utils::hook::jump(0x14022584B, jump_apply_slowdown_stub, true);
 			dvars::jump_slowDownEnable = game::Dvar_RegisterBool("jump_slowDownEnable", true,
-																 game::DvarFlags::DVAR_FLAG_SAVED | 
-																 game::DvarFlags::DVAR_FLAG_REPLICATED, "Slow player movement after jumping");
+			                                                     game::DvarFlags::DVAR_FLAG_SAVED | 
+			                                                     game::DvarFlags::DVAR_FLAG_REPLICATED, "Slow player movement after jumping");
 
 			utils::hook::jump(0x14022199D, pm_crashland_stub, true);
 			dvars::jump_enableFallDamage = game::Dvar_RegisterBool("jump_enableFallDamage", true,
-																   game::DvarFlags::DVAR_FLAG_SAVED |
-																   game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable fall damage");
+			                                                       game::DvarFlags::DVAR_FLAG_SAVED |
+			                                                       game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable fall damage");
 
 			utils::hook::jump(0x140213015, jump_start_stub, true);
 			dvars::jump_height = game::Dvar_RegisterFloat("jump_height", 39.f, 0.f, 1024.f,
-														  game::DvarFlags::DVAR_FLAG_SAVED |
-														  game::DvarFlags::DVAR_FLAG_REPLICATED, "Jump height");
+			                                              game::DvarFlags::DVAR_FLAG_SAVED |
+			                                              game::DvarFlags::DVAR_FLAG_REPLICATED, "Jump height");
 
 			utils::hook::jump(0x140213460, jump_push_off_ladder_stub, true);
 			dvars::jump_ladderPushVel = game::Dvar_RegisterFloat("jump_ladderPushVel", 128.f, 0.f, 1024.f,
-																 game::DvarFlags::DVAR_FLAG_SAVED |
-																 game::DvarFlags::DVAR_FLAG_REPLICATED, "Ladder push velocity");
+			                                                     game::DvarFlags::DVAR_FLAG_SAVED |
+			                                                     game::DvarFlags::DVAR_FLAG_REPLICATED, "Ladder push velocity");
 		}
 	};
 }
