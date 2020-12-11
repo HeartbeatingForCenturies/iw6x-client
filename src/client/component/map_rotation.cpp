@@ -2,8 +2,8 @@
 #include "loader/component_loader.hpp"
 #include "command.hpp"
 #include "scheduler.hpp"
-#include "utils/hook.hpp"
-#include "utils/string.hpp"
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 #include "game/game.hpp"
 
 namespace map_rotation

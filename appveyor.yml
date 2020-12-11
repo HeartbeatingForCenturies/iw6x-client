@@ -15,8 +15,9 @@ branches:
 
 skip_branch_with_pr: true
 
-cache:
-  - build/obj
+# Doesn't work :(
+#cache:
+#  - build
 
 configuration:
   - Debug

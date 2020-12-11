@@ -24,10 +24,36 @@ namespace steam
 		callback_list_.push_back(handler);
 	}
 
+	void callbacks::unregister_callback(base* handler)
+	{
+		std::lock_guard<std::recursive_mutex> _(mutex_);
+		for(auto i = callback_list_.begin(); i != callback_list_.end();)
+		{
+			if(*i == handler)
+			{
+				i = callback_list_.erase(i);
+			}
+			else
+			{
+				++i;
+			}
+		}
+	}
+
 	void callbacks::register_call_result(const uint64_t call, base* result)
 	{
 		std::lock_guard<std::recursive_mutex> _(mutex_);
 		result_handlers_[call] = result;
+	}
+
+	void callbacks::unregister_call_result(const uint64_t call, base* /*result*/)
+	{
+		std::lock_guard<std::recursive_mutex> _(mutex_);
+		const auto i = result_handlers_.find(call);
+		if(i != result_handlers_.end())
+		{
+			result_handlers_.erase(i);
+		}
 	}
 
 	void callbacks::return_call(void* data, const int size, const int type, const uint64_t call)
@@ -42,7 +68,7 @@ namespace steam
 
 		calls_[call] = true;
 
-		results_.emplace_back(std::move(result));
+		results_.emplace_back(result);
 	}
 
 	void callbacks::run_callbacks()
@@ -84,12 +110,12 @@ namespace steam
 		return true;
 	}
 
-	void SteamAPI_RegisterCallResult(callbacks::base* result, uint64_t call)
+	void SteamAPI_RegisterCallResult(callbacks::base* result, const uint64_t call)
 	{
 		callbacks::register_call_result(call, result);
 	}
 
-	void SteamAPI_RegisterCallback(callbacks::base* handler, int callback)
+	void SteamAPI_RegisterCallback(callbacks::base* handler, const int callback)
 	{
 		callbacks::register_callback(handler, callback);
 	}
@@ -103,12 +129,14 @@ namespace steam
 	{
 	}
 
-	void SteamAPI_UnregisterCallResult()
+	void SteamAPI_UnregisterCallResult(callbacks::base* result, const uint64_t call)
 	{
+		callbacks::unregister_call_result(call, result);
 	}
 
-	void SteamAPI_UnregisterCallback()
+	void SteamAPI_UnregisterCallback(callbacks::base* handler)
 	{
+		callbacks::unregister_callback(handler);
 	}
 
 	const char* SteamAPI_GetSteamInstallPath()

@@ -26,6 +26,29 @@ namespace game
 		DB_LOAD_SYNC_SKIP_ALWAYS_LOADED = 0x5,
 	};
 
+	enum $44ED595A48CF2D4BF24165A45E7595BF
+	{
+		THREAD_CONTEXT_MAIN = 0x0,
+		THREAD_CONTEXT_BACKEND = 0x1,
+		THREAD_CONTEXT_WORKER0 = 0x2,
+		THREAD_CONTEXT_WORKER1 = 0x3,
+		THREAD_CONTEXT_WORKER2 = 0x4,
+		THREAD_CONTEXT_WORKER3 = 0x5,
+		THREAD_CONTEXT_WORKER4 = 0x6,
+		THREAD_CONTEXT_WORKER5 = 0x7,
+		THREAD_CONTEXT_WORKER6 = 0x8,
+		THREAD_CONTEXT_WORKER7 = 0x9,
+		THREAD_CONTEXT_SERVER = 0xA,
+		THREAD_CONTEXT_TRACE_COUNT = 0xB,
+		THREAD_CONTEXT_TRACE_LAST = 0xA,
+		THREAD_CONTEXT_CINEMATIC = 0xB,
+		THREAD_CONTEXT_DATABASE = 0xC,
+		THREAD_CONTEXT_STREAM = 0xD,
+		THREAD_CONTEXT_SNDSTREAMPACKETCALLBACK = 0xE,
+		THREAD_CONTEXT_STATS_WRITE = 0xF,
+		THREAD_CONTEXT_COUNT = 0x10,
+	};
+
 	struct $9704E9D6F23D6A5E526351953F37E26F
 	{
 		unsigned int weaponIdx : 8;
@@ -653,6 +676,24 @@ namespace game
 		CS_ITEMS = 0xD22,
 		CS_LEADERBOARDS = 0xD23,
 		MAX_CONFIGSTRINGS = 0xD24,
+	};
+
+	enum LiveClientDropType
+	{
+		SV_LIVE_DROP_NONE = 0x0,
+		SV_LIVE_DROP_DISCONNECT = 0x1,
+		SV_LIVE_DROP_RMSG_LOST = 0x2,
+		SV_LIVE_DROP_INACTIVE = 0x3,
+		SV_LIVE_DROP_P2P_AUTH = 0x4,
+		SV_LIVE_DROP_COUNT = 0x5,
+	};
+
+	enum TestClientType
+	{
+		TC_NONE = 0x0,
+		TC_TEST_CLIENT = 0x1,
+		TC_BOT = 0x2,
+		TC_COUNT = 0x3,
 	};
 
 	struct Material
@@ -1551,19 +1592,71 @@ namespace game
 		struct client_t
 		{
 			clientHeader_t header;
-			char _0x818[0x41668];
+			char _0x818[0x41650];
+			gentity_s *gentity;
+			char name[16];
 			int lastPacketTime;
 			int lastConnectTime;
 			int nextSnapshotTime;
 			int timeoutCount;
 			int ping;
-			char _0x41E94[0x416DC];
+			int minPing;
+			int currFramePing;
+			int snapshotBackoffCount;
+			int rate;
+			int pureAuthentic;
+			unsigned int streamSyncWaitBits;
+			unsigned int streamSyncWaitTimeout;
+			LiveClientDropType liveDropRequest;
+			char playerGuid[17];
+			unsigned short scriptId;
+			int bIsSplitscreenClient;
+			TestClientType testClient;
+			char _0x41E94[0x416A0];
 		};
 	}
+
+	static_assert(sizeof(mp::client_t) == 0x83570);
 
 	union playerState_s
 	{
 		sp::playerState_s* sp;
 		mp::playerState_s* mp;
+	};
+
+	enum GfxDrawSceneMethod
+	{
+		GFX_DRAW_SCENE_STANDARD = 0x0,
+	};
+
+	enum MaterialTechniqueType
+	{
+		TECHNIQUE_DEPTH_PREPASS = 0x0,
+		TECHNIQUE_BUILD_SHADOWMAP_DEPTH = 0x1,
+		TECHNIQUE_UNLIT = 0x2,
+		TECHNIQUE_EMISSIVE = 0x3,
+		TECHNIQUE_EMISSIVE_DFOG = 0x4,
+		TECHNIQUE_EMISSIVE_SHADOW = 0x5,
+		TECHNIQUE_EMISSIVE_SHADOW_DFOG = 0x6,
+		TECHNIQUE_LIT = 0x7,
+		LIT_FIRST_ONE_LIGHT_TECHNIQUE = 0x8,
+		TECHNIQUE_WIREFRAME_SOLID = 0x61,
+		TECHNIQUE_WIREFRAME_SHADED = 0x62,
+		TECHNIQUE_THERMAL = 0x63,
+		TECHNIQUE_VELOCITY_RIGID = 0x64,
+		TECHNIQUE_VELOCITY_SKINNED = 0x65,
+		TECHNIQUE_DEBUG_BUMPMAP = 0x66,
+		TECHNIQUE_NO_DISPLACEMENT_DEBUG_BUMPMAP = 0x134,
+		TECHNIQUE_COUNT = 0x135,
+		TECHNIQUE_TOTAL_COUNT = 0x136,
+		TECHNIQUE_NONE = 0x137,
+	};
+
+	struct GfxDrawMethod_s
+	{
+		int drawScene;
+		int baseTechType;
+		int emissiveTechType;
+		int forceTechType;
 	};
 }

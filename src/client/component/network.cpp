@@ -1,10 +1,12 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+
+#include "command.hpp"
 #include "network.hpp"
 #include "game_console.hpp"
 
-#include "utils/hook.hpp"
-#include "utils/string.hpp"
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 namespace network
 {
@@ -43,7 +45,7 @@ namespace network
 			a.mov(rdx, rdi); // command
 			a.mov(rcx, r14); // netaddr
 
-			a.call(handle_command);
+			a.call_aligned(handle_command);
 
 			a.test(al, al);
 			a.jz(return_unhandled);
@@ -84,12 +86,12 @@ namespace network
 			return net_compare_base_address(a1, a2) && a1->port == a2->port;
 		}
 
-		void reconnect_migratated_client(game::mp::client_t*, game::netadr_s* from, const int, const int, const char*, const char*, bool)
+		void reconnect_migratated_client(game::mp::client_t*, game::netadr_s* from, const int, const int, const char*,
+		                                 const char*, bool)
 		{
 			// This happens when a client tries to rejoin after being recently disconnected, OR by a duplicated guid
 			// We don't want this to do anything. It decides to crash seemingly randomly
 			// Rather than try and let the player in, just tell them they are a duplicate player and reject connection
-			
 			game::NET_OutOfBandPrint(game::NS_SERVER, from, "error\nYou are already connected to the server.");
 		}
 	}
@@ -154,7 +156,7 @@ namespace network
 		a.jne(return_regular);
 
 		// Do the original work
-		a.call(return_regular);
+		a.call_aligned(return_regular);
 
 		// Jump to success branch
 		a.mov(rax, 0x14047771E);
@@ -170,6 +172,17 @@ namespace network
 		a.mov(r10, rdx);
 
 		a.jmp(0x14041DFBD);
+	}
+
+	game::dvar_t* register_netport_stub(const char* dvarName, int value, int min, int max, unsigned int flags,
+		const char* description)
+	{
+		auto dvar = game::Dvar_RegisterInt("net_port", 27016, 0, 0xFFFFu, game::DVAR_FLAG_LATCHED, "Network port");
+
+		// read net_port from command line
+		command::read_startup_variable("net_port");
+
+		return dvar;
 	}
 
 	class component final : public component_interface
@@ -246,11 +259,14 @@ namespace network
 				// don't try to reconnect client
 				utils::hook::call(0x14047197E, reconnect_migratated_client);
 
+				// allow server owner to modify net_port before the socket bind
+				utils::hook::call(0x140500FD0, register_netport_stub);
+
 				// ignore built in "print" oob command and add in our own
 				utils::hook::set<uint8_t>(0x1402C6AA4, 0xEB);
 				on("print", [](const game::netadr_s& addr, const std::string_view& data)
 				{
-					const std::string message{ data };
+					const std::string message{data};
 
 					if (game::environment::is_dedi())
 					{

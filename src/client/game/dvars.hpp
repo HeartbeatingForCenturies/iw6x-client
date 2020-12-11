@@ -21,6 +21,7 @@ namespace dvars
 	extern game::dvar_t* pm_bouncing;
 
 	extern game::dvar_t* r_aspectRatioCustom;
+	extern game::dvar_t* r_fullbright;
 
 	extern game::dvar_t* aimassist_enabled;
 

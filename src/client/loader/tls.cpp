@@ -1,8 +1,8 @@
 #include <std_include.hpp>
 #include "tls.hpp"
 
-#include "utils/nt.hpp"
-#include "utils/binary_resource.hpp"
+#include <utils/nt.hpp>
+#include <utils/binary_resource.hpp>
 
 namespace tls
 {

@@ -52,4 +52,34 @@ namespace scripting
 
 		return this->value_[i];
 	}
+
+	float vector::get_x() const
+	{
+		return this->operator[](0);
+	}
+
+	float vector::get_y() const
+	{
+		return this->operator[](1);
+	}
+
+	float vector::get_z() const
+	{
+		return this->operator[](2);
+	}
+
+	void vector::set_x(const float value)
+	{
+		this->operator[](0) = value;
+	}
+
+	void vector::set_y(const float value)
+	{
+		this->operator[](1) = value;
+	}
+
+	void vector::set_z(const float value)
+	{
+		this->operator[](2) = value;
+	}
 }

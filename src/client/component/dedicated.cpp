@@ -4,10 +4,10 @@
 #include "server_list.hpp"
 #include "network.hpp"
 #include "command.hpp"
-#include "utils/hook.hpp"
-#include "utils/binary_resource.hpp"
 #include "game/game.hpp"
-#include "utils/string.hpp"
+
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 namespace dedicated
 {
@@ -115,10 +115,15 @@ namespace dedicated
 
 		void glass_update()
 		{
-			if(*reinterpret_cast<void**>(0x14424C068))
+			if (*reinterpret_cast<void**>(0x14424C068))
 			{
 				reinterpret_cast<void(*)()>(0x140397450)();
 			}
+		}
+
+		HWND WINAPI set_focus_stub(const HWND hwnd)
+		{
+			return hwnd;
 		}
 	}
 
@@ -140,6 +145,18 @@ namespace dedicated
 	class component final : public component_interface
 	{
 	public:
+		void* load_import(const std::string& library, const std::string& function) override
+		{
+			if(!game::environment::is_dedi()) return nullptr;
+
+			if(function == "SetFocus")
+			{
+				return set_focus_stub;
+			}
+
+			return nullptr;
+		}
+
 		void post_unpack() override
 		{
 			if (!game::environment::is_dedi())

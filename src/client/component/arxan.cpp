@@ -2,23 +2,18 @@
 #include "loader/component_loader.hpp"
 #include "scheduler.hpp"
 #include "game/game.hpp"
-#include "utils/hook.hpp"
+
+#include <utils/hook.hpp>
 
 namespace arxan
 {
 	namespace
 	{
-		typedef struct _OBJECT_HANDLE_ATTRIBUTE_INFORMATION
-		{
-			BOOLEAN Inherit;
-			BOOLEAN ProtectFromClose;
-		} OBJECT_HANDLE_ATTRIBUTE_INFORMATION;
-
 		utils::hook::detour nt_close_hook;
 		utils::hook::detour nt_query_information_process_hook;
 
 		NTSTATUS WINAPI nt_query_information_process_stub(const HANDLE handle, const PROCESSINFOCLASS info_class,
-		                                                  PVOID info,
+		                                                  const PVOID info,
 		                                                  const ULONG info_length, const PULONG ret_length)
 		{
 			auto* orig = static_cast<decltype(NtQueryInformationProcess)*>(nt_query_information_process_hook.
@@ -29,14 +24,14 @@ namespace arxan
 			{
 				if (info_class == ProcessBasicInformation)
 				{
-					static DWORD explorerPid = 0;
-					if (!explorerPid)
+					static DWORD explorer_pid = 0;
+					if (!explorer_pid)
 					{
 						auto* const shell_window = GetShellWindow();
-						GetWindowThreadProcessId(shell_window, &explorerPid);
+						GetWindowThreadProcessId(shell_window, &explorer_pid);
 					}
 
-					static_cast<PPROCESS_BASIC_INFORMATION>(info)->Reserved3 = PVOID(DWORD64(explorerPid));
+					static_cast<PPROCESS_BASIC_INFORMATION>(info)->Reserved3 = PVOID(DWORD64(explorer_pid));
 				}
 				else if (info_class == 30) // ProcessDebugObjectHandle
 				{
@@ -60,37 +55,13 @@ namespace arxan
 		NTSTATUS NTAPI nt_close_stub(const HANDLE handle)
 		{
 			char info[16];
-			if (NtQueryObject(handle, OBJECT_INFORMATION_CLASS(4), &info, sizeof(OBJECT_HANDLE_ATTRIBUTE_INFORMATION),
-			                  nullptr) >= 0)
+			if (NtQueryObject(handle, OBJECT_INFORMATION_CLASS(4), &info, 2, nullptr) >= 0)
 			{
 				auto* orig = static_cast<decltype(NtClose)*>(nt_close_hook.get_original());
 				return orig(handle);
 			}
 
 			return STATUS_INVALID_HANDLE;
-		}
-
-		jmp_buf* get_buffer()
-		{
-			static thread_local jmp_buf old_buffer;
-			return &old_buffer;
-		}
-
-		void reset_state()
-		{
-			game::longjmp(get_buffer(), -1);
-		}
-
-		size_t get_reset_state_stub()
-		{
-			static auto* stub = utils::hook::assemble([](utils::hook::assembler& a)
-			{
-				a.sub(rsp, 0x10);
-				a.or_(rsp, 0x8);
-				a.jmp(reset_state);
-			});
-
-			return reinterpret_cast<size_t>(stub);
 		}
 
 		LONG WINAPI exception_filter(const LPEXCEPTION_POINTERS info)
@@ -100,16 +71,6 @@ namespace arxan
 				return EXCEPTION_CONTINUE_EXECUTION;
 			}
 
-			if (info->ExceptionRecord->ExceptionCode == STATUS_ACCESS_VIOLATION)
-			{
-				const auto address = reinterpret_cast<size_t>(info->ExceptionRecord->ExceptionAddress);
-				if ((address & ~0xFFFFFFF) == 0x280000000)
-				{
-					info->ContextRecord->Rip = get_reset_state_stub();
-					return EXCEPTION_CONTINUE_EXECUTION;
-				}
-			}
-
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
@@ -117,7 +78,7 @@ namespace arxan
 		{
 			auto* const peb = PPEB(__readgsqword(0x60));
 			peb->BeingDebugged = false;
-			*PDWORD(LPSTR(peb) + 0xBC) &= ~0x70;
+			*reinterpret_cast<PDWORD>(LPSTR(peb) + 0xBC) &= ~0x70;
 		}
 
 		void remove_hardware_breakpoints()
@@ -174,71 +135,6 @@ namespace arxan
 				reinterpret_cast<void(*)(int)>(0x14000F9A6)(index);
 			}
 		}
-
-		volatile bool trigger_error = false;
-		utils::hook::detour frame_hook;
-
-		void frame_stub()
-		{
-			if (trigger_error)
-			{
-				trigger_error = false;
-				game::Com_Error(game::ERR_DROP, "An Arxan error occured.");
-			}
-
-			frame_hook.invoke<void>();
-		}
-	}
-
-	bool save_state()
-	{
-		// Backup the stack
-		static thread_local char backup_stack[0x1000];
-		memmove(backup_stack, _AddressOfReturnAddress(), sizeof(backup_stack));
-
-		const auto recovered = game::_setjmp(get_buffer()) != 0;
-		if (recovered)
-		{
-			// Restore the stack, as it was destroyed by arxan :(
-			memmove(_AddressOfReturnAddress(), backup_stack, sizeof(backup_stack));
-
-			printf("Recovering from arxan error...\n");
-		}
-
-		return recovered;
-	}
-
-	void relaunch_self()
-	{
-		const utils::nt::library self;
-
-		STARTUPINFOA startup_info;
-		PROCESS_INFORMATION process_info;
-
-		ZeroMemory(&startup_info, sizeof(startup_info));
-		ZeroMemory(&process_info, sizeof(process_info));
-		startup_info.cb = sizeof(startup_info);
-
-		char current_dir[MAX_PATH];
-		GetCurrentDirectoryA(sizeof(current_dir), current_dir);
-		auto* const command_line = GetCommandLineA();
-
-		CreateProcessA(self.get_path().data(), command_line, nullptr, nullptr, false, NULL, nullptr, current_dir,
-		               &startup_info, &process_info);
-
-		if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE) CloseHandle(process_info.hThread);
-		if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE) CloseHandle(process_info.hProcess);
-	}
-
-	void trigger_reset_error()
-	{
-		if (game::environment::is_dedi())
-		{
-			relaunch_self();
-			TerminateProcess(GetCurrentProcess(), 0);
-		}
-
-		trigger_error = true;
 	}
 
 	class component final : public component_interface
@@ -277,7 +173,12 @@ namespace arxan
 			utils::hook::jump(0x140591850, 0x1405918E0); // dwLobbyPump
 			utils::hook::jump(0x140589480, 0x140589490); // dwGetLogonStatus
 
-			frame_hook.create(0x140500070, frame_stub);
+			// These two are inlined with their synchronization. Need to work around that
+			//utils::hook::jump(0x14015EB9A, 0x140589E10); // dwLogOnStart
+			//utils::hook::call(0x140588306, 0x1405894D0); // dwLogOnComplete
+
+			// Unfinished for now
+			//utils::hook::jump(0x1405881E0, dw_frame_stub);
 
 			// Fix arxan crashes
 			// Are these opaque predicates?
@@ -286,13 +187,6 @@ namespace arxan
 			utils::hook::nop(0x14A920E10, 4); // 000000014AEF4F39
 			utils::hook::nop(0x14A1A2425, 4); // 000000014A0B52A8
 			utils::hook::nop(0x14AE07CEA, 4); // 000000014A143BFF
-
-			// These two are inlined with their synchronization. Need to work around that
-			//utils::hook::jump(0x14015EB9A, 0x140589E10); // dwLogOnStart
-			//utils::hook::call(0x140588306, 0x1405894D0); // dwLogOnComplete
-
-			// Unfinished for now
-			//utils::hook::jump(0x1405881E0, dw_frame_stub);
 
 			scheduler::on_game_initialized(remove_hardware_breakpoints, scheduler::pipeline::main);
 		}

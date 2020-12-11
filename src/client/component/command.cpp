@@ -3,9 +3,10 @@
 #include "command.hpp"
 
 #include "game/game.hpp"
-#include "utils/hook.hpp"
-#include "utils/string.hpp"
-#include "utils/memory.hpp"
+
+#include <utils/hook.hpp>
+#include <utils/string.hpp>
+#include <utils/memory.hpp>
 
 namespace command
 {
@@ -56,7 +57,7 @@ namespace command
 			auto& com_num_console_lines = *reinterpret_cast<int*>(0x1445CFF98);
 			auto* com_console_lines = reinterpret_cast<char**>(0x1445CFFA0);
 
-			auto inq = 0;
+			auto inq = false;
 			com_console_lines[0] = command_line;
 			com_num_console_lines = 0;
 
@@ -90,21 +91,53 @@ namespace command
 		}
 	}
 
-	int params::size()
+	void read_startup_variable(const std::string& dvar)
 	{
-		return game::Cmd_Argc();
+		// parse the commandline if it's not parsed
+		parse_command_line();
+
+		auto& com_num_console_lines = *reinterpret_cast<int*>(0x1445CFF98);
+		auto* com_console_lines = reinterpret_cast<char**>(0x1445CFFA0);
+
+		for (int i = 0; i < com_num_console_lines; i++)
+		{
+			game::Com_TokenizeString(com_console_lines[i]);
+
+			// only +set dvar value
+			if (game::Cmd_Argc() >= 3 && game::Cmd_Argv(0) == "set"s && game::Cmd_Argv(1) == dvar)
+			{
+				game::Dvar_SetCommand(game::Cmd_Argv(1), game::Cmd_Argv(2));
+			}
+
+			game::Com_EndTokenizeString();
+		}
 	}
 
-	const char* params::get(int index)
+	params::params()
+		: nesting_(game::cmd_args->nesting)
 	{
-		return game::Cmd_Argv(index);
 	}
 
-	std::string params::join(int index)
+	int params::size() const
+	{
+		return game::cmd_args->argc[this->nesting_];
+	}
+
+	const char* params::get(const int index) const
+	{
+		if (index >= this->size())
+		{
+			return "";
+		}
+
+		return game::cmd_args->argv[this->nesting_][index];
+	}
+
+	std::string params::join(const int index) const
 	{
 		std::string result = {};
 
-		for (int i = index; i < this->size(); i++)
+		for (auto i = index; i < this->size(); i++)
 		{
 			if (i > index) result.append(" ");
 			result.append(this->get(i));
@@ -112,21 +145,31 @@ namespace command
 		return result;
 	}
 
-	int params_sv::size()
+	params_sv::params_sv()
+		: nesting_(game::sv_cmd_args->nesting)
 	{
-		return game::SV_Cmd_Argc();
 	}
 
-	const char* params_sv::get(const int index)
+	int params_sv::size() const
 	{
-		return game::SV_Cmd_Argv(index);
+		return game::sv_cmd_args->argc[this->nesting_];
 	}
 
-	std::string params_sv::join(const int index)
+	const char* params_sv::get(const int index) const
+	{
+		if (index >= this->size())
+		{
+			return "";
+		}
+
+		return game::sv_cmd_args->argv[this->nesting_][index];
+	}
+
+	std::string params_sv::join(const int index) const
 	{
 		std::string result = {};
 
-		for (int i = index; i < this->size(); i++)
+		for (auto i = index; i < this->size(); i++)
 		{
 			if (i > index) result.append(" ");
 			result.append(this->get(i));
@@ -139,7 +182,7 @@ namespace command
 		game::Cmd_AddCommandInternal(name, callback, utils::memory::get_allocator()->allocate<game::cmd_function_s>());
 	}
 
-	void add(const char* name, const std::function<void(params&)>& callback)
+	void add(const char* name, const std::function<void(const params&)>& callback)
 	{
 		const auto command = utils::string::to_lower(name);
 
@@ -151,13 +194,13 @@ namespace command
 
 	void add(const char* name, const std::function<void()>& callback)
 	{
-		add(name, [callback](params&)
+		add(name, [callback](const params&)
 		{
 			callback();
 		});
 	}
 
-	void add_sv(const char* name, std::function<void(int, params_sv&)> callback)
+	void add_sv(const char* name, std::function<void(int, const params_sv&)> callback)
 	{
 		// doing this so the sv command would show up in the console
 		add_raw(name, nullptr);
@@ -165,7 +208,7 @@ namespace command
 		const auto command = utils::string::to_lower(name);
 
 		if (handlers_sv.find(command) == handlers_sv.end())
-			handlers_sv[command] = callback;
+			handlers_sv[command] = std::move(callback);
 	}
 
 	void execute(std::string command, const bool sync)
@@ -228,7 +271,7 @@ namespace command
 					0, utils::string::va("ufo %s", game::sp::g_entities[0].client->flags & 2 ? "^2on" : "^1off"));
 			});
 
-			add("give", [](params& params)
+			add("give", [](const params& params)
 			{
 				if (!game::SV_Loaded())
 				{
@@ -250,7 +293,7 @@ namespace command
 				}
 			});
 
-			add("take", [](params& params)
+			add("take", [](const params& params)
 			{
 				if (!game::SV_Loaded())
 				{
@@ -269,11 +312,11 @@ namespace command
 			});
 		}
 
-		void add_mp_commands()
+		static void add_mp_commands()
 		{
 			client_command_hook.create(0x1403929B0, &client_command);
 
-			add_sv("god", [&](const int client_num, params_sv&)
+			add_sv("god", [&](const int client_num, const params_sv&)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
@@ -289,7 +332,7 @@ namespace command
 					                                                 : "^1off"));
 			});
 
-			add_sv("noclip", [&](const int client_num, params_sv&)
+			add_sv("noclip", [&](const int client_num, const params_sv&)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
@@ -305,7 +348,7 @@ namespace command
 					                                                 : "^1off"));
 			});
 
-			add_sv("ufo", [&](const int client_num, params_sv&)
+			add_sv("ufo", [&](const int client_num, const params_sv&)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
@@ -321,7 +364,7 @@ namespace command
 					                                                 : "^1off"));
 			});
 
-			add_sv("setviewpos", [&](const int client_num, params_sv& params)
+			add_sv("setviewpos", [&](const int client_num, const params_sv& params)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
@@ -331,7 +374,8 @@ namespace command
 
 				if (params.size() < 4)
 				{
-					game::SV_GameSendServerCommand(client_num, 1, "f \"You did not specify the correct number of coordinates\"");
+					game::SV_GameSendServerCommand(client_num, 1,
+					                               "f \"You did not specify the correct number of coordinates\"");
 					return;
 				}
 
@@ -340,7 +384,7 @@ namespace command
 				game::mp::g_entities[client_num].client->ps.origin[2] = std::strtof(params.get(3), nullptr);
 			});
 
-			add_sv("setviewang", [&](const int client_num, params_sv& params)
+			add_sv("setviewang", [&](const int client_num, const params_sv& params)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
@@ -350,7 +394,8 @@ namespace command
 
 				if (params.size() < 4)
 				{
-					game::SV_GameSendServerCommand(client_num, 1, "f \"You did not specify the correct number of coordinates\"");
+					game::SV_GameSendServerCommand(client_num, 1,
+					                               "f \"You did not specify the correct number of coordinates\"");
 					return;
 				}
 
@@ -359,7 +404,7 @@ namespace command
 				game::mp::g_entities[client_num].client->ps.delta_angles[2] = std::strtof(params.get(3), nullptr);
 			});
 
-			add_sv("give", [](const int client_num, params_sv& params)
+			add_sv("give", [](const int client_num, const params_sv& params)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{
@@ -382,7 +427,7 @@ namespace command
 				}
 			});
 
-			add_sv("take", [](const int client_num, params_sv& params)
+			add_sv("take", [](const int client_num, const params_sv& params)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
 				{

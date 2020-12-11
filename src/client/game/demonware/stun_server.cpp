@@ -3,8 +3,9 @@
 
 #include "component/demonware.hpp"
 #include "game/demonware/stun_server.hpp"
-#include "utils/cryptography.hpp"
 #include "byte_buffer.hpp"
+
+#include <utils/cryptography.hpp>
 
 namespace demonware
 {

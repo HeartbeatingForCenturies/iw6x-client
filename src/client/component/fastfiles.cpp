@@ -2,15 +2,18 @@
 #include "loader/component_loader.hpp"
 
 #include "game/game.hpp"
-#include "utils/hook.hpp"
+
 #include "command.hpp"
 #include "game_console.hpp"
+
+#include <utils/hook.hpp>
 
 namespace fastfiles
 {
 	namespace
 	{
 		utils::hook::detour db_try_load_x_file_internal_hook;
+
 		void db_try_load_x_file_internal(const char* zoneName, int zoneFlags, int isBaseMap)
 		{
 			game_console::print(game_console::con_type_info, "Loading fastfile %s\n", zoneName);
@@ -23,9 +26,10 @@ namespace fastfiles
 	public:
 		void post_unpack() override
 		{
-			db_try_load_x_file_internal_hook.create(SELECT_VALUE(0x140275850, 0x1403237F0), &db_try_load_x_file_internal);
+			db_try_load_x_file_internal_hook.create(
+				SELECT_VALUE(0x140275850, 0x1403237F0), &db_try_load_x_file_internal);
 
-			command::add("loadzone", [](command::params& params)
+			command::add("loadzone", [](const command::params& params)
 			{
 				if (params.size() < 2)
 				{

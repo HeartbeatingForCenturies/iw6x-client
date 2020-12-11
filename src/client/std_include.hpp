@@ -4,6 +4,9 @@
 // SP: 0x079C6A00
 #define BINARY_PAYLOAD_SIZE 0x0B500000
 
+// Decide whether to load the game as lib or to inject it
+#define INJECT_HOST_AS_LIB
+
 #pragma warning(push)
 #pragma warning(disable: 4100)
 #pragma warning(disable: 4127)
@@ -46,8 +49,6 @@
 #include <urlmon.h>
 #include <atlbase.h>
 #include <iphlpapi.h>
-#include <DbgHelp.h>
-#include <TlHelp32.h>
 
 // min and max is required by gdi, therefore NOMINMAX won't work
 #ifdef max
@@ -73,7 +74,6 @@
 #include <sstream>
 #include <optional>
 
-#include <zlib.h>
 #include <gsl/gsl>
 #include <udis86.h>
 #include <MinHook.h>
@@ -95,7 +95,6 @@
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "urlmon.lib" )
 #pragma comment(lib, "iphlpapi.lib")
-#pragma comment(lib, "dbghelp.lib")
 
 #include "resource.hpp"
 

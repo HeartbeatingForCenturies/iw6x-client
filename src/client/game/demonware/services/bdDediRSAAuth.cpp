@@ -1,8 +1,10 @@
 #include <std_include.hpp>
 #include "bdDediRSAAuth.hpp"
+
 #include "game/game.hpp"
 #include "steam/steam.hpp"
-#include "utils/cryptography.hpp"
+
+#include <utils/cryptography.hpp>
 
 namespace demonware
 {

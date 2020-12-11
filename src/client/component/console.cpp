@@ -4,6 +4,8 @@
 #include "game/game.hpp"
 #include "scheduler.hpp"
 
+#include <utils/thread.hpp>
+
 namespace console
 {
 	class component final : public component_interface
@@ -26,9 +28,9 @@ namespace console
 			scheduler::loop([this]()
 			{
 				this->log_messages();
-			});
+			}, scheduler::pipeline::main);
 
-			this->console_runner_ = std::thread([this]
+			this->console_runner_ = utils::thread::create_named_thread("Console IO", [this]
 			{
 				this->runner();
 			});
@@ -36,18 +38,18 @@ namespace console
 
 		void pre_destroy() override
 		{
-			this->terminate_runner_ = true;
-
 			printf("\r\n");
 			_flushall();
 
-			_close(this->handles_[0]);
-			_close(this->handles_[1]);
+			this->terminate_runner_ = true;
 
 			if (this->console_runner_.joinable())
 			{
 				this->console_runner_.join();
 			}
+
+			_close(this->handles_[0]);
+			_close(this->handles_[1]);
 		}
 
 		void post_unpack() override
@@ -63,7 +65,7 @@ namespace console
 			// Async console is not ready yet :/
 			//this->initialize();
 
-			std::lock_guard _(this->mutex_);
+			std::lock_guard<std::mutex> _(this->mutex_);
 			this->console_initialized_ = true;
 		}
 
@@ -79,13 +81,13 @@ namespace console
 
 		void initialize()
 		{
-			std::thread([this]()
+			utils::thread::create_named_thread("Console", [this]()
 			{
 				std::this_thread::sleep_for(500ms);
 				game::Sys_ShowConsole();
 
 				{
-					std::lock_guard _(this->mutex_);
+					std::lock_guard<std::mutex> _(this->mutex_);
 					this->console_initialized_ = true;
 				}
 
@@ -119,8 +121,8 @@ namespace console
 				std::queue<std::string> message_queue_copy;
 
 				{
-					std::lock_guard _(this->mutex_);
-					message_queue_copy = this->message_queue_;
+					std::lock_guard<std::mutex> _(this->mutex_);
+					message_queue_copy = std::move(this->message_queue_);
 					this->message_queue_ = {};
 				}
 
@@ -150,7 +152,7 @@ namespace console
 				const auto len = _read(this->handles_[0], buffer, sizeof(buffer));
 				if (len > 0)
 				{
-					std::lock_guard _(this->mutex_);
+					std::lock_guard<std::mutex> _(this->mutex_);
 					this->message_queue_.push(std::string(buffer, len));
 				}
 				else
@@ -162,7 +164,7 @@ namespace console
 			std::this_thread::yield();
 		}
 	};
-	
+
 	HWND get_window()
 	{
 		return *reinterpret_cast<HWND*>((SELECT_VALUE(0x145A7B490, 0x147AD1DB0)));
@@ -178,14 +180,10 @@ namespace console
 		RECT rect;
 		GetWindowRect(get_window(), &rect);
 
-		SetWindowPos(get_window(), 0, rect.left, rect.top, width, height, 0);
+		SetWindowPos(get_window(), nullptr, rect.left, rect.top, width, height, 0);
 
-		// TODO: fill the SP address(I didn't downloaded the SP part of the game).
-		if (!game::environment::is_sp())
-		{
-			auto logoWindow = *reinterpret_cast<HWND*>(0x147AD1DC0);
-			SetWindowPos(logoWindow, 0, 5, 5, width - 25, 60, 0);
-		}
+		auto logoWindow = *reinterpret_cast<HWND*>(SELECT_VALUE(0x145A7B4A0, 0x147AD1DC0));
+		SetWindowPos(logoWindow, 0, 5, 5, width - 25, 60, 0);
 	}
 }
 

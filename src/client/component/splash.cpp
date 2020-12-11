@@ -1,8 +1,9 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
-#include "utils/nt.hpp"
-#include "utils/hook.hpp"
 #include "game/game.hpp"
+
+#include <utils/nt.hpp>
+#include <utils/hook.hpp>
 
 namespace splash
 {
@@ -85,9 +86,9 @@ namespace splash
 			wnd_class.lpszMenuName = nullptr;
 			wnd_class.lpfnWndProc = DefWindowProcA;
 			wnd_class.hInstance = self;
-			wnd_class.hIcon = LoadIconA(self, LPCSTR(102));
+			wnd_class.hIcon = LoadIconA(self, reinterpret_cast<LPCSTR>(102));
 			wnd_class.hCursor = LoadCursorA(nullptr, IDC_APPSTARTING);
-			wnd_class.hbrBackground = HBRUSH(6);
+			wnd_class.hbrBackground = reinterpret_cast<HBRUSH>(6);
 			wnd_class.lpszClassName = "IW6x Splash Screen";
 
 			if (RegisterClassA(&wnd_class))
@@ -111,7 +112,7 @@ namespace splash
 						if (image_window)
 						{
 							RECT rect;
-							SendMessageA(image_window, 0x172u, 0, LPARAM(image_));
+							SendMessageA(image_window, 0x172u, 0, reinterpret_cast<LPARAM>(image_));
 							GetWindowRect(image_window, &rect);
 
 							const int width = rect.right - rect.left;

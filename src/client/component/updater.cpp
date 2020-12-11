@@ -1,7 +1,9 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
-#include "utils/io.hpp"
-#include "utils/nt.hpp"
+
+#include <utils/io.hpp>
+#include <utils/nt.hpp>
+
 #include <version.hpp>
 
 #define APPVEYOR_ARTIFACT_BASE "https://ci.appveyor.com/api/projects/XLabsProject/iw6x-client/artifacts/"
@@ -84,8 +86,9 @@ namespace updater
 			               &startup_info, &process_info);
 
 			if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE) CloseHandle(process_info.hThread);
-			if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE) CloseHandle(
-				process_info.hProcess);
+			if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE)
+				CloseHandle(
+					process_info.hProcess);
 		}
 
 		void perform_update(const std::string& target)

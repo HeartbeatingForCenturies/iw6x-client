@@ -6,14 +6,13 @@
 #include "network.hpp"
 #include "scheduler.hpp"
 #include "server_list.hpp"
-#include "arxan.hpp"
 
 #include "steam/steam.hpp"
 
-#include "utils/string.hpp"
-#include "utils/info_string.hpp"
-#include "utils/cryptography.hpp"
-#include "utils/hook.hpp"
+#include <utils/string.hpp>
+#include <utils/info_string.hpp>
+#include <utils/cryptography.hpp>
+#include <utils/hook.hpp>
 
 namespace party
 {
@@ -48,6 +47,17 @@ namespace party
 			}
 		}
 
+		void perform_game_initialization()
+		{
+			// This fixes several crashes and impure client stuff
+			command::execute("onlinegame 1", true);
+			command::execute("exec default_xboxlive.cfg", true);
+			command::execute("xstartprivateparty", true);
+			command::execute("xblive_rankedmatch 1", true);
+			command::execute("xblive_privatematch 1", true);
+			command::execute("startentitlements", true);
+		}
+
 		void connect_to_party(const game::netadr_s& target, const std::string& mapname, const std::string& gametype)
 		{
 			if (game::environment::is_sp())
@@ -65,14 +75,7 @@ namespace party
 			}
 
 			switch_gamemode_if_necessary(gametype);
-
-			// This fixes several crashes and impure client stuff
-			command::execute("onlinegame 1", true);
-			command::execute("exec default_xboxlive.cfg", true);
-			command::execute("xstartprivateparty", true);
-			command::execute("xblive_rankedmatch 1", true);
-			command::execute("xblive_privatematch 1", true);
-			command::execute("startentitlements", true);
+			perform_game_initialization();
 
 			// CL_ConnectFromParty
 			char session_info[0x100] = {};
@@ -97,6 +100,21 @@ namespace party
 			for (auto i = 0; i < *game::mp::svs_numclients; ++i)
 			{
 				if (game::mp::svs_clients[i].header.state >= 3)
+				{
+					++count;
+				}
+			}
+
+			return count;
+		}
+
+		int get_bot_count()
+		{
+			auto count = 0;
+			for (auto i = 0; i < *game::mp::svs_numclients; ++i)
+			{
+				if (game::mp::svs_clients[i].header.state >= 3 &&
+					game::mp::svs_clients[i].testClient != game::TC_NONE)
 				{
 					++count;
 				}
@@ -155,11 +173,9 @@ namespace party
 			printf("Starting map: %s\n", mapname.data());
 			switch_gamemode_if_necessary(get_dvar_string("g_gametype"));
 
-			// This is bad, but it works for now
-			if (arxan::save_state())
+			if (!game::environment::is_dedi())
 			{
-				arxan::trigger_reset_error();
-				return;
+				perform_game_initialization();
 			}
 
 			game::SV_StartMapForParty(0, mapname.data(), false, false);
@@ -188,7 +204,7 @@ namespace party
 
 			didyouknow_hook.create(game::Dvar_SetString, didyouknow_stub);
 
-			command::add("map", [](command::params& argument)
+			command::add("map", [](const command::params& argument)
 			{
 				if (argument.size() != 2)
 				{
@@ -206,7 +222,7 @@ namespace party
 				}
 			});
 
-			command::add("connect", [](command::params& argument)
+			command::add("connect", [](const command::params& argument)
 			{
 				if (argument.size() != 2)
 				{
@@ -220,31 +236,31 @@ namespace party
 				}
 			});
 
-			command::add("clientkick", [](command::params& params)
+			command::add("clientkick", [](const command::params& params)
 			{
 				if (params.size() < 2)
 				{
 					printf("usage: clientkick <num>\n");
 					return;
 				}
-				auto clientNum = atoi(params.get(1));
-				if (clientNum < 0 || clientNum >= *game::mp::svs_numclients)
+				const auto client_num = atoi(params.get(1));
+				if (client_num < 0 || client_num >= *game::mp::svs_numclients)
 				{
 					return;
 				}
 
-				game::SV_KickClientNum(clientNum, "EXE_PLAYERKICKED");
+				game::SV_KickClientNum(client_num, "EXE_PLAYERKICKED");
 			});
 
-			command::add("kick", [](command::params& params)
+			command::add("kick", [](const command::params& params)
 			{
 				if (params.size() < 2)
 				{
 					printf("usage: kick <name>\n");
 					return;
 				}
-				const auto name = params.get(1);
 
+				const std::string name = params.get(1);
 				if (name == "all"s)
 				{
 					for (auto i = 0; i < *game::mp::svs_numclients; ++i)
@@ -254,13 +270,13 @@ namespace party
 					return;
 				}
 
-				auto clientNum = get_client_num_from_name(name);
-				if (clientNum < 0 || clientNum >= *game::mp::svs_numclients)
+				const auto client_num = get_client_num_from_name(name);
+				if (client_num < 0 || client_num >= *game::mp::svs_numclients)
 				{
 					return;
 				}
 
-				game::SV_KickClientNum(clientNum, "EXE_PLAYERKICKED");
+				game::SV_KickClientNum(client_num, "EXE_PLAYERKICKED");
 			});
 
 			scheduler::once([]()
@@ -270,59 +286,59 @@ namespace party
 				game::Dvar_RegisterString("didyouknow", "", game::DvarFlags::DVAR_FLAG_NONE, "");
 			}, scheduler::pipeline::main);
 
-			command::add("tell", [](command::params& params)
+			command::add("tell", [](const command::params& params)
 			{
 				if (params.size() < 3)
 				{
 					return;
 				}
 
-				auto clientNum = atoi(params.get(1));
-				std::string message = params.join(2);
-				std::string name = game::Dvar_FindVar("sv_sayName")->current.string;
+				const auto client_num = atoi(params.get(1));
+				const auto message = params.join(2);
+				const auto* const name = game::Dvar_FindVar("sv_sayName")->current.string;
 
-				game::SV_GameSendServerCommand(clientNum, 0,
-				                               utils::string::va("%c \"%s: %s\"", 84, name.data(), message.data()));
-				printf("%s -> %i: %s\n", name.data(), clientNum, message.data());
+				game::SV_GameSendServerCommand(client_num, 0,
+				                               utils::string::va("%c \"%s: %s\"", 84, name, message.data()));
+				printf("%s -> %i: %s\n", name, client_num, message.data());
 			});
 
-			command::add("tellraw", [](command::params& params)
+			command::add("tellraw", [](const command::params& params)
 			{
 				if (params.size() < 3)
 				{
 					return;
 				}
 
-				auto clientNum = atoi(params.get(1));
-				std::string message = params.join(2);
+				const auto client_num = atoi(params.get(1));
+				const auto message = params.join(2);
 
-				game::SV_GameSendServerCommand(clientNum, 0, utils::string::va("%c \"%s\"", 84, message.data()));
-				printf("%i: %s\n", clientNum, message.data());
+				game::SV_GameSendServerCommand(client_num, 0, utils::string::va("%c \"%s\"", 84, message.data()));
+				printf("%i: %s\n", client_num, message.data());
 			});
 
-			command::add("say", [](command::params& params)
+			command::add("say", [](const command::params& params)
 			{
 				if (params.size() < 2)
 				{
 					return;
 				}
 
-				std::string message = params.join(1);
-				std::string name = game::Dvar_FindVar("sv_sayName")->current.string;
+				const auto message = params.join(1);
+				const auto* const name = game::Dvar_FindVar("sv_sayName")->current.string;
 
 				game::SV_GameSendServerCommand(
-					-1, 0, utils::string::va("%c \"%s: %s\"", 84, name.data(), message.data()));
-				printf("%s: %s\n", name.data(), message.data());
+					-1, 0, utils::string::va("%c \"%s: %s\"", 84, name, message.data()));
+				printf("%s: %s\n", name, message.data());
 			});
 
-			command::add("sayraw", [](command::params& params)
+			command::add("sayraw", [](const command::params& params)
 			{
 				if (params.size() < 2)
 				{
 					return;
 				}
 
-				std::string message = params.join(1);
+				const auto message = params.join(1);
 
 				game::SV_GameSendServerCommand(-1, 0, utils::string::va("%c \"%s\"", 84, message.data()));
 				printf("%s\n", message.data());
@@ -340,6 +356,7 @@ namespace party
 				info.set("mapname", get_dvar_string("mapname"));
 				info.set("isPrivate", get_dvar_string("g_password").empty() ? "0" : "1");
 				info.set("clients", utils::string::va("%i", get_client_count()));
+				info.set("bots", utils::string::va("%i", get_bot_count()));
 				info.set("sv_maxclients", utils::string::va("%i", *game::mp::svs_numclients));
 				info.set("protocol", utils::string::va("%i", PROTOCOL));
 				//info.set("shortversion", SHORTVERSION);

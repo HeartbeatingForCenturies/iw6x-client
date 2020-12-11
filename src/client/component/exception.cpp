@@ -1,47 +1,158 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "system_check.hpp"
-#include "utils/hook.hpp"
-#include "utils/io.hpp"
-#include "utils/string.hpp"
+
 #include "game/game.hpp"
+
+#include <utils/hook.hpp>
+#include <utils/io.hpp>
+#include <utils/string.hpp>
+#include <utils/thread.hpp>
+#include <utils/compression.hpp>
+
+#include <exception/minidump.hpp>
+
+#include <version.hpp>
 
 namespace exception
 {
 	namespace
 	{
-		void display_error_dialog(const LPEXCEPTION_POINTERS exceptioninfo)
+		thread_local struct
 		{
-			std::string error_str = "Termination because of a stack overflow.";
-			if (exceptioninfo->ExceptionRecord->ExceptionCode != EXCEPTION_STACK_OVERFLOW)
-			{
-				error_str = utils::string::va("Fatal error (0x%08X) at 0x%p.",
-				                              exceptioninfo->ExceptionRecord->ExceptionCode,
-				                              exceptioninfo->ExceptionRecord->ExceptionAddress);
+			DWORD code = 0;
+			PVOID address = nullptr;
+		} exception_data;
 
-				error_str += "\n\n";
-				if (!system_check::is_valid())
+		struct
+		{
+			std::chrono::time_point<std::chrono::high_resolution_clock> last_recovery{};
+			std::atomic<int> recovery_counts = {0};
+		} recovery_data;
+
+		bool is_game_thread()
+		{
+			static std::vector<int> allowed_threads =
+			{
+				game::THREAD_CONTEXT_MAIN,
+			};
+
+			const auto self_id = GetCurrentThreadId();
+			for (const auto& index : allowed_threads)
+			{
+				if (game::threadIds[index] == self_id)
 				{
-					error_str += "Make sure to get supported game files to avoid such crashes!";
-				}
-				else
-				{
-					error_str += "Make sure to update your graphics card drivers and install operating system updates!";
+					return true;
 				}
 			}
 
-			MessageBoxA(nullptr, error_str.data(), "ERROR", MB_ICONERROR);
+			return false;
 		}
 
-		std::string get_exe_filename()
+		bool is_exception_interval_too_short()
 		{
-			char exe_file_name[MAX_PATH] = {0};
+			const auto delta = std::chrono::high_resolution_clock::now() - recovery_data.last_recovery;
+			return delta < 1min;
+		}
 
-			GetModuleFileNameA(nullptr, exe_file_name, MAX_PATH);
-			PathStripPathA(exe_file_name);
-			PathRemoveExtensionA(exe_file_name);
+		bool too_many_exceptions_occured()
+		{
+			return recovery_data.recovery_counts >= 3;
+		}
 
-			return exe_file_name;
+		bool is_recoverable()
+		{
+			return is_game_thread()
+				&& !is_exception_interval_too_short()
+				&& !too_many_exceptions_occured()
+				&& game::Live_SyncOnlineDataFlags(0) == 0; // Game must be initialized
+		}
+
+		void show_mouse_cursor()
+		{
+			while (ShowCursor(TRUE) < 0);
+		}
+
+		void display_error_dialog()
+		{
+			std::string error_str = utils::string::va("Fatal error (0x%08X) at 0x%p.\n"
+			                                          "A minidump has been written.\n\n",
+			                                          exception_data.code, exception_data.address);
+
+			if (!system_check::is_valid())
+			{
+				error_str += "Make sure to get supported game files to avoid such crashes!";
+			}
+			else
+			{
+				error_str += "Make sure to update your graphics card drivers and install operating system updates!";
+			}
+
+			utils::thread::suspend_other_threads();
+			show_mouse_cursor();
+
+			MessageBoxA(nullptr, error_str.data(), "ERROR", MB_ICONERROR);
+			TerminateProcess(GetCurrentProcess(), exception_data.code);
+		}
+
+		void relaunch_self()
+		{
+			const utils::nt::library self;
+
+			STARTUPINFOA startup_info;
+			PROCESS_INFORMATION process_info;
+
+			ZeroMemory(&startup_info, sizeof(startup_info));
+			ZeroMemory(&process_info, sizeof(process_info));
+			startup_info.cb = sizeof(startup_info);
+
+			char current_dir[MAX_PATH];
+			GetCurrentDirectoryA(sizeof(current_dir), current_dir);
+			auto* const command_line = GetCommandLineA();
+
+			CreateProcessA(self.get_path().data(), command_line, nullptr, nullptr, false, NULL, nullptr, current_dir,
+			               &startup_info, &process_info);
+
+			if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE) CloseHandle(process_info.hThread);
+			if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE)
+				CloseHandle(
+					process_info.hProcess);
+		}
+
+		void reset_state()
+		{
+			// TODO: Add a limit for dedi restarts
+			if (game::environment::is_dedi())
+			{
+				relaunch_self();
+				TerminateProcess(GetCurrentProcess(), exception_data.code);
+			}
+
+			if (is_recoverable())
+			{
+				recovery_data.last_recovery = std::chrono::high_resolution_clock::now();
+				++recovery_data.recovery_counts;
+				game::Com_Error(game::ERR_DROP, "Fatal error (0x%08X) at 0x%p.\nA minidump has been written.\n\n"
+				                "IW6x has tried to recover your game, but it might not run stable anymore.\n\n"
+				                "Make sure to update your graphics card drivers and install operating system updates!",
+				                exception_data.code, exception_data.address);
+			}
+			else
+			{
+				display_error_dialog();
+			}
+		}
+
+		size_t get_reset_state_stub()
+		{
+			static auto* stub = utils::hook::assemble([](utils::hook::assembler& a)
+			{
+				a.sub(rsp, 0x10);
+				a.or_(rsp, 0x8);
+				a.jmp(reset_state);
+			});
+
+			return reinterpret_cast<size_t>(stub);
 		}
 
 		std::string get_timestamp()
@@ -51,132 +162,72 @@ namespace exception
 			const auto time = _time64(nullptr);
 
 			_localtime64_s(&ltime, &time);
-			strftime(timestamp, sizeof(timestamp) - 1, "%Y%m%d%H%M%S", &ltime);
+			strftime(timestamp, sizeof(timestamp) - 1, "%Y-%m-%d-%H-%M-%S", &ltime);
 
 			return timestamp;
 		}
 
-		std::string generate_minidump_filename()
+		std::string generate_crash_info(const LPEXCEPTION_POINTERS exceptioninfo)
 		{
-			const auto exe_ename = get_exe_filename();
-			const auto timestamp = get_timestamp();
+			std::string info{};
+			const auto line = [&info](const std::string& text)
+			{
+				info.append(text);
+				info.append("\r\n");
+			};
 
-			char filepath[MAX_PATH] = {0};
-			utils::io::create_directory("minidumps");
-			const auto filename = utils::string::va("%s-%d-%s.dmp", exe_ename.data(), game::environment::get_mode(),
-			                                        timestamp.data());
+			line("IW6x Crash Dump");
+			line("");
+			line("Version: "s + VERSION);
+			line("Environment: "s + game::environment::get_string());
+			line("Timestamp: "s + get_timestamp());
+			line(utils::string::va("Exception: 0x%08X", exceptioninfo->ExceptionRecord->ExceptionCode));
+			line(utils::string::va("Address: 0x%llX", exceptioninfo->ExceptionRecord->ExceptionAddress));
 
-			PathCombineA(filepath, "minidumps\\", filename);
+#pragma warning(push)
+#pragma warning(disable: 4996)
+			OSVERSIONINFOEXA version_info;
+			ZeroMemory(&version_info, sizeof(version_info));
+			version_info.dwOSVersionInfoSize = sizeof(version_info);
+			GetVersionExA(reinterpret_cast<LPOSVERSIONINFOA>(&version_info));
+#pragma warning(pop)
 
-			return filepath;
+			line(utils::string::va("OS Version: %u.%u", version_info.dwMajorVersion, version_info.dwMinorVersion));
+
+			return info;
+		}
+
+		void write_minidump(const LPEXCEPTION_POINTERS exceptioninfo)
+		{
+			const std::string crash_name = utils::string::va("minidumps/iw6x-crash-%d-%s.zip",
+			                                                 game::environment::get_mode(), get_timestamp().data());
+
+			utils::compression::zip::archive zip_file{};
+			zip_file.add("crash.dmp", create_minidump(exceptioninfo));
+			zip_file.add("info.txt", generate_crash_info(exceptioninfo));
+			zip_file.write(crash_name, "IW6x Crash Dump");
 		}
 
 		bool is_harmless_error(const LPEXCEPTION_POINTERS exceptioninfo)
 		{
 			const auto code = exceptioninfo->ExceptionRecord->ExceptionCode;
-			return code == STATUS_INTEGER_OVERFLOW || code == STATUS_FLOAT_OVERFLOW;
-		}
-
-		constexpr MINIDUMP_TYPE get_minidump_type()
-		{
-			const auto type = MiniDumpIgnoreInaccessibleMemory //
-				| MiniDumpWithHandleData //
-				| MiniDumpScanMemory //
-				| MiniDumpWithProcessThreadData //
-				| MiniDumpWithFullMemoryInfo //
-				| MiniDumpWithThreadInfo;
-
-			return static_cast<MINIDUMP_TYPE>(type);
-		}
-
-		void write_minidump(const LPEXCEPTION_POINTERS exceptioninfo, const std::string& filename)
-		{
-			MINIDUMP_EXCEPTION_INFORMATION minidump_exception_info = {GetCurrentThreadId(), exceptioninfo, FALSE};
-
-			auto* const file_handle = CreateFileA(filename.data(), GENERIC_WRITE | GENERIC_READ,
-			                                      FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_ALWAYS, NULL,
-			                                      nullptr);
-			const auto _ = gsl::finally([file_handle]()
-			{
-				CloseHandle(file_handle);
-			});
-
-			if (!MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), file_handle, get_minidump_type(),
-			                       &minidump_exception_info,
-			                       nullptr,
-			                       nullptr))
-			{
-				MessageBoxA(nullptr, "There was an error creating the minidump! Hit OK to close the program.",
-				            "Minidump Error", MB_OK | MB_ICONERROR);
-			}
-		}
-
-		void suspend_other_threads()
-		{
-			auto* const h = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, GetCurrentProcessId());
-			if (h != INVALID_HANDLE_VALUE)
-			{
-				const auto _ = gsl::finally([h]()
-				{
-					CloseHandle(h);
-				});
-
-				THREADENTRY32 entry;
-				entry.dwSize = sizeof(entry);
-				if (!Thread32First(h, &entry))
-				{
-					return;
-				}
-
-				do
-				{
-					const auto check_size = entry.dwSize < FIELD_OFFSET(THREADENTRY32, th32OwnerProcessID) + sizeof(
-						entry.th32OwnerProcessID);
-					entry.dwSize = sizeof(entry);
-
-					if (!check_size)
-					{
-						continue;
-					}
-
-					if (entry.th32ThreadID != GetCurrentThreadId() || entry.th32OwnerProcessID ==
-						GetCurrentProcessId())
-					{
-						const auto thread = OpenThread(THREAD_ALL_ACCESS, FALSE, entry.th32ThreadID);
-						if (thread != nullptr)
-						{
-							SuspendThread(thread);
-							CloseHandle(thread);
-						}
-					}
-				}
-				while (Thread32Next(h, &entry));
-			}
-		}
-
-		void show_mouse_cursor()
-		{
-			while (ShowCursor(TRUE) < 0);
+			return code == STATUS_INTEGER_OVERFLOW || code == STATUS_FLOAT_OVERFLOW || code == STATUS_SINGLE_STEP;
 		}
 
 		LONG WINAPI exception_filter(const LPEXCEPTION_POINTERS exceptioninfo)
 		{
+			if (is_harmless_error(exceptioninfo))
 			{
-				if (is_harmless_error(exceptioninfo))
-				{
-					return EXCEPTION_CONTINUE_EXECUTION;
-				}
-
-				suspend_other_threads();
-				show_mouse_cursor();
-
-				display_error_dialog(exceptioninfo);
-				const auto filename = generate_minidump_filename();
-				write_minidump(exceptioninfo, filename);
+				return EXCEPTION_CONTINUE_EXECUTION;
 			}
 
-			TerminateProcess(GetCurrentProcess(), exceptioninfo->ExceptionRecord->ExceptionCode);
-			return EXCEPTION_CONTINUE_SEARCH;
+			write_minidump(exceptioninfo);
+
+			exception_data.code = exceptioninfo->ExceptionRecord->ExceptionCode;
+			exception_data.address = exceptioninfo->ExceptionRecord->ExceptionAddress;
+			exceptioninfo->ContextRecord->Rip = get_reset_state_stub();
+
+			return EXCEPTION_CONTINUE_EXECUTION;
 		}
 
 		LPTOP_LEVEL_EXCEPTION_FILTER WINAPI set_unhandled_exception_filter_stub(LPTOP_LEVEL_EXCEPTION_FILTER)

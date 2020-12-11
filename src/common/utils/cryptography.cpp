@@ -140,6 +140,23 @@ namespace utils::cryptography
 		                        key.get()) == CRYPT_OK && result != 0);
 	}
 
+	namespace rsa
+	{
+		namespace
+		{
+			void initialize()
+			{
+				static auto initialized = false;
+				if (initialized) return;
+				initialized = true;
+
+				initialize_math();
+				register_hash(&sha1_desc);
+				register_prng(&yarrow_desc);
+			}
+		}
+	}
+
 	std::string rsa::encrypt(const std::string& data, const std::string& hash, const std::string& key)
 	{
 		initialize();
@@ -177,15 +194,19 @@ namespace utils::cryptography
 		return {};
 	}
 
-	void rsa::initialize()
+	namespace des3
 	{
-		static auto initialized = false;
-		if (initialized) return;
-		initialized = true;
+		namespace
+		{
+			void initialize()
+			{
+				static auto initialized = false;
+				if (initialized) return;
+				initialized = true;
 
-		initialize_math();
-		register_hash(&sha1_desc);
-		register_prng(&yarrow_desc);
+				register_cipher(&des3_desc);
+			}
+		}
 	}
 
 	std::string des3::encrypt(const std::string& data, const std::string& iv, const std::string& key)
@@ -224,15 +245,6 @@ namespace utils::cryptography
 		cbc_done(&cbc);
 
 		return dec_data;
-	}
-
-	void des3::initialize()
-	{
-		static auto initialized = false;
-		if (initialized) return;
-		initialized = true;
-
-		register_cipher(&des3_desc);
 	}
 
 	std::string tiger::compute(const std::string& data, const bool hex)
@@ -335,6 +347,37 @@ namespace utils::cryptography
 		return hash;
 	}
 
+	namespace random
+	{
+		namespace
+		{
+			prng_state* get_prng_state()
+			{
+				static prng_state* state_ref = []()
+				{
+					static prng_state state;
+
+					initialize_math();
+					register_prng(&fortuna_desc);
+					rng_make_prng(128, find_prng("fortuna"), &state, nullptr);
+
+					int i[4]; // uninitialized data
+					auto i_ptr = &i;
+					fortuna_add_entropy(reinterpret_cast<unsigned char*>(&i), sizeof(i), &state);
+					fortuna_add_entropy(reinterpret_cast<unsigned char*>(&i_ptr), sizeof(i_ptr), &state);
+
+					auto t = time(nullptr);
+					fortuna_add_entropy(reinterpret_cast<unsigned char*>(&t), sizeof(t), &state);
+
+					return &state;
+				}();
+
+				fortuna_ready(state_ref);
+				return state_ref;
+			}
+		}
+	}
+
 	uint32_t random::get_integer()
 	{
 		uint32_t result;
@@ -353,30 +396,5 @@ namespace utils::cryptography
 	void random::get_data(void* data, const size_t size)
 	{
 		fortuna_read(static_cast<unsigned char*>(data), static_cast<unsigned long>(size), random::get_prng_state());
-	}
-
-	prng_state* random::get_prng_state()
-	{
-		static prng_state* state_ref = []()
-		{
-			static prng_state state;
-
-			initialize_math();
-			register_prng(&fortuna_desc);
-			rng_make_prng(128, find_prng("fortuna"), &state, nullptr);
-
-			int i[4]; // uninitialized data
-			auto i_ptr = &i;
-			fortuna_add_entropy(reinterpret_cast<unsigned char*>(&i), sizeof(i), &state);
-			fortuna_add_entropy(reinterpret_cast<unsigned char*>(&i_ptr), sizeof(i_ptr), &state);
-
-			auto t = time(nullptr);
-			fortuna_add_entropy(reinterpret_cast<unsigned char*>(&t), sizeof(t), &state);
-
-			return &state;
-		}();
-
-		fortuna_ready(state_ref);
-		return state_ref;
 	}
 }
