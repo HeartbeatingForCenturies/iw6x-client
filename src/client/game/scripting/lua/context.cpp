@@ -4,6 +4,9 @@
 #include "value_conversion.hpp"
 
 #include "../execution.hpp"
+#include "../functions.hpp"
+
+#include <utils/string.hpp>
 
 namespace scripting::lua
 {
@@ -23,6 +26,23 @@ namespace scripting::lua
 			vector_type["b"] = sol::property(&vector::get_z, &vector::set_z);
 
 			auto entity_type = state.new_usertype<entity>("entity");
+
+			for(const auto& func : method_map)
+			{
+				const auto name = utils::string::to_lower(func.first);
+				entity_type[name.data()] = [name](const entity& entity, const sol::this_state s, sol::variadic_args va)
+				{
+					std::vector<script_value> arguments{};
+
+					for (auto arg : va)
+					{
+						arguments.push_back(convert(arg));
+					}
+
+					return convert(s, entity.call(name, arguments));
+				};
+			}
+
 			entity_type["set"] = [](const entity& entity, const std::string& field,
 			                        const sol::lua_value& value)
 			{
@@ -46,7 +66,7 @@ namespace scripting::lua
 				notify(entity, event, arguments);
 			};
 
-			entity_type["onNotify"] = [&handler](const entity& entity, const std::string& event,
+			entity_type["onnotify"] = [&handler](const entity& entity, const std::string& event,
 			                                     const event_callback& callback)
 			{
 				event_listener listener{};
@@ -58,7 +78,7 @@ namespace scripting::lua
 				return handler.add_event_listener(std::move(listener));
 			};
 
-			entity_type["onNotifyOnce"] = [&handler](const entity& entity, const std::string& event,
+			entity_type["onnotifyonce"] = [&handler](const entity& entity, const std::string& event,
 			                                         const event_callback& callback)
 			{
 				event_listener listener{};
@@ -83,7 +103,27 @@ namespace scripting::lua
 				return convert(s, entity.call(function, arguments));
 			};
 
-			state["call"] = [](const sol::this_state s, const std::string& function, sol::variadic_args va)
+			struct game {};
+			auto game_type = state.new_usertype<game>("game_");
+			state["game"] = game();
+
+			for(const auto& func : function_map)
+			{
+				const auto name = utils::string::to_lower(func.first);
+				game_type[name] = [name](const game&, const sol::this_state s, sol::variadic_args va)
+				{
+					std::vector<script_value> arguments{};
+
+					for (auto arg : va)
+					{
+						arguments.push_back(convert(arg));
+					}
+
+					return convert(s, call(name, arguments));
+				};
+			}
+
+			game_type["call"] = [](const sol::this_state s, const std::string& function, sol::variadic_args va)
 			{
 				std::vector<script_value> arguments{};
 
