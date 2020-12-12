@@ -40,12 +40,14 @@ namespace scripting::lua
 					{
 						continue;
 					}
-					
+
 					operand = ud_insn_opr(&ud, 1);
 					if (operand && operand->type == UD_OP_MEM && operand->base == UD_R_RIP)
 					{
-						auto* operand_ptr = reinterpret_cast<char*>(ud_insn_len(&ud) + ud_insn_off(&ud) + operand->lval.sdword);
-						if (!utils::memory::is_bad_read_ptr(operand_ptr) && utils::memory::is_rdata_ptr(operand_ptr) && strlen(operand_ptr) > 0)
+						auto* operand_ptr = reinterpret_cast<char*>(ud_insn_len(&ud) + ud_insn_off(&ud) + operand->lval.
+							sdword);
+						if (!utils::memory::is_bad_read_ptr(operand_ptr) && utils::memory::is_rdata_ptr(operand_ptr) &&
+							strlen(operand_ptr) > 0)
 						{
 							result.emplace_back(operand_ptr);
 						}
@@ -54,7 +56,7 @@ namespace scripting::lua
 
 				if (*reinterpret_cast<unsigned char*>(ud.pc) == 0xCC) break; // int 3
 			}
-			
+
 			return result;
 		}
 
@@ -79,7 +81,7 @@ namespace scripting::lua
 
 			auto entity_type = state.new_usertype<entity>("entity");
 
-			for(const auto& func : method_map)
+			for (const auto& func : method_map)
 			{
 				const auto name = utils::string::to_lower(func.first);
 				entity_type[name.data()] = [name](const entity& entity, const sol::this_state s, sol::variadic_args va)
@@ -95,7 +97,7 @@ namespace scripting::lua
 				};
 			}
 
-			for(const auto& constant : get_game_constants())
+			for (const auto& constant : get_game_constants())
 			{
 				entity_type[constant] = sol::property(
 					[constant](const entity& entity, const sol::this_state s)
@@ -168,11 +170,13 @@ namespace scripting::lua
 				return convert(s, entity.call(function, arguments));
 			};
 
-			struct game {};
+			struct game
+			{
+			};
 			auto game_type = state.new_usertype<game>("game_");
 			state["game"] = game();
 
-			for(const auto& func : function_map)
+			for (const auto& func : function_map)
 			{
 				const auto name = utils::string::to_lower(func.first);
 				game_type[name] = [name](const game&, const sol::this_state s, sol::variadic_args va)
