@@ -96,13 +96,29 @@ namespace gameplay
 			}
 		}
 
-		void jump_apply_slowdown_stub(void* ps)
+		void jump_apply_slowdown(void* ps)
 		{
 			if (dvars::jump_slowDownEnable->current.enabled)
 			{
 				reinterpret_cast<void(*)(void*)>(0x140212ED0)(ps);
 			}
 		}
+
+		const auto jump_apply_slowdown_stub = utils::hook::assemble([](utils::hook::assembler& a)
+		{
+			const auto no_slowdown = a.newLabel();
+			a.jz(no_slowdown);
+
+			a.mov(rcx, rsi);
+
+			a.pushad64();
+			a.call_aligned(&jump_apply_slowdown);
+			a.popad64();
+
+			a.bind(no_slowdown);
+			a.test(dword_ptr(rsi, 0x25), 0x4000);
+			a.jmp(0x140225863);
+		});
 
 		void jump_start_stub(void* pm, void* pml, float /*height*/)
 		{
@@ -150,7 +166,7 @@ namespace gameplay
 			utils::hook::jump(0x140383789, g_speed_stub, true);
 			dvars::g_speed = game::Dvar_RegisterInt("g_speed", 190, 0, 999, 0, "Maximum player speed");
 
-			utils::hook::call(0x140225857, jump_apply_slowdown_stub);
+			utils::hook::jump(0x140225852, jump_apply_slowdown_stub, true);
 			dvars::jump_slowDownEnable = game::Dvar_RegisterBool("jump_slowDownEnable", true,
 			                                                     game::DvarFlags::DVAR_FLAG_REPLICATED,
 			                                                     "Slow player movement after jumping");
