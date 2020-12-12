@@ -12,6 +12,58 @@ namespace scripting::lua
 {
 	namespace
 	{
+		std::vector<std::string> load_game_constants()
+		{
+			std::vector<std::string> result{};
+
+			const auto constants = game::GScr_LoadConsts.get();
+
+			ud_t ud;
+			ud_init(&ud);
+			ud_set_mode(&ud, 64);
+			ud_set_pc(&ud, uint64_t(constants));
+			ud_set_input_buffer(&ud, reinterpret_cast<const uint8_t*>(constants), INT32_MAX);
+
+			while (true)
+			{
+				ud_disassemble(&ud);
+
+				if (ud_insn_mnemonic(&ud) == UD_Iret)
+				{
+					break;
+				}
+
+				if (ud_insn_mnemonic(&ud) == UD_Ilea)
+				{
+					const auto* operand = ud_insn_opr(&ud, 0);
+					if (!operand || operand->type != UD_OP_REG || operand->base != UD_R_RCX)
+					{
+						continue;
+					}
+					
+					operand = ud_insn_opr(&ud, 1);
+					if (operand && operand->type == UD_OP_MEM && operand->base == UD_R_RIP)
+					{
+						auto* operand_ptr = reinterpret_cast<char*>(ud_insn_len(&ud) + ud_insn_off(&ud) + operand->lval.sdword);
+						if (!utils::memory::is_bad_read_ptr(operand_ptr) && utils::memory::is_rdata_ptr(operand_ptr) && strlen(operand_ptr) > 0)
+						{
+							result.emplace_back(operand_ptr);
+						}
+					}
+				}
+
+				if (*reinterpret_cast<unsigned char*>(ud.pc) == 0xCC) break; // int 3
+			}
+			
+			return result;
+		}
+
+		const std::vector<std::string>& get_game_constants()
+		{
+			static auto constants = load_game_constants();
+			return constants;
+		}
+
 		void setup_entity_type(sol::state& state, event_handler& handler)
 		{
 			state["level"] = entity{*game::levelEntityId};
@@ -41,6 +93,19 @@ namespace scripting::lua
 
 					return convert(s, entity.call(name, arguments));
 				};
+			}
+
+			for(const auto& constant : get_game_constants())
+			{
+				entity_type[constant] = sol::property(
+					[constant](const entity& entity, const sol::this_state s)
+					{
+						return convert(s, entity.get(constant));
+					},
+					[constant](const entity& entity, const sol::lua_value& value)
+					{
+						entity.set(constant, convert(value));
+					});
 			}
 
 			entity_type["set"] = [](const entity& entity, const std::string& field,

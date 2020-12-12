@@ -80,7 +80,5 @@ namespace steam
 		void* search_method(const std::string& name);
 
 		std::string analyze_method(const void* method_ptr);
-
-		bool is_rdata(void* pointer);
 	};
 }

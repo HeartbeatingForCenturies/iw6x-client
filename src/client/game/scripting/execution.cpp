@@ -26,7 +26,8 @@ namespace scripting
 
 		int get_field_id(const int classnum, const std::string& field)
 		{
-			const auto field_name = utils::string::to_lower(field);
+			// Case might actually matter
+			const auto field_name = field; //utils::string::to_lower(field);
 			const auto class_id = game::g_classMap[classnum].id;
 			const auto field_str = game::SL_GetString(field_name.data(), 0);
 			const auto _ = gsl::finally([field_str]()

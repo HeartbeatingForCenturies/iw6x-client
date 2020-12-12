@@ -32,7 +32,7 @@ namespace game
 		{
 		}
 
-		operator T*() const
+		T* get() const
 		{
 			if (environment::is_sp())
 			{
@@ -42,9 +42,14 @@ namespace game
 			return mp_object_;
 		}
 
+		operator T*() const
+		{
+			return this->get();
+		}
+
 		T* operator->() const
 		{
-			return this->operator T*();
+			return this->get();
 		}
 
 	private:
