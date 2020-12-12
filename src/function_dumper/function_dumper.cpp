@@ -131,7 +131,7 @@ std::string transform_name(std::string name)
 	const auto rep = replacements.find(name);
 	if (rep != replacements.end())
 	{
-		return utils::string::to_lower(rep->second);
+		return rep->second;
 	}
 
 	auto last = name.find_first_of('_');
@@ -150,7 +150,7 @@ std::string transform_name(std::string name)
 	}
 
 	name[0] = static_cast<char>(tolower(name[0]));
-	return utils::string::to_lower(name);
+	return name;
 }
 
 std::map<std::string, unsigned> map_name_to_function(const std::map<unsigned int, uint64_t>& function_map,
@@ -178,6 +178,17 @@ std::map<std::string, unsigned> map_name_to_function(const std::map<unsigned int
 	}
 
 	return name_index_map;
+}
+
+void transform_to_lowercase(std::map<std::string, unsigned>& table)
+{
+	const auto copy{table};
+	table.clear();
+
+	for(const auto& entry : copy)
+	{
+		table[utils::string::to_lower(entry.first)] = entry.second;
+	}
 }
 
 class table_writer
@@ -218,6 +229,7 @@ public:
 
 	void add_table(const std::string& name, std::map<std::string, unsigned> table)
 	{
+		transform_to_lowercase(table);
 		tables_[name] = std::move(table);
 	}
 

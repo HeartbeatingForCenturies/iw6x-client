@@ -15,7 +15,7 @@ namespace scripting
 		{"addstruct", 395},
 		{"addtestclient", 352},
 		{"allclientsprint", 355},
-		{"ambientPlay", 280},
+		{"ambientplay", 280},
 		{"ambientstop", 312},
 		{"angleclamp180", 221},
 		{"angleclamp360", 220},
