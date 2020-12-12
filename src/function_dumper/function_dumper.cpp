@@ -131,7 +131,7 @@ std::string transform_name(std::string name)
 	const auto rep = replacements.find(name);
 	if (rep != replacements.end())
 	{
-		return rep->second;
+		return utils::string::to_lower(rep->second);
 	}
 
 	auto last = name.find_first_of('_');
