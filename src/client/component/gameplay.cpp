@@ -88,82 +88,34 @@ namespace gameplay
 			a.jmp(0x140228FB8);
 		});
 
-		const auto pm_crashland_stub = utils::hook::assemble([](utils::hook::assembler& a)
+		void pm_crashland_stub(void* ps, void* pml)
 		{
-			const auto crash = a.newLabel();
-			const auto loc_1402219AA = a.newLabel();
+			if (dvars::jump_enableFallDamage->current.enabled)
+			{
+				reinterpret_cast<void(*)(void*, void*)>(0x140220000)(ps, pml);
+			}
+		}
 
-			a.jnz(loc_1402219AA);
-
-			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::jump_enableFallDamage)));
-			a.mov(al, byte_ptr(rax, 0x10));
-
-			a.cmp(al, 0);
-			a.jne(crash);
-
-			a.jmp(loc_1402219AA);
-
-			a.bind(crash);
-			a.mov(rdx, rbx);
-			a.mov(rcx, rsi);
-			a.call_aligned(0x140220000);
-			a.jmp(loc_1402219AA);
-
-			a.bind(loc_1402219AA);
-			a.jmp(0x1402219AA);
-		});
-
-		const auto jump_apply_slowdown_stub = utils::hook::assemble([](utils::hook::assembler& a)
+		void jump_apply_slowdown_stub(void* ps)
 		{
-			const auto slowdown = a.newLabel();
-			const auto loc_14022585C = a.newLabel();
+			if (dvars::jump_slowDownEnable->current.enabled)
+			{
+				reinterpret_cast<void(*)(void*)>(0x140212ED0)(ps);
+			}
+		}
 
-			a.test(dword_ptr(rsi, 0x0C), 0x2000);
-			a.jz(loc_14022585C);
-
-			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::jump_slowDownEnable)));
-			a.mov(al, byte_ptr(rax, 0x10));
-
-			a.cmp(al, 0);
-			a.jne(slowdown);
-
-			a.jmp(loc_14022585C);
-
-			a.bind(slowdown);
-			a.mov(rcx, rsi);
-			a.call_aligned(0x140212ED0);
-			a.jmp(loc_14022585C);
-
-			a.bind(loc_14022585C);
-			a.jmp(0x14022585C);
-		});
-
-		const auto jump_start_stub = utils::hook::assemble([](utils::hook::assembler& a)
+		void jump_start_stub(void* pm, void* pml, float /*height*/)
 		{
-			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::jump_height)));
-			a.movaps(xmm2, dword_ptr(rax, 0x10));
-
-			a.call_aligned(0x140213540);
-
-			a.jmp(0x140213030);
-		});
+			reinterpret_cast<void(*)(void*, void*, float)>(0x140213540)(pm, pml, dvars::jump_height->current.value);
+		}
 
 		const auto jump_push_off_ladder_stub = utils::hook::assemble([](utils::hook::assembler& a)
 		{
 			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::jump_ladderPushVel)));
-			a.movaps(xmm10, dword_ptr(rax, 0x10));
+			a.movaps(xmm8, dword_ptr(rax, 0x10));
 
-			a.movss(qword_ptr(rsp, 0x20), xmm4);
-			a.movss(qword_ptr(rsp, 0x24), xmm5);
-			a.movss(qword_ptr(rsp, 0x28), xmm9);
-
-			a.call_aligned(0x140147FE0);
-
-			a.movss(xmm6, qword_ptr(rsp, 0x24));
-			a.movss(xmm7, qword_ptr(rsp, 0x20));
-
-			a.mulss(xmm6, xmm10);
-			a.mulss(xmm7, xmm10);
+			a.mulss(xmm6, xmm8);
+			a.mulss(xmm7, xmm8);
 
 			a.jmp(0x140213494);
 		});
@@ -183,7 +135,6 @@ namespace gameplay
 			utils::hook::jump(
 				SELECT_VALUE(0x14046EC5C, 0x140228FFF), SELECT_VALUE(pm_bouncing_stub_sp, pm_bouncing_stub_mp), true);
 			dvars::pm_bouncing = game::Dvar_RegisterBool("pm_bouncing", false,
-			                                             game::DvarFlags::DVAR_FLAG_SAVED |
 			                                             game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable bouncing");
 
 			if (game::environment::is_sp()) return;
@@ -199,26 +150,22 @@ namespace gameplay
 			utils::hook::jump(0x140383789, g_speed_stub, true);
 			dvars::g_speed = game::Dvar_RegisterInt("g_speed", 190, 0, 999, 0, "Maximum player speed");
 
-			utils::hook::jump(0x14022584B, jump_apply_slowdown_stub, true);
+			utils::hook::call(0x140225857, jump_apply_slowdown_stub);
 			dvars::jump_slowDownEnable = game::Dvar_RegisterBool("jump_slowDownEnable", true,
-			                                                     game::DvarFlags::DVAR_FLAG_SAVED |
 			                                                     game::DvarFlags::DVAR_FLAG_REPLICATED,
 			                                                     "Slow player movement after jumping");
 
-			utils::hook::jump(0x14022199D, pm_crashland_stub, true);
+			utils::hook::call(0x1402219A5, pm_crashland_stub);
 			dvars::jump_enableFallDamage = game::Dvar_RegisterBool("jump_enableFallDamage", true,
-			                                                       game::DvarFlags::DVAR_FLAG_SAVED |
 			                                                       game::DvarFlags::DVAR_FLAG_REPLICATED,
 			                                                       "Enable fall damage");
 
-			utils::hook::jump(0x140213015, jump_start_stub, true);
+			utils::hook::call(0x140213015, jump_start_stub);
 			dvars::jump_height = game::Dvar_RegisterFloat("jump_height", 39.f, 0.f, 1024.f,
-			                                              game::DvarFlags::DVAR_FLAG_SAVED |
 			                                              game::DvarFlags::DVAR_FLAG_REPLICATED, "Jump height");
 
-			utils::hook::jump(0x140213460, jump_push_off_ladder_stub, true);
+			utils::hook::jump(0x140213484, jump_push_off_ladder_stub, true);
 			dvars::jump_ladderPushVel = game::Dvar_RegisterFloat("jump_ladderPushVel", 128.f, 0.f, 1024.f,
-			                                                     game::DvarFlags::DVAR_FLAG_SAVED |
 			                                                     game::DvarFlags::DVAR_FLAG_REPLICATED,
 			                                                     "Ladder push velocity");
 		}
