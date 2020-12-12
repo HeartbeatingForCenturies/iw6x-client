@@ -66,7 +66,7 @@ namespace scripting::lua
 			return constants;
 		}
 
-		void setup_entity_type(sol::state& state, event_handler& handler)
+		void setup_entity_type(sol::state& state, event_handler& handler, scheduler& scheduler)
 		{
 			state["level"] = entity{*game::levelEntityId};
 
@@ -203,6 +203,16 @@ namespace scripting::lua
 
 				return convert(s, call(function, arguments));
 			};
+
+			game_type["ontimeout"] = [&scheduler](const std::function<void()>& callback, const long long milliseconds)
+			{
+				return scheduler.add(callback, milliseconds, true);
+			};
+
+			game_type["oninterval"] = [&scheduler](const std::function<void()>& callback, const long long milliseconds)
+			{
+				return scheduler.add(callback, milliseconds, false);
+			};
 		}
 	}
 
@@ -218,7 +228,7 @@ namespace scripting::lua
 		                            sol::lib::os,
 		                            sol::lib::math);
 
-		setup_entity_type(this->state_, this->event_handler_);
+		setup_entity_type(this->state_, this->event_handler_, this->scheduler_);
 
 		try
 		{

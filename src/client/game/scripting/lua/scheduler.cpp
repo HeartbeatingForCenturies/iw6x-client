@@ -12,16 +12,6 @@ namespace scripting::lua
 		{
 			this->remove(handle);
 		};
-
-		state["ontimeout"] = [this](const std::function<void()>& callback, const long long milliseconds)
-		{
-			return this->add(callback, milliseconds, true);
-		};
-
-		state["oninterval"] = [this](const std::function<void()>& callback, const long long milliseconds)
-		{
-			return this->add(callback, milliseconds, false);
-		};
 	}
 
 	void scheduler::run_frame()
