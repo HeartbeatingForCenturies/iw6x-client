@@ -9,7 +9,7 @@ html_frame::callback_params::callback_params(DISPPARAMS* params, VARIANT* res) :
 {
 	for (auto i = params->cArgs; i > 0; --i)
 	{
-		auto param = &params->rgvarg[i - 1];
+		auto* param = &params->rgvarg[i - 1];
 		this->arguments.emplace_back(param);
 	}
 }

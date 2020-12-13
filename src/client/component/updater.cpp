@@ -3,6 +3,8 @@
 
 #include <utils/io.hpp>
 #include <utils/nt.hpp>
+#include <utils/toast.hpp>
+#include <utils/binary_resource.hpp>
 
 #include <version.hpp>
 
@@ -27,6 +29,8 @@ namespace updater
 {
 	namespace
 	{
+		utils::binary_resource iw6x_icon(ICON_IMAGE, "iw6x-icon.png");
+
 		std::string download_file_sync(const std::string& url)
 		{
 			CComPtr<IStream> stream;
@@ -127,6 +131,8 @@ namespace updater
 			{
 				return false;
 			}
+
+			utils::toast::show("Updating IW6x", "Please wait...", iw6x_icon.get_extracted_file());
 
 			utils::io::move_file(self_file, dead_file);
 			perform_update(self_file);
