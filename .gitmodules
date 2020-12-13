@@ -41,3 +41,6 @@
 [submodule "deps/lua"]
 	path = deps/lua
 	url = https://github.com/lua/lua.git
+[submodule "deps/WinToast"]
+	path = deps/WinToast
+	url = https://github.com/mohabouje/WinToast.git
