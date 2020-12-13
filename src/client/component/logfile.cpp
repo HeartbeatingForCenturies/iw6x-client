@@ -38,18 +38,17 @@ namespace logfile
 	{
 		const auto hidden = a.newLabel();
 
-		a.call_aligned(0x1404F63C0);
-
-		a.mov(rdx, rdi);
 		a.mov(rcx, rbx);
+		a.mov(rdx, rdi);
 
 		a.call_aligned(evaluate_say);
 
 		a.cmp(rax, 0);
 		a.jne(hidden);
 
-		a.lea(rcx, byte_ptr(rsp, 0x80));
-		a.jmp(0x140392A92);
+		a.lea(rcx, dword_ptr(rsp, 0x80));
+		a.mov(r8d, 0x96);
+		a.jmp(0x140392A98);
 
 		a.bind(hidden);
 		a.jmp(0x140392C6E);
@@ -65,7 +64,7 @@ namespace logfile
 				return;
 			}
 
-			utils::hook::jump(0x140392A85, say_stub, true);
+			utils::hook::jump(0x140392A8A, say_stub, true);
 		}
 	};
 }
