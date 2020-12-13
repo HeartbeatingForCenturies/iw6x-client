@@ -6,7 +6,7 @@
 #include <wintoastlib.h>
 #pragma warning(pop)
 
-namespace utils::toast
+namespace utils
 {
 	namespace
 	{
@@ -47,36 +47,49 @@ namespace utils::toast
 		};
 	}
 
-	bool show(const std::string& title, const std::string& text)
+	toast::toast(const int64_t id)
+		:id_(id)
+	{
+	}
+
+	toast::operator bool() const
+	{
+		return this->id_ >= 0;
+	}
+
+	void toast::hide() const
+	{
+		WinToastLib::WinToast::instance()->hideToast(this->id_);
+	}
+
+	toast toast::show(const std::string& title, const std::string& text)
 	{
 		if(!initialize())
 		{
-			return false;
+			return toast{-1};
 		}
 
 		WinToastLib::WinToastTemplate toast_template(WinToastLib::WinToastTemplate::Text02);
 		toast_template.setTextField(string::convert(title), WinToastLib::WinToastTemplate::FirstLine);
 		toast_template.setTextField(string::convert(text), WinToastLib::WinToastTemplate::SecondLine);
 		toast_template.setDuration(WinToastLib::WinToastTemplate::Long);
-		toast_template.setAudioPath(WinToastLib::WinToastTemplate::Reminder);
 
-		return SUCCEEDED(WinToastLib::WinToast::instance()->showToast(toast_template, new toast_handler()));
+		return toast{WinToastLib::WinToast::instance()->showToast(toast_template, new toast_handler())};
 	}
 
-	bool show(const std::string& title, const std::string& text, const std::string& image)
+	toast toast::show(const std::string& title, const std::string& text, const std::string& image)
 	{
 		if(!initialize())
 		{
-			return false;
+			return {-1};
 		}
 
 		WinToastLib::WinToastTemplate toast_template(WinToastLib::WinToastTemplate::ImageAndText02);
 		toast_template.setTextField(string::convert(title), WinToastLib::WinToastTemplate::FirstLine);
 		toast_template.setTextField(string::convert(text), WinToastLib::WinToastTemplate::SecondLine);
 		toast_template.setDuration(WinToastLib::WinToastTemplate::Long);
-		toast_template.setAudioPath(WinToastLib::WinToastTemplate::Reminder);
 		toast_template.setImagePath(string::convert(image));
 
-		return SUCCEEDED(WinToastLib::WinToast::instance()->showToast(toast_template, new toast_handler()));
+		return {WinToastLib::WinToast::instance()->showToast(toast_template, new toast_handler())};
 	}
 }

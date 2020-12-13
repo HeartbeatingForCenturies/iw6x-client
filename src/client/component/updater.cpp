@@ -132,11 +132,13 @@ namespace updater
 				return false;
 			}
 
-			utils::toast::show("Updating IW6x", "Please wait...", iw6x_icon.get_extracted_file());
+			const auto info = utils::toast::show("Updating IW6x", "Please wait...", iw6x_icon.get_extracted_file());
 
 			utils::io::move_file(self_file, dead_file);
 			perform_update(self_file);
 			relaunch_self();
+
+			info.hide();
 			return true;
 		}
 	}
