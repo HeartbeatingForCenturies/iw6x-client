@@ -192,7 +192,7 @@ namespace scripting::lua
 				};
 			}
 
-			game_type["call"] = [](const sol::this_state s, const std::string& function, sol::variadic_args va)
+			game_type["call"] = [](const game&, const sol::this_state s, const std::string& function, sol::variadic_args va)
 			{
 				std::vector<script_value> arguments{};
 
@@ -204,19 +204,19 @@ namespace scripting::lua
 				return convert(s, call(function, arguments));
 			};
 
-			game_type["ontimeout"] = [&scheduler](const std::function<void()>& callback, const long long milliseconds)
+			game_type["ontimeout"] = [&scheduler](const game&, const std::function<void()>& callback, const long long milliseconds)
 			{
 				return scheduler.add(callback, milliseconds, true);
 			};
 
-			game_type["oninterval"] = [&scheduler](const std::function<void()>& callback, const long long milliseconds)
+			game_type["oninterval"] = [&scheduler](const game&, const std::function<void()>& callback, const long long milliseconds)
 			{
 				return scheduler.add(callback, milliseconds, false);
 			};
 		}
 	}
 
-	context::context(const std::string& file)
+	context::context(const std::string& folder)
 		: scheduler_(state_)
 		  , event_handler_(state_)
 
@@ -228,11 +228,18 @@ namespace scripting::lua
 		                            sol::lib::os,
 		                            sol::lib::math);
 
-		setup_entity_type(this->state_, this->event_handler_, this->scheduler_);
+		this->state_["include"] = [this, folder](const std::string& include_file)
+		{
+			const auto file = (std::filesystem::path{folder} / (include_file + ".lua")).generic_string();
+			return this->state_["require"](file);
+		};
 
+		setup_entity_type(this->state_, this->event_handler_, this->scheduler_);
+		
 		try
 		{
-			printf("Loading script '%s'\n", file.data());
+			printf("Loading script '%s'\n", folder.data());
+			const auto file = (std::filesystem::path{folder} / "__init__.lua").generic_string();
 			this->state_.safe_script_file(file);
 		}
 		catch (std::exception& e)
