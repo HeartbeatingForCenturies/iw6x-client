@@ -25,6 +25,7 @@ namespace dvars
     game::dvar_t* jump_height = nullptr;
     game::dvar_t* jump_ladderPushVel = nullptr;
 
+    game::dvar_t* r_aspectRatioCustom = nullptr;
     game::dvar_t* r_fullbright = nullptr;
 
     game::dvar_t* aimassist_enabled = nullptr;
