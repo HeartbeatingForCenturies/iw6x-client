@@ -21,7 +21,7 @@ namespace utils
 
 			initialized = true;
 			auto* instance = WinToastLib::WinToast::instance();
-			if(!instance)
+			if (!instance)
 			{
 				success = false;
 				return success;
@@ -29,7 +29,7 @@ namespace utils
 
 			instance->setAppName(L"IW6x");
 			instance->setAppUserModelId(
-					WinToastLib::WinToast::configureAUMI(L"X Labs", L"iw6x", L"", L"20201212"));
+				WinToastLib::WinToast::configureAUMI(L"X Labs", L"iw6x", L"", L"20201212"));
 
 			WinToastLib::WinToast::WinToastError error;
 			success = instance->initialize(&error);
@@ -40,15 +40,26 @@ namespace utils
 		class toast_handler : public WinToastLib::IWinToastHandler
 		{
 		public:
-		    void toastActivated() const override {}
-		    void toastActivated(const int /*actionIndex*/) const override {}
-		    void toastFailed() const override {}
-		    void toastDismissed(WinToastDismissalReason /*state*/) const override {}
+			void toastActivated() const override
+			{
+			}
+
+			void toastActivated(const int /*actionIndex*/) const override
+			{
+			}
+
+			void toastFailed() const override
+			{
+			}
+
+			void toastDismissed(WinToastDismissalReason /*state*/) const override
+			{
+			}
 		};
 	}
 
 	toast::toast(const int64_t id)
-		:id_(id)
+		: id_(id)
 	{
 	}
 
@@ -64,7 +75,7 @@ namespace utils
 
 	toast toast::show(const std::string& title, const std::string& text)
 	{
-		if(!initialize())
+		if (!initialize())
 		{
 			return toast{-1};
 		}
@@ -79,7 +90,7 @@ namespace utils
 
 	toast toast::show(const std::string& title, const std::string& text, const std::string& image)
 	{
-		if(!initialize())
+		if (!initialize())
 		{
 			return {-1};
 		}
