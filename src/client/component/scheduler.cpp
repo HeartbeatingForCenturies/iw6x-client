@@ -14,7 +14,7 @@ namespace scheduler
 		{
 			pipeline type;
 			std::function<bool()> handler;
-			std::chrono::milliseconds interval;
+			std::chrono::milliseconds interval{};
 			std::chrono::high_resolution_clock::time_point last_call{};
 		};
 

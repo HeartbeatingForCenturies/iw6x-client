@@ -32,10 +32,15 @@ namespace exception
 
 		bool is_game_thread()
 		{
-			const auto self_id = GetCurrentThreadId();
-			for (int i = 0; i < game::THREAD_CONTEXT_COUNT; ++i)
+			static std::vector<int> allowed_threads =
 			{
-				if (game::threadIds[i] == self_id)
+				game::THREAD_CONTEXT_MAIN,
+			};
+
+			const auto self_id = GetCurrentThreadId();
+			for (const auto& index : allowed_threads)
+			{
+				if (game::threadIds[index] == self_id)
 				{
 					return true;
 				}

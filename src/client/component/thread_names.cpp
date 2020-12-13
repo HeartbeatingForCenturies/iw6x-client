@@ -11,16 +11,6 @@ namespace thread_names
 {
 	namespace
 	{
-		void set_thread_name(const size_t pointer, const std::string& name)
-		{
-			if (!pointer) return;
-
-			const auto id = *reinterpret_cast<DWORD*>(pointer);
-			if (!id) return;
-
-			utils::thread::set_name(id, name);
-		}
-
 		void set_thread_names()
 		{
 			static std::unordered_map<int, std::string> thread_names =
@@ -51,13 +41,6 @@ namespace thread_names
 					utils::thread::set_name(id, thread_name.second);
 				}
 			}
-
-			/*
-			set_thread_name(SELECT_VALUE(0x144DE6640, 0x1446B4960), "Main");
-			set_thread_name(SELECT_VALUE(0x144DE6670, 0x1446B4990), "Database");
-			set_thread_name(SELECT_VALUE(0x144DE6644, 0x1446B4964), "Backend");
-			set_thread_name(SELECT_VALUE(0, 0x1446B4988), "Server");
-			*/
 		}
 	}
 

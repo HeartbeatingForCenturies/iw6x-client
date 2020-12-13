@@ -82,7 +82,7 @@ namespace steam
 				if (operand && operand->type == UD_OP_MEM && operand->base == UD_R_RIP)
 				{
 					auto* operand_ptr = reinterpret_cast<char*>(ud_insn_len(&ud) + ud_insn_off(&ud) + operand->lval.sdword);
-					if (!utils::memory::is_bad_read_ptr(operand_ptr) && this->is_rdata(operand_ptr))
+					if (!utils::memory::is_bad_read_ptr(operand_ptr) && utils::memory::is_rdata_ptr(operand_ptr))
 					{
 						return operand_ptr;
 					}
@@ -94,29 +94,5 @@ namespace steam
 		}
 
 		return {};
-	}
-
-	bool interface::is_rdata(void* pointer)
-	{
-		const auto pointer_lib = utils::nt::library::get_by_address(pointer);
-
-		for (const auto& section : pointer_lib.get_section_headers())
-		{
-			const auto size = sizeof(section->Name);
-			char name[size + 1];
-			name[size] = 0;
-			std::memcpy(name, section->Name, size);
-
-			if (name == ".rdata"s)
-			{
-				const auto target = size_t(pointer);
-				const size_t source_start = size_t(pointer_lib.get_ptr()) + section->PointerToRawData;
-				const size_t source_end = source_start + section->SizeOfRawData;
-
-				return target >= source_start && target <= source_end;
-			}
-		}
-
-		return false;
 	}
 }

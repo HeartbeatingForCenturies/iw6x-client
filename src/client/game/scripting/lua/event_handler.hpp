@@ -4,7 +4,7 @@
 namespace scripting::lua
 {
 	using event_arguments = std::vector<sol::lua_value>;
-	using event_callback = std::function<void(const event_arguments&)>;
+	using event_callback = sol::function;
 
 	class event_listener_handle
 	{

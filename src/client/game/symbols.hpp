@@ -19,6 +19,8 @@ namespace game
 	WEAK Symbol<void ()> Com_Quit{0x1403BDDD0, 0x140414920};
 	WEAK Symbol<CodPlayMode ()> Com_GetCurrentCoDPlayMode{0, 0x1404f6140};
 	WEAK Symbol<void (float, float, int)> Com_SetSlowMotion{0, 0x1404158C0};
+	WEAK Symbol<void(const char* text_in)> Com_TokenizeString{0x1403B4150, 0x1403F7CC0};
+	WEAK Symbol<void()> Com_EndTokenizeString{0x1403B37C0, 0x1403F7330};
 
 	WEAK Symbol<void (const char* message)> Conbuf_AppendText{0x14043DDE0, 0x1405028C0};
 
@@ -119,7 +121,9 @@ namespace game
 
 	WEAK Symbol<ScreenPlacement*()> ScrPlace_GetViewPlacement{0x14024D150, 0x1402F6D40};
 
+	WEAK Symbol<void ()> GScr_LoadConsts{0x140367AA0, 0x1403E0420};
 	WEAK Symbol<unsigned int (unsigned int parentId, unsigned int name)> FindVariable{0x1403D84F0, 0x1404334A0};
+	WEAK Symbol<scr_string_t (unsigned int parentId, unsigned int id)> GetVariableName{0x1403D8E90, 0x140433E60};
 	WEAK Symbol<void (VariableValue* result, unsigned int classnum, int entnum, int offset)> GetEntityFieldValue{
 		0x1403DC810, 0x140437860
 	};

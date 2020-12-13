@@ -153,11 +153,11 @@ namespace utils::hook
 		return this->original_;
 	}
 
-	bool iat(nt::library library, const std::string& target_library, const std::string& process, void* stub)
+	bool iat(const nt::library& library, const std::string& target_library, const std::string& process, void* stub)
 	{
 		if (!library.is_valid()) return false;
 
-		auto ptr = library.get_iat_entry(target_library, process);
+		auto* const ptr = library.get_iat_entry(target_library, process);
 		if (!ptr) return false;
 
 		DWORD protect;
@@ -201,7 +201,7 @@ namespace utils::hook
 		copy(reinterpret_cast<void*>(place), data, length);
 	}
 
-	bool is_relatively_far(const void* pointer, const void* data, int offset)
+	bool is_relatively_far(const void* pointer, const void* data, const int offset)
 	{
 		const int64_t diff = size_t(data) - (size_t(pointer) + offset);
 		const auto small_diff = int32_t(diff);

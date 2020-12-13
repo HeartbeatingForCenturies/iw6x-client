@@ -13,7 +13,7 @@
   <img alig src="assets/github/banner.png?raw=true" />
 </p>
 
-<br/><br/>
+<br/>
 
 ## Download
 
@@ -21,7 +21,7 @@
 - **You will need to drop this in your Call of Duty: Ghosts installation folder. If you don't have Call of Duty: Ghosts, get those game files first.**
 - The client is still in an early stage. It will have bugs!
 
-<br/><br/>
+<br/>
 
 ## Showcase
 
@@ -33,7 +33,7 @@
 |:-:|:-:|
 | Custom maps (soon™) | Mod support (soon™) |
 
-<br/><br/>
+<br/>
 
 ## Compile from source
 
@@ -48,7 +48,7 @@
 | `--copy-to=PATH`            | Optional, copy the EXE to a custom folder after build, define the path here if wanted. |
 | `--dev-build`               | Enable development builds of the client. |
 
-<br/><br/>
+<br/>
 
 ## Disclaimer
 

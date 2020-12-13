@@ -5,9 +5,6 @@
 
 namespace scripting
 {
-	extern std::unordered_map<std::string, unsigned> method_map;
-	extern std::unordered_map<std::string, unsigned> function_map;
-
 	namespace
 	{
 		std::unordered_map<std::string, unsigned> lowercase_map(

@@ -14,7 +14,7 @@ namespace scripting::lua
 	class context
 	{
 	public:
-		context(const std::string& file);
+		context(std::string folder);
 		~context();
 
 		context(context&&) noexcept = delete;
@@ -28,7 +28,12 @@ namespace scripting::lua
 
 	private:
 		sol::state state_{};
+		std::string folder_;
+		std::unordered_set<std::string> loaded_scripts_;
+
 		scheduler scheduler_;
 		event_handler event_handler_;
+
+		void load_script(const std::string& script);
 	};
 }

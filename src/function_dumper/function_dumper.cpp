@@ -8,12 +8,15 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#include <utils/string.hpp>
+
 // Don't ask...
 #define main lululul
 #define private protected
 #include "../../deps/msvc-demangler/MicrosoftDemangle.cpp"
 #undef private
 #undef main
+
 
 class MyDemangler : public Demangler
 {
@@ -147,7 +150,6 @@ std::string transform_name(std::string name)
 	}
 
 	name[0] = static_cast<char>(tolower(name[0]));
-
 	return name;
 }
 
@@ -176,6 +178,17 @@ std::map<std::string, unsigned> map_name_to_function(const std::map<unsigned int
 	}
 
 	return name_index_map;
+}
+
+void transform_to_lowercase(std::map<std::string, unsigned>& table)
+{
+	const auto copy{table};
+	table.clear();
+
+	for(const auto& entry : copy)
+	{
+		table[utils::string::to_lower(entry.first)] = entry.second;
+	}
 }
 
 class table_writer
@@ -216,6 +229,7 @@ public:
 
 	void add_table(const std::string& name, std::map<std::string, unsigned> table)
 	{
+		transform_to_lowercase(table);
 		tables_[name] = std::move(table);
 	}
 

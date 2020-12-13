@@ -27,7 +27,7 @@ namespace scripting::lua::engine
 
 			for (const auto& script : scripts)
 			{
-				if (script.size() > 4 && script.substr(script.find_last_of('.') + 1) == "lua")
+				if (std::filesystem::is_directory(script) && utils::io::file_exists(script + "/__init__.lua"))
 				{
 					get_scripts().push_back(std::make_unique<context>(script));
 				}
