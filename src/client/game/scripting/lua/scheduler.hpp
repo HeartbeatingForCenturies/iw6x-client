@@ -34,12 +34,12 @@ namespace scripting::lua
 		void run_frame();
 		void clear();
 
+		task_handle add(const std::function<void()>& callback, long long milliseconds, bool is_volatile);
+		task_handle add(const std::function<void()>& callback, std::chrono::milliseconds delay, bool is_volatile);
+
 	private:
 		utils::concurrent_list<task> tasks_;
 		std::atomic_int64_t current_task_id_ = 0;
-
-		task_handle add(const std::function<void()>& callback, long long milliseconds, bool is_volatile);
-		task_handle add(const std::function<void()>& callback, std::chrono::milliseconds delay, bool is_volatile);
 
 		void remove(const task_handle& handle);
 	};

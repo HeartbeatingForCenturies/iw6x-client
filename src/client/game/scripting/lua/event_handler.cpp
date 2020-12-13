@@ -42,7 +42,7 @@ namespace scripting::lua
 
 				try
 				{
-					listener->callback(arguments);
+					listener->callback(sol::as_args(arguments));
 				}
 				catch (std::exception& e)
 				{

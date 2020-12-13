@@ -91,7 +91,7 @@ namespace utils::hook
 		void* original_{};
 	};
 
-	bool iat(nt::library library, const std::string& target_library, const std::string& process, void* stub);
+	bool iat(const nt::library& library, const std::string& target_library, const std::string& process, void* stub);
 
 	void nop(void* place, size_t length);
 	void nop(size_t place, size_t length);
@@ -117,7 +117,7 @@ namespace utils::hook
 	template <typename T>
 	T extract(void* address)
 	{
-		const auto data = static_cast<uint8_t*>(address);
+		auto* const data = static_cast<uint8_t*>(address);
 		const auto offset = *reinterpret_cast<int32_t*>(data);
 		return reinterpret_cast<T>(data + offset + 4);
 	}

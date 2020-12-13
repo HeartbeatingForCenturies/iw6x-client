@@ -87,6 +87,58 @@ namespace gameplay
 			a.bind(loc_140228FB8);
 			a.jmp(0x140228FB8);
 		});
+
+		void pm_crashland_stub(void* ps, void* pml)
+		{
+			if (dvars::jump_enableFallDamage->current.enabled)
+			{
+				reinterpret_cast<void(*)(void*, void*)>(0x140220000)(ps, pml);
+			}
+		}
+
+		void jump_apply_slowdown(game::mp::playerState_s* ps)
+		{
+			if (dvars::jump_slowDownEnable->current.enabled)
+			{
+				reinterpret_cast<void(*)(void*)>(0x140212ED0)(ps);
+			}
+			else
+			{
+				ps->pm_time = 1;
+			}
+		}
+
+		const auto jump_apply_slowdown_stub = utils::hook::assemble([](utils::hook::assembler& a)
+		{
+			const auto no_slowdown = a.newLabel();
+			a.jz(no_slowdown);
+
+			a.mov(rcx, rsi);
+
+			a.pushad64();
+			a.call_aligned(&jump_apply_slowdown);
+			a.popad64();
+
+			a.bind(no_slowdown);
+			a.test(dword_ptr(rsi, 0x25), 0x4000);
+			a.jmp(0x140225863);
+		});
+
+		void jump_start_stub(void* pm, void* pml, float /*height*/)
+		{
+			reinterpret_cast<void(*)(void*, void*, float)>(0x140213540)(pm, pml, dvars::jump_height->current.value);
+		}
+
+		const auto jump_push_off_ladder_stub = utils::hook::assemble([](utils::hook::assembler& a)
+		{
+			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::jump_ladderPushVel)));
+			a.movaps(xmm8, dword_ptr(rax, 0x10));
+
+			a.mulss(xmm6, xmm8);
+			a.mulss(xmm7, xmm8);
+
+			a.jmp(0x140213494);
+		});
 	}
 
 	class component final : public component_interface
@@ -103,7 +155,6 @@ namespace gameplay
 			utils::hook::jump(
 				SELECT_VALUE(0x14046EC5C, 0x140228FFF), SELECT_VALUE(pm_bouncing_stub_sp, pm_bouncing_stub_mp), true);
 			dvars::pm_bouncing = game::Dvar_RegisterBool("pm_bouncing", false,
-			                                             game::DvarFlags::DVAR_FLAG_SAVED |
 			                                             game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable bouncing");
 
 			if (game::environment::is_sp()) return;
@@ -118,6 +169,25 @@ namespace gameplay
 			utils::hook::nop(0x140383789, 13);
 			utils::hook::jump(0x140383789, g_speed_stub, true);
 			dvars::g_speed = game::Dvar_RegisterInt("g_speed", 190, 0, 999, 0, "Maximum player speed");
+
+			utils::hook::jump(0x140225852, jump_apply_slowdown_stub, true);
+			dvars::jump_slowDownEnable = game::Dvar_RegisterBool("jump_slowDownEnable", true,
+			                                                     game::DvarFlags::DVAR_FLAG_REPLICATED,
+			                                                     "Slow player movement after jumping");
+
+			utils::hook::call(0x1402219A5, pm_crashland_stub);
+			dvars::jump_enableFallDamage = game::Dvar_RegisterBool("jump_enableFallDamage", true,
+			                                                       game::DvarFlags::DVAR_FLAG_REPLICATED,
+			                                                       "Enable fall damage");
+
+			utils::hook::call(0x140213015, jump_start_stub);
+			dvars::jump_height = game::Dvar_RegisterFloat("jump_height", 39.f, 0.f, 1024.f,
+			                                              game::DvarFlags::DVAR_FLAG_REPLICATED, "Jump height");
+
+			utils::hook::jump(0x140213484, jump_push_off_ladder_stub, true);
+			dvars::jump_ladderPushVel = game::Dvar_RegisterFloat("jump_ladderPushVel", 128.f, 0.f, 1024.f,
+			                                                     game::DvarFlags::DVAR_FLAG_REPLICATED,
+			                                                     "Ladder push velocity");
 		}
 	};
 }

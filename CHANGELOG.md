@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.1.0] - 2020-12-13
+
+### Fixed
+
+-   Dedicated Server Crash every 24 hours with Fatal error (0xC00000005) at 0x00000001E3A2A0. [#222](https://github.com/XLabsProject/iw6x-client/issues/222)
+-   SetThreadDescription not available on older Windows versions [#237](https://github.com/XLabsProject/iw6x-client/issues/237)
+-   Crash after leaving lobby (Local Match/Private) [#239](https://github.com/XLabsProject/iw6x-client/issues/239)
+-   jump_slowDownEnable animation bug [#245](https://github.com/XLabsProject/iw6x-client/issues/245)
+
+### Added
+
+-   Implement scripting support [#17](https://github.com/XLabsProject/iw6x-client/issues/17)
+
+### Pull Requests
+
+-   Allow server owner to set server port [#197](https://github.com/XLabsProject/iw6x-client/pull/197) ([@GEEKiDoS](https://github.com/GEEKiDoS))
+-   Add chat notifies [#235](https://github.com/XLabsProject/iw6x-client/pull/235) ([@fedddddd](https://github.com/fedddddd))
+-   Implement some jump dvars [#243](https://github.com/XLabsProject/iw6x-client/pull/243) ([@fedddddd](https://github.com/fedddddd))
+-   Fix #245 [#246](https://github.com/XLabsProject/iw6x-client/pull/246) ([@fedddddd](https://github.com/fedddddd))
+
 ## [v1.0.5] - 2020-12-08
 
 ### Fixed
@@ -160,7 +180,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Add setviewpos, setviewang commands, add viewpos to drawfps [#38](https://github.com/XLabsProject/iw6x-client/pull/38) ([@fedddddd](https://github.com/fedddddd))
 -   Make stats look better [#36](https://github.com/XLabsProject/iw6x-client/pull/36) ([@FragsAreUs](https://github.com/FragsAreUs))
 
-[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.5...HEAD
+[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v1.1.0...HEAD
+
+[v1.1.0]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.5...v1.1.0
 
 [v1.0.5]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.4...v1.0.5
 
