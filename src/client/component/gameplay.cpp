@@ -96,11 +96,15 @@ namespace gameplay
 			}
 		}
 
-		void jump_apply_slowdown(void* ps)
+		void jump_apply_slowdown(game::mp::playerState_s* ps)
 		{
 			if (dvars::jump_slowDownEnable->current.enabled)
 			{
 				reinterpret_cast<void(*)(void*)>(0x140212ED0)(ps);
+			}
+			else
+			{
+				ps->pm_time = 1;
 			}
 		}
 
