@@ -70,7 +70,10 @@ namespace utils
 
 	void toast::hide() const
 	{
-		WinToastLib::WinToast::instance()->hideToast(this->id_);
+		if (this->operator bool())
+		{
+			WinToastLib::WinToast::instance()->hideToast(this->id_);
+		}
 	}
 
 	toast toast::show(const std::string& title, const std::string& text)
