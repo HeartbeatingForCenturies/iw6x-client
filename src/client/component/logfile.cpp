@@ -38,20 +38,23 @@ namespace logfile
 	{
 		const auto hidden = a.newLabel();
 
+		a.pushad64();
 		a.mov(rcx, rbx);
 		a.mov(rdx, rdi);
 
 		a.call_aligned(evaluate_say);
 
-		a.cmp(rax, 0);
+		a.cmp(al, 0);
 		a.jne(hidden);
 
+		a.popad64();
 		a.lea(rcx, dword_ptr(rsp, 0x80));
 		a.mov(r8d, 0x96);
 		a.jmp(0x140392A98);
 
 		a.bind(hidden);
-		a.jmp(0x140392C6E);
+		a.popad64();
+		a.jmp(0x140392B04);
 	});
 
 	class component final : public component_interface
