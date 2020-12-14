@@ -181,6 +181,7 @@ namespace exception
 			line("Version: "s + VERSION);
 			line("Environment: "s + game::environment::get_string());
 			line("Timestamp: "s + get_timestamp());
+			line("Clean game: "s + (system_check::is_valid() ? "Yes" : "No"));
 			line(utils::string::va("Exception: 0x%08X", exceptioninfo->ExceptionRecord->ExceptionCode));
 			line(utils::string::va("Address: 0x%llX", exceptioninfo->ExceptionRecord->ExceptionAddress));
 
