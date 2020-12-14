@@ -1,8 +1,23 @@
 #include <std_include.hpp>
 #include "error.hpp"
+#include "../execution.hpp"
 
 namespace scripting::lua
 {
+	namespace
+	{
+		void notify_error()
+		{
+			try
+			{
+				call("iprintln", {"^1Script execution error!"});
+			}
+			catch (...)
+			{
+			}
+		}
+	}
+
 	void handle_error(const sol::protected_function_result& result)
 	{
 		if (!result.valid())
@@ -13,6 +28,8 @@ namespace scripting::lua
 			printf("%s\n", err.what());
 
 			printf("****************************************************\n");
+
+			notify_error();
 		}
 	}
 }
