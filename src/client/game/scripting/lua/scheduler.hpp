@@ -15,7 +15,7 @@ namespace scripting::lua
 	{
 	public:
 		std::chrono::steady_clock::time_point last_execution{};
-		std::function<void()> callback{};
+		sol::protected_function callback{};
 		std::chrono::milliseconds delay{};
 		bool is_volatile = false;
 	};
@@ -34,8 +34,8 @@ namespace scripting::lua
 		void run_frame();
 		void clear();
 
-		task_handle add(const std::function<void()>& callback, long long milliseconds, bool is_volatile);
-		task_handle add(const std::function<void()>& callback, std::chrono::milliseconds delay, bool is_volatile);
+		task_handle add(const sol::protected_function& callback, long long milliseconds, bool is_volatile);
+		task_handle add(const sol::protected_function& callback, std::chrono::milliseconds delay, bool is_volatile);
 
 	private:
 		utils::concurrent_list<task> tasks_;

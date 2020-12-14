@@ -40,10 +40,7 @@ namespace scripting::lua
 					this->event_listeners_.remove(listener);
 				}
 
-				safe([&]()
-				{
-					listener->callback(sol::as_args(arguments));
-				});
+				handle_error(listener->callback(sol::as_args(arguments)));
 			}
 		}
 	}

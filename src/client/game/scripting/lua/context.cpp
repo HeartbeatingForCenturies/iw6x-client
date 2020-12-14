@@ -86,17 +86,14 @@ namespace scripting::lua
 				const auto name = utils::string::to_lower(func.first);
 				entity_type[name.data()] = [name](const entity& entity, const sol::this_state s, sol::variadic_args va)
 				{
-					return safe([&]()
+					std::vector<script_value> arguments{};
+
+					for (auto arg : va)
 					{
-						std::vector<script_value> arguments{};
+						arguments.push_back(convert(arg));
+					}
 
-						for (auto arg : va)
-						{
-							arguments.push_back(convert(arg));
-						}
-
-						return convert(s, entity.call(name, arguments));
-					});
+					return convert(s, entity.call(name, arguments));
 				};
 			}
 
@@ -105,50 +102,35 @@ namespace scripting::lua
 				entity_type[constant] = sol::property(
 					[constant](const entity& entity, const sol::this_state s)
 					{
-						return safe([&]()
-						{
-							return convert(s, entity.get(constant));
-						});
+						return convert(s, entity.get(constant));
 					},
 					[constant](const entity& entity, const sol::lua_value& value)
 					{
-						return safe([&]()
-						{
-							entity.set(constant, convert(value));
-						});
+						entity.set(constant, convert(value));
 					});
 			}
 
 			entity_type["set"] = [](const entity& entity, const std::string& field,
 			                        const sol::lua_value& value)
 			{
-				return safe([&]()
-				{
-					entity.set(field, convert(value));
-				});
+				entity.set(field, convert(value));
 			};
 
 			entity_type["get"] = [](const entity& entity, const sol::this_state s, const std::string& field)
 			{
-				return safe([&]()
-				{
-					return convert(s, entity.get(field));
-				});
+				return convert(s, entity.get(field));
 			};
 
 			entity_type["notify"] = [](const entity& entity, const std::string& event, sol::variadic_args va)
 			{
-				return safe([&]()
+				std::vector<script_value> arguments{};
+
+				for (auto arg : va)
 				{
-					std::vector<script_value> arguments{};
+					arguments.push_back(convert(arg));
+				}
 
-					for (auto arg : va)
-					{
-						arguments.push_back(convert(arg));
-					}
-
-					notify(entity, event, arguments);
-				});
+				notify(entity, event, arguments);
 			};
 
 			entity_type["onnotify"] = [&handler](const entity& entity, const std::string& event,
@@ -178,17 +160,14 @@ namespace scripting::lua
 			entity_type["call"] = [](const entity& entity, const sol::this_state s, const std::string& function,
 			                         sol::variadic_args va)
 			{
-				return safe([&]()
+				std::vector<script_value> arguments{};
+
+				for (auto arg : va)
 				{
-					std::vector<script_value> arguments{};
+					arguments.push_back(convert(arg));
+				}
 
-					for (auto arg : va)
-					{
-						arguments.push_back(convert(arg));
-					}
-
-					return convert(s, entity.call(function, arguments));
-				});
+				return convert(s, entity.call(function, arguments));
 			};
 
 			struct game
@@ -202,25 +181,6 @@ namespace scripting::lua
 				const auto name = utils::string::to_lower(func.first);
 				game_type[name] = [name](const game&, const sol::this_state s, sol::variadic_args va)
 				{
-					return safe([&]()
-					{
-						std::vector<script_value> arguments{};
-
-						for (auto arg : va)
-						{
-							arguments.push_back(convert(arg));
-						}
-
-						return convert(s, call(name, arguments));
-					});
-				};
-			}
-
-			game_type["call"] = [](const game&, const sol::this_state s, const std::string& function,
-			                       sol::variadic_args va)
-			{
-				return safe([&]()
-				{
 					std::vector<script_value> arguments{};
 
 					for (auto arg : va)
@@ -228,17 +188,30 @@ namespace scripting::lua
 						arguments.push_back(convert(arg));
 					}
 
-					return convert(s, call(function, arguments));
-				});
+					return convert(s, call(name, arguments));
+				};
+			}
+
+			game_type["call"] = [](const game&, const sol::this_state s, const std::string& function,
+			                       sol::variadic_args va)
+			{
+				std::vector<script_value> arguments{};
+
+				for (auto arg : va)
+				{
+					arguments.push_back(convert(arg));
+				}
+
+				return convert(s, call(function, arguments));
 			};
 
-			game_type["ontimeout"] = [&scheduler](const game&, const std::function<void()>& callback,
+			game_type["ontimeout"] = [&scheduler](const game&, const sol::protected_function& callback,
 			                                      const long long milliseconds)
 			{
 				return scheduler.add(callback, milliseconds, true);
 			};
 
-			game_type["oninterval"] = [&scheduler](const game&, const std::function<void()>& callback,
+			game_type["oninterval"] = [&scheduler](const game&, const sol::protected_function& callback,
 			                                       const long long milliseconds)
 			{
 				return scheduler.add(callback, milliseconds, false);
@@ -266,7 +239,7 @@ namespace scripting::lua
 
 		setup_entity_type(this->state_, this->event_handler_, this->scheduler_);
 
-		printf("Loading script '%s'\n", folder.data());
+		printf("Loading script '%s'\n", this->folder_.data());
 		this->load_script("__init__");
 	}
 
@@ -296,10 +269,7 @@ namespace scripting::lua
 			return;
 		}
 
-		safe([&]()
-		{
-			const auto file = (std::filesystem::path{this->folder_} / (script + ".lua")).generic_string();
-			this->state_.safe_script_file(file);
-		});
+		const auto file = (std::filesystem::path{this->folder_} / (script + ".lua")).generic_string();
+		handle_error(this->state_.safe_script_file(file, &sol::script_pass_on_error));
 	}
 }

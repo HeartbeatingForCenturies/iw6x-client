@@ -3,10 +3,16 @@
 
 namespace scripting::lua
 {
-	void handle_error(const std::exception& e)
+	void handle_error(const sol::protected_function_result& result)
 	{
-		printf("************** Script execution error **************\n");
-		printf("%s\n", e.what());
-		printf("****************************************************\n");
+		if (!result.valid())
+		{
+			printf("************** Script execution error **************\n");
+
+			const sol::error err = result;
+			printf("%s\n", err.what());
+
+			printf("****************************************************\n");
+		}
 	}
 }
