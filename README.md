@@ -29,7 +29,7 @@
 |:-:|:-:|
 | Server list | Scripting support |
 
-| <img src="https://user-images.githubusercontent.com/45299104/101917464-8ffaac00-3bc8-11eb-8635-fc5e0a8f5a23.jpg" /> |
+| <img src="https://user-images.githubusercontent.com/45299104/101917488-9721ba00-3bc8-11eb-9a2f-11edeff1dda4.jpg" /> |
 |:-:|
 | Ultrawide monitor support |
 
