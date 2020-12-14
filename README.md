@@ -29,9 +29,9 @@
 |:-:|:-:|
 | Server list | Scripting support |
 
-| <img src="https://cdn.discordapp.com/attachments/768362250334765067/768377199899836466/unknown_14.png" /> | <img src="https://cdn.discordapp.com/attachments/768362250334765067/768377317000085514/unknown.png" /> |
-|:-:|:-:|
-| Custom maps (soon™) | Mod support (soon™) |
+| <img src="https://user-images.githubusercontent.com/45299104/101917464-8ffaac00-3bc8-11eb-8635-fc5e0a8f5a23.jpg" /> |
+|:-:|
+| Ultrawide monitor support |
 
 <br/>
 
