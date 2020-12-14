@@ -27,14 +27,10 @@ namespace scripting::lua
 					this->tasks_.remove(task);
 				}
 
-				try
+				safe([&]()
 				{
 					task->callback();
-				}
-				catch (std::exception& e)
-				{
-					handle_error(e);
-				}
+				});
 			}
 		}
 	}
