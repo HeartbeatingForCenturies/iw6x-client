@@ -6,6 +6,8 @@
 #include "../execution.hpp"
 #include "../functions.hpp"
 
+#include "../../../component/command.hpp"
+
 #include <utils/string.hpp>
 
 namespace scripting::lua
@@ -215,6 +217,11 @@ namespace scripting::lua
 			                                       const long long milliseconds)
 			{
 				return scheduler.add(callback, milliseconds, false);
+			};
+
+			game_type["executecommand"] = [](const game&, const std::string& command)
+			{
+				command::execute(command, false);
 			};
 		}
 	}
