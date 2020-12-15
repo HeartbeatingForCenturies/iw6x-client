@@ -122,10 +122,40 @@ void enable_dpi_awareness()
 	}
 }
 
+void limit_parallel_dll_loading()
+{
+	const utils::nt::library self;
+	const auto registry_path = R"(Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\)" + self.
+		get_name();
+
+	HKEY key = nullptr;
+	if (RegCreateKeyA(HKEY_LOCAL_MACHINE, registry_path.data(), &key) == ERROR_SUCCESS)
+	{
+		RegCloseKey(key);
+	}
+
+	key = nullptr;
+	if (RegOpenKeyExA(
+		HKEY_LOCAL_MACHINE, registry_path.data(), 0,
+		KEY_ALL_ACCESS, &key) != ERROR_SUCCESS)
+	{
+		return;
+	}
+
+	DWORD value = 1;
+	RegSetValueExA(key, "MaxLoaderThreads", 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(value));
+
+	RegCloseKey(key);
+}
+
 int main()
 {
 	FARPROC entry_point;
 	enable_dpi_awareness();
+
+	// This requires admin privilege, but I suppose many
+	// people will start with admin rights if it crashes.
+	limit_parallel_dll_loading();
 
 	srand(uint32_t(time(nullptr)));
 	remove_crash_file();
