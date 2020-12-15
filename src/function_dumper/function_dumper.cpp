@@ -126,6 +126,7 @@ std::string transform_name(std::string name)
 {
 	static std::unordered_map<std::string, std::string> replacements = {
 		{"VehCmd_SetGoalPos", "setVehGoalPos"},
+		{"VehicleScript_Spawn", "spawnVehicle"},
 	};
 
 	const auto rep = replacements.find(name);
@@ -171,7 +172,7 @@ std::map<std::string, unsigned> map_name_to_function(const std::map<unsigned int
 		const auto new_name = transform_name(demangled_name);
 		if (name_index_map.find(new_name) != name_index_map.end())
 		{
-			printf("%s already inserted!\n", new_name.data());
+			printf("%s (%s) already inserted!\n", new_name.data(), demangled_name.data());
 		}
 
 		name_index_map[new_name] = func.first;
