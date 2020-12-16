@@ -237,7 +237,8 @@ namespace scripting::lua
 		                            sol::lib::io,
 		                            sol::lib::string,
 		                            sol::lib::os,
-		                            sol::lib::math);
+		                            sol::lib::math,
+		                            sol::lib::table);
 
 		this->state_["include"] = [this](const std::string& file)
 		{
