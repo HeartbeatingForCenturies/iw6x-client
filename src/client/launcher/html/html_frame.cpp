@@ -14,16 +14,27 @@ html_frame::callback_params::callback_params(DISPPARAMS* params, VARIANT* res) :
 	}
 }
 
-html_frame::html_frame() : in_place_frame_(this), in_place_site_(this), ui_handler_(this), client_site_(this),
-                           html_dispatch_(this)
+html_frame::html_frame()
+	: in_place_frame_(this)
+	  , in_place_site_(this)
+	  , ui_handler_(this)
+	  , client_site_(this)
+	  , html_dispatch_(this)
 {
 	if (frame_count_++ == 0 && OleInitialize(nullptr) != S_OK)
 	{
 		throw std::runtime_error("Unable to initialize the OLE library");
 	}
 
-	set_browser_feature("FEATURE_BROWSER_EMULATION", 11000);
-	set_browser_feature("FEATURE_GPU_RENDERING", 1);
+	auto needs_restart = false;
+	needs_restart |= set_browser_feature("FEATURE_BROWSER_EMULATION", 11000);
+	needs_restart |= set_browser_feature("FEATURE_GPU_RENDERING", 1);
+
+	if (needs_restart)
+	{
+		utils::nt::relaunch_self();
+		utils::nt::terminate(0);
+	}
 }
 
 html_frame::~html_frame()
@@ -83,7 +94,8 @@ std::shared_ptr<IWebBrowser2> html_frame::get_web_browser() const
 	if (!this->browser_object_) return {};
 
 	IWebBrowser2* web_browser = nullptr;
-	if (FAILED(this->browser_object_->QueryInterface(IID_IWebBrowser2, reinterpret_cast<void**>(&web_browser))) || !web_browser)
+	if (FAILED(this->browser_object_->QueryInterface(IID_IWebBrowser2, reinterpret_cast<void**>(&web_browser)))
+		|| !web_browser)
 		return {};
 
 	return std::shared_ptr<IWebBrowser2>(web_browser, object_deleter);
@@ -106,7 +118,9 @@ std::shared_ptr<IHTMLDocument2> html_frame::get_document() const
 	if (!dispatch) return {};
 
 	IHTMLDocument2* document = nullptr;
-	if (FAILED(dispatch->QueryInterface(IID_IHTMLDocument2, reinterpret_cast<void**>(&document))) || !document) return {};
+	if (FAILED(dispatch->QueryInterface(IID_IHTMLDocument2, reinterpret_cast<void**>(&document)))
+		|| !document)
+		return {};
 
 	return std::shared_ptr<IHTMLDocument2>(document, object_deleter);
 }
@@ -123,8 +137,9 @@ void html_frame::initialize(const HWND window)
 void html_frame::create_browser()
 {
 	LPCLASSFACTORY class_factory = nullptr;
-	if (FAILED(CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER, nullptr, IID_IClassFactory,
-	                     reinterpret_cast<void **>(&class_factory))) || !class_factory)
+	if (FAILED(
+		CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER, nullptr, IID_IClassFactory,
+			reinterpret_cast<void **>(&class_factory))) || !class_factory)
 	{
 		throw std::runtime_error("Unable to get the class factory");
 	}
@@ -161,7 +176,7 @@ void html_frame::initialize_browser()
 	this->resize(rect.right, rect.bottom);
 }
 
-void html_frame::set_browser_feature(const std::string& feature, DWORD value)
+bool html_frame::set_browser_feature(const std::string& feature, DWORD value)
 {
 	const auto registry_path = R"(SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\)" + feature;
 
@@ -176,14 +191,23 @@ void html_frame::set_browser_feature(const std::string& feature, DWORD value)
 		HKEY_CURRENT_USER, registry_path.data(), 0,
 		KEY_ALL_ACCESS, &key) != ERROR_SUCCESS)
 	{
-		return;
+		return false; // Error :(
 	}
 
 	const utils::nt::library self;
 	const auto name = self.get_name();
-	RegSetValueExA(key, name.data(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(value));
 
+	DWORD type{};
+	auto is_new = true;
+	if (RegQueryValueExA(key, name.data(), nullptr, &type, nullptr, nullptr) == ERROR_SUCCESS)
+	{
+		is_new = false;
+	}
+
+	RegSetValueExA(key, name.data(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(value));
 	RegCloseKey(key);
+
+	return is_new;
 }
 
 void html_frame::resize(const DWORD width, const DWORD height) const
