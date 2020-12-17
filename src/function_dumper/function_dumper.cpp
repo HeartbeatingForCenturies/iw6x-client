@@ -127,6 +127,7 @@ std::string transform_name(std::string name)
 	static std::unordered_map<std::string, std::string> replacements = {
 		{"VehCmd_SetGoalPos", "setVehGoalPos"},
 		{"VehicleScript_Spawn", "spawnVehicle"},
+		{"ScrAgentCmd_SetWaypoint", "setAgentWaypoint"},
 	};
 
 	const auto rep = replacements.find(name);
