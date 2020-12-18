@@ -245,6 +245,13 @@ namespace scripting::lua
 			this->load_script(file);
 		};
 
+		sol::function old_require = this->state_["require"];
+		auto base_path = utils::string::replace(this->folder_, "/", ".") + ".";
+		this->state_["require"] = [base_path, old_require](const std::string& path)
+		{
+			return old_require(base_path + path);
+		};
+
 		setup_entity_type(this->state_, this->event_handler_, this->scheduler_);
 
 		printf("Loading script '%s'\n", this->folder_.data());

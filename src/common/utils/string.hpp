@@ -85,6 +85,7 @@ namespace utils::string
 	std::string to_lower(std::string text);
 	std::string to_upper(std::string text);
 	bool starts_with(const std::string& text, const std::string& substring);
+	bool ends_with(const std::string& text, const std::string& substring);
 
 	std::string dump_hex(const std::string& data, const std::string& separator = " ");
 
@@ -94,4 +95,6 @@ namespace utils::string
 
 	std::string convert(const std::wstring& wstr);
 	std::wstring convert(const std::string& str);
+
+	std::string replace(std::string str, const std::string& from, const std::string& to);
 }
