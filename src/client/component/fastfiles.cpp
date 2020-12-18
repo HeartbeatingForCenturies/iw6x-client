@@ -14,10 +14,10 @@ namespace fastfiles
 	{
 		utils::hook::detour db_try_load_x_file_internal_hook;
 
-		void db_try_load_x_file_internal(const char* zoneName, int zoneFlags, int isBaseMap)
+		void db_try_load_x_file_internal(const char* zoneName, const int zone_flags, const int is_base_map)
 		{
 			game_console::print(game_console::con_type_info, "Loading fastfile %s\n", zoneName);
-			return db_try_load_x_file_internal_hook.invoke<void>(zoneName, zoneFlags, isBaseMap);
+			return db_try_load_x_file_internal_hook.invoke<void>(zoneName, zone_flags, is_base_map);
 		}
 	}
 
@@ -43,6 +43,17 @@ namespace fastfiles
 				info.freeFlags = 0;
 
 				game::DB_LoadXAssets(&info, 1, game::DBSyncMode::DB_LOAD_SYNC);
+			});
+
+			command::add("materiallist", [](const command::params& params)
+			{
+				game::DB_EnumXAssets_FastFile(game::ASSET_TYPE_MATERIAL, [](const game::XAssetHeader header, void*)
+				{
+					if(header.material && header.material->name)
+					{
+						printf("%s\n", header.material->name);
+					}
+				}, nullptr, false);
 			});
 		}
 	};

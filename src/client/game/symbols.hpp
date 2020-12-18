@@ -41,6 +41,7 @@ namespace game
 		0x1403B3B10, 0x1403F7680
 	};
 
+	WEAK Symbol<void (XAssetType type, void (__cdecl *func)(XAssetHeader, void *), void *inData, bool includeOverride)> DB_EnumXAssets_FastFile{0x140271F50, 0x14031EF90};
 	WEAK Symbol<void(XZoneInfo* zoneInfo, unsigned int zoneCount, DBSyncMode syncMode)> DB_LoadXAssets{
 		0x140273FD0, 0x140320F20
 	};
