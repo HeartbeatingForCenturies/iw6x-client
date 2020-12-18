@@ -21,7 +21,7 @@ namespace fastfiles
 			return db_try_load_x_file_internal_hook.invoke<void>(zoneName, zone_flags, is_base_map);
 		}
 
-		void ReallocateAssetPool(const game::XAssetType type, const unsigned int new_size)
+		void reallocate_asset_pool(const game::XAssetType type, const unsigned int new_size)
 		{
 			const size_t element_size = game::DB_GetXAssetTypeSize(type);
 
@@ -70,7 +70,7 @@ namespace fastfiles
 
 			if (!game::environment::is_sp())
 			{
-				ReallocateAssetPool(game::ASSET_TYPE_WEAPON, 320);
+				reallocate_asset_pool(game::ASSET_TYPE_WEAPON, 320);
 			}
 		}
 	};
