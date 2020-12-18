@@ -7,6 +7,7 @@
 #include "game_console.hpp"
 
 #include <utils/hook.hpp>
+#include <utils/memory.hpp>
 
 namespace fastfiles
 {
@@ -18,6 +19,17 @@ namespace fastfiles
 		{
 			game_console::print(game_console::con_type_info, "Loading fastfile %s\n", zoneName);
 			return db_try_load_x_file_internal_hook.invoke<void>(zoneName, zone_flags, is_base_map);
+		}
+
+		void ReallocateAssetPool(const game::XAssetType type, const unsigned int new_size)
+		{
+			const size_t element_size = game::DB_GetXAssetTypeSize(type);
+
+			auto* new_pool = utils::memory::get_allocator()->allocate(new_size * element_size);
+			std::memmove(new_pool, game::DB_XAssetPool[type], game::g_poolSize[type] * element_size);
+
+			game::DB_XAssetPool[type] = new_pool;
+			game::g_poolSize[type] = new_size;
 		}
 	}
 
@@ -55,6 +67,11 @@ namespace fastfiles
 					}
 				}, nullptr, false);
 			});
+
+			if (!game::environment::is_sp())
+			{
+				ReallocateAssetPool(game::ASSET_TYPE_WEAPON, 320);
+			}
 		}
 	};
 }

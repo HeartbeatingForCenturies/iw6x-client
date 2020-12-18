@@ -1732,6 +1732,7 @@ namespace game
 
 	union XAssetHeader
 	{
+		void *data;
 		/*PhysPreset *physPreset;
 		PhysCollmap *physCollmap;
 		XAnimParts *parts;
@@ -1790,6 +1791,5 @@ namespace game
 		VectorField *vectorField;
 		DopplerPreset *dopplerPreset;
 		FxParticleSimAnimation *particleSimAnimation;*/
-		void *data;
 	};
 }

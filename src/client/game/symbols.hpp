@@ -42,6 +42,7 @@ namespace game
 	};
 
 	WEAK Symbol<void (XAssetType type, void (__cdecl *func)(XAssetHeader, void *), void *inData, bool includeOverride)> DB_EnumXAssets_FastFile{0x140271F50, 0x14031EF90};
+	WEAK Symbol<int (XAssetType type)> DB_GetXAssetTypeSize{0x14024FB30, 0x1402FB180};
 	WEAK Symbol<void(XZoneInfo* zoneInfo, unsigned int zoneCount, DBSyncMode syncMode)> DB_LoadXAssets{
 		0x140273FD0, 0x140320F20
 	};
@@ -202,6 +203,9 @@ namespace game
 	WEAK Symbol<int> g_script_error_level{0x1455B1F98, 0x144D535C4};
 	WEAK Symbol<jmp_buf> g_script_error{0x1455BA5E0, 0x144D536E0};
 	WEAK Symbol<scr_classStruct_t> g_classMap{0x140873E20, 0x1409EBFC0};
+
+	WEAK Symbol<void*> DB_XAssetPool{0x14086DCB0, 0x1409E4F20};
+	WEAK Symbol<int> g_poolSize{0x14086DBB0, 0x1409E4E20};
 
 	WEAK Symbol<scrVmPub_t> scr_VmPub{0x1455B1FA0, 0x144D4B090};
 	WEAK Symbol<unsigned int> scr_levelEntityId{0x1452A9F30, 0x144A43020};
