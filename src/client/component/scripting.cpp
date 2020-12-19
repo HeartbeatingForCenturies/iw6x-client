@@ -52,7 +52,8 @@ namespace scripting
 		}
 	}
 
-	bool has_config_string_index(const unsigned int csIndex)
+	// seems like some data size issue here
+	int32_t has_config_string_index(const unsigned int csIndex)
 	{
 		const auto* s_constantConfigStringTypes = reinterpret_cast<uint8_t*>(0x141721F80);
 		return csIndex < 0xDC4 && s_constantConfigStringTypes[csIndex] < 0x18u;
