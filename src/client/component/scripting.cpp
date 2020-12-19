@@ -52,7 +52,6 @@ namespace scripting
 		}
 	}
 
-	// seems like some data size issue here
 	int32_t has_config_string_index(const unsigned int csIndex)
 	{
 		const auto* s_constantConfigStringTypes = reinterpret_cast<uint8_t*>(0x141721F80);
