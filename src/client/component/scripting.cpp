@@ -60,7 +60,7 @@ namespace scripting
 
 	int is_pre_main_stub()
 	{
-		static const auto sv_running = game::Dvar_FindVar("sv_running");
+		const auto sv_running = game::Dvar_FindVar("sv_running");
 		return sv_running->current.enabled;
 	}
 
