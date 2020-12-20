@@ -84,6 +84,7 @@ namespace game
 	WEAK Symbol<int (playerState_s* ps, Weapon weapon, int dualWield, int startInAltMode, int usedBefore)>
 	G_GivePlayerWeapon{0x140359E20, 0x1403DA5E0};
 	WEAK Symbol<Weapon(const char* name)> G_GetWeaponForName{0x140359890, 0x1403DA060};
+	WEAK Symbol<void()> G_Glass_Update{0x14030E680, 0x140397450};
 	WEAK Symbol<void (playerState_s* ps, Weapon weapon, int hadWeapon)> G_InitializeAmmo{0x140311F00, 0x14039AEA0};
 	WEAK Symbol<void(int clientNum, Weapon weapon)> G_SelectWeapon{0x14035A200, 0x1403DA880};
 	WEAK Symbol<int(playerState_s* ps, Weapon weapon)> G_TakePlayerWeapon{0x14035A350, 0x1403DA9C0};

@@ -53,10 +53,10 @@ namespace scheduler
 			r_end_frame_hook.invoke<void>();
 		}
 
-		int server_frame_stub(const int server_time)
+		void server_frame_stub()
 		{
+			game::G_Glass_Update();
 			execute(pipeline::server);
-			return game::G_RunFrame(server_time);
 		}
 
 		void main_frame_stub()
@@ -134,13 +134,7 @@ namespace scheduler
 			r_end_frame_hook.create(SELECT_VALUE(0x140534860, 0x140601AA0), scheduler::r_end_frame_stub);
 
 			utils::hook::call(SELECT_VALUE(0x1403BC922, 0x140413142), scheduler::main_frame_stub);
-
-			// Server thread isn't really a thing in SP, at least I couldn't find what would be the equivalent
-			if (!game::environment::is_sp())
-			{
-				utils::hook::call(0x14047A4C2, scheduler::server_frame_stub);
-				utils::hook::call(0x14047B035, scheduler::server_frame_stub);
-			}
+			utils::hook::call(SELECT_VALUE(0x1403185FD, 0x1403A0AF9), scheduler::server_frame_stub);
 		}
 
 		void pre_destroy() override
