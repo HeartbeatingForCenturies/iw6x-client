@@ -13,6 +13,11 @@ namespace utils::cryptography
 			key();
 			~key();
 
+			key(key&& obj) noexcept;
+			key(const key& obj);
+			key& operator=(key&& obj) noexcept;
+			key& operator=(const key& obj);
+
 			bool is_valid() const;
 
 			ecc_key* get();

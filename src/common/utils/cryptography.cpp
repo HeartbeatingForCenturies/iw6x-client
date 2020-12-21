@@ -29,6 +29,39 @@ namespace utils::cryptography
 		this->free();
 	}
 
+	ecc::key::key(key&& obj) noexcept
+		: key()
+	{
+		this->operator=(std::move(obj));
+	}
+
+	ecc::key::key(const key& obj)
+		: key()
+	{
+		this->operator=(obj);
+	}
+
+	ecc::key& ecc::key::operator=(key&& obj) noexcept
+	{
+		if (this != &obj)
+		{
+			std::memmove(&this->key_storage_, &obj.key_storage_, sizeof(this->key_storage_));
+			ZeroMemory(&obj.key_storage_, sizeof(obj.key_storage_));
+		}
+
+		return *this;
+	}
+
+	ecc::key& ecc::key::operator=(const key& obj)
+	{
+		if (this != &obj && obj.is_valid())
+		{
+			this->deserialize(obj.serialize(obj.key_storage_.type));
+		}
+
+		return *this;
+	}
+
 	bool ecc::key::is_valid() const
 	{
 		return (!memory::is_set(&this->key_storage_, 0, sizeof(this->key_storage_)));
