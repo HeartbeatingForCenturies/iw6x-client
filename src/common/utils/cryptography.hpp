@@ -39,6 +39,7 @@ namespace utils::cryptography
 		};
 
 		key generate_key(int bits);
+		key generate_key(int bits, const std::string& entropy);
 		std::string sign_message(key key, const std::string& message);
 		bool verify_message(key key, const std::string& message, const std::string& signature);
 	}

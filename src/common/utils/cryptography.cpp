@@ -2,6 +2,8 @@
 #include "cryptography.hpp"
 #include "nt.hpp"
 
+#include <gsl/gsl>
+
 /// http://www.opensource.apple.com/source/CommonCrypto/CommonCrypto-55010/Source/libtomcrypt/doc/libTomCryptDoc.pdf
 
 namespace utils::cryptography
@@ -146,6 +148,25 @@ namespace utils::cryptography
 		return key;
 	}
 
+	ecc::key ecc::generate_key(const int bits, const std::string& entropy)
+	{
+		key key;
+
+		initialize_math();
+
+		const auto state = std::make_unique<prng_state>();
+		register_prng(&yarrow_desc);
+		yarrow_start(state.get());
+
+		yarrow_add_entropy(reinterpret_cast<const uint8_t*>(entropy.data()), static_cast<unsigned long>(entropy.size()), state.get());
+		yarrow_ready(state.get());
+
+		ecc_make_key(state.get(), find_prng("yarrow"), bits / 8, key.get());
+		yarrow_done(state.get());
+
+		return key;
+	}
+
 	std::string ecc::sign_message(key key, const std::string& message)
 	{
 		if (!key.is_valid()) return "";
@@ -199,8 +220,8 @@ namespace utils::cryptography
 		rsa_key new_key;
 		rsa_import(PBYTE(key.data()), ULONG(key.size()), &new_key);
 
-		static thread_local prng_state yarrow;
-		rng_make_prng(128, prng_id, &yarrow, nullptr);
+		const auto yarrow = std::make_unique<prng_state>();
+		rng_make_prng(128, prng_id, yarrow.get(), nullptr);
 
 		unsigned char buffer[0x80];
 		unsigned long length = sizeof(buffer);
@@ -212,12 +233,13 @@ namespace utils::cryptography
 			&length, //
 			PBYTE(hash.data()), //
 			ULONG(hash.size()), //
-			&yarrow, //
+			yarrow.get(), //
 			prng_id, //
 			find_hash("sha1"), //
 			&new_key);
 
 		rsa_free(&new_key);
+		yarrow_done(yarrow.get());
 
 		if (rsa_result == CRYPT_OK)
 		{
@@ -395,12 +417,17 @@ namespace utils::cryptography
 					rng_make_prng(128, find_prng("fortuna"), &state, nullptr);
 
 					int i[4]; // uninitialized data
-					auto i_ptr = &i;
+					auto* i_ptr = &i;
 					fortuna_add_entropy(reinterpret_cast<unsigned char*>(&i), sizeof(i), &state);
 					fortuna_add_entropy(reinterpret_cast<unsigned char*>(&i_ptr), sizeof(i_ptr), &state);
 
 					auto t = time(nullptr);
 					fortuna_add_entropy(reinterpret_cast<unsigned char*>(&t), sizeof(t), &state);
+
+					static const auto _ = gsl::finally([]()
+					{
+						fortuna_done(&state);
+					});
 
 					return &state;
 				}();
