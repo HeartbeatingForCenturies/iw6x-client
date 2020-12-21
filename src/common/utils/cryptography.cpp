@@ -137,6 +137,17 @@ namespace utils::cryptography
 		return (this->is_valid() && key.is_valid() && this->serialize(PK_PUBLIC) == key.serialize(PK_PUBLIC));
 	}
 
+	uint64_t ecc::key::get_hash() const
+	{
+		auto hash = sha1::compute(this->get_public_key());
+		if (hash.size() >= 8)
+		{
+			return *reinterpret_cast<uint64_t*>(const_cast<char*>(hash.data()));
+		}
+
+		return 0;
+	}
+
 	ecc::key ecc::generate_key(const int bits)
 	{
 		key key;
@@ -167,7 +178,7 @@ namespace utils::cryptography
 		return key;
 	}
 
-	std::string ecc::sign_message(key key, const std::string& message)
+	std::string ecc::sign_message(key& key, const std::string& message)
 	{
 		if (!key.is_valid()) return "";
 
@@ -182,7 +193,7 @@ namespace utils::cryptography
 		return std::string(reinterpret_cast<char*>(buffer), length);
 	}
 
-	bool ecc::verify_message(key key, const std::string& message, const std::string& signature)
+	bool ecc::verify_message(key& key, const std::string& message, const std::string& signature)
 	{
 		if (!key.is_valid()) return false;
 

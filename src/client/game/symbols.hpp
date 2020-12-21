@@ -109,6 +109,7 @@ namespace game
 	WEAK Symbol<Material*(const char* material)> Material_RegisterHandle{0x140523D90, 0x1405F0E20};
 
 	WEAK Symbol<void (netsrc_t, netadr_s*, const char*)> NET_OutOfBandPrint{0, 0x14041D5C0};
+	WEAK Symbol<void (netsrc_t sock, int length, const void *data, const netadr_s *to)> NET_SendLoopPacket{0, 0x14041D780};
 	WEAK Symbol<bool (const char* s, game::netadr_s* a)> NET_StringToAdr{0, 0x14041D870};
 
 	WEAK Symbol<void (float x, float y, float width, float height, float s0, float t0, float s1, float t1,
@@ -146,6 +147,11 @@ namespace game
 	WEAK Symbol<const char*(scr_string_t stringValue)> SL_ConvertToString{0x1403D6870, 0x1404317F0};
 	WEAK Symbol<scr_string_t(const char* str, unsigned int user)> SL_GetString{0x1403D6CD0, 0x140431C70};
 
+
+	WEAK Symbol<void (const char *text_in)> SV_Cmd_TokenizeString{0, 0x1403F8150};
+	WEAK Symbol<void ()> SV_Cmd_EndTokenizedString{0, 0x1403F8110};
+
+	WEAK Symbol<void (netadr_s* from)> SV_DirectConnect{0, 0x140471390};
 	WEAK Symbol<void (int, int, const char*)> SV_GameSendServerCommand{0x140490F40, 0x1404758C0};
 	WEAK Symbol<bool ()> SV_Loaded{0x140491820, 0x1404770C0};
 	WEAK Symbol<void (int localClientNum, const char* map, bool mapIsPreloaded)> SV_StartMap{0, 0x140470170};

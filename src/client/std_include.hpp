@@ -87,6 +87,8 @@
 #include <asmjit/core/jitruntime.h>
 #include <asmjit/x86/x86assembler.h>
 
+#include <proto/auth.pb.h>
+
 #pragma warning(pop)
 #pragma warning(disable: 4100)
 
