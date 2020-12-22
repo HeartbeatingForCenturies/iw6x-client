@@ -252,8 +252,7 @@ configuration "windows"
 defines {"_WINDOWS", "WIN32"}
 
 configuration "Release"
-optimize "Full"
-buildoptions "/Os"
+optimize "Speed"
 
 defines {"NDEBUG"}
 
@@ -311,7 +310,7 @@ targetname "iw6x"
 pchheader "std_include.hpp"
 pchsource "src/client/std_include.cpp"
 
-linkoptions {"/IGNORE:4254", "/DYNAMICBASE:NO", "/SAFESEH:NO", "/LARGEADDRESSAWARE", "/LAST:.main"}
+linkoptions {"/IGNORE:4254", "/DYNAMICBASE:NO", "/SAFESEH:NO", "/LARGEADDRESSAWARE", "/LAST:.main", "/PDBCompress"}
 
 files {"./src/client/**.rc", "./src/client/**.hpp", "./src/client/**.cpp", "./src/client/resources/**.*"}
 
