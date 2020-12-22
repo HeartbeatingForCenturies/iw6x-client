@@ -40,7 +40,7 @@ namespace auth
 			return key;
 		}
 
-		bool send_connect_data_stub(game::netsrc_t sock, game::netadr_s* adr, const char *format, const int len)
+		int send_connect_data_stub(game::netsrc_t sock, game::netadr_s* adr, const char *format, const int len)
 		{
 			std::string connect_string(format, len);
 			game::SV_Cmd_TokenizeString(connect_string.data());
@@ -67,7 +67,7 @@ namespace auth
 
 			proto::network::connect_info info;
 			info.set_publickey(get_key().get_public_key());
-			info.set_signature(utils::cryptography::ecc::sign_message(get_key(), challenge));
+			info.set_signature(sign_message(get_key(), challenge));
 			info.set_infostring(connect_string);
 
 			network::send(*adr, "connect", info.SerializeAsString());
