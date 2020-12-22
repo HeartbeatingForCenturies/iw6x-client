@@ -159,7 +159,7 @@ newaction {
 				end
 			end
 
-			if branchName == nil
+			if branchName == nil then
 				branchName = "develop"
 			end
 
