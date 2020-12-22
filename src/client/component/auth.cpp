@@ -16,22 +16,15 @@ namespace auth
 {
 	namespace
 	{
-		std::string get_drive_serial()
-		{
-			char windows_dir[1024];
-			GetWindowsDirectoryA(windows_dir, sizeof(windows_dir));
-
-			const auto* const drive = utils::string::va("%c:\\", windows_dir[0]);
-		
-			DWORD serial_number = 0;
-			GetVolumeInformationA(drive, nullptr, NULL, &serial_number, nullptr, nullptr, nullptr, NULL);
-			return std::string(reinterpret_cast<char*>(&serial_number), sizeof(serial_number));
-		}
-
 		std::string get_key_entropy()
 		{
-			// Weak, but enough as a first step...
-			return get_drive_serial();
+			HW_PROFILE_INFO info;
+			if (!GetCurrentHwProfileA(&info))
+			{
+				utils::cryptography::random::get_challenge();
+			}
+
+			return info.szHwProfileGuid;
 		}
 	
 		utils::cryptography::ecc::key& get_key()
@@ -105,7 +98,6 @@ namespace auth
 				return;
 			}
 
-#ifndef DEBUG
 			utils::cryptography::ecc::key key;
 			key.set(info.publickey());
 
@@ -121,7 +113,6 @@ namespace auth
 				network::send(*from, "error", "Challenge signature was invalid!", '\n');
 				return;
 			}
-#endif
 
 			game::SV_DirectConnect(from);
 		}
@@ -145,6 +136,11 @@ namespace auth
 
 	uint64_t get_guid()
 	{
+		if (game::environment::is_dedi())
+		{
+			return 0x110000100000000 | (::utils::cryptography::random::get_integer() & ~0x80000000);
+		}
+
 		return get_key().get_hash();
 	}
 

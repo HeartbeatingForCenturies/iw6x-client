@@ -14,13 +14,7 @@ namespace steam
 		steam_id generate_steam_id()
 		{
 			steam_id id{};
-
-#ifdef DEBUG
-			id.bits = 0x110000100000000 | (::utils::cryptography::random::get_integer() & ~0x80000000);
-#else
 			id.bits = auth::get_guid();
-#endif
-
 			return id;
 		}
 	}
