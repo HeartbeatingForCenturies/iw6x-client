@@ -159,6 +159,10 @@ newaction {
 				end
 			end
 
+			if branchName == nil
+				branchName = "develop"
+			end
+
 			print("Detected branch: " .. branchName)
 
 			-- get revision number via git
