@@ -42,5 +42,5 @@ build:
 
 artifacts:
   - path: build/version.txt
-  - path: build/bin/**/iw6x.exe
-  - path: build/bin/**/iw6x.pdb
+  - path: build/bin/**/*.exe
+  - path: build/bin/**/*.pdb
