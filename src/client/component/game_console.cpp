@@ -657,7 +657,7 @@ namespace game_console
 	public:
 		void post_load() override
 		{
-			if (game::environment::is_dedi())
+			if (game::environment::is_dedi() || game::environment::is_linker())
 			{
 				return;
 			}
@@ -667,7 +667,7 @@ namespace game_console
 
 		void post_unpack() override
 		{
-			if (game::environment::is_dedi())
+			if (game::environment::is_dedi() || game::environment::is_linker())
 			{
 				return;
 			}

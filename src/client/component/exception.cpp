@@ -104,7 +104,7 @@ namespace exception
 				utils::nt::terminate(exception_data.code);
 			}
 
-			if (is_recoverable())
+			if (is_recoverable() && !game::environment::is_linker())
 			{
 				recovery_data.last_recovery = std::chrono::high_resolution_clock::now();
 				++recovery_data.recovery_counts;

@@ -275,7 +275,7 @@ namespace network
 				{
 					const std::string message{data};
 
-					if (game::environment::is_dedi())
+					if (game::environment::is_dedi() || game::environment::is_linker())
 					{
 						printf("%s\n", message.data());
 					}

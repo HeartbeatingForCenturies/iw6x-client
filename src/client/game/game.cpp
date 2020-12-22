@@ -52,6 +52,11 @@ namespace game
 			return get_mode() == launcher::mode::singleplayer;
 		}
 
+		bool is_linker()
+		{
+			return get_mode() == launcher::mode::linker;
+		}
+
 		void set_mode(const launcher::mode _mode)
 		{
 			mode = _mode;

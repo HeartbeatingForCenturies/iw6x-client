@@ -31,7 +31,7 @@ namespace steam_proxy
 	public:
 		void post_load() override
 		{
-			if (game::environment::is_dedi() || is_disabled())
+			if (game::environment::is_dedi() ||game::environment::is_linker() || is_disabled())
 			{
 				return;
 			}

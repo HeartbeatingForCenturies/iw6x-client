@@ -34,7 +34,7 @@ namespace branding
 	public:
 		void post_unpack() override
 		{
-			if (game::environment::is_dedi())
+			if (game::environment::is_dedi() || game::environment::is_linker())
 			{
 				return;
 			}

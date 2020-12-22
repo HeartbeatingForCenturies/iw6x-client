@@ -22,6 +22,11 @@ BOOL WINAPI system_parameters_info_a(const UINT uiAction, const UINT uiParam, co
 
 launcher::mode detect_mode_from_arguments()
 {
+	if (utils::flags::has_flag("linker"))
+	{
+		return launcher::mode::linker;
+	}
+
 	if (utils::flags::has_flag("dedicated"))
 	{
 		return launcher::mode::server;

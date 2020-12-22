@@ -44,6 +44,7 @@ public:
 	static bool post_load();
 	static void post_unpack();
 	static void pre_destroy();
+	static void clean();
 
 	static void* load_import(const std::string& library, const std::string& function);
 

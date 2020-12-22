@@ -66,7 +66,7 @@ namespace discord
 	public:
 		void post_load() override
 		{
-			if (game::environment::is_dedi())
+			if (game::environment::is_dedi() || game::environment::is_linker())
 			{
 				return;
 			}
@@ -89,7 +89,7 @@ namespace discord
 
 		void pre_destroy() override
 		{
-			if (!initialized_ || game::environment::is_dedi())
+			if (!initialized_ || game::environment::is_dedi() || game::environment::is_linker())
 			{
 				return;
 			}

@@ -16,6 +16,7 @@ namespace game
 		bool is_mp();
 		bool is_sp();
 		bool is_dedi();
+		bool is_linker();
 
 		void set_mode(launcher::mode mode);
 

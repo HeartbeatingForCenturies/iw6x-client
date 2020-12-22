@@ -33,6 +33,8 @@ bool component_loader::post_load()
 	if (handled) return true;
 	handled = true;
 
+	clean();
+
 	try
 	{
 		for (const auto& component_ : get_components())
@@ -72,13 +74,30 @@ void component_loader::pre_destroy()
 	}
 }
 
+void component_loader::clean()
+{
+	auto& components =  get_components();
+	for(auto i = components.begin(); i != components.end();)
+	{
+		if(!(*i)->is_supported())
+		{
+			(*i)->pre_destroy();
+			i = components.erase(i);
+		}
+		else
+		{
+			++i;
+		}
+	}
+}
+
 void* component_loader::load_import(const std::string& library, const std::string& function)
 {
 	void* function_ptr = nullptr;
 
 	for (const auto& component_ : get_components())
 	{
-		const auto component_function_ptr = component_->load_import(library, function);
+		auto* const component_function_ptr = component_->load_import(library, function);
 		if (component_function_ptr)
 		{
 			function_ptr = component_function_ptr;
