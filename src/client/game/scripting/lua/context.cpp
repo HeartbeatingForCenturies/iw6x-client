@@ -252,6 +252,11 @@ namespace scripting::lua
 			return old_require(base_path + path);
 		};
 
+		this->state_["scriptdir"] = [this]()
+		{
+			return this->folder_;
+		};
+
 		setup_entity_type(this->state_, this->event_handler_, this->scheduler_);
 
 		printf("Loading script '%s'\n", this->folder_.data());
