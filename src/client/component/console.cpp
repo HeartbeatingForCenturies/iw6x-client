@@ -8,12 +8,28 @@
 
 namespace console
 {
+	namespace
+	{
+		void hide_console()
+		{
+			auto* const con_window = GetConsoleWindow();
+
+			DWORD process;
+			GetWindowThreadProcessId(con_window, &process);
+
+			if(process == GetCurrentProcessId() || IsDebuggerPresent())
+			{
+				ShowWindow(con_window, SW_HIDE);
+			}
+		}
+	}
+
 	class component final : public component_interface
 	{
 	public:
 		component()
 		{
-			ShowWindow(GetConsoleWindow(), SW_HIDE);
+			hide_console();
 
 			_pipe(this->handles_, 1024, _O_TEXT);
 			_dup2(this->handles_[1], 1);
