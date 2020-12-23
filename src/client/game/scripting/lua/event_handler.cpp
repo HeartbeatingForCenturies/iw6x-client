@@ -33,7 +33,7 @@ namespace scripting::lua
 	{
 		for (auto listener : this->event_listeners_)
 		{
-			if (listener->event == event.name && listener->entity_id == event.entity.get_entity_id())
+			if (listener->event == event.name && listener->entity == event.entity)
 			{
 				if (listener->is_volatile)
 				{

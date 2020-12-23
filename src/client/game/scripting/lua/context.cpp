@@ -140,7 +140,7 @@ namespace scripting::lua
 			{
 				event_listener listener{};
 				listener.callback = callback;
-				listener.entity_id = entity.get_entity_id();
+				listener.entity = entity;
 				listener.event = event;
 				listener.is_volatile = false;
 
@@ -152,7 +152,7 @@ namespace scripting::lua
 			{
 				event_listener listener{};
 				listener.callback = callback;
-				listener.entity_id = entity.get_entity_id();
+				listener.entity = entity;
 				listener.event = event;
 				listener.is_volatile = true;
 

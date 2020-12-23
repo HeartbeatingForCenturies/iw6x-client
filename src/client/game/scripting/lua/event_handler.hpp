@@ -16,7 +16,7 @@ namespace scripting::lua
 	{
 	public:
 		std::string event = {};
-		unsigned int entity_id = 0;
+		entity entity{};
 		event_callback callback = {};
 		bool is_volatile = false;
 	};
