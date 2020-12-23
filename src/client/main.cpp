@@ -71,6 +71,7 @@ FARPROC load_binary(const launcher::mode mode)
 	std::string binary;
 	switch (mode)
 	{
+	case launcher::mode::linker:
 	case launcher::mode::server:
 	case launcher::mode::multiplayer:
 		binary = "iw6mp64_ship.exe";
