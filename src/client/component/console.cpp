@@ -56,7 +56,7 @@ namespace console
 		{
 			game::Sys_ShowConsole();
 
-			if (!game::environment::is_dedi())
+			if (!game::environment::is_dedi() && !game::environment::is_linker())
 			{
 				// Hide that shit
 				ShowWindow(console::get_window(), SW_MINIMIZE);
