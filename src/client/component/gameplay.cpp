@@ -9,6 +9,26 @@ namespace gameplay
 {
 	namespace
 	{
+		void stuck_in_client_stub(void* self)
+		{
+			if (dvars::g_playerEjection->current.enabled)
+			{
+				reinterpret_cast<void(*)(void*)>(0x140386950)(self); // StuckInClient
+			}
+		}
+
+		void cm_transformed_capsule_trace_stub(struct trace_t* results, const float* start, const float* end, 
+			struct Bounds* bounds, struct Bounds* capsule, int contents, const float* origin, const float* angles)
+		{
+			if (dvars::g_playerCollision->current.enabled)
+			{
+				reinterpret_cast<void(*)
+					(struct trace_t*, const float*, const float*, struct Bounds*, struct Bounds*, unsigned int, const float*, const float*)>
+					(0x1403F3050)
+					(results, start, end, bounds, capsule, contents, origin, angles); // CM_TransformedCapsuleTrace
+			}
+		}
+
 		const auto g_gravity_stub = utils::hook::assemble([](utils::hook::assembler& a)
 		{
 			a.push(rax);
@@ -158,6 +178,15 @@ namespace gameplay
 			                                             game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable bouncing");
 
 			if (game::environment::is_sp()) return;
+
+			// Implement player ejection dvar
+			dvars::g_playerEjection = game::Dvar_RegisterBool("g_playerEjection", true, game::DVAR_FLAG_REPLICATED, "Flag whether player ejection is on or off");
+			utils::hook::call(0x140382C13, stuck_in_client_stub);
+
+			// Implement player collision dvar
+			dvars::g_playerCollision = game::Dvar_RegisterBool("g_playerCollision", true, game::DVAR_FLAG_REPLICATED, "Flag whether player collision is on or off");
+			utils::hook::call(0x14048A49A, cm_transformed_capsule_trace_stub); // SV_ClipMoveToEntity
+			utils::hook::call(0x1402B5B88, cm_transformed_capsule_trace_stub); // CG_ClipMoveToEntity
 
 			// Implement gravity dvar
 			utils::hook::nop(0x1403828C8, 13);
