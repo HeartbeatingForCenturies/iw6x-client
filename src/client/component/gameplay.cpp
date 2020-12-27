@@ -124,9 +124,16 @@ namespace gameplay
 			a.jmp(0x140225863);
 		});
 
-		void jump_start_stub(void* pm, void* pml, float /*height*/)
+		float get_jump_height_stub(void* pmove)
 		{
-			reinterpret_cast<void(*)(void*, void*, float)>(0x140213540)(pm, pml, dvars::jump_height->current.value);
+			auto jump_height = reinterpret_cast<float (*)(void*)>(0x140213140)(pmove);
+
+			if (jump_height == 39.f)
+			{
+				jump_height = dvars::jump_height->current.value;
+			}
+
+			return jump_height;
 		}
 
 		const auto jump_push_off_ladder_stub = utils::hook::assemble([](utils::hook::assembler& a)
@@ -180,7 +187,7 @@ namespace gameplay
 			                                                       game::DvarFlags::DVAR_FLAG_REPLICATED,
 			                                                       "Enable fall damage");
 
-			utils::hook::call(0x140213015, jump_start_stub);
+			utils::hook::call(0x140213007, get_jump_height_stub);
 			dvars::jump_height = game::Dvar_RegisterFloat("jump_height", 39.f, 0.f, 1024.f,
 			                                              game::DvarFlags::DVAR_FLAG_REPLICATED, "Jump height");
 
