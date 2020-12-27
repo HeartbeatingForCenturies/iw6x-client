@@ -126,6 +126,12 @@ std::string transform_name(std::string name)
 {
 	static std::unordered_map<std::string, std::string> replacements = {
 		{"VehCmd_SetGoalPos", "setVehGoalPos"},
+		{"VehCmd_RotateYaw", "rotateVehYaw"},
+		{"VehCmd_GetVelocity", "getVehVelocity"},
+		{"VehPhysCmd_SetSpeed", "setPhysVehSpeed"},
+		{"VehPathCmd_GetNode", "getVehicleNode"},
+		{"VehPathCmd_GetNodeArray", "getVehicleNodeArray"},
+		{"VehPathCmd_GetAllNodes", "getAllVehicleNodes"},
 		{"VehicleScript_Spawn", "spawnVehicle"},
 		{"ScrAgentCmd_SetWaypoint", "setAgentWaypoint"},
 	};
@@ -159,6 +165,7 @@ std::map<std::string, unsigned> map_name_to_function(const std::map<unsigned int
                                                      const std::unordered_map<uint64_t, std::string>& name_map)
 {
 	std::map<std::string, unsigned> name_index_map{};
+	std::map<std::string, std::string> name_and_demangled_name_map{};
 
 	for (const auto& func : function_map)
 	{
@@ -173,10 +180,19 @@ std::map<std::string, unsigned> map_name_to_function(const std::map<unsigned int
 		const auto new_name = transform_name(demangled_name);
 		if (name_index_map.find(new_name) != name_index_map.end())
 		{
-			printf("%s (%s) already inserted!\n", new_name.data(), demangled_name.data());
+			auto old_demangled_name = name_and_demangled_name_map.find(new_name)->second;
+			if (demangled_name == old_demangled_name)
+			{
+				printf("%s (%s) already inserted!\n", new_name.data(), demangled_name.data());
+			}
+			else
+			{
+				printf("    %s (%s) already inserted! (%s)\n", new_name.data(), demangled_name.data(), old_demangled_name.data());
+			}
 		}
 
 		name_index_map[new_name] = func.first;
+		name_and_demangled_name_map[new_name] = demangled_name;
 	}
 
 	return name_index_map;
