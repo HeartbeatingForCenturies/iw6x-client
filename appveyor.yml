@@ -40,8 +40,9 @@ build:
   parallel: true
   verbosity: minimal
 
-artifacts:
-  - path: build/version.txt
-  - path: build/bin/**/iw6x.exe
+#artifacts:
+#  - path: build/version.txt
+#  - path: build/bin/**/iw6x.exe
+
 #  - path: build/bin/**/*.exe
 #  - path: build/bin/**/*.pdb
