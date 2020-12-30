@@ -1,12 +1,11 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "scheduler.hpp"
 
 #include "game/scripting/entity.hpp"
 #include "game/scripting/execution.hpp"
 
 #include <utils/hook.hpp>
-
-#include "command.hpp"
 
 namespace logfile
 {
@@ -16,9 +15,6 @@ namespace logfile
 		{
 			auto hidden = false;
 
-			const auto level = scripting::entity(*game::levelEntityId);
-			const auto player = scripting::call("getEntByNum", {ent->client->ps.clientNum}).as<scripting::entity>();
-
 			++text;
 
 			if (text[0] == '/')
@@ -27,8 +23,17 @@ namespace logfile
 				++text;
 			}
 
-			scripting::notify(level, "say", {player, text});
-			scripting::notify(player, "say", {text});
+			const std::string message = text;
+			const auto client = ent->client->ps.clientNum;
+
+			scheduler::once([message, client]()
+			{
+				const scripting::entity level{*game::levelEntityId};
+				const auto player = scripting::call("getEntByNum", {client}).as<scripting::entity>();
+
+				scripting::notify(level, "say", {player, message});
+				scripting::notify(player, "say", {message});
+			}, scheduler::pipeline::server);
 
 			return hidden;
 		}
