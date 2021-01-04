@@ -1676,5 +1676,10 @@ namespace scripting
 		{"setmlgspectator", 0x8422},
 		{"getmlgspectatorteam", 0x8423},
 		{"getcommonplayerdatareservedint", 0x8424},
+		{"getcoopplayerdatareservedint", 0x8425},
+		{"setcoopplayerdatareservedint", 0x8426},
+		{"getjointype", 0x8427},
+		{"scragentsetwallruncost", 0x8428},
+		{"alienscheckisitempurchased", 0x8429},
 	};
 }
