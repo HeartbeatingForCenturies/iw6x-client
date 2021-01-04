@@ -16,6 +16,36 @@ namespace game
 		int freeFlags;
 	};
 
+	enum $219904913BC1E6DB920C78C8CC0BD8F1
+	{
+		FL_GODMODE = 0x1,
+		FL_DEMI_GODMODE = 0x2,
+		FL_NOTARGET = 0x4,
+		FL_NO_KNOCKBACK = 0x8,
+		FL_NO_RADIUS_DAMAGE = 0x10,
+		FL_SUPPORTS_LINKTO = 0x20,
+		FL_NO_AUTO_ANIM_UPDATE = 0x40,
+		FL_GRENADE_TOUCH_DAMAGE = 0x80,
+		FL_STABLE_MISSILES = 0x100,
+		FL_REPEAT_ANIM_UPDATE = 0x200,
+		FL_VEHICLE_TARGET = 0x400,
+		FL_GROUND_ENT = 0x800,
+		FL_CURSOR_HINT = 0x1000,
+		FL_MISSILE_ATTRACTOR_OR_REPULSOR = 0x2000,
+		FL_WEAPON_BEING_GRABBED = 0x4000,
+		FL_DELETE = 0x8000,
+		FL_BOUNCE = 0x10000,
+		FL_MOVER_SLIDE = 0x20000,
+		FL_MOVING = 0x40000,
+		FL_DONT_AUTOBOLT_MISSILE_EFFECTS = 0x80000,
+		FL_DISABLE_MISSILE_STICK = 0x100000,
+		FL_NO_MELEE_TARGET = 0x2000000,
+		FL_DYNAMICPATH = 0x8000000,
+		FL_AUTO_BLOCKPATHS = 0x10000000,
+		FL_OBSTACLE = 0x20000000,
+		FL_BADPLACE_VOLUME = 0x80000000,
+	};
+
 	enum XAssetType
 	{
 		ASSET_TYPE_PHYSPRESET = 0x0,
@@ -1663,7 +1693,7 @@ namespace game
 		{
 			clientHeader_t header;
 			char _0x818[0x41650];
-			gentity_s *gentity;
+			gentity_s* gentity;
 			char name[16];
 			int lastPacketTime;
 			int lastConnectTime;
@@ -1732,13 +1762,13 @@ namespace game
 
 	union XAssetHeader
 	{
-		void *data;
+		void* data;
 		/*PhysPreset *physPreset;
 		PhysCollmap *physCollmap;
 		XAnimParts *parts;
 		XModelSurfs *modelSurfs;
 		XModel *model;*/
-		Material *material;
+		Material* material;
 		/*ComputeShader *computeShader;
 		MaterialVertexShader *vertexShader;
 		MaterialHullShader *hullShader;
@@ -1761,7 +1791,7 @@ namespace game
 		FxWorld *fxWorld;
 		GfxWorld *gfxWorld;
 		GfxLightDef *lightDef;*/
-		Font_s *font;
+		Font_s* font;
 		/*MenuList *menuList;
 		menuDef_t *menu;
 		AnimationClass *animClass;
