@@ -287,20 +287,6 @@ includedirs {"./src/runner", "./src/common", "%{prj.location}/src"}
 
 resincludedirs {"$(ProjectDir)src"}
 
-project "function_dumper"
-kind "ConsoleApp"
-language "C++"
-
-files {"./src/function_dumper/**.rc", "./src/function_dumper/**.hpp", "./src/function_dumper/**.cpp", "./src/function_dumper/resources/**.*"}
-
-includedirs {"./src/function_dumper", "./src/common", "%{prj.location}/src"}
-
-resincludedirs {"$(ProjectDir)src"}
-
-links {"common"}
-
-dependencies.imports()
-
 project "client"
 kind "ConsoleApp"
 language "C++"
@@ -353,20 +339,6 @@ includedirs {"./src/runner", "./src/common", "%{prj.location}/src"}
 links {"common"}
 
 resincludedirs {"$(ProjectDir)src"}
-
-project "function_dumper"
-kind "ConsoleApp"
-language "C++"
-
-files {"./src/function_dumper/**.rc", "./src/function_dumper/**.hpp", "./src/function_dumper/**.cpp", "./src/function_dumper/resources/**.*"}
-
-includedirs {"./src/function_dumper", "./src/common", "%{prj.location}/src"}
-
-resincludedirs {"$(ProjectDir)src"}
-
-links {"common"}
-
-dependencies.imports()
 
 group "Dependencies"
 dependencies.projects()
