@@ -79,7 +79,7 @@ namespace scripting
 				lua::engine::run_frame();
 			}, scheduler::pipeline::server);
 
-			if(!game::environment::is_sp())
+			if (!game::environment::is_sp())
 			{
 				// Make some room for pre_main hook
 				utils::hook::jump(0x1402084A0, has_config_string_index);

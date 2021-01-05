@@ -17,7 +17,7 @@ namespace console
 			DWORD process;
 			GetWindowThreadProcessId(con_window, &process);
 
-			if(process == GetCurrentProcessId() || IsDebuggerPresent())
+			if (process == GetCurrentProcessId() || IsDebuggerPresent())
 			{
 				ShowWindow(con_window, SW_HIDE);
 			}

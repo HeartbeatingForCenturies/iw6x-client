@@ -169,7 +169,8 @@ namespace utils::cryptography
 		register_prng(&yarrow_desc);
 		yarrow_start(state.get());
 
-		yarrow_add_entropy(reinterpret_cast<const uint8_t*>(entropy.data()), static_cast<unsigned long>(entropy.size()), state.get());
+		yarrow_add_entropy(reinterpret_cast<const uint8_t*>(entropy.data()), static_cast<unsigned long>(entropy.size()),
+		                   state.get());
 		yarrow_ready(state.get());
 
 		ecc_make_key(state.get(), find_prng("yarrow"), bits / 8, key.get());

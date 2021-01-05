@@ -1,7 +1,6 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "utils/hook.hpp"
-#include "utils/string.hpp"
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 
@@ -47,10 +46,12 @@ namespace renderer
 				return;
 			}
 
-			dvars::r_fullbright = game::Dvar_RegisterBool("r_fullbright", false, 1, "Toggles rendering without lighting");
-		
+			dvars::r_fullbright = game::Dvar_RegisterBool("r_fullbright", false, 1,
+			                                              "Toggles rendering without lighting");
+
 			r_init_draw_method_hook.create(SELECT_VALUE(0x1404FF600, 0x1405CB470), &r_init_draw_method_stub);
-			r_update_front_end_dvar_options_hook.create(SELECT_VALUE(0x140535FF0, 0x140603240), &r_update_front_end_dvar_options_stub);
+			r_update_front_end_dvar_options_hook.create(
+				SELECT_VALUE(0x140535FF0, 0x140603240), &r_update_front_end_dvar_options_stub);
 		}
 	};
 }

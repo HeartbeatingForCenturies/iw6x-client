@@ -41,7 +41,8 @@ namespace game
 		0x1403B3B10, 0x1403F7680
 	};
 
-	WEAK symbol<void (XAssetType type, void (__cdecl *func)(XAssetHeader, void *), void *inData, bool includeOverride)> DB_EnumXAssets_FastFile{0x140271F50, 0x14031EF90};
+	WEAK symbol<void (XAssetType type, void (__cdecl *func)(XAssetHeader, void*), void* inData, bool includeOverride)>
+	DB_EnumXAssets_FastFile{0x140271F50, 0x14031EF90};
 	WEAK symbol<int (XAssetType type)> DB_GetXAssetTypeSize{0x14024FB30, 0x1402FB180};
 	WEAK symbol<void(XZoneInfo* zoneInfo, unsigned int zoneCount, DBSyncMode syncMode)> DB_LoadXAssets{
 		0x140273FD0, 0x140320F20
@@ -109,7 +110,9 @@ namespace game
 	WEAK symbol<Material*(const char* material)> Material_RegisterHandle{0x140523D90, 0x1405F0E20};
 
 	WEAK symbol<void (netsrc_t, netadr_s*, const char*)> NET_OutOfBandPrint{0, 0x14041D5C0};
-	WEAK symbol<void (netsrc_t sock, int length, const void *data, const netadr_s *to)> NET_SendLoopPacket{0, 0x14041D780};
+	WEAK symbol<void (netsrc_t sock, int length, const void* data, const netadr_s* to)> NET_SendLoopPacket{
+		0, 0x14041D780
+	};
 	WEAK symbol<bool (const char* s, game::netadr_s* a)> NET_StringToAdr{0, 0x14041D870};
 
 	WEAK symbol<void (float x, float y, float width, float height, float s0, float t0, float s1, float t1,
@@ -148,7 +151,7 @@ namespace game
 	WEAK symbol<scr_string_t(const char* str, unsigned int user)> SL_GetString{0x1403D6CD0, 0x140431C70};
 
 
-	WEAK symbol<void (const char *text_in)> SV_Cmd_TokenizeString{0, 0x1403F8150};
+	WEAK symbol<void (const char* text_in)> SV_Cmd_TokenizeString{0, 0x1403F8150};
 	WEAK symbol<void ()> SV_Cmd_EndTokenizedString{0, 0x1403F8110};
 
 	WEAK symbol<void (netadr_s* from)> SV_DirectConnect{0, 0x140471390};

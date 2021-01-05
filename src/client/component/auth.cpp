@@ -26,14 +26,14 @@ namespace auth
 
 			return info.szHwProfileGuid;
 		}
-	
+
 		utils::cryptography::ecc::key& get_key()
 		{
 			static auto key = utils::cryptography::ecc::generate_key(512, get_key_entropy());
 			return key;
 		}
 
-		int send_connect_data_stub(game::netsrc_t sock, game::netadr_s* adr, const char *format, const int len)
+		int send_connect_data_stub(game::netsrc_t sock, game::netadr_s* adr, const char* format, const int len)
 		{
 			std::string connect_string(format, len);
 			game::SV_Cmd_TokenizeString(connect_string.data());
@@ -150,7 +150,7 @@ namespace auth
 		void post_unpack() override
 		{
 			// Patch steam id bit check
-			if(game::environment::is_sp())
+			if (game::environment::is_sp())
 			{
 				utils::hook::jump(0x1404BF3F0, 0x1404BF446);
 				utils::hook::jump(0x1404C02AF, 0x1404C02F0);
