@@ -17,8 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Minidump error (Multiplayer) [#262](https://github.com/XLabsProject/iw6x-client/issues/262)
 -   Issue with some script API [#264](https://github.com/XLabsProject/iw6x-client/issues/264)
 -   linkto function not working [#278](https://github.com/XLabsProject/iw6x-client/issues/278)
--   Jump_height wrong on alien map "mp_alien_dlc3" (Awakening) [#284](https://github.com/XLabsProject/iw6x-client/issues/284)
--   Call player function from "on_say "events [#290](https://github.com/XLabsProject/iw6x-client/issues/290)
+-   Jump_height wrong on alien map mp_alien_dlc3 (Awakening) [#284](https://github.com/XLabsProject/iw6x-client/issues/284)
+-   Call player function from on_say events [#290](https://github.com/XLabsProject/iw6x-client/issues/290)
 
 ### Added
 
@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Allow executing console commands via scripting API [#255](https://github.com/XLabsProject/iw6x-client/issues/255)
 -   Missing lua librarys [#256](https://github.com/XLabsProject/iw6x-client/issues/256)
 -   Dedicated Server Port does not change [#106](https://github.com/XLabsProject/iw6x-client/issues/106)
--   Make the "require" in Lua relative to the script [#259](https://github.com/XLabsProject/iw6x-client/issues/259)
+-   Make the require in Lua relative to the script [#259](https://github.com/XLabsProject/iw6x-client/issues/259)
 -   Generate cryptographically signed GUIDs and verify them [#263](https://github.com/XLabsProject/iw6x-client/issues/263)
 
 ### Pull Requests
@@ -216,6 +216,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Make stats look better [#36](https://github.com/XLabsProject/iw6x-client/pull/36) ([@FragsAreUs](https://github.com/FragsAreUs))
 
 [Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v2.0.0...HEAD
+
+[v2.0.0]: https://github.com/XLabsProject/iw6x-client/compare/v1.1.0...v2.0.0
 
 [v2.0.0]: https://github.com/XLabsProject/iw6x-client/compare/v1.1.0...v2.0.0
 
