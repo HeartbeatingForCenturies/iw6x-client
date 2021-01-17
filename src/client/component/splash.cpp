@@ -18,7 +18,7 @@ namespace splash
 
 		void post_load() override
 		{
-			if (game::environment::is_dedi())
+			if (game::environment::is_dedi() || game::environment::is_linker())
 			{
 				return;
 			}

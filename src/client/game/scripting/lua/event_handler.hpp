@@ -4,7 +4,7 @@
 namespace scripting::lua
 {
 	using event_arguments = std::vector<sol::lua_value>;
-	using event_callback = sol::function;
+	using event_callback = sol::protected_function;
 
 	class event_listener_handle
 	{
@@ -16,7 +16,7 @@ namespace scripting::lua
 	{
 	public:
 		std::string event = {};
-		unsigned int entity_id = 0;
+		entity entity{};
 		event_callback callback = {};
 		bool is_volatile = false;
 	};

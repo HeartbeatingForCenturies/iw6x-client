@@ -360,6 +360,25 @@
         div.menus>div.active {
             display: block !important;
         }
+        
+        .progress {
+            width: 100%;
+            height: 40px;
+            padding: 0;
+            border-radius: 0px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(0, 0, 0, 0.25);
+        }
+        
+        .progress>.bar {
+            width: 50%;
+            height: 100%;
+            margin: 0;
+            background: rgb(121, 121, 121);
+            background: linear-gradient(145deg, rgba(121, 121, 121, 1) 0%, rgba(0, 212, 255, 1) 100%);
+            transition: all 0.2s linear;
+        }
     </style>
 </head>
 
@@ -451,6 +470,17 @@
 
                 </div>
 
+                <div class="_update">
+
+                    <div class="container full full-row">
+                        <div class="progress">
+                            <div class="bar">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
 
         </div>
@@ -478,7 +508,34 @@
             }
         }
 
+        function isUpdating() {
+            return false;
+        }
+
+        function getProgress() {
+            window.progress = window.progress || 0.0;
+            window.progress += 1
+            return window.progress;
+        }
+
+        function setProgress(value) {
+            value = value < 0 ? 0 : (value > 100 ? 100 : value);
+            document.querySelector(".progress>.bar").style.width = value + "%";
+        }
+
+        function updateProgress() {
+            if (!isUpdating()) {
+                return;
+            }
+
+            setProgress(getProgress());
+
+            requestAnimationFrame(updateProgress);
+        }
+
         function showMenu(menu) {
+            menu = isUpdating() ? "update" : menu;
+
             var menus = document.querySelectorAll("div.menus>div");
             var buttons = document.querySelectorAll("nav a.nav-link");
 
@@ -488,6 +545,7 @@
 
         window.onload = function() {
             showMenu("play");
+            updateProgress();
         };
     </script>
 </body>

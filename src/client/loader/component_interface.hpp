@@ -27,4 +27,9 @@ public:
 	{
 		return nullptr;
 	}
+
+	virtual bool is_supported()
+	{
+		return true;
+	}
 };

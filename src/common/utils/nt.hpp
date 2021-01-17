@@ -102,6 +102,9 @@ namespace utils::nt
 		HMODULE module_;
 	};
 
-	void raise_hard_exception();
+	__declspec(noreturn) void raise_hard_exception();
 	std::string load_resource(int id);
+
+	void relaunch_self();
+	__declspec(noreturn) void terminate(uint32_t code = 0);
 }

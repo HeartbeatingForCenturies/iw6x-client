@@ -55,7 +55,7 @@ namespace steam
 			const auto method = this->find_method(method_name);
 			if (!method)
 			{
-				throw std::runtime_error("Unable to find desired method");
+				throw std::runtime_error("Unable to find method: " + method_name);
 			}
 
 			return static_cast<T(__thiscall*)(void*, Args ...)>(method)(this->interface_ptr_, args...);

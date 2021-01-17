@@ -195,7 +195,7 @@ namespace patches
 
 		void bsp_sys_error_stub(const char* error, const char* arg1)
 		{
-			if (game::environment::is_dedi())
+			if (game::environment::is_dedi() || game::environment::is_linker())
 			{
 				game::Sys_Error(error, arg1);
 			}
@@ -245,7 +245,7 @@ namespace patches
 			                       "Show Announcer Packs. (Bitfield representing which announcer paks to show)");
 
 			// changed max value from 85 -> 1000
-			if (!game::environment::is_dedi())
+			if (!game::environment::is_dedi() && !game::environment::is_linker())
 			{
 				game::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, 0x1, "Cap frames per second");
 			}

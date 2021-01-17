@@ -59,12 +59,6 @@ namespace localized_strings
 		{
 			// Change some localized strings
 			seh_string_ed_get_string_hook.create(SELECT_VALUE(0x1403F42D0, 0x1404A5F60), &seh_string_ed_get_string);
-
-			if (!game::environment::is_sp())
-			{
-				// Allocate localized strings after pre_main
-				utils::hook::call(0x140163D0A, g_localized_string_index_stub);
-			}
 		}
 	};
 }

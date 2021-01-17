@@ -14,7 +14,7 @@ namespace utils
 
 		void set(const std::string& key, const std::string& value);
 		std::string get(const std::string& key) const;
-		std::string build();
+		std::string build() const;
 
 	private:
 		std::unordered_map<std::string, std::string> key_value_pairs_{};

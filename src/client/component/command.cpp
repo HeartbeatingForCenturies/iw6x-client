@@ -28,17 +28,17 @@ namespace command
 			}
 		}
 
-		void client_command(const int clientNum, void* a2)
+		void client_command(const int client_num, void* a2)
 		{
 			params_sv params = {};
 
 			const auto command = utils::string::to_lower(params[0]);
 			if (handlers_sv.find(command) != handlers_sv.end())
 			{
-				handlers_sv[command](clientNum, params);
+				handlers_sv[command](client_num, params);
 			}
 
-			client_command_hook.invoke<void>(clientNum, a2);
+			client_command_hook.invoke<void>(client_num, a2);
 		}
 
 		// Shamelessly stolen from Quake3
@@ -52,7 +52,7 @@ namespace command
 			}
 
 			static std::string comand_line_buffer = GetCommandLineA();
-			char* command_line = comand_line_buffer.data();
+			auto* command_line = comand_line_buffer.data();
 
 			auto& com_num_console_lines = *reinterpret_cast<int*>(0x1445CFF98);
 			auto* com_console_lines = reinterpret_cast<char**>(0x1445CFFA0);
@@ -324,7 +324,7 @@ namespace command
 					return;
 				}
 
-				game::mp::g_entities[client_num].flags ^= 1;
+				game::mp::g_entities[client_num].flags ^= game::FL_GODMODE;
 				game::SV_GameSendServerCommand(client_num, 1,
 				                               utils::string::va("f \"godmode %s\"",
 				                                                 game::mp::g_entities[client_num].flags & 1

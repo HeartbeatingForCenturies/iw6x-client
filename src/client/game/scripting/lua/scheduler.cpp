@@ -27,14 +27,7 @@ namespace scripting::lua
 					this->tasks_.remove(task);
 				}
 
-				try
-				{
-					task->callback();
-				}
-				catch (std::exception& e)
-				{
-					handle_error(e);
-				}
+				handle_error(task->callback());
 			}
 		}
 	}
@@ -44,13 +37,13 @@ namespace scripting::lua
 		this->tasks_.clear();
 	}
 
-	task_handle scheduler::add(const std::function<void()>& callback, const long long milliseconds,
+	task_handle scheduler::add(const sol::protected_function& callback, const long long milliseconds,
 	                           const bool is_volatile)
 	{
 		return this->add(callback, std::chrono::milliseconds(milliseconds), is_volatile);
 	}
 
-	task_handle scheduler::add(const std::function<void()>& callback, const std::chrono::milliseconds delay,
+	task_handle scheduler::add(const sol::protected_function& callback, const std::chrono::milliseconds delay,
 	                           const bool is_volatile)
 	{
 		task task;

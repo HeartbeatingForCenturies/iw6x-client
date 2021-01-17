@@ -113,7 +113,14 @@ namespace network
 
 	void send(const game::netadr_s& address, const std::string& data)
 	{
-		game::Sys_SendPacket(static_cast<int>(data.size()), data.data(), &address);
+		if (address.type == game::NA_LOOPBACK)
+		{
+			game::NET_SendLoopPacket(game::NS_CLIENT1, static_cast<int>(data.size()), data.data(), &address);
+		}
+		else
+		{
+			game::Sys_SendPacket(static_cast<int>(data.size()), data.data(), &address);
+		}
 	}
 
 	bool are_addresses_equal(const game::netadr_s& a, const game::netadr_s& b)
@@ -268,7 +275,7 @@ namespace network
 				{
 					const std::string message{data};
 
-					if (game::environment::is_dedi())
+					if (game::environment::is_dedi() || game::environment::is_linker())
 					{
 						printf("%s\n", message.data());
 					}

@@ -3,8 +3,6 @@
 #include "safe_execution.hpp"
 #include "stack_isolation.hpp"
 
-#include <utils/string.hpp>
-
 namespace scripting
 {
 	namespace

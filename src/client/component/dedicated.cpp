@@ -147,7 +147,7 @@ namespace dedicated
 	public:
 		void* load_import(const std::string& library, const std::string& function) override
 		{
-			if(!game::environment::is_dedi()) return nullptr;
+			if(!game::environment::is_dedi() && !game::environment::is_linker()) return nullptr;
 
 			if(function == "SetFocus")
 			{
@@ -159,7 +159,7 @@ namespace dedicated
 
 		void post_unpack() override
 		{
-			if (!game::environment::is_dedi())
+			if (!game::environment::is_dedi() && !game::environment::is_linker())
 			{
 				return;
 			}

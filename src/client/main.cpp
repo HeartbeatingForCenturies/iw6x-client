@@ -14,7 +14,7 @@ DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 }
 
 
-BOOL WINAPI system_parameters_info_a(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni)
+BOOL WINAPI system_parameters_info_a(const UINT uiAction, const UINT uiParam, const PVOID pvParam, const UINT fWinIni)
 {
 	component_loader::post_unpack();
 	return SystemParametersInfoA(uiAction, uiParam, pvParam, fWinIni);
@@ -22,6 +22,11 @@ BOOL WINAPI system_parameters_info_a(UINT uiAction, UINT uiParam, PVOID pvParam,
 
 launcher::mode detect_mode_from_arguments()
 {
+	if (utils::flags::has_flag("linker"))
+	{
+		return launcher::mode::linker;
+	}
+
 	if (utils::flags::has_flag("dedicated"))
 	{
 		return launcher::mode::server;
@@ -66,6 +71,7 @@ FARPROC load_binary(const launcher::mode mode)
 	std::string binary;
 	switch (mode)
 	{
+	case launcher::mode::linker:
 	case launcher::mode::server:
 	case launcher::mode::multiplayer:
 		binary = "iw6mp64_ship.exe";
@@ -122,10 +128,40 @@ void enable_dpi_awareness()
 	}
 }
 
+void limit_parallel_dll_loading()
+{
+	const utils::nt::library self;
+	const auto registry_path = R"(Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\)" + self.
+		get_name();
+
+	HKEY key = nullptr;
+	if (RegCreateKeyA(HKEY_LOCAL_MACHINE, registry_path.data(), &key) == ERROR_SUCCESS)
+	{
+		RegCloseKey(key);
+	}
+
+	key = nullptr;
+	if (RegOpenKeyExA(
+		HKEY_LOCAL_MACHINE, registry_path.data(), 0,
+		KEY_ALL_ACCESS, &key) != ERROR_SUCCESS)
+	{
+		return;
+	}
+
+	DWORD value = 1;
+	RegSetValueExA(key, "MaxLoaderThreads", 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(value));
+
+	RegCloseKey(key);
+}
+
 int main()
 {
 	FARPROC entry_point;
 	enable_dpi_awareness();
+
+	// This requires admin privilege, but I suppose many
+	// people will start with admin rights if it crashes.
+	limit_parallel_dll_loading();
 
 	srand(uint32_t(time(nullptr)));
 	remove_crash_file();

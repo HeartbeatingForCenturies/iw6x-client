@@ -31,7 +31,7 @@ namespace steam_proxy
 	public:
 		void post_load() override
 		{
-			if (game::environment::is_dedi() || is_disabled())
+			if (game::environment::is_dedi() ||game::environment::is_linker() || is_disabled())
 			{
 				return;
 			}
@@ -119,7 +119,7 @@ namespace steam_proxy
 				"Steam_ConnectToGlobalUser", this->steam_pipe_);
 			this->client_user_ = this->client_engine_.invoke<void*>(8, this->steam_pipe_, this->global_user_);
 			// GetIClientUser
-			this->client_utils_ = this->client_engine_.invoke<void*>(13, this->steam_pipe_); // GetIClientUtils
+			this->client_utils_ = this->client_engine_.invoke<void*>(14, this->steam_pipe_); // GetIClientUtils
 		}
 
 		void start_mod(const std::string& title, size_t app_id)

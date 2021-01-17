@@ -59,6 +59,12 @@ namespace utils::string
 		return text.find(substring) == 0;
 	}
 
+	bool ends_with(const std::string& text, const std::string& substring)
+	{
+		if (substring.size() > text.size()) return false;
+		return std::equal(substring.rbegin(), substring.rend(), text.rbegin());
+	}
+
 	std::string dump_hex(const std::string& data, const std::string& separator)
 	{
 		std::string result;
@@ -78,14 +84,14 @@ namespace utils::string
 
 	std::string get_clipboard_data()
 	{
-		if (OpenClipboard(0))
+		if (OpenClipboard(nullptr))
 		{
 			std::string data;
 
-			const auto clipboard_data = GetClipboardData(1u);
+			auto* const clipboard_data = GetClipboardData(1u);
 			if (clipboard_data)
 			{
-				const auto cliptext = static_cast<char*>(GlobalLock(clipboard_data));
+				auto* const cliptext = static_cast<char*>(GlobalLock(clipboard_data));
 				if (cliptext)
 				{
 					data.append(cliptext);
@@ -153,4 +159,21 @@ namespace utils::string
 		return result;
 	}
 #pragma warning(pop)
+
+	std::string replace(std::string str, const std::string& from, const std::string& to)
+	{
+		if (from.empty())
+		{
+			return str;
+		}
+
+		size_t start_pos = 0;
+		while ((start_pos = str.find(from, start_pos)) != std::string::npos)
+		{
+			str.replace(start_pos, from.length(), to);
+			start_pos += to.length();
+		}
+
+		return str;
+	}
 }

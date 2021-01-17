@@ -73,6 +73,7 @@
 #include <functional>
 #include <sstream>
 #include <optional>
+#include <unordered_set>
 
 #include <gsl/gsl>
 #include <udis86.h>
@@ -86,7 +87,7 @@
 #include <asmjit/core/jitruntime.h>
 #include <asmjit/x86/x86assembler.h>
 
-#include "proto/network.pb.h"
+#include <proto/auth.pb.h>
 
 #pragma warning(pop)
 #pragma warning(disable: 4100)

@@ -45,7 +45,7 @@ namespace utils
 		}
 	}
 
-	std::string info_string::build()
+	std::string info_string::build() const
 	{
 		//auto first = true;
 		std::string info_string;

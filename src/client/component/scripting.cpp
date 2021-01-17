@@ -52,6 +52,18 @@ namespace scripting
 		}
 	}
 
+	int32_t has_config_string_index(const unsigned int csIndex)
+	{
+		const auto* s_constantConfigStringTypes = reinterpret_cast<uint8_t*>(0x141721F80);
+		return csIndex < 0xDC4 && s_constantConfigStringTypes[csIndex] < 0x18u;
+	}
+
+	int is_pre_main_stub()
+	{
+		auto* const sv_running = game::Dvar_FindVar("sv_running");
+		return sv_running->current.enabled;
+	}
+
 	class component final : public component_interface
 	{
 	public:
@@ -66,6 +78,16 @@ namespace scripting
 			{
 				lua::engine::run_frame();
 			}, scheduler::pipeline::server);
+
+			if (!game::environment::is_sp())
+			{
+				// Make some room for pre_main hook
+				utils::hook::jump(0x1402084A0, has_config_string_index);
+
+				// Allow precaching anytime
+				utils::hook::jump(0x1402084A5, is_pre_main_stub);
+				utils::hook::set<uint16_t>(0x1402084D0, 0xD3EB); // jump to 0x1402084A5
+			}
 		}
 	};
 }

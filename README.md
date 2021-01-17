@@ -1,6 +1,6 @@
 ![license](https://img.shields.io/github/license/XLabsProject/iw6x-client.svg)
 [![open bugs](https://img.shields.io/github/issues/XLabsProject/iw6x-client/bug?label=bugs)](https://github.com/XLabsProject/iw6x-client/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
-[![Build status](https://ci.appveyor.com/api/projects/status/9v0mvgqxiltl2eai/branch/develop?svg=true)](https://ci.appveyor.com/project/XLabsProject/iw6x-client/branch/develop)
+[![Build status](https://ci.appveyor.com/api/projects/status/8879fpad70wuo7h2/branch/develop?svg=true)](https://ci.appveyor.com/project/XLabsProject/iw6x-client/branch/develop)
 [![Build](https://github.com/XLabsProject/iw6x-client/workflows/Build/badge.svg)](https://github.com/XLabsProject/iw6x-client/actions)
 [![discord](https://img.shields.io/endpoint?url=https://momo5502.com/iw4x/members-badge.php)](https://discord.gg/sKeVmR3)
 <!---
@@ -29,9 +29,9 @@
 |:-:|:-:|
 | Server list | Scripting support |
 
-| <img src="https://cdn.discordapp.com/attachments/768362250334765067/768377199899836466/unknown_14.png" /> | <img src="https://cdn.discordapp.com/attachments/768362250334765067/768377317000085514/unknown.png" /> |
-|:-:|:-:|
-| Custom maps (soon™) | Mod support (soon™) |
+| <img src="https://user-images.githubusercontent.com/45299104/101917488-9721ba00-3bc8-11eb-9a2f-11edeff1dda4.jpg" /> |
+|:-:|
+| Ultrawide monitor support |
 
 <br/>
 
@@ -56,3 +56,4 @@ This software has been created purely for the purposes of
 academic research. It is not intended to be used to attack
 other systems. Project maintainers are not responsible or
 liable for misuse of the software. Use responsibly.
+

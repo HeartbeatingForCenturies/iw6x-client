@@ -170,7 +170,6 @@ namespace party
 		}
 		else
 		{
-			printf("Starting map: %s\n", mapname.data());
 			switch_gamemode_if_necessary(get_dvar_string("g_gametype"));
 
 			if (!game::environment::is_dedi())
@@ -178,8 +177,29 @@ namespace party
 				perform_game_initialization();
 			}
 
+			auto* current_mapname = game::Dvar_FindVar("mapname");
+			if (current_mapname && utils::string::to_lower(current_mapname->current.string) == utils::string::to_lower(mapname) && game::SV_Loaded())
+			{
+				printf("Restarting map: %s\n", mapname.data());
+				command::execute("map_restart", false);
+				return;
+			}
+
+			printf("Starting map: %s\n", mapname.data());
 			game::SV_StartMapForParty(0, mapname.data(), false, false);
 		}
+	}
+
+	void map_restart()
+	{
+		if (!game::SV_Loaded())
+		{
+			return;
+		}
+		*reinterpret_cast<int*>(0x144DB8C84) = 1; // sv_map_restart
+		*reinterpret_cast<int*>(0x144DB8C88) = 1; // sv_loadScripts
+		*reinterpret_cast<int*>(0x144DB8C8C) = 0; // sv_migrate
+		reinterpret_cast<void(*)()>(0x14046F3B0)(); // SV_CheckLoadGame
 	}
 
 	void didyouknow_stub(game::dvar_t* dvar, const char* string)
@@ -213,6 +233,8 @@ namespace party
 
 				start_map(argument[1]);
 			});
+
+			command::add("map_restart", map_restart);
 
 			command::add("fast_restart", []()
 			{

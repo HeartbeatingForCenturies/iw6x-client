@@ -159,6 +159,10 @@ newaction {
 				end
 			end
 
+			if branchName == nil then
+				branchName = "develop"
+			end
+
 			print("Detected branch: " .. branchName)
 
 			-- get revision number via git
@@ -248,8 +252,7 @@ configuration "windows"
 defines {"_WINDOWS", "WIN32"}
 
 configuration "Release"
-optimize "Full"
-buildoptions "/Os"
+optimize "Speed"
 
 defines {"NDEBUG"}
 
@@ -284,20 +287,6 @@ includedirs {"./src/runner", "./src/common", "%{prj.location}/src"}
 
 resincludedirs {"$(ProjectDir)src"}
 
-project "function_dumper"
-kind "ConsoleApp"
-language "C++"
-
-files {"./src/function_dumper/**.rc", "./src/function_dumper/**.hpp", "./src/function_dumper/**.cpp", "./src/function_dumper/resources/**.*"}
-
-includedirs {"./src/function_dumper", "./src/common", "%{prj.location}/src"}
-
-resincludedirs {"$(ProjectDir)src"}
-
-links {"common"}
-
-dependencies.imports()
-
 project "client"
 kind "ConsoleApp"
 language "C++"
@@ -307,7 +296,7 @@ targetname "iw6x"
 pchheader "std_include.hpp"
 pchsource "src/client/std_include.cpp"
 
-linkoptions {"/IGNORE:4254", "/DYNAMICBASE:NO", "/SAFESEH:NO", "/LARGEADDRESSAWARE", "/LAST:.main"}
+linkoptions {"/IGNORE:4254", "/DYNAMICBASE:NO", "/SAFESEH:NO", "/LARGEADDRESSAWARE", "/LAST:.main", "/PDBCompress"}
 
 files {"./src/client/**.rc", "./src/client/**.hpp", "./src/client/**.cpp", "./src/client/resources/**.*"}
 
@@ -350,20 +339,6 @@ includedirs {"./src/runner", "./src/common", "%{prj.location}/src"}
 links {"common"}
 
 resincludedirs {"$(ProjectDir)src"}
-
-project "function_dumper"
-kind "ConsoleApp"
-language "C++"
-
-files {"./src/function_dumper/**.rc", "./src/function_dumper/**.hpp", "./src/function_dumper/**.cpp", "./src/function_dumper/resources/**.*"}
-
-includedirs {"./src/function_dumper", "./src/common", "%{prj.location}/src"}
-
-resincludedirs {"$(ProjectDir)src"}
-
-links {"common"}
-
-dependencies.imports()
 
 group "Dependencies"
 dependencies.projects()

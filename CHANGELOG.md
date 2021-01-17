@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.0.0] - 2021-01-17
+
+### Fixed
+
+-   Calling a method on wrong entity type crashes the game [#251](https://github.com/XLabsProject/iw6x-client/issues/251)
+-   Steam presence not showing [#253](https://github.com/XLabsProject/iw6x-client/issues/253)
+-   Function table issue [#254](https://github.com/XLabsProject/iw6x-client/issues/254)
+-   Minidump error (Multiplayer) [#262](https://github.com/XLabsProject/iw6x-client/issues/262)
+-   Issue with some script API [#264](https://github.com/XLabsProject/iw6x-client/issues/264)
+-   linkto function not working [#278](https://github.com/XLabsProject/iw6x-client/issues/278)
+-   Jump_height wrong on alien map "mp_alien_dlc3" (Awakening) [#284](https://github.com/XLabsProject/iw6x-client/issues/284)
+-   Call player function from "on_say "events [#290](https://github.com/XLabsProject/iw6x-client/issues/290)
+
+### Added
+
+-   Include info about game being clean in minidumps [#248](https://github.com/XLabsProject/iw6x-client/issues/248)
+-   Allow executing console commands via scripting API [#255](https://github.com/XLabsProject/iw6x-client/issues/255)
+-   Missing lua librarys [#256](https://github.com/XLabsProject/iw6x-client/issues/256)
+-   Dedicated Server Port does not change [#106](https://github.com/XLabsProject/iw6x-client/issues/106)
+-   Make the "require" in Lua relative to the script [#259](https://github.com/XLabsProject/iw6x-client/issues/259)
+-   Generate cryptographically signed GUIDs and verify them [#263](https://github.com/XLabsProject/iw6x-client/issues/263)
+
+### Pull Requests
+
+-   Ultrawide Support / SafeArea [#242](https://github.com/XLabsProject/iw6x-client/pull/242) ([@xoxor4d](https://github.com/xoxor4d))
+-   Fix issue with chat [#249](https://github.com/XLabsProject/iw6x-client/pull/249) ([@fedddddd](https://github.com/fedddddd))
+-   fix chat stub so chat actually works [#250](https://github.com/XLabsProject/iw6x-client/pull/250) ([@skiff](https://github.com/skiff))
+-   Open table library, fix #256 [#257](https://github.com/XLabsProject/iw6x-client/pull/257) ([@GEEKiDoS](https://github.com/GEEKiDoS))
+-   Fix game crash by changing data type from bool to int32 in precache patch [#261](https://github.com/XLabsProject/iw6x-client/pull/261) ([@GEEKiDoS](https://github.com/GEEKiDoS))
+-   Fix precaching not working without a fast_restart [#267](https://github.com/XLabsProject/iw6x-client/pull/267) ([@GEEKiDoS](https://github.com/GEEKiDoS))
+-   Add g_playerCollision and g_playerEjection [#281](https://github.com/XLabsProject/iw6x-client/pull/281) ([@Joelrau](https://github.com/Joelrau))
+-   Update function_dumper [#283](https://github.com/XLabsProject/iw6x-client/pull/283) ([@Joelrau](https://github.com/Joelrau))
+-   Add map_restart [#282](https://github.com/XLabsProject/iw6x-client/pull/282) ([@Joelrau](https://github.com/Joelrau))
+-   Fix #284 [#285](https://github.com/XLabsProject/iw6x-client/pull/285) ([@fedddddd](https://github.com/fedddddd))
+
 ## [v1.1.0] - 2020-12-13
 
 ### Fixed
@@ -180,7 +215,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Add setviewpos, setviewang commands, add viewpos to drawfps [#38](https://github.com/XLabsProject/iw6x-client/pull/38) ([@fedddddd](https://github.com/fedddddd))
 -   Make stats look better [#36](https://github.com/XLabsProject/iw6x-client/pull/36) ([@FragsAreUs](https://github.com/FragsAreUs))
 
-[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v2.0.0...HEAD
+
+[v2.0.0]: https://github.com/XLabsProject/iw6x-client/compare/v1.1.0...v2.0.0
 
 [v1.1.0]: https://github.com/XLabsProject/iw6x-client/compare/v1.0.5...v1.1.0
 

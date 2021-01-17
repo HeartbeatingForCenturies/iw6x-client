@@ -60,7 +60,7 @@ private:
 	void create_browser();
 	void initialize_browser();
 
-	static void set_browser_feature(const std::string& feature, DWORD value);
+	static bool set_browser_feature(const std::string& feature, DWORD value);
 	static void object_deleter(IUnknown* object);
 
 	static std::atomic<int> frame_count_;

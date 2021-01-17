@@ -6,6 +6,22 @@
 
 namespace scripting::safe_execution
 {
+	namespace
+	{
+		bool execute_with_seh(const script_function function, const game::scr_entref_t& entref)
+		{
+			__try
+			{
+				function(entref);
+				return true;
+			}
+			__except (EXCEPTION_EXECUTE_HANDLER)
+			{
+				return false;
+			}
+		}
+	}
+
 	bool call(const script_function function, const game::scr_entref_t& entref)
 	{
 		*game::g_script_error_level += 1;
@@ -15,10 +31,9 @@ namespace scripting::safe_execution
 			return false;
 		}
 
-		function(entref);
-
+		const auto result = execute_with_seh(function, entref);
 		*game::g_script_error_level -= 1;
-		return true;
+		return result;
 	}
 
 	bool set_entity_field(const game::scr_entref_t& entref, const int offset)

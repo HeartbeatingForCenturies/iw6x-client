@@ -13,6 +13,11 @@ namespace utils::cryptography
 			key();
 			~key();
 
+			key(key&& obj) noexcept;
+			key(const key& obj);
+			key& operator=(key&& obj) noexcept;
+			key& operator=(const key& obj);
+
 			bool is_valid() const;
 
 			ecc_key* get();
@@ -29,13 +34,16 @@ namespace utils::cryptography
 
 			bool operator==(key& key) const;
 
+			uint64_t get_hash() const;
+
 		private:
 			ecc_key key_storage_{};
 		};
 
 		key generate_key(int bits);
-		std::string sign_message(key key, const std::string& message);
-		bool verify_message(key key, const std::string& message, const std::string& signature);
+		key generate_key(int bits, const std::string& entropy);
+		std::string sign_message(key& key, const std::string& message);
+		bool verify_message(key& key, const std::string& message, const std::string& signature);
 	}
 
 	namespace rsa

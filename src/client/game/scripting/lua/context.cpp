@@ -6,6 +6,8 @@
 #include "../execution.hpp"
 #include "../functions.hpp"
 
+#include "../../../component/command.hpp"
+
 #include <utils/string.hpp>
 
 namespace scripting::lua
@@ -138,7 +140,7 @@ namespace scripting::lua
 			{
 				event_listener listener{};
 				listener.callback = callback;
-				listener.entity_id = entity.get_entity_id();
+				listener.entity = entity;
 				listener.event = event;
 				listener.is_volatile = false;
 
@@ -150,7 +152,7 @@ namespace scripting::lua
 			{
 				event_listener listener{};
 				listener.callback = callback;
-				listener.entity_id = entity.get_entity_id();
+				listener.entity = entity;
 				listener.event = event;
 				listener.is_volatile = true;
 
@@ -205,16 +207,21 @@ namespace scripting::lua
 				return convert(s, call(function, arguments));
 			};
 
-			game_type["ontimeout"] = [&scheduler](const game&, const std::function<void()>& callback,
+			game_type["ontimeout"] = [&scheduler](const game&, const sol::protected_function& callback,
 			                                      const long long milliseconds)
 			{
 				return scheduler.add(callback, milliseconds, true);
 			};
 
-			game_type["oninterval"] = [&scheduler](const game&, const std::function<void()>& callback,
+			game_type["oninterval"] = [&scheduler](const game&, const sol::protected_function& callback,
 			                                       const long long milliseconds)
 			{
 				return scheduler.add(callback, milliseconds, false);
+			};
+
+			game_type["executecommand"] = [](const game&, const std::string& command)
+			{
+				command::execute(command, false);
 			};
 		}
 	}
@@ -230,16 +237,29 @@ namespace scripting::lua
 		                            sol::lib::io,
 		                            sol::lib::string,
 		                            sol::lib::os,
-		                            sol::lib::math);
+		                            sol::lib::math,
+		                            sol::lib::table);
 
 		this->state_["include"] = [this](const std::string& file)
 		{
 			this->load_script(file);
 		};
 
+		sol::function old_require = this->state_["require"];
+		auto base_path = utils::string::replace(this->folder_, "/", ".") + ".";
+		this->state_["require"] = [base_path, old_require](const std::string& path)
+		{
+			return old_require(base_path + path);
+		};
+
+		this->state_["scriptdir"] = [this]()
+		{
+			return this->folder_;
+		};
+
 		setup_entity_type(this->state_, this->event_handler_, this->scheduler_);
 
-		printf("Loading script '%s'\n", folder.data());
+		printf("Loading script '%s'\n", this->folder_.data());
 		this->load_script("__init__");
 	}
 
@@ -269,14 +289,7 @@ namespace scripting::lua
 			return;
 		}
 
-		try
-		{
-			const auto file = (std::filesystem::path{this->folder_} / (script + ".lua")).generic_string();
-			this->state_.safe_script_file(file);
-		}
-		catch (std::exception& e)
-		{
-			handle_error(e);
-		}
+		const auto file = (std::filesystem::path{this->folder_} / (script + ".lua")).generic_string();
+		handle_error(this->state_.safe_script_file(file, &sol::script_pass_on_error));
 	}
 }

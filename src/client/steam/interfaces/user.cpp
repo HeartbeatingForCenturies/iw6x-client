@@ -3,6 +3,8 @@
 
 #include <utils/cryptography.hpp>
 
+#include "component/auth.hpp"
+
 namespace steam
 {
 	namespace
@@ -11,8 +13,8 @@ namespace steam
 
 		steam_id generate_steam_id()
 		{
-			steam_id id;
-			id.bits = 0x110000100000000 | (::utils::cryptography::random::get_integer() & ~0x80000000);
+			steam_id id{};
+			id.bits = auth::get_guid();
 			return id;
 		}
 	}

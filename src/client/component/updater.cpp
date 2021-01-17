@@ -3,6 +3,8 @@
 
 #include <utils/io.hpp>
 #include <utils/nt.hpp>
+#include <utils/toast.hpp>
+#include <utils/binary_resource.hpp>
 
 #include <version.hpp>
 
@@ -27,6 +29,8 @@ namespace updater
 {
 	namespace
 	{
+		utils::binary_resource iw6x_icon(ICON_IMAGE, "iw6x-icon.png");
+
 		std::string download_file_sync(const std::string& url)
 		{
 			CComPtr<IStream> stream;
@@ -39,7 +43,7 @@ namespace updater
 			char buffer[0x1000];
 			std::string result;
 
-			HRESULT status;
+			HRESULT status{};
 
 			do
 			{
@@ -65,30 +69,6 @@ namespace updater
 		{
 			const auto version = download_file_sync(APPVEYOR_VERSION_TXT);
 			return !version.empty() && version != GIT_HASH;
-		}
-
-		void relaunch_self()
-		{
-			const utils::nt::library self;
-
-			STARTUPINFOA startup_info;
-			PROCESS_INFORMATION process_info;
-
-			ZeroMemory(&startup_info, sizeof(startup_info));
-			ZeroMemory(&process_info, sizeof(process_info));
-			startup_info.cb = sizeof(startup_info);
-
-			char current_dir[MAX_PATH];
-			GetCurrentDirectoryA(sizeof(current_dir), current_dir);
-			auto* const command_line = GetCommandLineA();
-
-			CreateProcessA(self.get_path().data(), command_line, nullptr, nullptr, false, NULL, nullptr, current_dir,
-			               &startup_info, &process_info);
-
-			if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE) CloseHandle(process_info.hThread);
-			if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE)
-				CloseHandle(
-					process_info.hProcess);
 		}
 
 		void perform_update(const std::string& target)
@@ -128,9 +108,13 @@ namespace updater
 				return false;
 			}
 
+			const auto info = utils::toast::show("Updating IW6x", "Please wait...", iw6x_icon.get_extracted_file());
+
 			utils::io::move_file(self_file, dead_file);
 			perform_update(self_file);
-			relaunch_self();
+			utils::nt::relaunch_self();
+
+			info.hide();
 			return true;
 		}
 	}

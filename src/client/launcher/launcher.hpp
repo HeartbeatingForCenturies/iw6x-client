@@ -10,6 +10,7 @@ public:
 		singleplayer,
 		multiplayer,
 		server,
+		linker,
 	};
 
 	launcher();

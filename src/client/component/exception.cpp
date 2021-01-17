@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "system_check.hpp"
+#include "scheduler.hpp"
 
 #include "game/game.hpp"
 
@@ -60,12 +61,18 @@ namespace exception
 			return recovery_data.recovery_counts >= 3;
 		}
 
+		volatile bool& is_initialized()
+		{
+			static volatile bool initialized = false;
+			return initialized;
+		}
+
 		bool is_recoverable()
 		{
 			return is_game_thread()
 				&& !is_exception_interval_too_short()
 				&& !too_many_exceptions_occured()
-				&& game::Live_SyncOnlineDataFlags(0) == 0; // Game must be initialized
+				&& is_initialized();
 		}
 
 		void show_mouse_cursor()
@@ -95,40 +102,16 @@ namespace exception
 			TerminateProcess(GetCurrentProcess(), exception_data.code);
 		}
 
-		void relaunch_self()
-		{
-			const utils::nt::library self;
-
-			STARTUPINFOA startup_info;
-			PROCESS_INFORMATION process_info;
-
-			ZeroMemory(&startup_info, sizeof(startup_info));
-			ZeroMemory(&process_info, sizeof(process_info));
-			startup_info.cb = sizeof(startup_info);
-
-			char current_dir[MAX_PATH];
-			GetCurrentDirectoryA(sizeof(current_dir), current_dir);
-			auto* const command_line = GetCommandLineA();
-
-			CreateProcessA(self.get_path().data(), command_line, nullptr, nullptr, false, NULL, nullptr, current_dir,
-			               &startup_info, &process_info);
-
-			if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE) CloseHandle(process_info.hThread);
-			if (process_info.hProcess && process_info.hProcess != INVALID_HANDLE_VALUE)
-				CloseHandle(
-					process_info.hProcess);
-		}
-
 		void reset_state()
 		{
 			// TODO: Add a limit for dedi restarts
 			if (game::environment::is_dedi())
 			{
-				relaunch_self();
-				TerminateProcess(GetCurrentProcess(), exception_data.code);
+				utils::nt::relaunch_self();
+				utils::nt::terminate(exception_data.code);
 			}
 
-			if (is_recoverable())
+			if (is_recoverable() && !game::environment::is_linker())
 			{
 				recovery_data.last_recovery = std::chrono::high_resolution_clock::now();
 				++recovery_data.recovery_counts;
@@ -181,6 +164,7 @@ namespace exception
 			line("Version: "s + VERSION);
 			line("Environment: "s + game::environment::get_string());
 			line("Timestamp: "s + get_timestamp());
+			line("Clean game: "s + (system_check::is_valid() ? "Yes" : "No"));
 			line(utils::string::va("Exception: 0x%08X", exceptioninfo->ExceptionRecord->ExceptionCode));
 			line(utils::string::va("Address: 0x%llX", exceptioninfo->ExceptionRecord->ExceptionAddress));
 
@@ -244,6 +228,11 @@ namespace exception
 		{
 			SetUnhandledExceptionFilter(exception_filter);
 			utils::hook::jump(SetUnhandledExceptionFilter, set_unhandled_exception_filter_stub, true);
+
+			scheduler::on_game_initialized([]()
+			{
+				is_initialized() = true;
+			});
 		}
 	};
 }

@@ -33,21 +33,14 @@ namespace scripting::lua
 	{
 		for (auto listener : this->event_listeners_)
 		{
-			if (listener->event == event.name && listener->entity_id == event.entity.get_entity_id())
+			if (listener->event == event.name && listener->entity == event.entity)
 			{
 				if (listener->is_volatile)
 				{
 					this->event_listeners_.remove(listener);
 				}
 
-				try
-				{
-					listener->callback(sol::as_args(arguments));
-				}
-				catch (std::exception& e)
-				{
-					handle_error(e);
-				}
+				handle_error(listener->callback(sol::as_args(arguments)));
 			}
 		}
 	}

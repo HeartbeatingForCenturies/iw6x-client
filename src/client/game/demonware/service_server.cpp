@@ -93,11 +93,11 @@ namespace demonware
 	{
 		if (!data) return;
 
-		std::lock_guard _(this->mutex_);
+		std::lock_guard<std::recursive_mutex> _(this->mutex_);
 
 		this->reply_sent_ = true;
 		const auto buffer = data->get_data();
-		for (auto& byte : buffer)
+		for (const auto& byte : buffer)
 		{
 			this->outgoing_queue_.push(byte);
 		}
@@ -119,7 +119,7 @@ namespace demonware
 	{
 		if (!this->incoming_queue_.empty())
 		{
-			std::lock_guard _(this->mutex_);
+			std::lock_guard<std::recursive_mutex> _(this->mutex_);
 			const auto packet = this->incoming_queue_.front();
 			this->incoming_queue_.pop();
 

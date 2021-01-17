@@ -1,12 +1,11 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "scheduler.hpp"
 
 #include "game/scripting/entity.hpp"
 #include "game/scripting/execution.hpp"
 
 #include <utils/hook.hpp>
-
-#include "command.hpp"
 
 namespace logfile
 {
@@ -16,9 +15,6 @@ namespace logfile
 		{
 			auto hidden = false;
 
-			const auto level = scripting::entity(*game::levelEntityId);
-			const auto player = scripting::call("getEntByNum", {ent->client->ps.clientNum}).as<scripting::entity>();
-
 			++text;
 
 			if (text[0] == '/')
@@ -27,8 +23,17 @@ namespace logfile
 				++text;
 			}
 
-			scripting::notify(level, "say", {player, text});
-			scripting::notify(player, "say", {text});
+			const std::string message = text;
+			const auto client = ent->client->ps.clientNum;
+
+			scheduler::once([message, client]()
+			{
+				const scripting::entity level{*game::levelEntityId};
+				const auto player = scripting::call("getEntByNum", {client}).as<scripting::entity>();
+
+				scripting::notify(level, "say", {player, message});
+				scripting::notify(player, "say", {message});
+			}, scheduler::pipeline::server);
 
 			return hidden;
 		}
@@ -38,21 +43,23 @@ namespace logfile
 	{
 		const auto hidden = a.newLabel();
 
-		a.call_aligned(0x1404F63C0);
-
-		a.mov(rdx, rdi);
+		a.pushad64();
 		a.mov(rcx, rbx);
+		a.mov(rdx, rdi);
 
 		a.call_aligned(evaluate_say);
 
-		a.cmp(rax, 0);
+		a.cmp(al, 0);
 		a.jne(hidden);
 
-		a.lea(rcx, byte_ptr(rsp, 0x80));
-		a.jmp(0x140392A92);
+		a.popad64();
+		a.lea(rcx, dword_ptr(rsp, 0x80));
+		a.mov(r8d, 0x96);
+		a.jmp(0x140392A98);
 
 		a.bind(hidden);
-		a.jmp(0x140392C6E);
+		a.popad64();
+		a.jmp(0x140392B04);
 	});
 
 	class component final : public component_interface
@@ -65,7 +72,7 @@ namespace logfile
 				return;
 			}
 
-			utils::hook::jump(0x140392A85, say_stub, true);
+			utils::hook::jump(0x140392A8A, say_stub, true);
 		}
 	};
 }
