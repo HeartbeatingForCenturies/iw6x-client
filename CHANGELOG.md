@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   2.0.0 server not responding [#315](https://github.com/XLabsProject/iw6x-client/issues/315)
+
+### Pull Requests
+
+-   Fix function table #315 [#316](https://github.com/XLabsProject/iw6x-client/pull/316) ([@fedddddd](https://github.com/fedddddd))
+
 ## [v2.0.0] - 2021-01-17
 
 ### Fixed
