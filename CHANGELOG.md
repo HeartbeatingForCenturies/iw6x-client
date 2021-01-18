@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.0.1] - 2021-01-18
+
 ### Fixed
 
 -   2.0.0 server not responding [#315](https://github.com/XLabsProject/iw6x-client/issues/315)
@@ -223,7 +225,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Add setviewpos, setviewang commands, add viewpos to drawfps [#38](https://github.com/XLabsProject/iw6x-client/pull/38) ([@fedddddd](https://github.com/fedddddd))
 -   Make stats look better [#36](https://github.com/XLabsProject/iw6x-client/pull/36) ([@FragsAreUs](https://github.com/FragsAreUs))
 
-[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v2.0.1...HEAD
+
+[v2.0.1]: https://github.com/XLabsProject/iw6x-client/compare/v2.0.0...v2.0.1
 
 [v2.0.0]: https://github.com/XLabsProject/iw6x-client/compare/v1.1.0...v2.0.0
 
