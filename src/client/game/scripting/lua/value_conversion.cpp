@@ -3,6 +3,38 @@
 
 namespace scripting::lua
 {
+	namespace
+	{
+		sol::lua_value entity_to_array(lua_State* state, unsigned int id)
+		{
+			std::vector<sol::lua_value> arr;
+
+			const auto offset = 51200 * (id & 1);
+			auto current = game::scr_VarGlob->objectVariableChildren[id].firstChild;
+
+			for (auto i = offset + current; current; i = offset + current)
+			{
+				const auto var = game::scr_VarGlob->childVariableValue[i];
+
+				if (var.type == game::SCRIPT_NONE)
+				{
+					current = var.nextSibling;
+					continue;
+				}
+
+				game::VariableValue variable{};
+				variable.type = var.type;
+				variable.u = var.u.u;
+
+				arr.push_back(convert(state, script_value(variable)));
+
+				current = var.nextSibling;
+			}
+
+			return arr;
+		}
+	}
+
 	script_value convert(const sol::lua_value& value)
 	{
 		if (value.is<int>())
@@ -65,6 +97,11 @@ namespace scripting::lua
 			return {state, value.as<std::string>()};
 		}
 
+		if (value.is<std::vector<script_value>>())
+		{
+			return entity_to_array(state, value.get_raw().u.uintValue);
+		}
+		
 		if (value.is<entity>())
 		{
 			return {state, value.as<entity>()};
