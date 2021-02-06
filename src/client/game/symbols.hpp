@@ -217,6 +217,7 @@ namespace game
 	WEAK symbol<void*> DB_XAssetPool{0x14086DCB0, 0x1409E4F20};
 	WEAK symbol<int> g_poolSize{0x14086DBB0, 0x1409E4E20};
 
+	WEAK symbol<scrVarGlob_t> scr_VarGlob{0x1452CDF80, 0x144A67080};
 	WEAK symbol<scrVmPub_t> scr_VmPub{0x1455B1FA0, 0x144D4B090};
 	WEAK symbol<unsigned int> scr_levelEntityId{0x1452A9F30, 0x144A43020};
 
