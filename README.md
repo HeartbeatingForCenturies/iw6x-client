@@ -3,9 +3,8 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/8879fpad70wuo7h2/branch/develop?svg=true)](https://ci.appveyor.com/project/XLabsProject/iw6x-client/branch/develop)
 [![Build](https://github.com/XLabsProject/iw6x-client/workflows/Build/badge.svg)](https://github.com/XLabsProject/iw6x-client/actions)
 [![discord](https://img.shields.io/endpoint?url=https://momo5502.com/iw4x/members-badge.php)](https://discord.gg/sKeVmR3)
-<!---
-[![patreon](https://img.shields.io/badge/patreon-support-blue.svg?logo=patreon)](https://www.patreon.com/iw4x)
--->
+[![patreon](https://img.shields.io/badge/patreon-support-blue.svg?logo=patreon)](https://www.patreon.com/xlabsproject)
+
 
 # IW6x: Client
 
