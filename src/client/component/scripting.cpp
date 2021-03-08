@@ -60,7 +60,7 @@ namespace scripting
 
 	int is_pre_main_stub()
 	{
-		return game::CL_IsCgameInitialized();
+		return game::SV_Loaded();
 	}
 
 	class component final : public component_interface
