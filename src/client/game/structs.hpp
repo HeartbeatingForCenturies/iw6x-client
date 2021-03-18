@@ -9,13 +9,6 @@ namespace game
 	typedef vec_t vec3_t[3];
 	typedef vec_t vec4_t[4];
 
-	struct XZoneInfo
-	{
-		const char* name;
-		int allocFlags;
-		int freeFlags;
-	};
-
 	enum $219904913BC1E6DB920C78C8CC0BD8F1
 	{
 		FL_GODMODE = 0x1,
@@ -1438,6 +1431,101 @@ namespace game
 		const char* name;
 	};
 
+
+	union XAssetHeader
+	{
+		void* data;
+		/*PhysPreset *physPreset;
+		PhysCollmap *physCollmap;
+		XAnimParts *parts;
+		XModelSurfs *modelSurfs;
+		XModel *model;*/
+		Material* material;
+		/*ComputeShader *computeShader;
+		MaterialVertexShader *vertexShader;
+		MaterialHullShader *hullShader;
+		MaterialDomainShader *domainShader;
+		MaterialPixelShader *pixelShader;
+		MaterialVertexDeclaration *vertexDecl;
+		MaterialTechniqueSet *techniqueSet;
+		GfxImage *image;
+		snd_alias_list_t *sound;
+		SndCurve *sndCurve;
+		SndCurve *lpfCurve;
+		SndCurve *reverbCurve;
+		LoadedSound *loadSnd;
+		clipMap_t *clipMap;
+		ComWorld *comWorld;
+		GlassWorld *glassWorld;
+		PathData *pathData;
+		VehicleTrack *vehicleTrack;
+		MapEnts *mapEnts;
+		FxWorld *fxWorld;
+		GfxWorld *gfxWorld;
+		GfxLightDef *lightDef;*/
+		Font_s* font;
+		/*MenuList *menuList;
+		menuDef_t *menu;
+		AnimationClass *animClass;
+		LocalizeEntry *localize;
+		WeaponAttachment *attachment;
+		WeaponCompleteDef *weapon;
+		SndDriverGlobals *sndDriverGlobals;
+		FxEffectDef *fx;
+		FxImpactTable *impactFx;
+		SurfaceFxTable *surfaceFx;
+		RawFile *rawfile;
+		ScriptFile *scriptfile;
+		StringTable *stringTable;
+		LeaderboardDef *leaderboardDef;
+		StructuredDataDefSet *structuredDataDefSet;
+		TracerDef *tracerDef;
+		VehicleDef *vehDef;
+		AddonMapEnts *addonMapEnts;
+		NetConstStrings *netConstStrings;
+		ReverbPreset *reverbPreset;
+		LuaFile *luaFile;
+		ScriptableDef *scriptable;
+		Colorization *colorization;
+		ColorizationSet *colorizationSet;
+		ToneMapping *toneMapping;
+		EquipmentSoundTable *equipSndTable;
+		VectorField *vectorField;
+		DopplerPreset *dopplerPreset;
+		FxParticleSimAnimation *particleSimAnimation;*/
+	};
+
+	struct XZoneInfo
+	{
+		const char* name;
+		int allocFlags;
+		int freeFlags;
+	};
+
+	struct XZoneInfoInternal
+	{
+		char name[64];
+		int flags;
+		int isBaseMap;
+	};
+
+	struct XAsset
+	{
+		XAssetType type;
+		XAssetHeader header;
+	};
+
+	struct XAssetEntry
+	{
+		XAsset asset;
+		unsigned __int16 zoneIndex;
+		volatile int inuseMask;
+		unsigned int nextHash;
+		unsigned int nextOverride;
+		unsigned int nextPoolEntry;
+	};
+
+
 	namespace sp
 	{
 		// very shit structures for the moment cuz i cba mapping the whole thing out right now...
@@ -1456,6 +1544,16 @@ namespace game
 		struct playerState_s
 		{
 		};
+
+		struct XZone
+		{
+			char name[64];
+			char gap2[24];
+			XAssetEntry* entry;
+			char gap4[121];
+			char gap5;
+		};
+
 	}
 
 	namespace mp
@@ -1805,6 +1903,15 @@ namespace game
 			TestClientType testClient;
 			char _0x41E94[0x416A0];
 		};
+
+		struct XZone
+		{
+			char name[64];
+			char gap2[24];
+			XAssetEntry* entry;
+			char gap4[399];
+			char gap5;
+		};
 	}
 
 	static_assert(sizeof(mp::client_t) == 0x83570);
@@ -1849,68 +1956,5 @@ namespace game
 		int baseTechType;
 		int emissiveTechType;
 		int forceTechType;
-	};
-
-	union XAssetHeader
-	{
-		void* data;
-		/*PhysPreset *physPreset;
-		PhysCollmap *physCollmap;
-		XAnimParts *parts;
-		XModelSurfs *modelSurfs;
-		XModel *model;*/
-		Material* material;
-		/*ComputeShader *computeShader;
-		MaterialVertexShader *vertexShader;
-		MaterialHullShader *hullShader;
-		MaterialDomainShader *domainShader;
-		MaterialPixelShader *pixelShader;
-		MaterialVertexDeclaration *vertexDecl;
-		MaterialTechniqueSet *techniqueSet;
-		GfxImage *image;
-		snd_alias_list_t *sound;
-		SndCurve *sndCurve;
-		SndCurve *lpfCurve;
-		SndCurve *reverbCurve;
-		LoadedSound *loadSnd;
-		clipMap_t *clipMap;
-		ComWorld *comWorld;
-		GlassWorld *glassWorld;
-		PathData *pathData;
-		VehicleTrack *vehicleTrack;
-		MapEnts *mapEnts;
-		FxWorld *fxWorld;
-		GfxWorld *gfxWorld;
-		GfxLightDef *lightDef;*/
-		Font_s* font;
-		/*MenuList *menuList;
-		menuDef_t *menu;
-		AnimationClass *animClass;
-		LocalizeEntry *localize;
-		WeaponAttachment *attachment;
-		WeaponCompleteDef *weapon;
-		SndDriverGlobals *sndDriverGlobals;
-		FxEffectDef *fx;
-		FxImpactTable *impactFx;
-		SurfaceFxTable *surfaceFx;
-		RawFile *rawfile;
-		ScriptFile *scriptfile;
-		StringTable *stringTable;
-		LeaderboardDef *leaderboardDef;
-		StructuredDataDefSet *structuredDataDefSet;
-		TracerDef *tracerDef;
-		VehicleDef *vehDef;
-		AddonMapEnts *addonMapEnts;
-		NetConstStrings *netConstStrings;
-		ReverbPreset *reverbPreset;
-		LuaFile *luaFile;
-		ScriptableDef *scriptable;
-		Colorization *colorization;
-		ColorizationSet *colorizationSet;
-		ToneMapping *toneMapping;
-		EquipmentSoundTable *equipSndTable;
-		VectorField *vectorField;
-		DopplerPreset *dopplerPreset;
-		FxParticleSimAnimation *particleSimAnimation;*/
 	};
 }
