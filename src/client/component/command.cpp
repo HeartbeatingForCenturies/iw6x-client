@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "command.hpp"
+#include "game_console.hpp"
 
 #include "game/game.hpp"
 
@@ -225,6 +226,15 @@ namespace command
 		}
 	}
 
+	void enum_assets(const game::XAssetType type, const std::function<void(game::XAssetHeader)>& callback, const bool includeOverride)
+	{
+		game::DB_EnumXAssets_Internal(type, static_cast<void(*)(game::XAssetHeader, void*)>([](game::XAssetHeader header, void* data)
+			{
+				const auto& cb = *static_cast<const std::function<void(game::XAssetHeader)>*>(data);
+				cb(header);
+			}), &callback, includeOverride);
+	}
+
 	class component final : public component_interface
 	{
 	public:
@@ -240,9 +250,95 @@ namespace command
 
 				add_mp_commands();
 			}
+			add_commands_generic();
 		}
 
 	private:
+		static void add_commands_generic()
+		{
+			add("consoleList", [](const params& params)
+			{
+				const std::string input = params.get(1);
+
+				std::vector<std::string> matches;
+				game_console::find_matches(input, matches, false);
+
+				for (auto& match : matches)
+				{
+					auto* dvar = game::Dvar_FindVar(match.c_str());
+					if (!dvar)
+					{
+						game_console::print(game_console::con_type_info, "[CMD]  %s", match.c_str());
+					}
+					else
+					{
+						game_console::print(game_console::con_type_info, "[DVAR] %s \"%s\"", match.c_str(), game::Dvar_ValueToString(dvar, dvar->current));
+					}
+				}
+
+				game_console::print(game_console::con_type_info, "Total %i matches", matches.size());
+			});
+
+			add("listassetpool", [](const params& params)
+			{
+				if (params.size() < 2)
+				{
+					game_console::print(game_console::con_type_info,
+									"listassetpool <poolnumber> [filter]: list all the assets in the specified pool\n");
+
+					for (auto i = 0; i < game::XAssetType::ASSET_TYPE_COUNT; i++)
+					{
+						game_console::print(game_console::con_type_info, "%d %s %d\n", i, game::g_assetNames[i], game::g_poolSize[i]);
+					}
+				}
+				else
+				{
+					const auto type = static_cast<game::XAssetType>(atoi(params.get(1)));
+
+					if (type < 0 || type >= game::XAssetType::ASSET_TYPE_COUNT)
+					{
+						game_console::print(game_console::con_type_error,
+										"Invalid pool passed must be between [%d, %d]", 0,
+											game::XAssetType::ASSET_TYPE_COUNT - 1);
+						return;
+					}
+
+					game_console::print(game_console::con_type_info, "Listing assets in pool %s",
+										game::g_assetNames[type]);
+
+					auto total_assets = 0;
+					const std::string filter = params.get(2);
+					enum_assets(type, [type, &total_assets, filter](const game::XAssetHeader header)
+					{
+						const game::XAsset asset{ type, header };
+						const auto* const asset_name = game::DB_GetXAssetName(&asset);
+						//const auto* const entry = game::DB_FindXAssetEntry(type, asset_name);
+						//const char* zone_name;
+
+						total_assets++;
+
+						if (!filter.empty() && !game_console::match_compare(filter, asset_name, false))
+						{
+							return;
+						}
+						// TODO: in some cases returning garbage data
+						//if (game::environment::is_sp())
+						//{
+						//	zone_name = game::sp::g_zones_0[entry->zoneIndex].name;
+						//}
+						//else
+						//{
+						//	zone_name = game::mp::g_zones_0[entry->zoneIndex].name;
+						//}
+
+						game_console::print(game_console::con_type_info, "%s", asset_name);
+					}, true);
+
+					game_console::print(game_console::con_type_info, "Total %s assets: %d/%d", game::g_assetNames[type], total_assets, game::g_poolSize[type]);
+				}
+			});
+		}
+		
 		void add_sp_commands()
 		{
 			add("noclip", [&]()
