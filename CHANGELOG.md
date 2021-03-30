@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Scripting arrays support [#287](https://github.com/XLabsProject/iw6x-client/issues/287)
+-   Add unlock-all and god commands [#19](https://github.com/XLabsProject/iw6x-client/issues/19)
+
+### Fixed
+
+-   Cant launch mayday extinction map on iw6x [#319](https://github.com/XLabsProject/iw6x-client/issues/319)
+
+### Pull Requests
+
+-   Scripting arrays #287 [#335](https://github.com/XLabsProject/iw6x-client/pull/335) ([@fedddddd](https://github.com/fedddddd))
+-   More script array support [#340](https://github.com/XLabsProject/iw6x-client/pull/340) ([@fedddddd](https://github.com/fedddddd))
+-   fix mayday not loading [#349](https://github.com/XLabsProject/iw6x-client/pull/349) ([@FragsAreUs](https://github.com/FragsAreUs))
+-   Actual fix for mayday [#355](https://github.com/XLabsProject/iw6x-client/pull/355) ([@OneFourOne](https://github.com/OneFourOne))
+-   bring some changes from s1x to iw6x [#367](https://github.com/XLabsProject/iw6x-client/pull/367) ([@iAmThatMichael](https://github.com/iAmThatMichael))
+
 ## [v2.0.1] - 2021-01-18
 
 ### Fixed
