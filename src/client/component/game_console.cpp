@@ -172,56 +172,6 @@ namespace game_console
 			                       0);
 		}
 
-		bool match_compare(const std::string& input, const std::string& text, const bool exact)
-		{
-			if (exact && text == input) return true;
-			if (!exact && text.find(input) != std::string::npos) return true;
-			return false;
-		}
-
-		void find_matches(std::string input, std::vector<std::string>& suggestions, const bool exact)
-		{
-			input = utils::string::to_lower(input);
-
-			for (int i = 0; i < *game::dvarCount; i++)
-			{
-				if (game::sortedDvars[i] && game::sortedDvars[i]->name)
-				{
-					std::string name = utils::string::to_lower(game::sortedDvars[i]->name);
-
-					if (match_compare(input, name, exact))
-					{
-						suggestions.push_back(game::sortedDvars[i]->name);
-					}
-
-					if (exact && suggestions.size() > 1)
-					{
-						return;
-					}
-				}
-			}
-
-			game::cmd_function_s* cmd = (*game::cmd_functions);
-			while (cmd)
-			{
-				if (cmd->name)
-				{
-					std::string name = utils::string::to_lower(cmd->name);
-
-					if (match_compare(input, name, exact))
-					{
-						suggestions.push_back(cmd->name);
-					}
-
-					if (exact && suggestions.size() > 1)
-					{
-						return;
-					}
-				}
-				cmd = cmd->next;
-			}
-		}
-
 		void draw_input()
 		{
 			con.globals.font_height = static_cast<float>(console_font->pixelHeight);
@@ -377,7 +327,7 @@ namespace game_console
 			const auto height = ((con.screen_max[1] - con.screen_min[1]) - 32.0f) - 12.0f;
 
 			game::R_AddCmdDrawText(game::Dvar_FindVar("version")->current.string, 0x7FFFFFFF, console_font, x,
-			                       ((height - 16.0f) + y) + console_font->pixelHeight, 1.0f, 1.0f, 0.0f, color_iw6, 0);
+			                       ((height - 12.0f) + y) + console_font->pixelHeight, 1.0f, 1.0f, 0.0f, color_iw6, 0);
 
 			draw_output_scrollbar(x, y, width, height);
 			draw_output_text(x, y);
@@ -476,6 +426,7 @@ namespace game_console
 			{
 				clear();
 				con.line_count = 0;
+				con.display_line_offset = 0;
 				con.output.clear();
 				history_index = -1;
 				history.clear();
@@ -522,6 +473,11 @@ namespace game_console
 	{
 		if (key == game::keyNum_t::K_F10)
 		{
+			if(game::mp::svs_clients[localClientNum].header.state >= 1)
+			{
+				return false;
+			}
+			
 			game::Cmd_ExecuteSingleCommand(localClientNum, 0, "lui_open menu_systemlink_join\n");
 		}
 
@@ -652,6 +608,56 @@ namespace game_console
 		return true;
 	}
 
+	bool match_compare(const std::string& input, const std::string& text, const bool exact)
+	{
+		if (exact && text == input) return true;
+		if (!exact && text.find(input) != std::string::npos) return true;
+		return false;
+	}
+
+	void find_matches(std::string input, std::vector<std::string>& suggestions, const bool exact)
+	{
+		input = utils::string::to_lower(input);
+
+		for (int i = 0; i < *game::dvarCount; i++)
+		{
+			if (game::sortedDvars[i] && game::sortedDvars[i]->name)
+			{
+				std::string name = utils::string::to_lower(game::sortedDvars[i]->name);
+
+				if (match_compare(input, name, exact))
+				{
+					suggestions.push_back(game::sortedDvars[i]->name);
+				}
+
+				if (exact && suggestions.size() > 1)
+				{
+					return;
+				}
+			}
+		}
+
+		game::cmd_function_s* cmd = (*game::cmd_functions);
+		while (cmd)
+		{
+			if (cmd->name)
+			{
+				std::string name = utils::string::to_lower(cmd->name);
+
+				if (match_compare(input, name, exact))
+				{
+					suggestions.push_back(cmd->name);
+				}
+
+				if (exact && suggestions.size() > 1)
+				{
+					return;
+				}
+			}
+			cmd = cmd->next;
+		}
+	}
+
 	class component final : public component_interface
 	{
 	public:
@@ -693,6 +699,7 @@ namespace game_console
 			{
 				clear();
 				con.line_count = 0;
+				con.display_line_offset = 0;
 				con.output.clear();
 				history_index = -1;
 				history.clear();

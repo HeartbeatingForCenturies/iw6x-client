@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.0.2] - 2021-03-30
+
+### Added
+
+-   Scripting arrays support [#287](https://github.com/XLabsProject/iw6x-client/issues/287)
+-   Add unlock-all and god commands [#19](https://github.com/XLabsProject/iw6x-client/issues/19)
+
+### Fixed
+
+-   Cant launch mayday extinction map on iw6x [#319](https://github.com/XLabsProject/iw6x-client/issues/319)
+
+### Pull Requests
+
+-   Scripting arrays #287 [#335](https://github.com/XLabsProject/iw6x-client/pull/335) ([@fedddddd](https://github.com/fedddddd))
+-   More script array support [#340](https://github.com/XLabsProject/iw6x-client/pull/340) ([@fedddddd](https://github.com/fedddddd))
+-   fix mayday not loading [#349](https://github.com/XLabsProject/iw6x-client/pull/349) ([@FragsAreUs](https://github.com/FragsAreUs))
+-   Actual fix for mayday [#355](https://github.com/XLabsProject/iw6x-client/pull/355) ([@OneFourOne](https://github.com/OneFourOne))
+-   bring some changes from s1x to iw6x [#367](https://github.com/XLabsProject/iw6x-client/pull/367) ([@iAmThatMichael](https://github.com/iAmThatMichael))
+
 ## [v2.0.1] - 2021-01-18
 
 ### Fixed
@@ -225,7 +244,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Add setviewpos, setviewang commands, add viewpos to drawfps [#38](https://github.com/XLabsProject/iw6x-client/pull/38) ([@fedddddd](https://github.com/fedddddd))
 -   Make stats look better [#36](https://github.com/XLabsProject/iw6x-client/pull/36) ([@FragsAreUs](https://github.com/FragsAreUs))
 
-[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/XLabsProject/iw6x-client/compare/v2.0.2...HEAD
+
+[v2.0.2]: https://github.com/XLabsProject/iw6x-client/compare/v2.0.1...v2.0.2
 
 [v2.0.1]: https://github.com/XLabsProject/iw6x-client/compare/v2.0.0...v2.0.1
 
