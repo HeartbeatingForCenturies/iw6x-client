@@ -54,10 +54,10 @@ namespace console
 
 		void pre_destroy() override
 		{
+			this->terminate_runner_ = true;
+
 			printf("\r\n");
 			_flushall();
-
-			this->terminate_runner_ = true;
 
 			if (this->console_runner_.joinable())
 			{
