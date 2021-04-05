@@ -4,6 +4,7 @@
 #include "scheduler.hpp"
 
 #include "game/game.hpp"
+#include "game/dvars.hpp"
 
 #include <utils/hook.hpp>
 #include <utils/io.hpp>
@@ -104,6 +105,11 @@ namespace exception
 
 		void reset_state()
 		{
+			if (dvars::cg_legacyCrashHandling && dvars::cg_legacyCrashHandling->current.enabled)
+			{
+				display_error_dialog();
+			}
+
 			// TODO: Add a limit for dedi restarts
 			if (game::environment::is_dedi())
 			{
@@ -233,6 +239,11 @@ namespace exception
 			{
 				is_initialized() = true;
 			});
+		}
+
+		void post_unpack() override
+		{
+			dvars::cg_legacyCrashHandling = game::Dvar_RegisterBool("cg_legacyCrashHandling", false, game::DVAR_FLAG_SAVED, "Disable new crash handling");
 		}
 	};
 }
