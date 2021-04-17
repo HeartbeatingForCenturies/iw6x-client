@@ -2,6 +2,9 @@
 #include "engine.hpp"
 #include "context.hpp"
 
+#include "../execution.hpp"
+#include "../../../component/logfile.hpp"
+
 #include <utils/io.hpp>
 
 namespace scripting::lua::engine
@@ -43,23 +46,19 @@ namespace scripting::lua::engine
 			return;
 		}
 
+		clear_custom_fields();
 		get_scripts().clear();
 		load_scripts();
 	}
 
 	void stop()
 	{
+		logfile::clear_callbacks();
 		get_scripts().clear();
 	}
 
 	void notify(const event& e)
 	{
-		if (e.entity.get_entity_id() == *game::levelEntityId
-			&& e.name == "exitLevel_called")
-		{
-			get_scripts().clear();
-		}
-
 		for (auto& script : get_scripts())
 		{
 			script->notify(e);

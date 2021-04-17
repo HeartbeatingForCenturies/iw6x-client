@@ -13,6 +13,8 @@ namespace game
 
 	WEAK symbol<void(void*, void*)> AimAssist_AddToTargetList{0, 0x140139D80};
 
+	WEAK symbol<void(unsigned int weapon, bool isAlternate, char* output, unsigned int maxStringLen)> BG_GetWeaponNameComplete{0, 0x140239370};
+
 	WEAK symbol<void ()> Com_Frame_Try_Block_Function{0x1403BC980, 0x1404131A0};
 	WEAK symbol<const char*(char const**)> Com_Parse{0x1404313E0, 0x1404F50E0};
 	WEAK symbol<void (errorParm code, const char* message, ...)> Com_Error{0x1403BBFF0, 0x140412740};
@@ -23,6 +25,8 @@ namespace game
 	WEAK symbol<void()> Com_EndTokenizeString{0x1403B37C0, 0x1403F7330};
 
 	WEAK symbol<void (const char* message)> Conbuf_AppendText{0x14043DDE0, 0x1405028C0};
+
+	WEAK symbol<char* (int start)> ConcatArgs{0x14030AF10, 0x140392880};
 
 	WEAK symbol<void (int localClientNum, const char* text)> Cbuf_AddText{0x1403B3050, 0x1403F6B50};
 	WEAK symbol<void (int localClientNum, int controllerIndex, const char* buffer,
@@ -155,6 +159,7 @@ namespace game
 	WEAK symbol<scr_string_t(const char* str, unsigned int user)> SL_GetString{0x1403D6CD0, 0x140431C70};
 
 
+	WEAK symbol<void(int arg, char* buffer, int bufferLength)> SV_Cmd_ArgvBuffer{0x1403B4560, 0x1403F80D0};
 	WEAK symbol<void (const char* text_in)> SV_Cmd_TokenizeString{0, 0x1403F8150};
 	WEAK symbol<void ()> SV_Cmd_EndTokenizedString{0, 0x1403F8110};
 

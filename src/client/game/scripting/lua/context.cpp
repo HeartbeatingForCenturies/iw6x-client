@@ -7,6 +7,7 @@
 #include "../functions.hpp"
 
 #include "../../../component/command.hpp"
+#include "../../../component/logfile.hpp"
 
 #include <utils/string.hpp>
 
@@ -92,7 +93,7 @@ namespace scripting::lua
 
 					for (auto arg : va)
 					{
-						arguments.push_back(convert(arg));
+						arguments.push_back(convert({s, arg}));
 					}
 
 					return convert(s, entity.call(name, arguments));
@@ -106,9 +107,9 @@ namespace scripting::lua
 					{
 						return convert(s, entity.get(constant));
 					},
-					[constant](const entity& entity, const sol::lua_value& value)
+					[constant](const entity& entity, const sol::this_state s, const sol::lua_value& value)
 					{
-						entity.set(constant, convert(value));
+						entity.set(constant, convert({s, value}));
 					});
 			}
 
@@ -123,13 +124,14 @@ namespace scripting::lua
 				return convert(s, entity.get(field));
 			};
 
-			entity_type["notify"] = [](const entity& entity, const std::string& event, sol::variadic_args va)
+			entity_type["notify"] = [](const entity& entity, const sol::this_state s, const std::string& event, 
+									   sol::variadic_args va)
 			{
 				std::vector<script_value> arguments{};
 
 				for (auto arg : va)
 				{
-					arguments.push_back(convert(arg));
+					arguments.push_back(convert({s, arg}));
 				}
 
 				notify(entity, event, arguments);
@@ -166,10 +168,21 @@ namespace scripting::lua
 
 				for (auto arg : va)
 				{
-					arguments.push_back(convert(arg));
+					arguments.push_back(convert({s, arg}));
 				}
 
 				return convert(s, entity.call(function, arguments));
+			};
+
+			entity_type[sol::meta_function::new_index] = [](const entity& entity, const std::string& field,
+															const sol::lua_value& value)
+			{
+				entity.set(field, convert(value));
+			};
+
+			entity_type[sol::meta_function::index] = [](const entity& entity, const sol::this_state s, const std::string& field)
+			{
+				return convert(s, entity.get(field));
 			};
 
 			struct game
@@ -187,7 +200,7 @@ namespace scripting::lua
 
 					for (auto arg : va)
 					{
-						arguments.push_back(convert(arg));
+						arguments.push_back(convert({s, arg}));
 					}
 
 					return convert(s, call(name, arguments));
@@ -201,7 +214,7 @@ namespace scripting::lua
 
 				for (auto arg : va)
 				{
-					arguments.push_back(convert(arg));
+					arguments.push_back(convert({s, arg}));
 				}
 
 				return convert(s, call(function, arguments));
@@ -222,6 +235,16 @@ namespace scripting::lua
 			game_type["executecommand"] = [](const game&, const std::string& command)
 			{
 				command::execute(command, false);
+			};
+
+			game_type["onplayerdamage"] = [](const game&, const sol::protected_function& callback)
+			{
+				logfile::add_player_damage_callback(callback);
+			};
+
+			game_type["onplayerkilled"] = [](const game&, const sol::protected_function& callback)
+			{
+				logfile::add_player_killed_callback(callback);
 			};
 		}
 	}
