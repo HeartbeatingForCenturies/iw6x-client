@@ -7,6 +7,7 @@
 #include "game/scripting/entity.hpp"
 #include "game/scripting/event.hpp"
 #include "game/scripting/lua/engine.hpp"
+#include "game/scripting/execution.hpp"
 
 #include "scheduler.hpp"
 
@@ -31,6 +32,11 @@ namespace scripting
 				for (auto* value = top; value->type != game::SCRIPT_END; --value)
 				{
 					e.arguments.emplace_back(*value);
+				}
+
+				if (e.name == "connected")
+				{
+					scripting::clear_entity_fields(e.entity);
 				}
 
 				lua::engine::notify(e);
