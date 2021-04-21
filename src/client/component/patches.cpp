@@ -65,7 +65,7 @@ namespace patches
 		                                     const char* desc)
 		{
 			// changed max value from 2.0f -> 5.0f and min value from 0.5f -> 0.1f
-			return game::Dvar_RegisterFloat(name, 1.0f, 0.1f, 5.0f, 0x1, desc);
+			return game::Dvar_RegisterFloat(name, 1.0f, 0.1f, 5.0f, game::DvarFlags::DVAR_FLAG_SAVED, desc);
 		}
 
 		game::dvar_t* register_cg_gun_dvars(const char* name, float /*value*/, float /*min*/, float /*max*/,
@@ -77,7 +77,7 @@ namespace patches
 			}
 			else
 			{
-				return game::Dvar_RegisterFloat(name, 0.0f, 0.0f, 0.0f, 0, desc);
+				return game::Dvar_RegisterFloat(name, 0.0f, 0.0f, 0.0f, game::DvarFlags::DVAR_FLAG_NONE, desc);
 			}
 		}
 
@@ -241,13 +241,13 @@ namespace patches
 			}
 
 			// set it to 3 to display both voice dlc announcers did only show 1
-			game::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0,
+			game::Dvar_RegisterInt("igs_announcer", 3, 3, 3, game::DvarFlags::DVAR_FLAG_NONE,
 			                       "Show Announcer Packs. (Bitfield representing which announcer paks to show)");
 
 			// changed max value from 85 -> 1000
 			if (!game::environment::is_dedi() && !game::environment::is_linker())
 			{
-				game::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, 0x1, "Cap frames per second");
+				game::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, game::DvarFlags::DVAR_FLAG_SAVED, "Cap frames per second");
 			}
 
 			if (!game::environment::is_sp())

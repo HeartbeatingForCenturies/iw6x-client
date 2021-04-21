@@ -151,7 +151,7 @@ namespace fps
 		void cg_draw_fps_register_stub(const char* name, const char** _enum, const int value, unsigned int /*flags*/,
 		                               const char* desc)
 		{
-			game::Dvar_RegisterEnum(name, _enum, value, 0x1, desc);
+			game::Dvar_RegisterEnum(name, _enum, value, game::DvarFlags::DVAR_FLAG_SAVED, desc);
 		}
 	}
 
@@ -172,7 +172,7 @@ namespace fps
 			// change cg_drawfps flags to saved
 			utils::hook::call(SELECT_VALUE(0x1401F400A, 0x140272B98), &cg_draw_fps_register_stub);
 
-			game::Dvar_RegisterInt("cg_drawPing", 0, 0, 1, 0, "Choose to draw ping");
+			game::Dvar_RegisterInt("cg_drawPing", 0, 0, 1, game::DvarFlags::DVAR_FLAG_SAVED, "Choose to draw ping");
 
 			scheduler::loop(cg_draw_fps, scheduler::pipeline::renderer);
 			scheduler::loop(cg_draw_ping, scheduler::pipeline::renderer);
