@@ -198,13 +198,13 @@ namespace gameplay
 			// Implement gravity dvar
 			utils::hook::nop(0x1403828C8, 13);
 			utils::hook::jump(0x1403828C8, g_gravity_stub, true);
-			dvars::g_gravity = game::Dvar_RegisterInt("g_gravity", 800, 0, 1000, 0,
+			dvars::g_gravity = game::Dvar_RegisterInt("g_gravity", 800, 0, 1000, game::DvarFlags::DVAR_FLAG_NONE,
 			                                          "Game gravity in inches per second squared");
 
 			// Implement speed dvar
 			utils::hook::nop(0x140383789, 13);
 			utils::hook::jump(0x140383789, g_speed_stub, true);
-			dvars::g_speed = game::Dvar_RegisterInt("g_speed", 190, 0, 999, 0, "Maximum player speed");
+			dvars::g_speed = game::Dvar_RegisterInt("g_speed", 190, 0, 999, game::DvarFlags::DVAR_FLAG_NONE, "Maximum player speed");
 
 			utils::hook::jump(0x140225852, jump_apply_slowdown_stub, true);
 			dvars::jump_slowDownEnable = game::Dvar_RegisterBool("jump_slowDownEnable", true,
