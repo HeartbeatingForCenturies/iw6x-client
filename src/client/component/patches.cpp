@@ -201,6 +201,10 @@ namespace patches
 			}
 			else
 			{
+				scheduler::once([]()
+				{
+					command::execute("reconnect");
+				}, scheduler::pipeline::main, 1s);
 				game::Com_Error(game::ERR_DROP, error, arg1);
 			}
 		}

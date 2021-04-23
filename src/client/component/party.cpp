@@ -244,6 +244,11 @@ namespace party
 				}
 			});
 
+			command::add("reconnect", [](const command::params& argument)
+			{
+					connect(connect_state.host);
+			});
+
 			command::add("connect", [](const command::params& argument)
 			{
 				if (argument.size() != 2)
