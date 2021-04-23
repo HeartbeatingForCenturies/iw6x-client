@@ -24,12 +24,12 @@ namespace scripting::lua
 	{
 		if (!result.valid())
 		{
-			console::error("************** Script execution error **************\n");
+			printf("************** Script execution error **************\n");
 
 			const sol::error err = result;
-			console::error("%s\n", err.what());
+			printf("%s\n", err.what());
 
-			console::error("****************************************************\n");
+			printf("****************************************************\n");
 
 			notify_error();
 		}
