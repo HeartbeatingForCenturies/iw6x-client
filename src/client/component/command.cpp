@@ -256,6 +256,51 @@ namespace command
 	private:
 		static void add_commands_generic()
 		{
+			add("quit", game::Com_Quit);
+			add("quit_hard", utils::nt::raise_hard_exception);
+			add("crash", []()
+			{
+					*reinterpret_cast<int*>(1) = 0;
+			});
+
+			add("dvarDump", []()
+			{
+				game_console::print(game_console::con_type_info,
+					"================================ DVAR DUMP ========================================\n");
+				for (auto i = 0; i < *game::dvarCount; i++)
+				{
+					const auto dvar = game::sortedDvars[i];
+					if (dvar)
+					{
+						game_console::print(game_console::con_type_info, "%s \"%s\"\n", dvar->name,
+							game::Dvar_ValueToString(dvar, dvar->current));
+					}
+				}
+				game_console::print(game_console::con_type_info, "\n%i dvar indexes\n", *game::dvarCount);
+				game_console::print(game_console::con_type_info,
+					"================================ END DVAR DUMP ====================================\n");
+			});
+
+			add("commandDump", []()
+			{
+				game_console::print(game_console::con_type_info,
+					"================================ COMMAND DUMP =====================================\n");
+				game::cmd_function_s* cmd = (*game::cmd_functions);
+				int i = 0;
+				while (cmd)
+				{
+					if (cmd->name)
+					{
+						game_console::print(game_console::con_type_info, "%s\n", cmd->name);
+						i++;
+					}
+					cmd = cmd->next;
+				}
+				game_console::print(game_console::con_type_info, "\n%i command indexes\n", i);
+				game_console::print(game_console::con_type_info,
+					"================================ END COMMAND DUMP =================================\n");
+			});
+
 			add("consoleList", [](const params& params)
 			{
 				const std::string input = params.get(1);
