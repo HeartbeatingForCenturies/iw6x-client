@@ -22,13 +22,12 @@ namespace party
 		{
 			game::netadr_s host{};
 			std::string challenge{};
+			bool hostDefined{false};
 		} connect_state;
 
 		utils::hook::detour didyouknow_hook;
 
 		std::string sv_motd;
-
-		int hostDefined;
 
 		void switch_gamemode_if_necessary(const std::string& gametype)
 		{
@@ -156,7 +155,7 @@ namespace party
 
 		connect_state.host = target;
 		connect_state.challenge = utils::cryptography::random::get_challenge();
-		hostDefined = 1;
+		connect_state.hostDefined = true;
 
 		network::send(target, "getInfo", connect_state.challenge);
 	}
@@ -225,8 +224,6 @@ namespace party
 				return;
 			}
 
-			hostDefined = 0;
-
 			didyouknow_hook.create(game::Dvar_SetString, didyouknow_stub);
 
 			command::add("map", [](const command::params& argument)
@@ -251,14 +248,12 @@ namespace party
 
 			command::add("reconnect", [](const command::params& argument)
 			{
-				if (hostDefined == 1)
+				if (!connect_state.hostDefined)
 				{
-					connect(connect_state.host);
+					printf("Cannot connect to server.\n");
+					return;
 				}
-				else if (hostDefined == 0)
-				{
-					printf("Cannot reconnect to server.");
-				}
+				connect(connect_state.host);
 			});
 
 			command::add("connect", [](const command::params& argument)
