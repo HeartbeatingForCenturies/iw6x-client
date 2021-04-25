@@ -2,8 +2,6 @@
 #include "error.hpp"
 #include "../execution.hpp"
 
-#include "component/console.hpp"
-
 namespace scripting::lua
 {
 	namespace
