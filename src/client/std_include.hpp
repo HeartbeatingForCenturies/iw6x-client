@@ -74,6 +74,7 @@
 #include <sstream>
 #include <optional>
 #include <unordered_set>
+#include <variant>
 
 #include <gsl/gsl>
 #include <udis86.h>

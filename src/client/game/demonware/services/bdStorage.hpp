@@ -9,7 +9,9 @@ namespace demonware
 		bdStorage();
 
 	private:
-		std::vector<std::pair<std::regex, std::string>> publisher_resources_;
+		using callback = std::function<std::string()>;
+		using resource_variant = std::variant<std::string, callback>;
+		std::vector<std::pair<std::regex, resource_variant>> publisher_resources_;
 
 		void set_legacy_user_file(i_server* server, byte_buffer* buffer) const;
 		void update_legacy_user_file(i_server* server, byte_buffer* buffer) const;
@@ -22,6 +24,7 @@ namespace demonware
 		void get_user_file(i_server* server, byte_buffer* buffer) const;
 
 		void map_publisher_resource(const std::string& expression, INT id);
+		void map_publisher_resource_variant(const std::string& expression, resource_variant resource);
 		bool load_publisher_resource(const std::string& name, std::string& buffer);
 
 		static std::string get_user_file_path(const std::string& name);
