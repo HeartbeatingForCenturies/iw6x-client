@@ -3,6 +3,7 @@
 
 #include <utils/io.hpp>
 #include <utils/nt.hpp>
+#include <utils/http.hpp>
 #include <utils/toast.hpp>
 #include <utils/binary_resource.hpp>
 

@@ -9,6 +9,8 @@
 #include <utils/io.hpp>
 #include <utils/string.hpp>
 
+#include "component/motd.hpp"
+
 namespace demonware
 {
 	bdStorage::bdStorage()
@@ -23,7 +25,7 @@ namespace demonware
 		this->register_service(11, &bdStorage::delete_user_file);
 		this->register_service(12, &bdStorage::get_user_file);
 
-		this->map_publisher_resource("motd-.*\\.txt", DW_MOTD);
+		this->map_publisher_resource_variant("motd-.*\\.txt", motd::get_text);
 		this->map_publisher_resource("newsfeed-.*\\.txt", DW_NEWSFEED);
 		this->map_publisher_resource("mm\\.cfg", DW_MM_CONFIG);
 		this->map_publisher_resource("playlists(_.+)?\\.aggr", DW_PLAYLISTS);
@@ -36,7 +38,17 @@ namespace demonware
 	void bdStorage::map_publisher_resource(const std::string& expression, const INT id)
 	{
 		auto data = utils::nt::load_resource(id);
-		publisher_resources_.emplace_back(std::regex{expression}, data);
+		this->map_publisher_resource_variant(expression, std::move(data));
+	}
+
+	void bdStorage::map_publisher_resource_variant(const std::string& expression, resource_variant resource)
+	{
+		if (resource.valueless_by_exception())
+		{
+			throw std::runtime_error("Publisher resource variant is empty!");
+		}
+
+		this->publisher_resources_.emplace_back(std::regex{expression}, std::move(resource));
 	}
 
 	bool bdStorage::load_publisher_resource(const std::string& name, std::string& buffer)
@@ -45,7 +57,14 @@ namespace demonware
 		{
 			if (std::regex_match(name, resource.first))
 			{
-				buffer = resource.second;
+				if (std::holds_alternative<std::string>(resource.second))
+				{
+					buffer = std::get<std::string>(resource.second);
+				}
+				else
+				{
+					buffer = std::get<callback>(resource.second)();
+				}
 				return true;
 			}
 		}
