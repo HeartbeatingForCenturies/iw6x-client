@@ -22,6 +22,7 @@ namespace party
 		{
 			game::netadr_s host{};
 			std::string challenge{};
+			bool hostDefined{false};
 		} connect_state;
 
 		utils::hook::detour didyouknow_hook;
@@ -154,6 +155,7 @@ namespace party
 
 		connect_state.host = target;
 		connect_state.challenge = utils::cryptography::random::get_challenge();
+		connect_state.hostDefined = true;
 
 		network::send(target, "getInfo", connect_state.challenge);
 	}
@@ -242,6 +244,16 @@ namespace party
 				{
 					game::SV_FastRestart();
 				}
+			});
+
+			command::add("reconnect", [](const command::params& argument)
+			{
+				if (!connect_state.hostDefined)
+				{
+					printf("Cannot connect to server.\n");
+					return;
+				}
+				connect(connect_state.host);
 			});
 
 			command::add("connect", [](const command::params& argument)

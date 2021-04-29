@@ -93,7 +93,7 @@ namespace exception
 			}
 			else
 			{
-				error_str += "Make sure to update your graphics card drivers and install operating system updates!";
+				error_str += "Make sure to update your graphics card drivers and install operating system updates!\nClosing or restarting Steam might also help.";
 			}
 
 			utils::thread::suspend_other_threads();

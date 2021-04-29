@@ -201,6 +201,10 @@ namespace patches
 			}
 			else
 			{
+				scheduler::once([]()
+				{
+					command::execute("reconnect");
+				}, scheduler::pipeline::main, 1s);
 				game::Com_Error(game::ERR_DROP, error, arg1);
 			}
 		}
@@ -214,21 +218,6 @@ namespace patches
 			// Increment ref-count on these
 			LoadLibraryA("PhysXDevice64.dll");
 			LoadLibraryA("PhysXUpdateLoader64.dll");
-
-			command::add("quit", []()
-			{
-				game::Com_Quit();
-			});
-
-			command::add("crash", []()
-			{
-				*reinterpret_cast<int*>(1) = 0;
-			});
-
-			command::add("quit_hard", []()
-			{
-				utils::nt::raise_hard_exception();
-			});
 
 			// Unlock fps in main menu
 			utils::hook::set<BYTE>(SELECT_VALUE(0x140242DDB, 0x1402CF58B), 0xEB);
@@ -267,44 +256,6 @@ namespace patches
 
 			// Patch Dvar_Command to print out values how CoD4 does it
 			utils::hook::jump(SELECT_VALUE(0x1403BFCB0, 0x140416A60), dvar_command_patch);
-
-			command::add("dvarDump", []()
-			{
-				game_console::print(game_console::con_type_info,
-				                    "================================ DVAR DUMP ========================================\n");
-				for (auto i = 0; i < *game::dvarCount; i++)
-				{
-					const auto dvar = game::sortedDvars[i];
-					if (dvar)
-					{
-						game_console::print(game_console::con_type_info, "%s \"%s\"\n", dvar->name,
-						                    game::Dvar_ValueToString(dvar, dvar->current));
-					}
-				}
-				game_console::print(game_console::con_type_info, "\n%i dvar indexes\n", *game::dvarCount);
-				game_console::print(game_console::con_type_info,
-				                    "================================ END DVAR DUMP ====================================\n");
-			});
-
-			command::add("commandDump", []()
-			{
-				game_console::print(game_console::con_type_info,
-				                    "================================ COMMAND DUMP =====================================\n");
-				game::cmd_function_s* cmd = (*game::cmd_functions);
-				int i = 0;
-				while (cmd)
-				{
-					if (cmd->name)
-					{
-						game_console::print(game_console::con_type_info, "%s\n", cmd->name);
-						i++;
-					}
-					cmd = cmd->next;
-				}
-				game_console::print(game_console::con_type_info, "\n%i command indexes\n", i);
-				game_console::print(game_console::con_type_info,
-				                    "================================ END COMMAND DUMP =================================\n");
-			});
 
 			// Allow executing custom cfg files with the "exec" command
 			utils::hook::jump(SELECT_VALUE(0x1403B39BB, 0x1403F752B), SELECT_VALUE(0x1403B3A12, 0x1403F7582));
