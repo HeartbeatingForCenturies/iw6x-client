@@ -397,7 +397,7 @@ namespace game_console
 		const auto lines = utils::string::split(data, '\n');
 		for (const auto& line : lines)
 		{
-			print_internal(type == con_type_info ? line : "^"s.append(std::to_string(type)).append(line));
+			print_internal(type == console::con_type_info ? line : "^"s.append(std::to_string(type)).append(line));
 		}
 	}
 

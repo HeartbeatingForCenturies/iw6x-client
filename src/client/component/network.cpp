@@ -3,7 +3,7 @@
 
 #include "command.hpp"
 #include "network.hpp"
-#include "game_console.hpp"
+#include "console.hpp"
 
 #include <utils/hook.hpp>
 #include <utils/string.hpp>
@@ -271,18 +271,10 @@ namespace network
 
 				// ignore built in "print" oob command and add in our own
 				utils::hook::set<uint8_t>(0x1402C6AA4, 0xEB);
-				on("print", [](const game::netadr_s& addr, const std::string_view& data)
+				on("print", [](const game::netadr_s&, const std::string_view& data)
 				{
 					const std::string message{data};
-
-					if (game::environment::is_dedi() || game::environment::is_linker())
-					{
-						printf("%s\n", message.data());
-					}
-					else
-					{
-						game_console::print(game_console::con_type_info, "%s\n", message.data());
-					}
+					console::info(message.data());
 				});
 			}
 		}
