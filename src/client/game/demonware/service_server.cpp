@@ -111,7 +111,9 @@ namespace demonware
 		}
 		else
 		{
+#ifdef DEBUG
 			printf("DW: Missing handler of type %d\n", type);
+#endif
 		}
 	}
 
@@ -184,7 +186,9 @@ namespace demonware
 
 				uint8_t type;
 				p_buffer.read_byte(&type);
+#ifdef DEBUG
 				printf("DW: Handling message of type %d (encrypted: %d)\n", type, enc);
+#endif
 
 				this->reply_sent_ = false;
 				this->call_handler(type, p_buffer.get_remaining());

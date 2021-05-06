@@ -69,7 +69,9 @@ namespace demonware
 			}
 		}
 
-		printf("DW: Missing publisher file: %s\n", name.data());
+#ifdef DEBUG
+		printf("[DW]: [bdStorage]: missing publisher file: %s\n", name.data());
+#endif
 
 		return false;
 	}
@@ -115,8 +117,9 @@ namespace demonware
 
 		const auto id = *reinterpret_cast<const uint64_t*>(utils::cryptography::sha1::compute(filename).data());
 		std::string id_string = utils::string::va("%llX", id);
-
+#ifdef DEBUG
 		printf("DW: Storing user file '%s' as %s\n", filename.data(), id_string.data());
+#endif
 
 		const auto path = get_user_file_path(id_string);
 		utils::io::write_file(path, data);
@@ -145,8 +148,9 @@ namespace demonware
 		buffer->read_blob(&data);
 
 		std::string id_string = utils::string::va("%llX", id);
-
+#ifdef DEBUG
 		printf("DW: Updating user file %s\n", id_string.data());
+#endif
 
 		const auto path = get_user_file_path(id_string);
 		utils::io::write_file(path, data);
@@ -173,8 +177,9 @@ namespace demonware
 
 		const auto id = *reinterpret_cast<const uint64_t*>(utils::cryptography::sha1::compute(filename).data());
 		std::string id_string = utils::string::va("%llX", id);
-
+#ifdef DEBUG
 		printf("DW: Loading user file: %s (%s)\n", filename.data(), id_string.data());
+#endif
 
 		const auto path = get_user_file_path(id_string);
 		if (utils::io::read_file(path, &data))
@@ -259,11 +264,16 @@ namespace demonware
 		std::string filename;
 		buffer->read_string(&filename);
 
-		printf("DW: Loading publisher file: %s\n", filename.data());
+#ifdef DEBUG
+		printf("[DW]: [bdStorage]: loading publisher file: %s\n", filename.data());
+#endif
 
 		std::string data;
 		if (this->load_publisher_resource(filename, data))
 		{
+#ifdef DEBUG
+			printf("[DW]: [bdStorage]: sending publisher file: %s, size: %lld\n", filename.data(), data.size());
+#endif
 			auto reply = server->create_reply(this->get_sub_type());
 			reply->add(new bdFileData(data));
 			reply->send();
