@@ -5,6 +5,17 @@
 #include "console.hpp"
 
 #include <utils/thread.hpp>
+<<<<<<< Updated upstream
+=======
+#include <utils/concurrency.hpp>
+#include <utils/flags.hpp>
+#include <utils/hook.hpp>
+
+namespace game_console
+{
+	void print(int type, const std::string& data);
+}
+>>>>>>> Stashed changes
 
 namespace console
 {
@@ -22,6 +33,38 @@ namespace console
 				ShowWindow(con_window, SW_HIDE);
 			}
 		}
+<<<<<<< Updated upstream
+=======
+
+		std::string format(va_list* ap, const char* message)
+		{
+			static thread_local char buffer[0x1000];
+
+			const auto count = _vsnprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, *ap);
+
+			if (count < 0) return {};
+			return { buffer, static_cast<size_t>(count) };
+		}
+
+		void dispatch_message(const int type, const std::string& message)
+		{
+			if (rcon::message_redirect(message))
+			{
+				return;
+			}
+
+			game_console::print(type, message);
+			messages.access([&message](message_queue& msgs)
+			{
+				msgs.emplace(message);
+			});
+		}
+
+		void append_text(const char* text)
+		{
+			dispatch_message(con_type_info, text);
+		}
+>>>>>>> Stashed changes
 	}
 
 	class component final : public component_interface
@@ -66,32 +109,33 @@ namespace console
 
 			_close(this->handles_[0]);
 			_close(this->handles_[1]);
+
+			messages.access([&](message_queue& msgs)
+			{
+				msgs = {};
+			});
 		}
 
 		void post_unpack() override
 		{
-			game::Sys_ShowConsole();
+			// Redirect input (]command)
+			utils::hook::jump(SELECT_VALUE(0, 0x140502A80), append_text);
 
-			if (!game::environment::is_dedi() && !game::environment::is_linker())
-			{
-				// Hide that shit
-				ShowWindow(console::get_window(), SW_MINIMIZE);
-			}
-
-			// Async console is not ready yet :/
-			//this->initialize();
-
-			std::lock_guard<std::mutex> _(this->mutex_);
-			this->console_initialized_ = true;
+			this->initialize();
 		}
 
 	private:
 		volatile bool console_initialized_ = false;
 		volatile bool terminate_runner_ = false;
 
+<<<<<<< Updated upstream
 		std::mutex mutex_;
 		std::thread console_runner_;
 		std::queue<std::string> message_queue_;
+=======
+		std::thread console_runner_;
+		std::thread console_thread_;
+>>>>>>> Stashed changes
 
 		int handles_[2]{};
 
