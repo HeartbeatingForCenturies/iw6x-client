@@ -127,6 +127,18 @@ namespace rcon
 		}
 	}
 
+	bool message_redirect(const std::string& message)
+	{
+		std::lock_guard<std::recursive_mutex> $(redirect_lock);
+
+		if (is_redirecting_)
+		{
+			network::send(redirect_target_, "print", message);
+			return true;
+		}
+		return false;
+	}
+
 	class component final : public component_interface
 	{
 	public:
