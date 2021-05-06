@@ -56,12 +56,6 @@ namespace scripting::lua::engine
 		load_scripts();
 	}
 
-	void stop()
-	{
-		logfile::clear_callbacks();
-		get_scripts().clear();
-	}
-
 	void notify(const event& e)
 	{
 		for (auto& script : get_scripts())

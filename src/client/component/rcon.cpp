@@ -5,7 +5,7 @@
 #include "game/game.hpp"
 
 #include "command.hpp"
-#include "game_console.hpp"
+#include "console.hpp"
 #include "network.hpp"
 #include "scheduler.hpp"
 
@@ -110,7 +110,7 @@ namespace rcon
 
 			if (password.empty())
 			{
-				game_console::print(game_console::con_type_warning, "You must login first to use RCON");
+				console::info("You must login first to use RCON\n");
 				return;
 			}
 
@@ -122,9 +122,21 @@ namespace rcon
 			}
 			else
 			{
-				game_console::print(game_console::con_type_warning, "You need to be connected to a server!\n");
+				console::warn("You need to be connected to a server!\n");
 			}
 		}
+	}
+
+	bool message_redirect(const std::string& message)
+	{
+		std::lock_guard<std::recursive_mutex> $(redirect_lock);
+
+		if (is_redirecting_)
+		{
+			network::send(redirect_target_, "print", message);
+			return true;
+		}
+		return false;
 	}
 
 	class component final : public component_interface
@@ -145,20 +157,12 @@ namespace rcon
 				const auto sv_running = game::Dvar_FindVar("sv_running");
 				if (!sv_running || !sv_running->current.enabled)
 				{
-					game_console::print(game_console::con_type_error, "Server is not running\n");
+					console::error("Server is not running\n");
 					return;
 				}
 
 				auto status_buffer = build_status_buffer();
-
-				if (game::environment::is_dedi())
-				{
-					printf("%s\n", status_buffer.data());
-				}
-				else
-				{
-					game_console::print(game_console::con_type_info, status_buffer.data());
-				}
+				console::info(status_buffer.data());
 			});
 
 			if (!game::environment::is_dedi())
@@ -189,7 +193,7 @@ namespace rcon
 			}
 			else
 			{
-				print_hook.create(reinterpret_cast<void*>(printf), &print_stub);
+				//print_hook.create(reinterpret_cast<void*>(printf), &print_stub);
 
 				network::on("rcon", [](const game::netadr_s& addr, const std::string_view& data)
 				{
@@ -197,7 +201,7 @@ namespace rcon
 					const auto pos = message.find_first_of(" ");
 					if (pos == std::string::npos)
 					{
-						printf("Invalid RCon request from %s\n", network::net_adr_to_string(addr));
+						console::info("Invalid RCon request from %s\n", network::net_adr_to_string(addr));
 						return;
 					}
 
@@ -214,7 +218,7 @@ namespace rcon
 
 					if (password != rcon_password->current.string)
 					{
-						printf("^1Invalid rcon password\n");
+						console::error("Invalid rcon password\n");
 					}
 					else
 					{

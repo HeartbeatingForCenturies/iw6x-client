@@ -3,7 +3,7 @@
 
 #include "game/game.hpp"
 
-#include "game_console.hpp"
+#include "console.hpp"
 #include "scheduler.hpp"
 
 #include <utils/hook.hpp>
@@ -40,13 +40,13 @@ namespace dvar_cheats
 	{
 		if ((dvar->flags & game::DvarFlags::DVAR_FLAG_WRITE))
 		{
-			game_console::print(game_console::con_type_error, "%s is write protected", dvar->name);
+			console::error("%s is write protected\n", dvar->name);
 			return false;
 		}
 
 		if ((dvar->flags & game::DvarFlags::DVAR_FLAG_READ))
 		{
-			game_console::print(game_console::con_type_error, "%s is read only", dvar->name);
+			console::error("%s is read only\n", dvar->name);
 			return false;
 		}
 
@@ -59,14 +59,14 @@ namespace dvar_cheats
 			if ((dvar->flags & game::DvarFlags::DVAR_FLAG_REPLICATED) && (cl_ingame && cl_ingame->current.enabled) && (
 				sv_running && !sv_running->current.enabled))
 			{
-				game_console::print(game_console::con_type_error, "%s can only be changed by the server", dvar->name);
+				console::error("%s can only be changed by the server\n", dvar->name);
 				return false;
 			}
 
 			const auto sv_cheats = game::Dvar_FindVar("sv_cheats");
 			if ((dvar->flags & game::DvarFlags::DVAR_FLAG_CHEAT) && (sv_cheats && !sv_cheats->current.enabled))
 			{
-				game_console::print(game_console::con_type_error, "%s is cheat protected", dvar->name);
+				console::error("%s is cheat protected\n", dvar->name);
 				return false;
 			}
 		}

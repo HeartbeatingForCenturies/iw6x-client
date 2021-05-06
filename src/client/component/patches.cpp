@@ -1,7 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "command.hpp"
-#include "game_console.hpp"
+#include "console.hpp"
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 #include "filesystem.hpp"
@@ -155,10 +155,8 @@ namespace patches
 				{
 					const auto current = game::Dvar_ValueToString(dvar, dvar->current);
 					const auto reset = game::Dvar_ValueToString(dvar, dvar->reset);
-					game_console::print(game_console::con_type_info, "\"%s\" is: \"%s^7\" default: \"%s^7\"",
-					                    dvar->name, current, reset);
-					game_console::print(game_console::con_type_info, "   %s\n",
-					                    dvars::dvar_get_domain(dvar->type, dvar->domain).data());
+					console::info("\"%s\" is: \"%s^7\" default: \"%s^7\"\n", dvar->name, current, reset);
+					console::info("   %s\n", dvars::dvar_get_domain(dvar->type, dvar->domain).data());
 				}
 				else
 				{

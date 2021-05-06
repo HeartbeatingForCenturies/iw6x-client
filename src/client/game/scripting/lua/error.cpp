@@ -2,6 +2,8 @@
 #include "error.hpp"
 #include "../execution.hpp"
 
+#include "component/console.hpp"
+
 namespace scripting::lua
 {
 	namespace
@@ -22,12 +24,12 @@ namespace scripting::lua
 	{
 		if (!result.valid())
 		{
-			printf("************** Script execution error **************\n");
+			console::error("************** Script execution error **************\n");
 
 			const sol::error err = result;
-			printf("%s\n", err.what());
+			console::error("%s\n", err.what());
 
-			printf("****************************************************\n");
+			console::error("****************************************************\n");
 
 			notify_error();
 		}
