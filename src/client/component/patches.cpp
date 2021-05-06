@@ -33,6 +33,31 @@ namespace patches
 			return sv_kick_client_num_hook.invoke<void>(clientNum, reason);
 		}
 
+		std::string get_login_username()
+		{
+			char username[UNLEN + 1];
+			DWORD username_len = UNLEN + 1;
+			if (!GetUserNameA(username, &username_len))
+			{
+				return "Unknown Soldier";
+			}
+
+			return std::string{ username, username_len - 1 };
+		}
+
+		utils::hook::detour com_register_dvars_hook;
+
+		void com_register_dvars_stub()
+		{
+			if (game::environment::is_mp())
+			{
+				// Make name save
+				game::Dvar_RegisterString("name", get_login_username().data(), game::DVAR_FLAG_SAVED, "Player name.");
+			}
+
+			return com_register_dvars_hook.invoke<void>();
+		}
+
 		utils::hook::detour dvar_register_int_hook;
 
 		game::dvar_t* dvar_register_int(const char* name, int value, const int min, const int max,
@@ -285,6 +310,9 @@ namespace patches
 
 		static void patch_mp()
 		{
+			// Register dvars
+			com_register_dvars_hook.create(0x140413A90, &com_register_dvars_stub);
+
 			// Use name dvar and add "saved" flags to it
 			utils::hook::set<uint8_t>(0x1402C836D, 0x01);
 			live_get_local_client_name_hook.create(0x1404FDAA0, &live_get_local_client_name);
