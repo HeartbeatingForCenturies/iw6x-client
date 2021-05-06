@@ -88,6 +88,7 @@
 #include <asmjit/core/jitruntime.h>
 #include <asmjit/x86/x86assembler.h>
 
+#include <google/protobuf/stubs/logging.h>
 #include <proto/auth.pb.h>
 
 #pragma warning(pop)
