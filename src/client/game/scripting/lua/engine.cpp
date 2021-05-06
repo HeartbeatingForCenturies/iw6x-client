@@ -32,10 +32,16 @@ namespace scripting::lua::engine
 			{
 				if (std::filesystem::is_directory(script) && utils::io::file_exists(script + "/__init__.lua"))
 				{
-					get_scripts().push_back(std::make_unique<context>(script));
+					get_scripts().emplace_back(std::make_unique<context>(script));
 				}
 			}
 		}
+	}
+
+	void stop()
+	{
+		logfile::clear_callbacks();
+		get_scripts().clear();
 	}
 
 	void start()
@@ -46,8 +52,7 @@ namespace scripting::lua::engine
 			return;
 		}
 
-		clear_custom_fields();
-		get_scripts().clear();
+		stop();
 		load_scripts();
 	}
 

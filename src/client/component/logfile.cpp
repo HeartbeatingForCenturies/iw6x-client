@@ -62,79 +62,83 @@ namespace logfile
 		}
 
 		void scr_player_killed_stub(game::mp::gentity_s* self, const game::mp::gentity_s* inflictor, game::mp::gentity_s* attacker, int damage,
-			int meansOfDeath, const unsigned int weapon, bool isAlternate, const float* vDir, const unsigned int hitLoc, int psTimeOffset, int deathAnimDuration)
+			const int meansOfDeath, const unsigned int weapon, const bool isAlternate, const float* vDir, const unsigned int hitLoc, int psTimeOffset, int deathAnimDuration)
 		{
-			const std::string _hitLoc = reinterpret_cast<const char**>(0x1409E62B0)[hitLoc];
-			const auto _mod = convert_mod(meansOfDeath);
-
-			const auto _weapon = get_weapon_name(weapon, isAlternate);
-
-			for (const auto& callback : player_killed_callbacks)
 			{
-				const auto state = callback.lua_state();
+				const std::string _hitLoc = reinterpret_cast<const char**>(0x1409E62B0)[hitLoc];
+				const auto _mod = convert_mod(meansOfDeath);
 
-				const auto _self = convert_entity(state, self);
-				const auto _inflictor = convert_entity(state, inflictor);
-				const auto _attacker = convert_entity(state, attacker);
+				const auto _weapon = get_weapon_name(weapon, isAlternate);
 
-				const auto _vDir = convert_vector(state, vDir);
-
-				const auto result = callback(_self, _inflictor, _attacker, damage, _mod, _weapon, _vDir, _hitLoc, psTimeOffset, deathAnimDuration);
-
-				scripting::lua::handle_error(result);
-
-				if (result.valid() && result.get_type() == sol::type::number)
+				for (const auto& callback : player_killed_callbacks)
 				{
-					damage = result.get<int>();
-				}
-			}
+					const auto state = callback.lua_state();
 
-			if (damage == 0)
-			{
-				return;
+					const auto _self = convert_entity(state, self);
+					const auto _inflictor = convert_entity(state, inflictor);
+					const auto _attacker = convert_entity(state, attacker);
+
+					const auto _vDir = convert_vector(state, vDir);
+
+					const auto result = callback(_self, _inflictor, _attacker, damage, _mod, _weapon, _vDir, _hitLoc, psTimeOffset, deathAnimDuration);
+
+					scripting::lua::handle_error(result);
+
+					if (result.valid() && result.get_type() == sol::type::number)
+					{
+						damage = result.get<int>();
+					}
+				}
+
+				if (damage == 0)
+				{
+					return;
+				}
 			}
 
 			scr_player_killed_hook.invoke<void>(self, inflictor, attacker, damage, meansOfDeath, weapon, isAlternate, vDir, hitLoc, psTimeOffset, deathAnimDuration);
 		}
 
 		void scr_player_damage_stub(game::mp::gentity_s* self, const game::mp::gentity_s* inflictor, game::mp::gentity_s* attacker, int damage, int dflags,
-			int meansOfDeath, const unsigned int weapon, bool isAlternate, const float* vPoint, const float* vDir, const unsigned int hitLoc, int timeOffset)
+			const int meansOfDeath, const unsigned int weapon, const bool isAlternate, const float* vPoint, const float* vDir, const unsigned int hitLoc, const int timeOffset)
 		{
-			const std::string _hitLoc = reinterpret_cast<const char**>(0x1409E62B0)[hitLoc];
-			const auto _mod = convert_mod(meansOfDeath);
-
-			const auto _weapon = get_weapon_name(weapon, isAlternate);
-
-			for (const auto& callback : player_damage_callbacks)
 			{
-				const auto state = callback.lua_state();
+				const std::string _hitLoc = reinterpret_cast<const char**>(0x1409E62B0)[hitLoc];
+				const auto _mod = convert_mod(meansOfDeath);
 
-				const auto _self = convert_entity(state, self);
-				const auto _inflictor = convert_entity(state, inflictor);
-				const auto _attacker = convert_entity(state, attacker);
+				const auto _weapon = get_weapon_name(weapon, isAlternate);
 
-				const auto _vPoint = convert_vector(state, vPoint);
-				const auto _vDir = convert_vector(state, vDir);
-
-				const auto result = callback(_self, _inflictor, _attacker, damage, dflags, _mod, _weapon, _vPoint, _vDir, _hitLoc);
-
-				scripting::lua::handle_error(result);
-
-				if (result.valid() && result.get_type() == sol::type::number)
+				for (const auto& callback : player_damage_callbacks)
 				{
-					damage = result.get<int>();
-				}
-			}
+					const auto state = callback.lua_state();
 
-			if (damage == 0)
-			{
-				return;
+					const auto _self = convert_entity(state, self);
+					const auto _inflictor = convert_entity(state, inflictor);
+					const auto _attacker = convert_entity(state, attacker);
+
+					const auto _vPoint = convert_vector(state, vPoint);
+					const auto _vDir = convert_vector(state, vDir);
+
+					const auto result = callback(_self, _inflictor, _attacker, damage, dflags, _mod, _weapon, _vPoint, _vDir, _hitLoc);
+
+					scripting::lua::handle_error(result);
+
+					if (result.valid() && result.get_type() == sol::type::number)
+					{
+						damage = result.get<int>();
+					}
+				}
+
+				if (damage == 0)
+				{
+					return;
+				}
 			}
 
 			scr_player_damage_hook.invoke<void>(self, inflictor, attacker, damage, dflags, meansOfDeath, weapon, isAlternate, vPoint, vDir, hitLoc, timeOffset);
 		}
 
-		void client_command_stub(int clientNum)
+		void client_command_stub(const int clientNum)
 		{
 			auto self = &game::mp::g_entities[clientNum];
 			char cmd[1024]{};
@@ -168,10 +172,12 @@ namespace logfile
 			return reinterpret_cast<void(*)(int)>(0x1403929B0)(clientNum);
 		}
 
-		void g_shutdown_game_stub(int freeScripts)
+		void g_shutdown_game_stub(const int freeScripts)
 		{
-			const scripting::entity level{*game::levelEntityId};
-			scripting::notify(level, "shutdownGame_called", {1});
+			{
+				const scripting::entity level{ *game::levelEntityId };
+				scripting::notify(level, "shutdownGame_called", { 1 });
+			}
 
 			// G_ShutdownGame
 			return reinterpret_cast<void(*)(int)>(0x1403A0DF0)(freeScripts);
