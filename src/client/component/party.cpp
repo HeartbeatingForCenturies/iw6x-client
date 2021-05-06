@@ -9,6 +9,8 @@
 
 #include "steam/steam.hpp"
 
+#include "component/console.hpp"
+
 #include <utils/string.hpp>
 #include <utils/info_string.hpp>
 #include <utils/cryptography.hpp>
@@ -182,12 +184,12 @@ namespace party
 			auto* current_mapname = game::Dvar_FindVar("mapname");
 			if (current_mapname && utils::string::to_lower(current_mapname->current.string) == utils::string::to_lower(mapname) && game::SV_Loaded())
 			{
-				printf("Restarting map: %s\n", mapname.data());
+				console::info("Restarting map: %s\n", mapname.data());
 				command::execute("map_restart", false);
 				return;
 			}
 
-			printf("Starting map: %s\n", mapname.data());
+			console::info("Starting map: %s\n", mapname.data());
 			game::SV_StartMapForParty(0, mapname.data(), false, false);
 		}
 	}
