@@ -246,6 +246,19 @@ namespace scripting::lua
 			{
 				logfile::add_player_killed_callback(callback);
 			};
+
+			game_type["getgamevar"] = [](const sol::this_state s)
+			{
+				const auto id = *reinterpret_cast<unsigned int*>(0x144A43020);
+
+				const auto value = ::game::scr_VarGlob->childVariableValue[id];
+
+				::game::VariableValue variable{};
+				variable.type = value.type;
+				variable.u.uintValue = value.u.u.uintValue;
+
+				return convert(s, variable);
+			};
 		}
 	}
 
