@@ -1,7 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "command.hpp"
-#include "game_console.hpp"
+#include "console.hpp"
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 #include "filesystem.hpp"
@@ -31,6 +31,31 @@ namespace patches
 				return;
 			}
 			return sv_kick_client_num_hook.invoke<void>(clientNum, reason);
+		}
+
+		std::string get_login_username()
+		{
+			char username[UNLEN + 1];
+			DWORD username_len = UNLEN + 1;
+			if (!GetUserNameA(username, &username_len))
+			{
+				return "Unknown Soldier";
+			}
+
+			return std::string{ username, username_len - 1 };
+		}
+
+		utils::hook::detour com_register_dvars_hook;
+
+		void com_register_dvars_stub()
+		{
+			if (game::environment::is_mp())
+			{
+				// Make name save
+				game::Dvar_RegisterString("name", get_login_username().data(), game::DVAR_FLAG_SAVED, "Player name.");
+			}
+
+			return com_register_dvars_hook.invoke<void>();
 		}
 
 		utils::hook::detour dvar_register_int_hook;
@@ -155,10 +180,8 @@ namespace patches
 				{
 					const auto current = game::Dvar_ValueToString(dvar, dvar->current);
 					const auto reset = game::Dvar_ValueToString(dvar, dvar->reset);
-					game_console::print(game_console::con_type_info, "\"%s\" is: \"%s^7\" default: \"%s^7\"",
-					                    dvar->name, current, reset);
-					game_console::print(game_console::con_type_info, "   %s\n",
-					                    dvars::dvar_get_domain(dvar->type, dvar->domain).data());
+					console::info("\"%s\" is: \"%s^7\" default: \"%s^7\"\n", dvar->name, current, reset);
+					console::info("   %s\n", dvars::dvar_get_domain(dvar->type, dvar->domain).data());
 				}
 				else
 				{
@@ -287,6 +310,9 @@ namespace patches
 
 		static void patch_mp()
 		{
+			// Register dvars
+			com_register_dvars_hook.create(0x140413A90, &com_register_dvars_stub);
+
 			// Use name dvar and add "saved" flags to it
 			utils::hook::set<uint8_t>(0x1402C836D, 0x01);
 			live_get_local_client_name_hook.create(0x1404FDAA0, &live_get_local_client_name);

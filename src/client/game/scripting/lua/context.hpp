@@ -25,6 +25,7 @@ namespace scripting::lua
 
 		void run_frame();
 		void notify(const event& e);
+		void collect_garbage();
 
 	private:
 		sol::state state_{};

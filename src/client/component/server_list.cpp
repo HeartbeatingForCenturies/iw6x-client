@@ -1,7 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "server_list.hpp"
-#include "game_console.hpp"
+#include "console.hpp"
 #include "command.hpp"
 #include "localized_strings.hpp"
 #include "network.hpp"
@@ -324,7 +324,7 @@ namespace server_list
 			{
 				if (params.size() <= 1)
 				{
-					game_console::print(game_console::con_type_info, "usage: lui_open <name>\n");
+					console::info("usage: lui_open <name>\n");
 					return;
 				}
 

@@ -246,6 +246,19 @@ namespace scripting::lua
 			{
 				logfile::add_player_killed_callback(callback);
 			};
+
+			game_type["getgamevar"] = [](const sol::this_state s)
+			{
+				const auto id = *reinterpret_cast<unsigned int*>(0x144A43020);
+
+				const auto value = ::game::scr_VarGlob->childVariableValue[id];
+
+				::game::VariableValue variable{};
+				variable.type = value.type;
+				variable.u.uintValue = value.u.u.uintValue;
+
+				return convert(s, variable);
+			};
 		}
 	}
 
@@ -288,7 +301,7 @@ namespace scripting::lua
 
 	context::~context()
 	{
-		this->state_.collect_garbage();
+		this->collect_garbage();
 		this->scheduler_.clear();
 		this->event_handler_.clear();
 		this->state_ = {};
@@ -297,12 +310,17 @@ namespace scripting::lua
 	void context::run_frame()
 	{
 		this->scheduler_.run_frame();
-		this->state_.collect_garbage();
+		this->collect_garbage();
 	}
 
 	void context::notify(const event& e)
 	{
 		this->event_handler_.dispatch(e);
+	}
+
+	void context::collect_garbage()
+	{
+		this->state_.collect_garbage();
 	}
 
 	void context::load_script(const std::string& script)
