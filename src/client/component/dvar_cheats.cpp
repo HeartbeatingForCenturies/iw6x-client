@@ -179,6 +179,7 @@ namespace dvar_cheats
 			utils::hook::set<uint8_t>(0x14038A520, 0x1E); // don't check flags on the dvars, send any existing dvar instead
 			utils::hook::jump(0x14038A59A, player_cmd_set_client_dvar, true); // send non-network dvars as string
 			utils::hook::call(0x140287AED, cg_set_client_dvar_from_server); // check for dvars being sent as string before parsing ids
+			utils::hook::set<uint8_t>(0x14026B50E, 0xEB); // fov thing
 			
 			scheduler::once([]()
 			{
