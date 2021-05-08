@@ -231,16 +231,6 @@ namespace patches
 				game::Com_Error(game::ERR_DROP, error, arg1);
 			}
 		}
-		
-		void set_client_dvar_from_server_stub(void* a1, void* a2, const char* dvar, const char* value)
-		{
-			if (dvar == "cg_fov"s)
-			{
-				return;
-			}
-
-			reinterpret_cast<void(*)(void*, void*, const char*, const char*)>(0x14028A2C0)(a1, a2, dvar, value);
-		}
 	}
 
 	class component final : public component_interface
@@ -354,10 +344,6 @@ namespace patches
 
 			// patch "Couldn't find the bsp for this map." error to not be fatal in mp
 			utils::hook::call(0x14031E8AB, bsp_sys_error_stub);
-			
-			// don't let servers override/reset fov
-			utils::hook::call(0x140287AED, set_client_dvar_from_server_stub);
-			utils::hook::set<uint8_t>(0x14026B50E, 0xEB);
 		}
 
 		static void patch_sp()
