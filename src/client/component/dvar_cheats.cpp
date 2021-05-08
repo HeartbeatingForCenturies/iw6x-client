@@ -112,7 +112,7 @@ namespace dvar_cheats
 
 	void cg_set_client_dvar_from_server(const int local_client_num, game::mp::cg_s* cg, const char* dvar_id, const char* value)
 	{
-		if (dvar_id == "cg_fov"s)
+		if (dvar_id == "cg_fov"s || dvar_id == "com_maxfps")
 		{
 			return;
 		}
