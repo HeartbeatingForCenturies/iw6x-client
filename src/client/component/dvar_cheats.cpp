@@ -112,6 +112,11 @@ namespace dvar_cheats
 
 	void cg_set_client_dvar_from_server(const int local_client_num, game::mp::cg_s* cg, const char* dvar_id, const char* value)
 	{
+		if (dvar_id == "cg_fov"s || dvar_id == "com_maxfps"s)
+		{
+			return;
+		}
+		
 		const auto* dvar = game::Dvar_FindVar(dvar_id);
 		if (dvar)
 		{
@@ -174,6 +179,7 @@ namespace dvar_cheats
 			utils::hook::set<uint8_t>(0x14038A520, 0x1E); // don't check flags on the dvars, send any existing dvar instead
 			utils::hook::jump(0x14038A59A, player_cmd_set_client_dvar, true); // send non-network dvars as string
 			utils::hook::call(0x140287AED, cg_set_client_dvar_from_server); // check for dvars being sent as string before parsing ids
+			utils::hook::set<uint8_t>(0x14026B50E, 0xEB); // fov thing
 			
 			scheduler::once([]()
 			{
