@@ -133,7 +133,7 @@ namespace rcon
 
 		if (is_redirecting_)
 		{
-			network::send(redirect_target_, "print", message);
+			network::send(redirect_target_, "print\n", message);
 			return true;
 		}
 		return false;
