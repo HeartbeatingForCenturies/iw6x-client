@@ -16,7 +16,6 @@ namespace rcon
 		bool is_redirecting_ = false;
 		game::netadr_s redirect_target_ = {};
 		std::recursive_mutex redirect_lock;
-		utils::hook::detour print_hook;
 
 		void setup_redirect(const game::netadr_s& target)
 		{
