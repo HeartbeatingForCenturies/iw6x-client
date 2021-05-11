@@ -50,14 +50,16 @@ namespace console
 
 		void dispatch_message(const int type, const std::string& message)
 		{
-			if (!rcon::message_redirect(message))
+			if (rcon::message_redirect(message))
 			{
-				game_console::print(type, message);
-				messages.access([&message](message_queue& msgs)
-				{
-					msgs.emplace(message);
-				});
+				return;
 			}
+
+			game_console::print(type, message);
+			messages.access([&message](message_queue& msgs)
+			{
+				msgs.emplace(message);
+			});
 		}
 
 		void append_text(const char* text)
