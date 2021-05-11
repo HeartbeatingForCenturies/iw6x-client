@@ -16,7 +16,6 @@ namespace rcon
 		bool is_redirecting_ = false;
 		game::netadr_s redirect_target_ = {};
 		std::recursive_mutex redirect_lock;
-		utils::hook::detour print_hook;
 
 		void setup_redirect(const game::netadr_s& target)
 		{
@@ -34,34 +33,12 @@ namespace rcon
 			redirect_target_ = {};
 		}
 
-		int __cdecl print_stub(const char* fmt, ...)
-		{
-			std::lock_guard<std::recursive_mutex> $(redirect_lock);
-
-			static thread_local utils::string::va_provider<8, 256> provider;
-			va_list ap;
-			va_start(ap, fmt);
-			const char* result = provider.get(fmt, ap);
-			va_end(ap);
-
-			if (is_redirecting_)
-			{
-				network::send(redirect_target_, "print\n", result);
-			}
-			else
-			{
-				print_hook.invoke<int>(result);
-			}
-
-			return 0;
-		}
-
 		std::string build_status_buffer()
 		{
 			const auto sv_maxclients = game::Dvar_FindVar("sv_maxclients");
 			const auto mapname = game::Dvar_FindVar("mapname");
 
-			std::string buffer = ""s;
+			auto buffer = ""s;
 			buffer.append(utils::string::va("map: %s\n", mapname->current.string));
 			buffer.append(
 				"num score bot ping guid                             name             address               qport\n");
@@ -193,8 +170,6 @@ namespace rcon
 			}
 			else
 			{
-				//print_hook.create(reinterpret_cast<void*>(printf), &print_stub);
-
 				network::on("rcon", [](const game::netadr_s& addr, const std::string_view& data)
 				{
 					const auto message = std::string{data};
