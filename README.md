@@ -9,7 +9,7 @@
 # IW6x: Client
 
 <p align="center">
-  <img alig src="assets/github/banner.png?raw=true" />
+  <img alig src="assets/github/banner.png?raw=true"/>
 </p>
 
 <br/>
