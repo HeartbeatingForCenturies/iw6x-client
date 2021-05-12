@@ -51,7 +51,7 @@ namespace rcon
 				auto self = &game::mp::g_entities[i];
 
 				char clean_name[32] = {0};
-				strncpy_s(clean_name, self->client->sess.cs.name, 32);
+				strncpy_s(clean_name, self->client->sess.cs.name, sizeof(clean_name));
 				game::I_CleanStr(clean_name);
 
 				if (client->header.state >= 1 && self && self->client)

@@ -63,7 +63,7 @@ namespace game_console
 
 		void clear()
 		{
-			strncpy_s(con.buffer, "", 256);
+			strncpy_s(con.buffer, "", sizeof(con.buffer));
 			con.cursor = 0;
 
 			fixed_input = "";
@@ -549,7 +549,7 @@ namespace game_console
 
 					if (history_index != -1)
 					{
-						strncpy_s(con.buffer, history.at(history_index).c_str(), 0x100);
+						strncpy_s(con.buffer, history.at(history_index).c_str(), sizeof(con.buffer));
 						con.cursor = static_cast<int>(strlen(con.buffer));
 					}
 				}
@@ -564,7 +564,7 @@ namespace game_console
 
 					if (history_index != -1)
 					{
-						strncpy_s(con.buffer, history.at(history_index).c_str(), 0x100);
+						strncpy_s(con.buffer, history.at(history_index).c_str(), sizeof(con.buffer));
 						con.cursor = static_cast<int>(strlen(con.buffer));
 					}
 				}
@@ -721,7 +721,7 @@ namespace game_console
 			con.output_visible = false;
 			con.display_line_offset = 0;
 			con.line_count = 0;
-			strncpy_s(con.buffer, "", 256);
+			strncpy_s(con.buffer, "", sizeof(con.buffer));
 
 			con.globals.x = 0.0f;
 			con.globals.y = 0.0f;
