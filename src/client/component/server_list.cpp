@@ -22,6 +22,7 @@ namespace server_list
 			// gotta add more to this
 			int clients;
 			int max_clients;
+			int bots;
 			int ping;
 			std::string host_name;
 			std::string map_name;
@@ -82,6 +83,7 @@ namespace server_list
 				}
 				else
 				{
+					console::info("Connecting to (%d - %zu): %s\n", index, i, servers[i].host_name.data());
 					party::connect(servers[i].address);
 				}
 			}
@@ -132,7 +134,7 @@ namespace server_list
 
 			if (column == 2)
 			{
-				return utils::string::va("%d/%d", servers[i].clients, servers[index].max_clients);
+				return utils::string::va("%d/%d [%d]", servers[i].clients, servers[index].max_clients, servers[i].bots);
 			}
 
 			if (column == 3)
@@ -266,6 +268,7 @@ namespace server_list
 		server.game_type = game::UI_LocalizeGametype(info.get("gametype").data());
 		server.clients = atoi(info.get("clients").data());
 		server.max_clients = atoi(info.get("sv_maxclients").data());
+		server.bots = atoi(info.get("bots").data());
 		server.ping = now - start_time;
 
 		server.in_game = 1;

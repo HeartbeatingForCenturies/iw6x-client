@@ -97,11 +97,6 @@ namespace party
 			return {};
 		}
 
-		void reset_connect_state()
-		{
-			connect_state = {};
-		}
-
 		int get_client_count()
 		{
 			auto count = 0;
@@ -130,6 +125,11 @@ namespace party
 
 			return count;
 		}
+	}
+
+	void reset_connect_state()
+	{
+		connect_state = {};
 	}
 
 	int get_client_num_from_name(const std::string& name)
