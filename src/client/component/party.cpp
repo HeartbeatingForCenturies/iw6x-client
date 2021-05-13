@@ -97,6 +97,11 @@ namespace party
 			return {};
 		}
 
+		void reset_connect_state()
+		{
+			connect_state = {};
+		}
+
 		int get_client_count()
 		{
 			auto count = 0;

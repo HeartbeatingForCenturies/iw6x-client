@@ -59,6 +59,8 @@ namespace server_list
 				server_list_index = 0;
 			}
 
+			party::reset_connect_state();
+
 			if (get_master_server(master_state.address))
 			{
 				master_state.requesting = true;
