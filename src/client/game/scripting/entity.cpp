@@ -26,6 +26,11 @@ namespace scripting
 		this->add();
 	}
 
+	entity::entity(game::scr_entref_t entref)
+		: entity(game::FindEntityId(entref.entnum, entref.classnum))
+	{
+	}
+
 	entity::~entity()
 	{
 		this->release();
