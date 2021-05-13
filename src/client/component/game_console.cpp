@@ -249,7 +249,7 @@ namespace game_console
 					               dvars::con_inputDvarInactiveValueColor->current.vector, offset);
 				}
 
-				strncpy_s(con.globals.auto_complete_choice, matches[0].data(), 64);
+				strncpy_s(con.globals.auto_complete_choice, matches[0].data(), sizeof(con.globals.auto_complete_choice));
 				con.globals.may_auto_complete = true;
 			}
 			else if (matches.size() > 1)
@@ -274,7 +274,7 @@ namespace game_console
 					}
 				}
 
-				strncpy_s(con.globals.auto_complete_choice, matches[0].data(), 64);
+				strncpy_s(con.globals.auto_complete_choice, matches[0].data(), sizeof(con.globals.auto_complete_choice));
 				con.globals.may_auto_complete = true;
 			}
 		}
@@ -729,7 +729,7 @@ namespace game_console
 			con.globals.font_height = 0.0f;
 			con.globals.may_auto_complete = false;
 			con.globals.info_line_count = 0;
-			strncpy_s(con.globals.auto_complete_choice, "", 64);
+			strncpy_s(con.globals.auto_complete_choice, "", sizeof(con.globals.auto_complete_choice));
 
 			// add clear command
 			command::add("clear", [&]()
