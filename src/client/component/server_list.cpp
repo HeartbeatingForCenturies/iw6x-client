@@ -309,6 +309,7 @@ namespace server_list
 			localized_strings::override("PLATFORM_SYSTEM_LINK_TITLE", "SERVER LIST");
 			localized_strings::override("LUA_MENU_STORE_CAPS", "SERVER LIST");
 			localized_strings::override("LUA_MENU_STORE_DESC", "Browse available servers.");
+			localized_strings::override("MENU_NUMPLAYERS", "Players");
 
 			// hook LUI_OpenMenu to show server list instead of store popup
 			utils::hook::call(0x1404FE840, &lui_open_menu_stub);
