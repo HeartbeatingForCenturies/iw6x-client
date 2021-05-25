@@ -127,6 +127,11 @@ namespace party
 		}
 	}
 
+	void reset_connect_state()
+	{
+		connect_state = {};
+	}
+
 	int get_client_num_from_name(const std::string& name)
 	{
 		for (auto i = 0; !name.empty() && i < *game::mp::svs_numclients; ++i)

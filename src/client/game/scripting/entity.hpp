@@ -9,6 +9,7 @@ namespace scripting
 	public:
 		entity();
 		entity(unsigned int entity_id);
+		entity(game::scr_entref_t entref);
 
 		entity(const entity& other);
 		entity(entity&& other) noexcept;

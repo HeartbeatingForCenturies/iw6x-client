@@ -19,8 +19,8 @@ namespace scripting::lua
 			std::unordered_map<std::string, array_value> values;
 
 			const auto offset = 51200 * (id & 1);
-			auto current = game::scr_VarGlob->objectVariableChildren[id].firstChild;
 
+			auto current = game::scr_VarGlob->objectVariableChildren[id].firstChild;
 			auto idx = 1;
 
 			for (auto i = offset + current; current; i = offset + current)
