@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "motd.hpp"
+#include "images.hpp"
 
 #include <utils/hook.hpp>
 #include <utils/http.hpp>
@@ -35,6 +36,14 @@ namespace motd
 		void post_load() override
 		{
 			motd_future = utils::http::get_data_async("https://xlabs.dev/iw6/motd.txt");
+			std::thread([]()
+			{
+				auto data = utils::http::get_data("https://xlabs.dev/s1/motd.png");
+				if (data)
+				{
+					images::override_texture("iotd_image", data.value());
+				}
+			}).detach();
 		}
 	};
 }

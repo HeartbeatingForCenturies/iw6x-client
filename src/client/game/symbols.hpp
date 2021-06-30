@@ -105,6 +105,8 @@ namespace game
 
 	WEAK symbol<char*(char* string)> I_CleanStr{0x140432460, 0x1404F63C0};
 
+	WEAK symbol<char* (GfxImage* image, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipCount, uint32_t imageFlags, DXGI_FORMAT imageFormat, const char* name, const void* initData)> Image_Setup{0x140517910, 0x1405E4380};
+
 	WEAK symbol<const char*(int, int, int)> Key_KeynumToString{0x14023D9A0, 0x1402C40E0};
 
 	WEAK symbol<unsigned int (int)> Live_SyncOnlineDataFlags{0, 0x1405ABF70};
