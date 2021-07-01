@@ -38,7 +38,7 @@ namespace motd
 			motd_future = utils::http::get_data_async("https://xlabs.dev/iw6/motd.txt");
 			std::thread([]()
 			{
-				auto data = utils::http::get_data("https://xlabs.dev/s1/motd.png");
+				auto data = utils::http::get_data("https://xlabs.dev/iw6/motd.png");
 				if (data)
 				{
 					images::override_texture("iotd_image", data.value());
