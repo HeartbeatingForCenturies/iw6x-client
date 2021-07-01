@@ -15,6 +15,7 @@ namespace images
 	namespace
 	{
 		utils::hook::detour load_texture_hook;
+		utils::hook::detour load_material_hook;
 		utils::concurrency::container<std::unordered_map<std::string, std::string>> overriden_textures;
 
 		static_assert(sizeof(game::GfxImage) == 104);
@@ -96,6 +97,27 @@ namespace images
 
 			load_texture_hook.invoke(load_def, image);
 		}
+
+		int load_material_stub(game::GfxImage* image, void* a2, void* a3)
+		{
+#if defined(DEV_BUILD) && defined(DEBUG)
+			printf("Loading: %s\n", image->name);
+#endif
+
+			try
+			{
+				if (load_custom_texture(image))
+				{
+					return 0;
+				}
+			}
+			catch (std::exception& e)
+			{
+				console::error("Failed to load image %s: %s\n", image->name, e.what());
+			}
+
+			return load_material_hook.invoke<int>(image, a2, a3);
+		}
 	}
 
 	void override_texture(std::string name, std::string data)
@@ -114,6 +136,7 @@ namespace images
 			if (game::environment::is_dedi()) return;
 		
 			load_texture_hook.create(SELECT_VALUE(0x140514FD0, 0x1405E1A30), load_texture_stub);
+			load_material_hook.create(SELECT_VALUE(0x140516000, 0x1405E2A60), load_material_stub);
 		}
 	};
 }
