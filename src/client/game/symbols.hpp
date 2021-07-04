@@ -171,15 +171,20 @@ namespace game
 	WEAK symbol<void (int localClientNum, const char* map, bool mapIsPreloaded, bool migrate)> SV_StartMapForParty{
 		0, 0x1404702F0
 	};
+
 	WEAK symbol<mp::gentity_s*(const char*, unsigned int, unsigned int, unsigned int)> SV_AddBot{0, 0x140470920};
 	WEAK symbol<bool (int clientNum)> SV_BotIsBot{0, 0x140461340};
+	WEAK symbol<const char* ()> SV_BotGetRandomName{0, 0x140460B80};
+	//WEAK symbol<mp::gentity_s* (int, int, unsigned int, unsigned int)> SV_AddTestClient{0, 0x1403CBC80};
+	//WEAK symbol<bool(mp::gentity_s*)> SV_CanSpawnTestClient{0, 0x140471080};
+	WEAK symbol<void(mp::gentity_s*)> SV_SpawnTestClient{0, 0x1404740A0};
+
 	WEAK symbol<void (mp::client_t*, const char*, int)> SV_ExecuteClientCommand{0, 0x140472430};
 	WEAK symbol<void ()> SV_FastRestart{0x14048B890, 0x14046F440};
 	WEAK symbol<playerState_s*(int num)> SV_GetPlayerstateForClientNum{0x140490F80, 0x140475A10};
 	WEAK symbol<const char*(int clientNum)> SV_GetGuid{0, 0x140475990};
 	WEAK symbol<void (int clientNum, const char* reason)> SV_KickClientNum{0, 0x14046F730};
 	WEAK symbol<void (int index, const char* string)> SV_SetConfigstring{0, 0x140477450};
-	WEAK symbol<void (mp::gentity_s*)> SV_SpawnTestClient{0, 0x1404740A0};
 
 	WEAK symbol<void (const char* error, ...)> Sys_Error{0x14043AC20, 0x1404FF510};
 	WEAK symbol<bool ()> Sys_IsDatabaseReady2{0x1403C2D40, 0x140423920};
