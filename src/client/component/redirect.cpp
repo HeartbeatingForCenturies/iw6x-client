@@ -1,5 +1,6 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game_module.hpp"
 #include <utils/nt.hpp>
 #include <utils/string.hpp>
 
@@ -9,7 +10,7 @@ namespace redirect
 	{
 		void launch_complementary_game(const bool singleplayer)
 		{
-			const utils::nt::library self;
+			const auto self = game_module::get_host_module();
 
 			STARTUPINFOA startup_info;
 			PROCESS_INFORMATION process_info;
