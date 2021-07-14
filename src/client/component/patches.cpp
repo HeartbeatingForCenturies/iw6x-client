@@ -344,6 +344,9 @@ namespace patches
 
 			// patch "Couldn't find the bsp for this map." error to not be fatal in mp
 			utils::hook::call(0x14031E8AB, bsp_sys_error_stub);
+
+			// isProfanity
+			utils::hook::set(0x1402F61B0, 0xC3C033);
 		}
 
 		static void patch_sp()
