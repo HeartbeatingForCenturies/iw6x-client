@@ -154,7 +154,6 @@ void limit_parallel_dll_loading()
 	RegCloseKey(key);
 }
 
-// Wrong place for this function, but we need to make sure updating still work
 void apply_environment()
 {
 	char* buffer{};
