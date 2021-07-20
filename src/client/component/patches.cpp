@@ -1,7 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "command.hpp"
-#include "game_console.hpp"
+#include "console.hpp"
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 #include "filesystem.hpp"
@@ -31,6 +31,31 @@ namespace patches
 				return;
 			}
 			return sv_kick_client_num_hook.invoke<void>(clientNum, reason);
+		}
+
+		std::string get_login_username()
+		{
+			char username[UNLEN + 1];
+			DWORD username_len = UNLEN + 1;
+			if (!GetUserNameA(username, &username_len))
+			{
+				return "Unknown Soldier";
+			}
+
+			return std::string{ username, username_len - 1 };
+		}
+
+		utils::hook::detour com_register_dvars_hook;
+
+		void com_register_dvars_stub()
+		{
+			if (game::environment::is_mp())
+			{
+				// Make name save
+				game::Dvar_RegisterString("name", get_login_username().data(), game::DVAR_FLAG_SAVED, "Player name.");
+			}
+
+			return com_register_dvars_hook.invoke<void>();
 		}
 
 		utils::hook::detour dvar_register_int_hook;
@@ -65,7 +90,7 @@ namespace patches
 		                                     const char* desc)
 		{
 			// changed max value from 2.0f -> 5.0f and min value from 0.5f -> 0.1f
-			return game::Dvar_RegisterFloat(name, 1.0f, 0.1f, 5.0f, 0x1, desc);
+			return game::Dvar_RegisterFloat(name, 1.0f, 0.1f, 5.0f, game::DvarFlags::DVAR_FLAG_SAVED, desc);
 		}
 
 		game::dvar_t* register_cg_gun_dvars(const char* name, float /*value*/, float /*min*/, float /*max*/,
@@ -77,7 +102,7 @@ namespace patches
 			}
 			else
 			{
-				return game::Dvar_RegisterFloat(name, 0.0f, 0.0f, 0.0f, 0, desc);
+				return game::Dvar_RegisterFloat(name, 0.0f, 0.0f, 0.0f, game::DvarFlags::DVAR_FLAG_NONE, desc);
 			}
 		}
 
@@ -155,10 +180,8 @@ namespace patches
 				{
 					const auto current = game::Dvar_ValueToString(dvar, dvar->current);
 					const auto reset = game::Dvar_ValueToString(dvar, dvar->reset);
-					game_console::print(game_console::con_type_info, "\"%s\" is: \"%s^7\" default: \"%s^7\"",
-					                    dvar->name, current, reset);
-					game_console::print(game_console::con_type_info, "   %s\n",
-					                    dvars::dvar_get_domain(dvar->type, dvar->domain).data());
+					console::info("\"%s\" is: \"%s^7\" default: \"%s^7\"\n", dvar->name, current, reset);
+					console::info("   %s\n", dvars::dvar_get_domain(dvar->type, dvar->domain).data());
 				}
 				else
 				{
@@ -201,6 +224,10 @@ namespace patches
 			}
 			else
 			{
+				scheduler::once([]()
+				{
+					command::execute("reconnect");
+				}, scheduler::pipeline::main, 1s);
 				game::Com_Error(game::ERR_DROP, error, arg1);
 			}
 		}
@@ -215,21 +242,6 @@ namespace patches
 			LoadLibraryA("PhysXDevice64.dll");
 			LoadLibraryA("PhysXUpdateLoader64.dll");
 
-			command::add("quit", []()
-			{
-				game::Com_Quit();
-			});
-
-			command::add("crash", []()
-			{
-				*reinterpret_cast<int*>(1) = 0;
-			});
-
-			command::add("quit_hard", []()
-			{
-				utils::nt::raise_hard_exception();
-			});
-
 			// Unlock fps in main menu
 			utils::hook::set<BYTE>(SELECT_VALUE(0x140242DDB, 0x1402CF58B), 0xEB);
 
@@ -241,13 +253,13 @@ namespace patches
 			}
 
 			// set it to 3 to display both voice dlc announcers did only show 1
-			game::Dvar_RegisterInt("igs_announcer", 3, 3, 3, 0x0,
+			game::Dvar_RegisterInt("igs_announcer", 3, 3, 3, game::DvarFlags::DVAR_FLAG_NONE,
 			                       "Show Announcer Packs. (Bitfield representing which announcer paks to show)");
 
 			// changed max value from 85 -> 1000
 			if (!game::environment::is_dedi() && !game::environment::is_linker())
 			{
-				game::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, 0x1, "Cap frames per second");
+				game::Dvar_RegisterInt("com_maxfps", 85, 0, 1000, game::DvarFlags::DVAR_FLAG_SAVED, "Cap frames per second");
 			}
 
 			if (!game::environment::is_sp())
@@ -267,44 +279,6 @@ namespace patches
 
 			// Patch Dvar_Command to print out values how CoD4 does it
 			utils::hook::jump(SELECT_VALUE(0x1403BFCB0, 0x140416A60), dvar_command_patch);
-
-			command::add("dvarDump", []()
-			{
-				game_console::print(game_console::con_type_info,
-				                    "================================ DVAR DUMP ========================================\n");
-				for (auto i = 0; i < *game::dvarCount; i++)
-				{
-					const auto dvar = game::sortedDvars[i];
-					if (dvar)
-					{
-						game_console::print(game_console::con_type_info, "%s \"%s\"\n", dvar->name,
-						                    game::Dvar_ValueToString(dvar, dvar->current));
-					}
-				}
-				game_console::print(game_console::con_type_info, "\n%i dvar indexes\n", *game::dvarCount);
-				game_console::print(game_console::con_type_info,
-				                    "================================ END DVAR DUMP ====================================\n");
-			});
-
-			command::add("commandDump", []()
-			{
-				game_console::print(game_console::con_type_info,
-				                    "================================ COMMAND DUMP =====================================\n");
-				game::cmd_function_s* cmd = (*game::cmd_functions);
-				int i = 0;
-				while (cmd)
-				{
-					if (cmd->name)
-					{
-						game_console::print(game_console::con_type_info, "%s\n", cmd->name);
-						i++;
-					}
-					cmd = cmd->next;
-				}
-				game_console::print(game_console::con_type_info, "\n%i command indexes\n", i);
-				game_console::print(game_console::con_type_info,
-				                    "================================ END COMMAND DUMP =================================\n");
-			});
 
 			// Allow executing custom cfg files with the "exec" command
 			utils::hook::jump(SELECT_VALUE(0x1403B39BB, 0x1403F752B), SELECT_VALUE(0x1403B3A12, 0x1403F7582));
@@ -336,6 +310,9 @@ namespace patches
 
 		static void patch_mp()
 		{
+			// Register dvars
+			com_register_dvars_hook.create(0x140413A90, &com_register_dvars_stub);
+
 			// Use name dvar and add "saved" flags to it
 			utils::hook::set<uint8_t>(0x1402C836D, 0x01);
 			live_get_local_client_name_hook.create(0x1404FDAA0, &live_get_local_client_name);
@@ -367,6 +344,9 @@ namespace patches
 
 			// patch "Couldn't find the bsp for this map." error to not be fatal in mp
 			utils::hook::call(0x14031E8AB, bsp_sys_error_stub);
+
+			// isProfanity
+			utils::hook::set(0x1402F61B0, 0xC3C033);
 		}
 
 		static void patch_sp()

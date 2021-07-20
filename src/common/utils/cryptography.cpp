@@ -1,8 +1,10 @@
 #include "string.hpp"
 #include "cryptography.hpp"
 #include "nt.hpp"
-
 #include <gsl/gsl>
+
+#undef max
+using namespace std::string_literals;
 
 /// http://www.opensource.apple.com/source/CommonCrypto/CommonCrypto-55010/Source/libtomcrypt/doc/libTomCryptDoc.pdf
 
@@ -10,15 +12,119 @@ namespace utils::cryptography
 {
 	namespace
 	{
-		void initialize_math()
+		struct __
 		{
-			static bool initialized = false;
-			if (!initialized)
+			__()
 			{
-				initialized = true;
 				ltc_mp = ltm_desc;
+
+				register_cipher(&aes_desc);
+				register_cipher(&des3_desc);
+
+				register_prng(&sprng_desc);
+				register_prng(&fortuna_desc);
+				register_prng(&yarrow_desc);
+
+				register_hash(&sha1_desc);
+				register_hash(&sha256_desc);
+				register_hash(&sha512_desc);
 			}
+		} ___;
+
+		[[maybe_unused]] const char* cs(const uint8_t* data)
+		{
+			return reinterpret_cast<const char*>(data);
 		}
+
+		[[maybe_unused]] char* cs(uint8_t* data)
+		{
+			return reinterpret_cast<char*>(data);
+		}
+
+		[[maybe_unused]] const uint8_t* cs(const char* data)
+		{
+			return reinterpret_cast<const uint8_t*>(data);
+		}
+
+		[[maybe_unused]] uint8_t* cs(char* data)
+		{
+			return reinterpret_cast<uint8_t*>(data);
+		}
+
+		[[maybe_unused]] unsigned long ul(const size_t value)
+		{
+			return static_cast<unsigned long>(value);
+		}
+
+		class prng
+		{
+		public:
+			prng(const ltc_prng_descriptor& descriptor, const bool autoseed = true)
+				: state_(std::make_unique<prng_state>())
+				  , descriptor_(descriptor)
+			{
+				this->id_ = register_prng(&descriptor);
+				if (this->id_ == -1)
+				{
+					throw std::runtime_error("PRNG "s + this->descriptor_.name + " could not be registered!");
+				}
+
+				if (autoseed)
+				{
+					this->auto_seed();
+				}
+				else
+				{
+					this->descriptor_.start(this->state_.get());
+				}
+			}
+
+			~prng()
+			{
+				this->descriptor_.done(this->state_.get());
+			}
+
+			prng_state* get_state() const
+			{
+				this->descriptor_.ready(this->state_.get());
+				return this->state_.get();
+			}
+
+			int get_id() const
+			{
+				return this->id_;
+			}
+
+			void add_entropy(const void* data, const size_t length) const
+			{
+				this->descriptor_.add_entropy(static_cast<const uint8_t*>(data), ul(length), this->state_.get());
+			}
+
+			void read(void* data, const size_t length) const
+			{
+				this->descriptor_.read(static_cast<unsigned char*>(data), ul(length), this->get_state());
+			}
+
+		private:
+			int id_;
+			std::unique_ptr<prng_state> state_;
+			const ltc_prng_descriptor& descriptor_;
+
+			void auto_seed() const
+			{
+				rng_make_prng(128, this->id_, this->state_.get(), nullptr);
+
+				int i[4]; // uninitialized data
+				auto* i_ptr = &i;
+				this->add_entropy(reinterpret_cast<uint8_t*>(&i), sizeof(i));
+				this->add_entropy(reinterpret_cast<uint8_t*>(&i_ptr), sizeof(i_ptr));
+
+				auto t = time(nullptr);
+				this->add_entropy(reinterpret_cast<uint8_t*>(&t), sizeof(t));
+			}
+		};
+
+		const prng prng_(fortuna_desc);
 	}
 
 	ecc::key::key()
@@ -69,19 +175,24 @@ namespace utils::cryptography
 		return (!memory::is_set(&this->key_storage_, 0, sizeof(this->key_storage_)));
 	}
 
-	ecc_key* ecc::key::get()
+	ecc_key& ecc::key::get()
 	{
-		return &this->key_storage_;
+		return this->key_storage_;
+	}
+
+	const ecc_key& ecc::key::get() const
+	{
+		return this->key_storage_;
 	}
 
 	std::string ecc::key::get_public_key() const
 	{
 		uint8_t buffer[512] = {0};
-		DWORD length = sizeof(buffer);
+		unsigned long length = sizeof(buffer);
 
 		if (ecc_ansi_x963_export(&this->key_storage_, buffer, &length) == CRYPT_OK)
 		{
-			return std::string(reinterpret_cast<char*>(buffer), length);
+			return std::string(cs(buffer), length);
 		}
 
 		return {};
@@ -91,7 +202,8 @@ namespace utils::cryptography
 	{
 		this->free();
 
-		if (ecc_ansi_x963_import(reinterpret_cast<const uint8_t*>(pub_key_buffer.data()), ULONG(pub_key_buffer.size()),
+		if (ecc_ansi_x963_import(cs(pub_key_buffer.data()),
+		                         ul(pub_key_buffer.size()),
 		                         &this->key_storage_) != CRYPT_OK)
 		{
 			ZeroMemory(&this->key_storage_, sizeof(this->key_storage_));
@@ -102,7 +214,8 @@ namespace utils::cryptography
 	{
 		this->free();
 
-		if (ecc_import(reinterpret_cast<const uint8_t*>(key.data()), ULONG(key.size()), &this->key_storage_) != CRYPT_OK
+		if (ecc_import(cs(key.data()), ul(key.size()),
+		               &this->key_storage_) != CRYPT_OK
 		)
 		{
 			ZeroMemory(&this->key_storage_, sizeof(this->key_storage_));
@@ -112,11 +225,11 @@ namespace utils::cryptography
 	std::string ecc::key::serialize(const int type) const
 	{
 		uint8_t buffer[4096] = {0};
-		DWORD length = sizeof(buffer);
+		unsigned long length = sizeof(buffer);
 
 		if (ecc_export(buffer, &length, type, &this->key_storage_) == CRYPT_OK)
 		{
-			return std::string(reinterpret_cast<char*>(buffer), length);
+			return std::string(cs(buffer), length);
 		}
 
 		return "";
@@ -139,10 +252,10 @@ namespace utils::cryptography
 
 	uint64_t ecc::key::get_hash() const
 	{
-		auto hash = sha1::compute(this->get_public_key());
+		const auto hash = sha1::compute(this->get_public_key());
 		if (hash.size() >= 8)
 		{
-			return *reinterpret_cast<uint64_t*>(const_cast<char*>(hash.data()));
+			return *reinterpret_cast<const uint64_t*>(hash.data());
 		}
 
 		return 0;
@@ -151,145 +264,153 @@ namespace utils::cryptography
 	ecc::key ecc::generate_key(const int bits)
 	{
 		key key;
-
-		initialize_math();
-		register_prng(&sprng_desc);
-		ecc_make_key(nullptr, find_prng("sprng"), bits / 8, key.get());
+		ecc_make_key(prng_.get_state(), prng_.get_id(), bits / 8, &key.get());
 
 		return key;
 	}
 
 	ecc::key ecc::generate_key(const int bits, const std::string& entropy)
 	{
-		key key;
+		key key{};
+		const prng yarrow(yarrow_desc, false);
+		yarrow.add_entropy(entropy.data(), entropy.size());
 
-		initialize_math();
-
-		const auto state = std::make_unique<prng_state>();
-		register_prng(&yarrow_desc);
-		yarrow_start(state.get());
-
-		yarrow_add_entropy(reinterpret_cast<const uint8_t*>(entropy.data()), static_cast<unsigned long>(entropy.size()),
-		                   state.get());
-		yarrow_ready(state.get());
-
-		ecc_make_key(state.get(), find_prng("yarrow"), bits / 8, key.get());
-		yarrow_done(state.get());
+		ecc_make_key(yarrow.get_state(), yarrow.get_id(), bits / 8, &key.get());
 
 		return key;
 	}
 
-	std::string ecc::sign_message(key& key, const std::string& message)
+	std::string ecc::sign_message(const key& key, const std::string& message)
 	{
 		if (!key.is_valid()) return "";
 
 		uint8_t buffer[512];
-		DWORD length = sizeof(buffer);
+		unsigned long length = sizeof(buffer);
 
-		initialize_math();
-		register_prng(&sprng_desc);
-		ecc_sign_hash(reinterpret_cast<const uint8_t*>(message.data()), ULONG(message.size()), buffer, &length, nullptr,
-		              find_prng("sprng"), key.get());
+		ecc_sign_hash(cs(message.data()), ul(message.size()), buffer, &length, prng_.get_state(), prng_.get_id(),
+		              &key.get());
 
-		return std::string(reinterpret_cast<char*>(buffer), length);
+		return std::string(cs(buffer), length);
 	}
 
-	bool ecc::verify_message(key& key, const std::string& message, const std::string& signature)
+	bool ecc::verify_message(const key& key, const std::string& message, const std::string& signature)
 	{
 		if (!key.is_valid()) return false;
 
-		initialize_math();
-
 		auto result = 0;
-		return (ecc_verify_hash(reinterpret_cast<const uint8_t*>(signature.data()), ULONG(signature.size()),
-		                        reinterpret_cast<const uint8_t*>(message.data()), ULONG(message.size()), &result,
-		                        key.get()) == CRYPT_OK && result != 0);
+		return (ecc_verify_hash(cs(signature.data()),
+		                        ul(signature.size()),
+		                        cs(message.data()),
+		                        ul(message.size()), &result,
+		                        &key.get()) == CRYPT_OK && result != 0);
 	}
 
-	namespace rsa
+	bool ecc::encrypt(const key& key, std::string& data)
 	{
-		namespace
-		{
-			void initialize()
-			{
-				static auto initialized = false;
-				if (initialized) return;
-				initialized = true;
+		std::string out_data{};
+		out_data.resize(std::max(ul(data.size() * 3), ul(0x100)));
 
-				initialize_math();
-				register_hash(&sha1_desc);
-				register_prng(&yarrow_desc);
-			}
+		auto out_len = ul(out_data.size());
+		auto crypt = [&]()
+		{
+			return ecc_encrypt_key(cs(data.data()), ul(data.size()), cs(out_data.data()), &out_len,
+			                       prng_.get_state(), prng_.get_id(), find_hash("sha512"), &key.get());
+		};
+
+		auto res = crypt();
+
+		if (res == CRYPT_BUFFER_OVERFLOW)
+		{
+			out_data.resize(out_len);
+			res = crypt();
 		}
+
+		if (res != CRYPT_OK)
+		{
+			return false;
+		}
+
+		out_data.resize(out_len);
+		data = std::move(out_data);
+		return true;
+	}
+
+	bool ecc::decrypt(const key& key, std::string& data)
+	{
+		std::string out_data{};
+		out_data.resize(std::max(ul(data.size() * 3), ul(0x100)));
+
+		auto out_len = ul(out_data.size());
+		auto crypt = [&]()
+		{
+			return ecc_decrypt_key(cs(data.data()), ul(data.size()), cs(out_data.data()), &out_len, &key.get());
+		};
+
+		auto res = crypt();
+
+		if (res == CRYPT_BUFFER_OVERFLOW)
+		{
+			out_data.resize(out_len);
+			res = crypt();
+		}
+
+		if (res != CRYPT_OK)
+		{
+			return false;
+		}
+
+		out_data.resize(out_len);
+		data = std::move(out_data);
+		return true;
 	}
 
 	std::string rsa::encrypt(const std::string& data, const std::string& hash, const std::string& key)
 	{
-		initialize();
-
-		const auto prng_id = find_prng("yarrow");
-
 		rsa_key new_key;
-		rsa_import(PBYTE(key.data()), ULONG(key.size()), &new_key);
-
-		const auto yarrow = std::make_unique<prng_state>();
-		rng_make_prng(128, prng_id, yarrow.get(), nullptr);
-
-		unsigned char buffer[0x80];
-		unsigned long length = sizeof(buffer);
-
-		const auto rsa_result = rsa_encrypt_key( //
-			PBYTE(data.data()), //
-			ULONG(data.size()), //
-			buffer, //
-			&length, //
-			PBYTE(hash.data()), //
-			ULONG(hash.size()), //
-			yarrow.get(), //
-			prng_id, //
-			find_hash("sha1"), //
-			&new_key);
-
-		rsa_free(&new_key);
-		yarrow_done(yarrow.get());
-
-		if (rsa_result == CRYPT_OK)
+		rsa_import(cs(key.data()), ul(key.size()), &new_key);
+		const auto _ = gsl::finally([&]()
 		{
-			return std::string(PCHAR(buffer), length);
+			rsa_free(&new_key);
+		});
+
+
+		std::string out_data{};
+		out_data.resize(std::max(ul(data.size() * 3), ul(0x100)));
+
+		auto out_len = ul(out_data.size());
+		auto crypt = [&]()
+		{
+			return rsa_encrypt_key(cs(data.data()), ul(data.size()), cs(out_data.data()), &out_len, cs(hash.data()),
+			                       ul(hash.size()), prng_.get_state(), prng_.get_id(), find_hash("sha512"), &new_key);
+		};
+
+		auto res = crypt();
+
+		if (res == CRYPT_BUFFER_OVERFLOW)
+		{
+			out_data.resize(out_len);
+			res = crypt();
+		}
+
+		if (res == CRYPT_OK)
+		{
+			out_data.resize(out_len);
+			return out_data;
 		}
 
 		return {};
 	}
 
-	namespace des3
-	{
-		namespace
-		{
-			void initialize()
-			{
-				static auto initialized = false;
-				if (initialized) return;
-				initialized = true;
-
-				register_cipher(&des3_desc);
-			}
-		}
-	}
-
 	std::string des3::encrypt(const std::string& data, const std::string& iv, const std::string& key)
 	{
-		initialize();
-
 		std::string enc_data;
 		enc_data.resize(data.size());
 
 		symmetric_CBC cbc;
 		const auto des3 = find_cipher("3des");
 
-		cbc_start(des3, reinterpret_cast<const uint8_t*>(iv.data()), reinterpret_cast<const uint8_t*>(key.data()),
-		          static_cast<int>(key.size()), 0, &cbc);
-		cbc_encrypt(reinterpret_cast<const uint8_t*>(data.data()),
-		            reinterpret_cast<uint8_t*>(const_cast<char*>(enc_data.data())), ULONG(data.size()), &cbc);
+		cbc_start(des3, cs(iv.data()), cs(key.data()), static_cast<int>(key.size()), 0, &cbc);
+		cbc_encrypt(cs(data.data()), cs(enc_data.data()), ul(data.size()), &cbc);
 		cbc_done(&cbc);
 
 		return enc_data;
@@ -297,18 +418,14 @@ namespace utils::cryptography
 
 	std::string des3::decrypt(const std::string& data, const std::string& iv, const std::string& key)
 	{
-		initialize();
-
 		std::string dec_data;
 		dec_data.resize(data.size());
 
 		symmetric_CBC cbc;
 		const auto des3 = find_cipher("3des");
 
-		cbc_start(des3, reinterpret_cast<const uint8_t*>(iv.data()), reinterpret_cast<const uint8_t*>(key.data()),
-		          static_cast<int>(key.size()), 0, &cbc);
-		cbc_decrypt(reinterpret_cast<const uint8_t*>(data.data()),
-		            reinterpret_cast<uint8_t*>(const_cast<char*>(dec_data.data())), ULONG(data.size()), &cbc);
+		cbc_start(des3, cs(iv.data()), cs(key.data()), static_cast<int>(key.size()), 0, &cbc);
+		cbc_decrypt(cs(data.data()), cs(dec_data.data()), ul(data.size()), &cbc);
 		cbc_done(&cbc);
 
 		return dec_data;
@@ -316,7 +433,7 @@ namespace utils::cryptography
 
 	std::string tiger::compute(const std::string& data, const bool hex)
 	{
-		return compute(reinterpret_cast<const uint8_t*>(data.data()), data.size(), hex);
+		return compute(cs(data.data()), data.size(), hex);
 	}
 
 	std::string tiger::compute(const uint8_t* data, const size_t length, const bool hex)
@@ -325,18 +442,70 @@ namespace utils::cryptography
 
 		hash_state state;
 		tiger_init(&state);
-		tiger_process(&state, data, ULONG(length));
+		tiger_process(&state, data, ul(length));
 		tiger_done(&state, buffer);
 
-		std::string hash(reinterpret_cast<char*>(buffer), sizeof(buffer));
+		std::string hash(cs(buffer), sizeof(buffer));
 		if (!hex) return hash;
 
 		return string::dump_hex(hash, "");
 	}
 
+	std::string aes::encrypt(const std::string& data, const std::string& iv, const std::string& key)
+	{
+		std::string enc_data;
+		enc_data.resize(data.size());
+
+		symmetric_CBC cbc;
+		const auto aes = find_cipher("aes");
+
+		cbc_start(aes, cs(iv.data()), cs(key.data()),
+		          static_cast<int>(key.size()), 0, &cbc);
+		cbc_encrypt(cs(data.data()),
+		            cs(enc_data.data()),
+		            ul(data.size()), &cbc);
+		cbc_done(&cbc);
+
+		return enc_data;
+	}
+
+	std::string aes::decrypt(const std::string& data, const std::string& iv, const std::string& key)
+	{
+		std::string dec_data;
+		dec_data.resize(data.size());
+
+		symmetric_CBC cbc;
+		const auto aes = find_cipher("aes");
+
+		cbc_start(aes, cs(iv.data()), cs(key.data()),
+		          static_cast<int>(key.size()), 0, &cbc);
+		cbc_decrypt(cs(data.data()),
+		            cs(dec_data.data()),
+		            ul(data.size()), &cbc);
+		cbc_done(&cbc);
+
+		return dec_data;
+	}
+
+	std::string hmac_sha1::compute(const std::string& data, const std::string& key)
+	{
+		std::string buffer;
+		buffer.resize(20);
+
+		hmac_state state;
+		hmac_init(&state, find_hash("sha1"), cs(key.data()), ul(key.size()));
+		hmac_process(&state, cs(data.data()), static_cast<int>(data.size()));
+
+		auto out_len = ul(buffer.size());
+		hmac_done(&state, cs(buffer.data()), &out_len);
+
+		buffer.resize(out_len);
+		return buffer;
+	}
+
 	std::string sha1::compute(const std::string& data, const bool hex)
 	{
-		return compute(reinterpret_cast<const uint8_t*>(data.data()), data.size(), hex);
+		return compute(cs(data.data()), data.size(), hex);
 	}
 
 	std::string sha1::compute(const uint8_t* data, const size_t length, const bool hex)
@@ -345,10 +514,10 @@ namespace utils::cryptography
 
 		hash_state state;
 		sha1_init(&state);
-		sha1_process(&state, data, ULONG(length));
+		sha1_process(&state, data, ul(length));
 		sha1_done(&state, buffer);
 
-		std::string hash(reinterpret_cast<char*>(buffer), sizeof(buffer));
+		std::string hash(cs(buffer), sizeof(buffer));
 		if (!hex) return hash;
 
 		return string::dump_hex(hash, "");
@@ -356,7 +525,7 @@ namespace utils::cryptography
 
 	std::string sha256::compute(const std::string& data, const bool hex)
 	{
-		return compute(reinterpret_cast<const uint8_t*>(data.data()), data.size(), hex);
+		return compute(cs(data.data()), data.size(), hex);
 	}
 
 	std::string sha256::compute(const uint8_t* data, const size_t length, const bool hex)
@@ -365,10 +534,10 @@ namespace utils::cryptography
 
 		hash_state state;
 		sha256_init(&state);
-		sha256_process(&state, data, ULONG(length));
+		sha256_process(&state, data, ul(length));
 		sha256_done(&state, buffer);
 
-		std::string hash(reinterpret_cast<char*>(buffer), sizeof(buffer));
+		std::string hash(cs(buffer), sizeof(buffer));
 		if (!hex) return hash;
 
 		return string::dump_hex(hash, "");
@@ -376,7 +545,7 @@ namespace utils::cryptography
 
 	std::string sha512::compute(const std::string& data, const bool hex)
 	{
-		return compute(reinterpret_cast<const uint8_t*>(data.data()), data.size(), hex);
+		return compute(cs(data.data()), data.size(), hex);
 	}
 
 	std::string sha512::compute(const uint8_t* data, const size_t length, const bool hex)
@@ -385,13 +554,48 @@ namespace utils::cryptography
 
 		hash_state state;
 		sha512_init(&state);
-		sha512_process(&state, data, ULONG(length));
+		sha512_process(&state, data, ul(length));
 		sha512_done(&state, buffer);
 
-		std::string hash(reinterpret_cast<char*>(buffer), sizeof(buffer));
+		std::string hash(cs(buffer), sizeof(buffer));
 		if (!hex) return hash;
 
 		return string::dump_hex(hash, "");
+	}
+
+	std::string base64::encode(const uint8_t* data, const size_t len)
+	{
+		std::string result;
+		result.resize((len + 2) * 2);
+
+		auto out_len = ul(result.size());
+		if (base64_encode(data, ul(len), result.data(), &out_len) != CRYPT_OK)
+		{
+			return {};
+		}
+
+		result.resize(out_len);
+		return result;
+	}
+
+	std::string base64::encode(const std::string& data)
+	{
+		return base64::encode(cs(data.data()), static_cast<unsigned>(data.size()));
+	}
+
+	std::string base64::decode(const std::string& data)
+	{
+		std::string result;
+		result.resize((data.size() + 2) * 2);
+
+		auto out_len = ul(result.size());
+		if (base64_decode(data.data(), ul(data.size()), cs(result.data()), &out_len) != CRYPT_OK)
+		{
+			return {};
+		}
+
+		result.resize(out_len);
+		return result;
 	}
 
 	unsigned int jenkins_one_at_a_time::compute(const std::string& data)
@@ -414,42 +618,6 @@ namespace utils::cryptography
 		return hash;
 	}
 
-	namespace random
-	{
-		namespace
-		{
-			prng_state* get_prng_state()
-			{
-				static prng_state* state_ref = []()
-				{
-					static prng_state state;
-
-					initialize_math();
-					register_prng(&fortuna_desc);
-					rng_make_prng(128, find_prng("fortuna"), &state, nullptr);
-
-					int i[4]; // uninitialized data
-					auto* i_ptr = &i;
-					fortuna_add_entropy(reinterpret_cast<unsigned char*>(&i), sizeof(i), &state);
-					fortuna_add_entropy(reinterpret_cast<unsigned char*>(&i_ptr), sizeof(i_ptr), &state);
-
-					auto t = time(nullptr);
-					fortuna_add_entropy(reinterpret_cast<unsigned char*>(&t), sizeof(t), &state);
-
-					static const auto _ = gsl::finally([]()
-					{
-						fortuna_done(&state);
-					});
-
-					return &state;
-				}();
-
-				fortuna_ready(state_ref);
-				return state_ref;
-			}
-		}
-	}
-
 	uint32_t random::get_integer()
 	{
 		uint32_t result;
@@ -467,6 +635,6 @@ namespace utils::cryptography
 
 	void random::get_data(void* data, const size_t size)
 	{
-		fortuna_read(static_cast<unsigned char*>(data), static_cast<unsigned long>(size), random::get_prng_state());
+		prng_.read(data, size);
 	}
 }

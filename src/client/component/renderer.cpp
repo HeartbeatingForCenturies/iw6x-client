@@ -46,7 +46,7 @@ namespace renderer
 				return;
 			}
 
-			dvars::r_fullbright = game::Dvar_RegisterBool("r_fullbright", false, 1,
+			dvars::r_fullbright = game::Dvar_RegisterBool("r_fullbright", false, game::DvarFlags::DVAR_FLAG_SAVED,
 			                                              "Toggles rendering without lighting");
 
 			r_init_draw_method_hook.create(SELECT_VALUE(0x1404FF600, 0x1405CB470), &r_init_draw_method_stub);

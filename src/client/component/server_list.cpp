@@ -1,7 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "server_list.hpp"
-#include "game_console.hpp"
+#include "console.hpp"
 #include "command.hpp"
 #include "localized_strings.hpp"
 #include "network.hpp"
@@ -22,6 +22,7 @@ namespace server_list
 			// gotta add more to this
 			int clients;
 			int max_clients;
+			int bots;
 			int ping;
 			std::string host_name;
 			std::string map_name;
@@ -59,6 +60,8 @@ namespace server_list
 				server_list_index = 0;
 			}
 
+			party::reset_connect_state();
+
 			if (get_master_server(master_state.address))
 			{
 				master_state.requesting = true;
@@ -80,6 +83,7 @@ namespace server_list
 				}
 				else
 				{
+					console::info("Connecting to (%d - %zu): %s\n", index, i, servers[i].host_name.data());
 					party::connect(servers[i].address);
 				}
 			}
@@ -130,7 +134,7 @@ namespace server_list
 
 			if (column == 2)
 			{
-				return utils::string::va("%d/%d", servers[i].clients, servers[index].max_clients);
+				return utils::string::va("%d/%d [%d]", servers[i].clients, servers[index].max_clients, servers[i].bots);
 			}
 
 			if (column == 3)
@@ -264,6 +268,7 @@ namespace server_list
 		server.game_type = game::UI_LocalizeGametype(info.get("gametype").data());
 		server.clients = atoi(info.get("clients").data());
 		server.max_clients = atoi(info.get("sv_maxclients").data());
+		server.bots = atoi(info.get("bots").data());
 		server.ping = now - start_time;
 
 		server.in_game = 1;
@@ -304,6 +309,7 @@ namespace server_list
 			localized_strings::override("PLATFORM_SYSTEM_LINK_TITLE", "SERVER LIST");
 			localized_strings::override("LUA_MENU_STORE_CAPS", "SERVER LIST");
 			localized_strings::override("LUA_MENU_STORE_DESC", "Browse available servers.");
+			localized_strings::override("MENU_NUMPLAYERS", "Players");
 
 			// hook LUI_OpenMenu to show server list instead of store popup
 			utils::hook::call(0x1404FE840, &lui_open_menu_stub);
@@ -324,7 +330,7 @@ namespace server_list
 			{
 				if (params.size() <= 1)
 				{
-					game_console::print(game_console::con_type_info, "usage: lui_open <name>\n");
+					console::info("usage: lui_open <name>\n");
 					return;
 				}
 

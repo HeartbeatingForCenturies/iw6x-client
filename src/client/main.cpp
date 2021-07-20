@@ -88,7 +88,7 @@ FARPROC load_binary(const launcher::mode mode)
 	if (!utils::io::read_file(binary, &data))
 	{
 		throw std::runtime_error(
-			"Failed to read game binary! Please copy the iw6x.exe into you Call of Duty: Ghosts installation folder and run it from there.");
+			"Failed to read game binary! Please copy the iw6x.exe into your Call of Duty: Ghosts installation folder and run it from there.");
 	}
 
 #ifdef INJECT_HOST_AS_LIB
@@ -154,6 +154,25 @@ void limit_parallel_dll_loading()
 	RegCloseKey(key);
 }
 
+void apply_environment()
+{
+	char* buffer{};
+	size_t size{};
+	if (_dupenv_s(&buffer, &size, "XLABS_GHOSTS_INSTALL") != 0 || buffer == nullptr)
+	{
+		throw std::runtime_error("Please use the X Labs launcher to run the game!");
+	}
+
+	const auto _ = gsl::finally([&]
+	{
+		free(buffer);
+	});
+
+	std::string dir{ buffer, size };
+	SetCurrentDirectoryA(dir.data());
+	SetDllDirectoryA(dir.data());
+}
+
 int main()
 {
 	FARPROC entry_point;
@@ -178,6 +197,8 @@ int main()
 
 		try
 		{
+			apply_environment();
+
 			if (!component_loader::post_start()) return 0;
 
 			auto mode = detect_mode_from_arguments();

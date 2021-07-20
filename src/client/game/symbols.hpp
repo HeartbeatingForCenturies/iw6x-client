@@ -8,10 +8,15 @@ namespace game
 	 * Functions
 	 **************************************************************/
 
+	WEAK symbol<void(unsigned int id)> AddRefToObject{0, 0x1404326D0};
 	WEAK symbol<void(int type, VariableUnion u)> AddRefToValue{0x1403D7740, 0x1404326E0};
+	WEAK symbol<unsigned int(unsigned int id)> AllocThread{0, 0x1404329B0};
 	WEAK symbol<void(int type, VariableUnion u)> RemoveRefToValue{0x1403D90F0, 0x1404340C0};
+	WEAK symbol<void(unsigned int id)> RemoveRefToObject{0, 0x140433FB0};
 
 	WEAK symbol<void(void*, void*)> AimAssist_AddToTargetList{0, 0x140139D80};
+
+	WEAK symbol<void(unsigned int weapon, bool isAlternate, char* output, unsigned int maxStringLen)> BG_GetWeaponNameComplete{0, 0x140239370};
 
 	WEAK symbol<void ()> Com_Frame_Try_Block_Function{0x1403BC980, 0x1404131A0};
 	WEAK symbol<const char*(char const**)> Com_Parse{0x1404313E0, 0x1404F50E0};
@@ -23,6 +28,8 @@ namespace game
 	WEAK symbol<void()> Com_EndTokenizeString{0x1403B37C0, 0x1403F7330};
 
 	WEAK symbol<void (const char* message)> Conbuf_AppendText{0x14043DDE0, 0x1405028C0};
+
+	WEAK symbol<char* (int start)> ConcatArgs{0x14030AF10, 0x140392880};
 
 	WEAK symbol<void (int localClientNum, const char* text)> Cbuf_AddText{0x1403B3050, 0x1403F6B50};
 	WEAK symbol<void (int localClientNum, int controllerIndex, const char* buffer,
@@ -101,6 +108,8 @@ namespace game
 
 	WEAK symbol<char*(char* string)> I_CleanStr{0x140432460, 0x1404F63C0};
 
+	WEAK symbol<char* (GfxImage* image, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipCount, uint32_t imageFlags, DXGI_FORMAT imageFormat, const char* name, const void* initData)> Image_Setup{0x140517910, 0x1405E4380};
+
 	WEAK symbol<const char*(int, int, int)> Key_KeynumToString{0x14023D9A0, 0x1402C40E0};
 
 	WEAK symbol<unsigned int (int)> Live_SyncOnlineDataFlags{0, 0x1405ABF70};
@@ -134,6 +143,7 @@ namespace game
 
 	WEAK symbol<void ()> GScr_LoadConsts{0x140367AA0, 0x1403E0420};
 	WEAK symbol<unsigned int (unsigned int parentId, unsigned int name)> FindVariable{0x1403D84F0, 0x1404334A0};
+	WEAK symbol<unsigned int(int entnum, unsigned int classnum)> FindEntityId{0, 0x1404333A0};
 	WEAK symbol<scr_string_t (unsigned int parentId, unsigned int id)> GetVariableName{0x1403D8E90, 0x140433E60};
 	WEAK symbol<void (VariableValue* result, unsigned int classnum, int entnum, int offset)> GetEntityFieldValue{
 		0x1403DC810, 0x140437860
@@ -149,12 +159,15 @@ namespace game
 		0x1403DE730, 0x140439700
 	};
 
+	WEAK symbol<unsigned int(unsigned int localId, const char* pos, unsigned int paramcount)> VM_Execute{0x0, 0x14043A280};
+
 	WEAK symbol<const char*(const char*)> SEH_StringEd_GetString{0x0, 0x1404A5F60};
 
 	WEAK symbol<const char*(scr_string_t stringValue)> SL_ConvertToString{0x1403D6870, 0x1404317F0};
 	WEAK symbol<scr_string_t(const char* str, unsigned int user)> SL_GetString{0x1403D6CD0, 0x140431C70};
 
 
+	WEAK symbol<void(int arg, char* buffer, int bufferLength)> SV_Cmd_ArgvBuffer{0x1403B4560, 0x1403F80D0};
 	WEAK symbol<void (const char* text_in)> SV_Cmd_TokenizeString{0, 0x1403F8150};
 	WEAK symbol<void ()> SV_Cmd_EndTokenizedString{0, 0x1403F8110};
 

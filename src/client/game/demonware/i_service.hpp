@@ -27,8 +27,9 @@ namespace demonware
 
 			byte_buffer buffer(data);
 			buffer.read_byte(&this->sub_type_);
-
+#ifdef DEBUG
 			printf("DW: Handling subservice of type %d\n", this->sub_type_);
+#endif
 
 			const auto callback = this->callbacks_.find(this->sub_type_);
 			if (callback != this->callbacks_.end())
@@ -37,7 +38,9 @@ namespace demonware
 			}
 			else
 			{
+#ifdef DEBUG
 				printf("DW: Missing subservice %d for type %d\n", this->sub_type_, this->getType());
+#endif
 			}
 		}
 

@@ -36,7 +36,8 @@ namespace dedicated_info
 				auto* const sv_maxclients = game::Dvar_FindVar("sv_maxclients");
 				auto* const mapname = game::Dvar_FindVar("mapname");
 
-				auto clientCount = 0;
+				auto client_count = 0;
+				auto bot_count = 0;
 
 				for (auto i = 0; i < sv_maxclients->current.integer; i++)
 				{
@@ -45,7 +46,11 @@ namespace dedicated_info
 
 					if (client->header.state >= 1 && self && self->client)
 					{
-						clientCount++;
+						client_count++;
+						if (game::SV_BotIsBot(i))
+						{
+							++bot_count;
+						}
 					}
 				}
 
@@ -55,9 +60,9 @@ namespace dedicated_info
 				utils::string::strip(sv_hostname->current.string, cleaned_hostname.data(),
 				                     static_cast<int>(strlen(sv_hostname->current.string)) + 1);
 
-				console::set_title(utils::string::va("%s on %s [%d/%d]", cleaned_hostname.data(),
-				                                     mapname->current.string, clientCount,
-				                                     sv_maxclients->current.integer));
+				console::set_title(utils::string::va("%s on %s [%d/%d] (%d)", cleaned_hostname.data(),
+				                                     mapname->current.string, client_count,
+				                                     sv_maxclients->current.integer, bot_count));
 			}, scheduler::pipeline::main, 1s);
 		}
 	};

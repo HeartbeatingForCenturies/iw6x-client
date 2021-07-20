@@ -3,6 +3,7 @@
 
 #include <utils/io.hpp>
 #include <utils/nt.hpp>
+#include <utils/http.hpp>
 #include <utils/toast.hpp>
 #include <utils/binary_resource.hpp>
 
@@ -131,5 +132,5 @@ namespace updater
 }
 
 #if defined(CI) && !defined(DEBUG)
-REGISTER_COMPONENT(updater::component)
+//REGISTER_COMPONENT(updater::component)
 #endif

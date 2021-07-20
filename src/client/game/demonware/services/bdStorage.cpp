@@ -9,6 +9,8 @@
 #include <utils/io.hpp>
 #include <utils/string.hpp>
 
+#include "component/motd.hpp"
+
 namespace demonware
 {
 	bdStorage::bdStorage()
@@ -23,7 +25,7 @@ namespace demonware
 		this->register_service(11, &bdStorage::delete_user_file);
 		this->register_service(12, &bdStorage::get_user_file);
 
-		this->map_publisher_resource("motd-.*\\.txt", DW_MOTD);
+		this->map_publisher_resource_variant("motd-.*\\.txt", motd::get_text);
 		this->map_publisher_resource("newsfeed-.*\\.txt", DW_NEWSFEED);
 		this->map_publisher_resource("mm\\.cfg", DW_MM_CONFIG);
 		this->map_publisher_resource("playlists(_.+)?\\.aggr", DW_PLAYLISTS);
@@ -36,7 +38,17 @@ namespace demonware
 	void bdStorage::map_publisher_resource(const std::string& expression, const INT id)
 	{
 		auto data = utils::nt::load_resource(id);
-		publisher_resources_.emplace_back(std::regex{expression}, data);
+		this->map_publisher_resource_variant(expression, std::move(data));
+	}
+
+	void bdStorage::map_publisher_resource_variant(const std::string& expression, resource_variant resource)
+	{
+		if (resource.valueless_by_exception())
+		{
+			throw std::runtime_error("Publisher resource variant is empty!");
+		}
+
+		this->publisher_resources_.emplace_back(std::regex{expression}, std::move(resource));
 	}
 
 	bool bdStorage::load_publisher_resource(const std::string& name, std::string& buffer)
@@ -45,12 +57,21 @@ namespace demonware
 		{
 			if (std::regex_match(name, resource.first))
 			{
-				buffer = resource.second;
+				if (std::holds_alternative<std::string>(resource.second))
+				{
+					buffer = std::get<std::string>(resource.second);
+				}
+				else
+				{
+					buffer = std::get<callback>(resource.second)();
+				}
 				return true;
 			}
 		}
 
-		printf("DW: Missing publisher file: %s\n", name.data());
+#ifdef DEBUG
+		printf("[DW]: [bdStorage]: missing publisher file: %s\n", name.data());
+#endif
 
 		return false;
 	}
@@ -96,8 +117,9 @@ namespace demonware
 
 		const auto id = *reinterpret_cast<const uint64_t*>(utils::cryptography::sha1::compute(filename).data());
 		std::string id_string = utils::string::va("%llX", id);
-
+#ifdef DEBUG
 		printf("DW: Storing user file '%s' as %s\n", filename.data(), id_string.data());
+#endif
 
 		const auto path = get_user_file_path(id_string);
 		utils::io::write_file(path, data);
@@ -126,8 +148,9 @@ namespace demonware
 		buffer->read_blob(&data);
 
 		std::string id_string = utils::string::va("%llX", id);
-
+#ifdef DEBUG
 		printf("DW: Updating user file %s\n", id_string.data());
+#endif
 
 		const auto path = get_user_file_path(id_string);
 		utils::io::write_file(path, data);
@@ -154,8 +177,9 @@ namespace demonware
 
 		const auto id = *reinterpret_cast<const uint64_t*>(utils::cryptography::sha1::compute(filename).data());
 		std::string id_string = utils::string::va("%llX", id);
-
+#ifdef DEBUG
 		printf("DW: Loading user file: %s (%s)\n", filename.data(), id_string.data());
+#endif
 
 		const auto path = get_user_file_path(id_string);
 		if (utils::io::read_file(path, &data))
@@ -240,11 +264,16 @@ namespace demonware
 		std::string filename;
 		buffer->read_string(&filename);
 
-		printf("DW: Loading publisher file: %s\n", filename.data());
+#ifdef DEBUG
+		printf("[DW]: [bdStorage]: loading publisher file: %s\n", filename.data());
+#endif
 
 		std::string data;
 		if (this->load_publisher_resource(filename, data))
 		{
+#ifdef DEBUG
+			printf("[DW]: [bdStorage]: sending publisher file: %s, size: %lld\n", filename.data(), data.size());
+#endif
 			auto reply = server->create_reply(this->get_sub_type());
 			reply->add(new bdFileData(data));
 			reply->send();

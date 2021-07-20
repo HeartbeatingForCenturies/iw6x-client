@@ -20,7 +20,8 @@ namespace utils::cryptography
 
 			bool is_valid() const;
 
-			ecc_key* get();
+			ecc_key& get();
+			const ecc_key& get() const;
 
 			std::string get_public_key() const;
 
@@ -42,8 +43,11 @@ namespace utils::cryptography
 
 		key generate_key(int bits);
 		key generate_key(int bits, const std::string& entropy);
-		std::string sign_message(key& key, const std::string& message);
-		bool verify_message(key& key, const std::string& message, const std::string& signature);
+		std::string sign_message(const key& key, const std::string& message);
+		bool verify_message(const key& key, const std::string& message, const std::string& signature);
+
+		bool encrypt(const key& key, std::string& data);
+		bool decrypt(const key& key, std::string& data);
 	}
 
 	namespace rsa
@@ -63,6 +67,17 @@ namespace utils::cryptography
 		std::string compute(const uint8_t* data, size_t length, bool hex = false);
 	}
 
+	namespace aes
+	{
+		std::string encrypt(const std::string& data, const std::string& iv, const std::string& key);
+		std::string decrypt(const std::string& data, const std::string& iv, const std::string& key);
+	}
+
+	namespace hmac_sha1
+	{
+		std::string compute(const std::string& data, const std::string& key);
+	}
+
 	namespace sha1
 	{
 		std::string compute(const std::string& data, bool hex = false);
@@ -79,6 +94,13 @@ namespace utils::cryptography
 	{
 		std::string compute(const std::string& data, bool hex = false);
 		std::string compute(const uint8_t* data, size_t length, bool hex = false);
+	}
+
+	namespace base64
+	{
+		std::string encode(const uint8_t* data, size_t len);
+		std::string encode(const std::string& data);
+		std::string decode(const std::string& data);
 	}
 
 	namespace jenkins_one_at_a_time

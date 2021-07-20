@@ -9,6 +9,8 @@
 
 #include "steam/steam.hpp"
 
+#include "component/console.hpp"
+
 #include <utils/string.hpp>
 #include <utils/info_string.hpp>
 #include <utils/cryptography.hpp>
@@ -22,6 +24,7 @@ namespace party
 		{
 			game::netadr_s host{};
 			std::string challenge{};
+			bool hostDefined{false};
 		} connect_state;
 
 		utils::hook::detour didyouknow_hook;
@@ -124,6 +127,11 @@ namespace party
 		}
 	}
 
+	void reset_connect_state()
+	{
+		connect_state = {};
+	}
+
 	int get_client_num_from_name(const std::string& name)
 	{
 		for (auto i = 0; !name.empty() && i < *game::mp::svs_numclients; ++i)
@@ -131,7 +139,7 @@ namespace party
 			if (game::mp::g_entities[i].client)
 			{
 				char client_name[16] = {0};
-				strncpy_s(client_name, game::mp::g_entities[i].client->sess.cs.name, 16);
+				strncpy_s(client_name, game::mp::g_entities[i].client->sess.cs.name, sizeof(client_name));
 				game::I_CleanStr(client_name);
 
 				if (client_name == name)
@@ -154,6 +162,7 @@ namespace party
 
 		connect_state.host = target;
 		connect_state.challenge = utils::cryptography::random::get_challenge();
+		connect_state.hostDefined = true;
 
 		network::send(target, "getInfo", connect_state.challenge);
 	}
@@ -180,12 +189,12 @@ namespace party
 			auto* current_mapname = game::Dvar_FindVar("mapname");
 			if (current_mapname && utils::string::to_lower(current_mapname->current.string) == utils::string::to_lower(mapname) && game::SV_Loaded())
 			{
-				printf("Restarting map: %s\n", mapname.data());
+				console::info("Restarting map: %s\n", mapname.data());
 				command::execute("map_restart", false);
 				return;
 			}
 
-			printf("Starting map: %s\n", mapname.data());
+			console::info("Starting map: %s\n", mapname.data());
 			game::SV_StartMapForParty(0, mapname.data(), false, false);
 		}
 	}
@@ -241,6 +250,25 @@ namespace party
 				if (game::SV_Loaded())
 				{
 					game::SV_FastRestart();
+				}
+			});
+
+			command::add("reconnect", [](const command::params& argument)
+			{
+				if (!connect_state.hostDefined)
+				{
+					printf("Cannot connect to server.\n");
+					return;
+				}
+				
+				if (game::CL_IsCgameInitialized())
+				{
+					command::execute("disconnect");
+					command::execute("reconnect");
+				}
+				else
+				{
+					connect(connect_state.host);
 				}
 			});
 

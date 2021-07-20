@@ -1,4 +1,5 @@
 #pragma once
+#include <d3d11.h>
 
 #define PROTOCOL 1
 
@@ -1261,6 +1262,8 @@ namespace game
 		SCRIPT_FLOAT = 5,
 		SCRIPT_INTEGER = 6,
 		SCRIPT_END = 8,
+		SCRIPT_FUNCTION = 9,
+		SCRIPT_STRUCT = 19,
 		SCRIPT_ARRAY = 22
 		// Custom
 	};
@@ -1431,6 +1434,74 @@ namespace game
 		const char* name;
 	};
 
+	struct LuaFile
+	{
+		const char* name;
+		int len;
+		char strippingType;
+		const char* buffer;
+	};
+
+	struct GfxImageLoadDef
+	{
+		char levelCount;
+		char numElements;
+		char pad[2];
+		int flags;
+		int format;
+		int resourceSize;
+		char data[1];
+	};
+
+	union $3FA29451CE6F1FA138A5ABAB84BE9676
+	{
+		ID3D11Texture1D* linemap;
+		ID3D11Texture2D* map;
+		ID3D11Texture3D* volmap;
+		ID3D11Texture2D* cubemap;
+		GfxImageLoadDef* loadDef;
+	};
+
+	struct GfxTexture
+	{
+		$3FA29451CE6F1FA138A5ABAB84BE9676 ___u0;
+		ID3D11ShaderResourceView* shaderView;
+		ID3D11ShaderResourceView* shaderViewAlternate;
+	};
+
+	struct Picmip
+	{
+		char platform[2];
+	};
+
+	struct CardMemory
+	{
+		int platform[2];
+	};
+
+	struct GfxImage
+	{
+		GfxTexture textures;
+		int flags;
+		int imageFormat;
+		int resourceSize;
+		char mapType;
+		char semantic;
+		char category;
+		char flags2;
+		Picmip picmip;
+		char track;
+		//CardMemory cardMemory;
+		unsigned short width;
+		unsigned short height;
+		unsigned short depth;
+		unsigned short numElements;
+		char pad3[4];
+		void* pixelData;
+		//GfxImageLoadDef *loadDef;
+		uint64_t streams[4];
+		const char* name;
+	};
 
 	union XAssetHeader
 	{
@@ -1448,7 +1519,6 @@ namespace game
 		MaterialPixelShader *pixelShader;
 		MaterialVertexDeclaration *vertexDecl;
 		MaterialTechniqueSet *techniqueSet;
-		GfxImage *image;
 		snd_alias_list_t *sound;
 		SndCurve *sndCurve;
 		SndCurve *lpfCurve;
@@ -1483,9 +1553,9 @@ namespace game
 		VehicleDef *vehDef;
 		AddonMapEnts *addonMapEnts;
 		NetConstStrings *netConstStrings;
-		ReverbPreset *reverbPreset;
+		ReverbPreset *reverbPreset;*/
 		LuaFile *luaFile;
-		ScriptableDef *scriptable;
+		/*ScriptableDef *scriptable;
 		Colorization *colorization;
 		ColorizationSet *colorizationSet;
 		ToneMapping *toneMapping;
@@ -1493,6 +1563,7 @@ namespace game
 		VectorField *vectorField;
 		DopplerPreset *dopplerPreset;
 		FxParticleSimAnimation *particleSimAnimation;*/
+		GfxImage* image;
 	};
 
 	struct XZoneInfo

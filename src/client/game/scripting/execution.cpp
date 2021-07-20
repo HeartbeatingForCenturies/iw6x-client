@@ -76,9 +76,9 @@ namespace scripting
 
 		const auto is_method_call = *reinterpret_cast<const int*>(&entref) != -1;
 		const auto function = find_function(name, !is_method_call);
-		if (!function)
+		if (function == nullptr)
 		{
-			throw std::runtime_error("Unknown function '" + name + "'");
+			throw std::runtime_error("Unknown "s + (is_method_call ? "method" : "function") + " '" + name + "'");
 		}
 
 		stack_isolation _;
@@ -93,7 +93,8 @@ namespace scripting
 
 		if (!safe_execution::call(function, entref))
 		{
-			throw std::runtime_error("Error executing function '" + name + "'");
+			throw std::runtime_error(
+				"Error executing "s + (is_method_call ? "method" : "function") + " '" + name + "'");
 		}
 
 		return get_return_value();
@@ -108,6 +109,66 @@ namespace scripting
 	script_value call(const std::string& name, const std::vector<script_value>& arguments)
 	{
 		return call_function(name, arguments);
+	}
+
+	script_value exec_ent_thread(const entity& entity, const char* pos, const std::vector<script_value>& arguments)
+	{
+		const auto id = entity.get_entity_id();
+
+		stack_isolation _;
+		for (auto i = arguments.rbegin(); i != arguments.rend(); ++i)
+		{
+			scripting::push_value(*i);
+		}
+
+		game::AddRefToObject(id);
+
+		const auto local_id = game::AllocThread(id);
+		const auto result = game::VM_Execute(local_id, pos, (unsigned int)arguments.size());
+		game::RemoveRefToObject(result);
+
+		return get_return_value();
+	}
+
+	static std::unordered_map<unsigned int, std::unordered_map<std::string, script_value>> custom_fields;
+
+	script_value get_custom_field(const entity& entity, const std::string& field)
+	{
+		auto fields = custom_fields[entity.get_entity_id()];
+		const auto _field = fields.find(field);
+		if (_field != fields.end())
+		{
+			return _field->second;
+		}
+		return {};
+	}
+
+	void set_custom_field(const entity& entity, const std::string& field, const script_value& value)
+	{
+		const auto id = entity.get_entity_id();
+
+		if (custom_fields[id].find(field) != custom_fields[id].end())
+		{
+			custom_fields[id][field] = value;
+			return;
+		}
+
+		custom_fields[id].insert(std::make_pair(field, value));
+	}
+
+	void clear_entity_fields(const entity& entity)
+	{
+		const auto id = entity.get_entity_id();
+
+		if (custom_fields.find(id) != custom_fields.end())
+		{
+			custom_fields[id].clear();
+		}
+	}
+
+	void clear_custom_fields()
+	{
+		custom_fields.clear();
 	}
 
 	void set_entity_field(const entity& entity, const std::string& field, const script_value& value)
@@ -131,6 +192,7 @@ namespace scripting
 		else
 		{
 			// Read custom fields
+			set_custom_field(entity, field, value);
 		}
 	}
 
@@ -156,11 +218,8 @@ namespace scripting
 
 			return value;
 		}
-		else
-		{
-			// Add custom fields
-		}
 
-		return {};
+		// Add custom fields
+		return get_custom_field(entity, field);
 	}
 }

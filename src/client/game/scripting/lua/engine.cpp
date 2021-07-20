@@ -2,6 +2,9 @@
 #include "engine.hpp"
 #include "context.hpp"
 
+#include "../execution.hpp"
+#include "../../../component/logfile.hpp"
+
 #include <utils/io.hpp>
 
 namespace scripting::lua::engine
@@ -29,10 +32,16 @@ namespace scripting::lua::engine
 			{
 				if (std::filesystem::is_directory(script) && utils::io::file_exists(script + "/__init__.lua"))
 				{
-					get_scripts().push_back(std::make_unique<context>(script));
+					get_scripts().emplace_back(std::make_unique<context>(script));
 				}
 			}
 		}
+	}
+
+	void stop()
+	{
+		logfile::clear_callbacks();
+		get_scripts().clear();
 	}
 
 	void start()
@@ -43,23 +52,12 @@ namespace scripting::lua::engine
 			return;
 		}
 
-		get_scripts().clear();
+		stop();
 		load_scripts();
-	}
-
-	void stop()
-	{
-		get_scripts().clear();
 	}
 
 	void notify(const event& e)
 	{
-		if (e.entity.get_entity_id() == *game::levelEntityId
-			&& e.name == "exitLevel_called")
-		{
-			get_scripts().clear();
-		}
-
 		for (auto& script : get_scripts())
 		{
 			script->notify(e);

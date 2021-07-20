@@ -74,6 +74,8 @@
 #include <sstream>
 #include <optional>
 #include <unordered_set>
+#include <variant>
+#include <string>
 
 #include <gsl/gsl>
 #include <udis86.h>
@@ -87,6 +89,7 @@
 #include <asmjit/core/jitruntime.h>
 #include <asmjit/x86/x86assembler.h>
 
+#include <google/protobuf/stubs/logging.h>
 #include <proto/auth.pb.h>
 
 #pragma warning(pop)

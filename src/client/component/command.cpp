@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "command.hpp"
+#include "console.hpp"
 #include "game_console.hpp"
 
 #include "game/game.hpp"
@@ -256,6 +257,47 @@ namespace command
 	private:
 		static void add_commands_generic()
 		{
+			add("quit", game::Com_Quit);
+			add("quit_hard", utils::nt::raise_hard_exception);
+			add("crash", []()
+			{
+					*reinterpret_cast<int*>(1) = 0;
+			});
+
+			add("dvarDump", []()
+			{
+				console::info("================================ DVAR DUMP ========================================\n");
+				for (auto i = 0; i < *game::dvarCount; i++)
+				{
+					const auto dvar = game::sortedDvars[i];
+					if (dvar)
+					{
+						console::info("%s \"%s\"\n", dvar->name,
+							game::Dvar_ValueToString(dvar, dvar->current));
+					}
+				}
+				console::info("\n%i dvars\n", *game::dvarCount);
+				console::info("================================ END DVAR DUMP ====================================\n");
+			});
+
+			add("commandDump", []()
+			{
+				console::info("================================ COMMAND DUMP =====================================\n");
+				game::cmd_function_s* cmd = (*game::cmd_functions);
+				int i = 0;
+				while (cmd)
+				{
+					if (cmd->name)
+					{
+						console::info("%s\n", cmd->name);
+						i++;
+					}
+					cmd = cmd->next;
+				}
+				console::info("\n%i commands\n", i);
+				console::info("================================ END COMMAND DUMP =================================\n");
+			});
+
 			add("consoleList", [](const params& params)
 			{
 				const std::string input = params.get(1);
@@ -268,27 +310,26 @@ namespace command
 					auto* dvar = game::Dvar_FindVar(match.c_str());
 					if (!dvar)
 					{
-						game_console::print(game_console::con_type_info, "[CMD]  %s", match.c_str());
+						console::info("[CMD]\t %s\n", match.c_str());
 					}
 					else
 					{
-						game_console::print(game_console::con_type_info, "[DVAR] %s \"%s\"", match.c_str(), game::Dvar_ValueToString(dvar, dvar->current));
+						console::info("[DVAR]\t%s \"%s\"\n", match.c_str(), game::Dvar_ValueToString(dvar, dvar->current));
 					}
 				}
 
-				game_console::print(game_console::con_type_info, "Total %i matches", matches.size());
+				console::info("Total %i matches\n", matches.size());
 			});
 
 			add("listassetpool", [](const params& params)
 			{
 				if (params.size() < 2)
 				{
-					game_console::print(game_console::con_type_info,
-									"listassetpool <poolnumber> [filter]: list all the assets in the specified pool\n");
+					console::info("listassetpool <poolnumber> [filter]: list all the assets in the specified pool\n");
 
 					for (auto i = 0; i < game::XAssetType::ASSET_TYPE_COUNT; i++)
 					{
-						game_console::print(game_console::con_type_info, "%d %s %d\n", i, game::g_assetNames[i], game::g_poolSize[i]);
+						console::info("%d %s\n", i, game::g_assetNames[i]);
 					}
 				}
 				else
@@ -297,14 +338,11 @@ namespace command
 
 					if (type < 0 || type >= game::XAssetType::ASSET_TYPE_COUNT)
 					{
-						game_console::print(game_console::con_type_error,
-										"Invalid pool passed must be between [%d, %d]", 0,
-											game::XAssetType::ASSET_TYPE_COUNT - 1);
+						console::error("Invalid pool passed must be between [%d, %d]\n", 0, game::XAssetType::ASSET_TYPE_COUNT - 1);
 						return;
 					}
 
-					game_console::print(game_console::con_type_info, "Listing assets in pool %s",
-										game::g_assetNames[type]);
+					console::info("Listing assets in pool %s\n", game::g_assetNames[type]);
 
 					auto total_assets = 0;
 					const std::string filter = params.get(2);
@@ -331,10 +369,10 @@ namespace command
 						//	zone_name = game::mp::g_zones_0[entry->zoneIndex].name;
 						//}
 
-						game_console::print(game_console::con_type_info, "%s", asset_name);
+						console::info("%s\n", asset_name);
 					}, true);
 
-					game_console::print(game_console::con_type_info, "Total %s assets: %d/%d", game::g_assetNames[type], total_assets, game::g_poolSize[type]);
+					console::info("Total %s assets: %d/%d", game::g_assetNames[type], total_assets, game::g_poolSize[type]);
 				}
 			});
 		}
