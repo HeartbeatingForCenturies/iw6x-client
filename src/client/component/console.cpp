@@ -122,7 +122,7 @@ namespace console
 		void post_unpack() override
 		{
 			// Redirect input (]command)
-			utils::hook::jump(SELECT_VALUE(0, 0x140502A80), append_text);
+			utils::hook::jump(SELECT_VALUE(0x14043DFA0, 0x140502A80), append_text);
 
 			this->initialize();
 		}

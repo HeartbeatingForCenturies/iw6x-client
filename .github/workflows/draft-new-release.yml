@@ -35,48 +35,13 @@ jobs:
           gpg-private-key: ${{ secrets.XLABS_CI_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.XLABS_CI_GPG_PASSWORD }}
 
-      - name: Rename Unreleased section in changelog to ${{ steps.normalize_version.outputs.version }}
-        uses: thomaseizinger/keep-a-changelog-new-release@1.1.0
-        with:
-          version: ${{ steps.normalize_version.outputs.version }}
-
-      - name: Commit changelog
-        id: make-commit
-        run: |
-          git checkout -b "release/${{ steps.normalize_version.outputs.version }}"
-          git add CHANGELOG.md
-          git commit -S -m "Prepare release ${{ steps.normalize_version.outputs.version }}"
-          git push -u origin "release/${{ steps.normalize_version.outputs.version }}"
-
-          echo "::set-output name=commit::$(git rev-parse HEAD)"
-
-      - name: Extract changelog for Pull Request
-        id: changelog_reader
-        uses: mindsers/changelog-reader-action@v2
-        with:
-          validation_depth: 10
-          version: ${{ steps.normalize_version.outputs.version }}
-          path: ./CHANGELOG.md
-
       - name: Create Pull Request
         uses: repo-sync/pull-request@v2
         with:
           github_token: ${{ secrets.XLABS_CI_GITHUB_TOKEN }}
-          source_branch: "release/${{ steps.normalize_version.outputs.version }}"
+          source_branch: "develop"
           destination_branch: "master"
           pr_body: |
-            This Pull Request is for the release of IW6x ${{ steps.normalize_version.outputs.version }} and was [automatically created by a workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) triggered by @${{ github.actor }}.
-
-            Commit [`${{ steps.make-commit.outputs.commit }}`](https://github.com/${{ github.repository }}/commit/${{ steps.make-commit.outputs.commit }}) includes an update to the changelog to list the new version with its changes.
-
-            # What happens when this PR gets merged?
-
-            After merging this PR, another workflow will create a new tag `${{ steps.normalize_version.outputs.version }}` on the `master` branch and the version will officially be ${{ steps.changelog_reader.outputs.status }} via an actual GitHub release. A final build will be triggered and all binaries and assets will be attached to the GitHub release.
-
-            # Changelog for ${{ steps.normalize_version.outputs.version }}
-
-            These changes will be included in the release:
-
-            ${{ steps.changelog_reader.outputs.changes }}
-          pr_title: Release ${{ steps.changelog_reader.outputs.version }}
+            This Pull Request is for the release of X Labs Launcher ${{ steps.normalize_version.outputs.version }} and was [automatically created by a workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) triggered by @${{ github.actor }}.
+          pr_title: Release ${{ steps.normalize_version.outputs.version }}
           pr_label: release

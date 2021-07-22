@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "game/game.hpp"
+#include "game_module.hpp"
 
 #include <utils/nt.hpp>
 #include <utils/hook.hpp>
@@ -78,7 +79,7 @@ namespace splash
 		{
 			WNDCLASSA wnd_class;
 
-			const utils::nt::library self;
+			const auto self = game_module::get_host_module();
 
 			wnd_class.style = CS_DROPSHADOW;
 			wnd_class.cbClsExtra = 0;
