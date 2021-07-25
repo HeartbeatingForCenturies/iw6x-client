@@ -1356,7 +1356,7 @@ namespace game
 		unsigned __int16 self;
 	};
 
-	struct	ObjectVariableValue_u_o
+	struct ObjectVariableValue_u_o
 	{
 		unsigned __int16 refCount;
 		ObjectVariableValue_u_o_u u;
@@ -1395,7 +1395,7 @@ namespace game
 		unsigned int match;
 	};
 
-	struct	ChildVariableValue
+	struct ChildVariableValue
 	{
 		ChildVariableValue_u u;
 		unsigned __int16 next;
@@ -1503,6 +1503,37 @@ namespace game
 		const char* name;
 	};
 
+	struct StreamFileNameRaw
+	{
+		const char* dir;
+		const char* name;
+	};
+
+	struct StreamFileNamePacked
+	{
+		unsigned __int64 offset;
+		unsigned __int64 length;
+	};
+
+	union StreamFileInfo
+	{
+		StreamFileNameRaw raw;
+		StreamFileNamePacked packed;
+	};
+
+	struct StreamFileName
+	{
+		unsigned __int16 isLocalized;
+		unsigned __int16 fileIndex;
+		StreamFileInfo info;
+	};
+
+	struct StreamedSound
+	{
+		StreamFileName filename;
+		unsigned int totalMsec;
+	};
+
 	union XAssetHeader
 	{
 		void* data;
@@ -1554,7 +1585,7 @@ namespace game
 		AddonMapEnts *addonMapEnts;
 		NetConstStrings *netConstStrings;
 		ReverbPreset *reverbPreset;*/
-		LuaFile *luaFile;
+		LuaFile* luaFile;
 		/*ScriptableDef *scriptable;
 		Colorization *colorization;
 		ColorizationSet *colorizationSet;
@@ -1624,7 +1655,6 @@ namespace game
 			char gap4[121];
 			char gap5;
 		};
-
 	}
 
 	namespace mp
