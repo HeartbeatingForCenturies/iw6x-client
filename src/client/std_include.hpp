@@ -49,6 +49,7 @@
 #include <urlmon.h>
 #include <atlbase.h>
 #include <iphlpapi.h>
+#include <wincrypt.h>
 
 // min and max is required by gdi, therefore NOMINMAX won't work
 #ifdef max
@@ -99,6 +100,7 @@
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "urlmon.lib" )
 #pragma comment(lib, "iphlpapi.lib")
+#pragma comment(lib, "Crypt32.lib")
 
 #include "resource.hpp"
 
