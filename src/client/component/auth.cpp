@@ -6,11 +6,12 @@
 #include "network.hpp"
 
 #include <utils/hook.hpp>
-#include <utils/string.hpp>
+#include <utils/smbios.hpp>
 #include <utils/info_string.hpp>
 #include <utils/cryptography.hpp>
 
 #include "game/game.hpp"
+#include "steam/steam.hpp"
 
 namespace auth
 {
@@ -18,13 +19,14 @@ namespace auth
 	{
 		std::string get_key_entropy()
 		{
-			HW_PROFILE_INFO info;
-			if (!GetCurrentHwProfileA(&info))
+			auto uuid = utils::smbios::get_uuid();
+			if (uuid.empty())
 			{
-				utils::cryptography::random::get_challenge();
+				uuid.resize(16);
+				utils::cryptography::random::get_data(uuid.data(), uuid.size());
 			}
 
-			return info.szHwProfileGuid;
+			return uuid;
 		}
 
 		utils::cryptography::ecc::key& get_key()
@@ -167,6 +169,11 @@ namespace auth
 				utils::hook::jump(0x140479636, get_direct_connect_stub(), true);
 				utils::hook::call(0x1402C4F8E, send_connect_data_stub);
 			}
+
+			command::add("guid", []()
+			{
+				printf("Your guid: %llX\n", steam::SteamUser()->GetSteamID().bits);
+			});
 		}
 	};
 }
