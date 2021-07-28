@@ -121,15 +121,6 @@ void remove_crash_file()
 	utils::io::remove_file("__" + name);
 }
 
-void verify_ghost_version()
-{
-	const auto value = *reinterpret_cast<DWORD*>(0x140001337);
-	if (value != 0xDB0A33E7 && value != 0xA6D147E7)
-	{
-		throw std::runtime_error("Unsupported Call of Duty: Ghosts version");
-	}
-}
-
 void enable_dpi_awareness()
 {
 	const utils::nt::library user32{"user32.dll"};
@@ -230,8 +221,6 @@ int main()
 			{
 				throw std::runtime_error("Unable to load binary into memory");
 			}
-
-			verify_ghost_version();
 
 			if (!component_loader::post_load()) return 0;
 
