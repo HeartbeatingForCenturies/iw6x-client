@@ -7,24 +7,73 @@
 
 #include <utils/hook.hpp>
 #include <utils/string.hpp>
+#include <utils/smbios.hpp>
 #include <utils/info_string.hpp>
 #include <utils/cryptography.hpp>
 
 #include "game/game.hpp"
+#include "steam/steam.hpp"
 
 namespace auth
 {
 	namespace
 	{
-		std::string get_key_entropy()
+		std::string get_hdd_serial()
+		{
+			DWORD serial{};
+			if (!GetVolumeInformationA("C:\\", nullptr, 0, &serial, nullptr, nullptr, nullptr, 0))
+			{
+				return {};
+			}
+
+			return utils::string::va("%08X", serial);
+		}
+
+		std::string get_hw_profile_guid()
 		{
 			HW_PROFILE_INFO info;
 			if (!GetCurrentHwProfileA(&info))
 			{
-				utils::cryptography::random::get_challenge();
+				return {};
 			}
 
-			return info.szHwProfileGuid;
+			return std::string{ info.szHwProfileGuid, sizeof(info.szHwProfileGuid) };
+		}
+
+		std::string get_protected_data()
+		{
+			std::string input = "X-Labs-IW6x-Auth";
+
+			DATA_BLOB data_in{}, data_out{};
+			data_in.pbData = reinterpret_cast<uint8_t*>(input.data());
+			data_in.cbData = static_cast<DWORD>(input.size());
+			if (CryptProtectData(&data_in, nullptr, nullptr, nullptr, nullptr, CRYPTPROTECT_LOCAL_MACHINE, &data_out) != TRUE)
+			{
+				return {};
+			}
+
+			const auto size = std::min(data_out.cbData, 52ul);
+			std::string result{ reinterpret_cast<char*>(data_out.pbData), size };
+			LocalFree(data_out.pbData);
+
+			return result;
+		}
+
+		std::string get_key_entropy()
+		{
+			std::string entropy{};
+			entropy.append(utils::smbios::get_uuid());
+			entropy.append(get_hw_profile_guid());
+			entropy.append(get_protected_data());
+			entropy.append(get_hdd_serial());
+
+			if (entropy.empty())
+			{
+				entropy.resize(32);
+				utils::cryptography::random::get_data(entropy.data(), entropy.size());
+			}
+
+			return entropy;
 		}
 
 		utils::cryptography::ecc::key& get_key()
@@ -167,6 +216,11 @@ namespace auth
 				utils::hook::jump(0x140479636, get_direct_connect_stub(), true);
 				utils::hook::call(0x1402C4F8E, send_connect_data_stub);
 			}
+
+			command::add("guid", []()
+			{
+				printf("Your guid: %llX\n", steam::SteamUser()->GetSteamID().bits);
+			});
 		}
 	};
 }
