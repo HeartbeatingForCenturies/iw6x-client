@@ -179,12 +179,10 @@ namespace game
 		0, 0x1404702F0
 	};
 
-	WEAK symbol<mp::gentity_s*(const char*, unsigned int, unsigned int, unsigned int)> SV_AddBot{0, 0x140470920};
+	WEAK symbol<mp::gentity_s* (const char*, unsigned int, unsigned int, unsigned int)> SV_AddBot{0, 0x140470920};
 	WEAK symbol<bool (int clientNum)> SV_BotIsBot{0, 0x140461340};
 	WEAK symbol<const char* ()> SV_BotGetRandomName{0, 0x140460B80};
-	//WEAK symbol<mp::gentity_s* (int, int, unsigned int, unsigned int)> SV_AddTestClient{0, 0x1403CBC80};
-	//WEAK symbol<bool(mp::gentity_s*)> SV_CanSpawnTestClient{0, 0x140471080};
-	WEAK symbol<void(mp::gentity_s*)> SV_SpawnTestClient{0, 0x1404740A0};
+	WEAK symbol<bool (mp::gentity_s*)> SV_SpawnTestClient{0, 0x1404740A0};
 
 	WEAK symbol<void (mp::client_t*, const char*, int)> SV_ExecuteClientCommand{0, 0x140472430};
 	WEAK symbol<void ()> SV_FastRestart{0x14048B890, 0x14046F440};

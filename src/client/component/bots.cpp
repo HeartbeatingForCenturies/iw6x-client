@@ -18,6 +18,15 @@ namespace bots
 {
 	namespace
 	{
+		bool can_add()
+		{
+			if (party::get_client_count() < *game::mp::svs_numclients)
+			{
+				return true;
+			}
+			return false;
+		}
+
 		void bot_team_join(const int entity_num)
 		{
 			// schedule the select team call
@@ -55,17 +64,22 @@ namespace bots
 
 		void spawn_bot(const int entity_num)
 		{
-			scheduler::once([entity_num]()
+			game::SV_SpawnTestClient(&game::mp::g_entities[entity_num]);
+			if (game::Com_GetCurrentCoDPlayMode() == game::CODPLAYMODE_CORE)
 			{
-				game::SV_SpawnTestClient(&game::mp::g_entities[entity_num]);
-				bot_team(entity_num);
-			}, scheduler::pipeline::server, 1s);
+				bot_team_join(entity_num);
+			}
 		}
 
 		void add_bot()
-		{
-			auto* bot_name = game::SV_BotGetRandomName();
-			auto* bot_ent = game::SV_AddBot(bot_name, 26, 62, 0);
+		{		
+			if (!can_add())
+			{
+				return;
+			}
+
+			//SV_AddBot calls SV_BotGetRandomName in its own function
+			auto* bot_ent = game::SV_AddBot("", 0, 0, 0);
 			if (bot_ent)
 			{
 				spawn_bot(bot_ent->s.entityNum);
