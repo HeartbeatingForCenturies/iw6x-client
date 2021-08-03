@@ -20,6 +20,16 @@ BOOL WINAPI system_parameters_info_a(const UINT uiAction, const UINT uiParam, co
 	return SystemParametersInfoA(uiAction, uiParam, pvParam, fWinIni);
 }
 
+FARPROC WINAPI get_proc_address(const HMODULE hModule, const LPCSTR lpProcName)
+{
+	if (lpProcName == "GlobalMemoryStatusEx"s)
+	{
+		component_loader::post_unpack();
+	}
+
+	return GetProcAddress(hModule, lpProcName);
+}
+
 launcher::mode detect_mode_from_arguments()
 {
 	if (utils::flags::has_flag("linker"))
@@ -64,6 +74,10 @@ FARPROC load_binary(const launcher::mode mode)
 		{
 			return system_parameters_info_a;
 		}
+		else if (function == "GetProcAddress")
+		{
+			return get_proc_address;
+		}
 
 		return component_loader::load_import(library, function);
 	});
@@ -105,15 +119,6 @@ void remove_crash_file()
 	name = std::filesystem::path(name).replace_extension("").generic_string();
 
 	utils::io::remove_file("__" + name);
-}
-
-void verify_ghost_version()
-{
-	const auto value = *reinterpret_cast<DWORD*>(0x140001337);
-	if (value != 0xDB0A33E7 && value != 0xA6D147E7)
-	{
-		throw std::runtime_error("Unsupported Call of Duty: Ghosts version");
-	}
 }
 
 void enable_dpi_awareness()
@@ -216,8 +221,6 @@ int main()
 			{
 				throw std::runtime_error("Unable to load binary into memory");
 			}
-
-			verify_ghost_version();
 
 			if (!component_loader::post_load()) return 0;
 
