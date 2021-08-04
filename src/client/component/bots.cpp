@@ -3,12 +3,10 @@
 
 #include "command.hpp"
 #include "scheduler.hpp"
-#include "party.hpp"
 #include "network.hpp"
 #include "server_list.hpp"
 
 #include "game/game.hpp"
-#include "game/scripting/execution.hpp"
 
 #include <utils/hook.hpp>
 #include <utils/string.hpp>
