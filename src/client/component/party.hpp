@@ -8,6 +8,4 @@ namespace party
 	void connect(const game::netadr_s& target);
 	void start_map(const std::string& mapname);
 	void map_restart();
-
-	int get_client_count();
 }

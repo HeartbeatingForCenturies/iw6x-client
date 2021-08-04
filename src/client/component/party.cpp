@@ -97,6 +97,20 @@ namespace party
 			return {};
 		}
 
+		int get_client_count()
+		{
+			auto count = 0;
+			for (auto i = 0; i < *game::mp::svs_numclients; ++i)
+			{
+				if (game::mp::svs_clients[i].header.state >= 3)
+				{
+					++count;
+				}
+			}
+
+			return count;
+		}
+
 		int get_bot_count()
 		{
 			auto count = 0;
@@ -111,20 +125,6 @@ namespace party
 
 			return count;
 		}
-	}
-
-	int get_client_count()
-	{
-		auto count = 0;
-		for (auto i = 0; i < *game::mp::svs_numclients; ++i)
-		{
-			if (game::mp::svs_clients[i].header.state >= 3)
-			{
-				++count;
-			}
-		}
-
-		return count;
 	}
 
 	void reset_connect_state()
