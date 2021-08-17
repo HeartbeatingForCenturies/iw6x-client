@@ -379,6 +379,20 @@ namespace command
 		
 		void add_sp_commands()
 		{
+			add("notarget", [&]()
+			{
+				if (!game::SV_Loaded())
+				{
+					return;
+				}
+
+				game::sp::g_entities[0].client->flags ^= game::FL_NOTARGET;
+				game::CG_GameMessage(0, utils::string::va("notarget %s",
+				                                          game::sp::g_entities[0].client->flags & 1
+					                                          ? "^2on"
+					                                          : "^1off"));
+			});
+			
 			add("noclip", [&]()
 			{
 				if (!game::SV_Loaded())
