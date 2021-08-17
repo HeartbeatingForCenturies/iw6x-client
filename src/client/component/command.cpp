@@ -391,7 +391,8 @@ namespace command
 				                                          game::sp::g_entities[0].client->flags & 1
 					                                          ? "^2on"
 					                                          : "^1off"));
-			}
+			});
+			
 			add("noclip", [&]()
 			{
 				if (!game::SV_Loaded())
