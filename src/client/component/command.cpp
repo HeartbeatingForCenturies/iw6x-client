@@ -386,9 +386,9 @@ namespace command
 					return;
 				}
 
-				game::sp::g_entities[0].client->flags ^= game::FL_NOTARGET;
+				game::sp::g_entities[0].flags ^= game::FL_NOTARGET;
 				game::CG_GameMessage(0, utils::string::va("notarget %s",
-				                                          game::sp::g_entities[0].client->flags & game::FL_NOTARGET
+				                                          game::sp::g_entities[0].flags & game::FL_NOTARGET
 					                                          ? "^2on"
 					                                          : "^1off"));
 			});

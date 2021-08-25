@@ -1641,6 +1641,8 @@ namespace game
 		{
 			char __0x00[0x110];
 			gclient_s* client;
+			char __0x118[0x4C];
+			int flags;
 		};
 
 		struct playerState_s
