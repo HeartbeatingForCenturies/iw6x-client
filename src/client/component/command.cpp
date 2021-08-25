@@ -494,6 +494,22 @@ namespace command
 					                                                 : "^1off"));
 			});
 
+			add_sv("notarget", [&](const int client_num, const params_sv&)
+			{
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
+					return;
+				}
+
+				game::mp::g_entities[client_num].flags ^= game::FL_NOTARGET;
+				game::SV_GameSendServerCommand(client_num, 1,
+				                               utils::string::va("f \"notarget %s\"",
+				     	                                         game::mp::g_entities[client_num].flags & game::FL_NOTARGET 
+					                    	                         ? "^2on" 
+				                    		                         : "^1off"));
+			});
+
 			add_sv("noclip", [&](const int client_num, const params_sv&)
 			{
 				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
