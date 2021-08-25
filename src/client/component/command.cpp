@@ -379,6 +379,20 @@ namespace command
 		
 		void add_sp_commands()
 		{
+			add("god", [&]()
+			{
+				if (!game::SV_Loaded())
+				{
+					return;
+				}
+
+				game::sp::g_entities[0].flags ^= game::FL_GODMODE;
+				game::CG_GameMessage(0, utils::string::va("godmode %s",
+				                                          game::sp::g_entities[0].flags & game::FL_GODMODE
+					                                          ? "^2on"
+					                                          : "^1off"));
+			});
+
 			add("notarget", [&]()
 			{
 				if (!game::SV_Loaded())
