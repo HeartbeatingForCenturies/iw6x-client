@@ -429,8 +429,10 @@ namespace command
 				}
 
 				game::sp::g_entities[0].client->flags ^= 2;
-				game::CG_GameMessage(
-					0, utils::string::va("ufo %s", game::sp::g_entities[0].client->flags & 2 ? "^2on" : "^1off"));
+				game::CG_GameMessage(0, utils::string::va("ufo %s", 
+				                                          game::sp::g_entities[0].client->flags & 2 
+					                                          ? "^2on" 
+					                                          : "^1off"));
 			});
 
 			add("give", [](const params& params)
@@ -489,7 +491,7 @@ namespace command
 				game::mp::g_entities[client_num].flags ^= game::FL_GODMODE;
 				game::SV_GameSendServerCommand(client_num, 1,
 				                               utils::string::va("f \"godmode %s\"",
-				                                                 game::mp::g_entities[client_num].flags & 1
+				                                                 game::mp::g_entities[client_num].flags & game::FL_GODMODE
 					                                                 ? "^2on"
 					                                                 : "^1off"));
 			});
