@@ -66,7 +66,8 @@ namespace scripting
 
 	int is_pre_main_stub()
 	{
-		return game::SV_Loaded();
+		auto* const sv_running = game::Dvar_FindVar("sv_running");
+		return sv_running->current.enabled;
 	}
 
 	class component final : public component_interface
