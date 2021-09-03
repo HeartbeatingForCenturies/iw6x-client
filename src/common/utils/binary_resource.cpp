@@ -17,7 +17,7 @@ namespace utils
 			return path;
 		}
 
-		std::string write_exitisting_temp_file(const std::string& file, const std::string& data)
+		std::string write_existing_temp_file(const std::string& file, const std::string& data)
 		{
 			const auto temp = get_temp_folder();
 			const auto file_path = temp + file;
@@ -59,7 +59,7 @@ namespace utils
 	{
 		if (this->path_.empty())
 		{
-			this->path_ = write_exitisting_temp_file(this->filename_, this->resource_);
+			this->path_ = write_existing_temp_file(this->filename_, this->resource_);
 		}
 
 		return this->path_;
