@@ -67,11 +67,7 @@ namespace utils::string
 
 	bool is_numeric(const std::string& text)
 	{
-		if (text.size() <= 0 || !std::isdigit(text[0])) return false;
-		return std::ranges::all_of(text.begin(), text.end(), [](const char input) 
-		{ 
-			return std::isdigit(input) != 0;
-		});
+		return std::to_string(atoi(text.data())) == text;
 	}
 
 	std::string dump_hex(const std::string& data, const std::string& separator)

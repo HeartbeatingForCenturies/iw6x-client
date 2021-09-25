@@ -132,6 +132,7 @@ namespace game
 	WEAK symbol<int(const int controllerIndex, const scr_string_t name, const StatsGroup statsGroup)>
 	LiveStorage_PlayerDataGetIntByName{0x1403B8460, 0x140403C40};
 	WEAK symbol<uint8_t*(const int controllerIndex)>LiveStorage_GetPersistentDataBuffer{0x1403B6F80, 0x140400170};
+	WEAK symbol<void(const int controllerIndex)>LiveStorage_StatsWriteNeeded{0x1403BA400, 0x1404090E0};
 
 	WEAK symbol<StructuredDataDef*(const char* filename, unsigned int maxSize)>StructuredDataDef_GetAsset{0, 0x1404E6560};
 	WEAK symbol<StringTable*(const char* fileName, const StringTable** tablePtr)>StringTable_GetAsset{0, 0x1404E6170};
