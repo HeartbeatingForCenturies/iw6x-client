@@ -323,10 +323,9 @@ namespace patches
 			// block changing name in-game
 			utils::hook::set<uint8_t>(0x140470300, 0xC3);
 
-			// Unlock all patches/cardtitles and exclusive items/camos
-			utils::hook::set(0x140402B10, 0xC301B0); // LiveStorage_IsItemUnlockedFromTable_LocalClient
-			utils::hook::set(0x140402360, 0xC301B0); // LiveStorage_IsItemUnlockedFromTable
-			utils::hook::set(0x1404A94E0, 0xC301B0); // GetIsCardTitleUnlocked
+			// Unlock all DLC items
+			utils::hook::set(0x1404EAC50, 0xC301B0); // Content_DoWeHaveDLCPackByName
+			utils::hook::set(0x140599890, 0xC301B0); // Entitlements_IsIDUnlocked
 
 			// Enable DLC items, extra loadouts and map selection in extinction
 			dvar_register_int_hook.create(0x1404EE270, &dvar_register_int);

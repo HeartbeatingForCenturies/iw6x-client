@@ -790,6 +790,172 @@ namespace game
 		TC_COUNT = 0x3,
 	};
 
+	enum StatsGroup
+	{
+		STATSGROUP_RANKED = 0x0,
+		STATSGROUP_PRIVATE = 0x1,
+		STATSGROUP_COOP = 0x2,
+		STATSGROUP_COMMON = 0x3,
+		STATSGROUP_COUNT = 0x4,
+		STATSGROUP_IGNORE = 0x5,
+	};
+
+	enum StatsSource
+	{
+		STATS_ONLINE = 0x0,
+		STATS_COUNT = 0x1,
+	};
+
+	enum scr_string_t
+	{
+		scr_string_t_dummy = 0x0,
+	};
+
+	enum StructuredDataTypeCategory
+	{
+		DATA_INT = 0x0,
+		DATA_BYTE = 0x1,
+		DATA_BOOL = 0x2,
+		DATA_STRING = 0x3,
+		DATA_ENUM = 0x4,
+		DATA_STRUCT = 0x5,
+		DATA_INDEXED_ARRAY = 0x6,
+		DATA_ENUM_ARRAY = 0x7,
+		DATA_FLOAT = 0x8,
+		DATA_SHORT = 0x9,
+		DATA_COUNT = 0xA,
+	};
+
+	enum StructuredData_SetResult
+	{
+		SETRESULT_SUCCESS_CHANGED = 0x0,
+		SETRESULT_SUCCESS_NOCHANGE = 0x1,
+		SETRESULT_WRONG_DATA_TYPE = 0x2,
+		SETRESULT_ERROR_INT_TOO_LARGE_FOR_BYTE = 0x3,
+		SETRESULT_ERROR_STRING_TOO_LONG = 0x4,
+		SETRESULT_ERROR_INVALID_ENUM_VALUE = 0x5,
+		SETRESULT_COUNT = 0x6,
+	};
+
+	enum LookupError
+	{
+		LOOKUP_ERROR_NONE = 0x0,
+		LOOKUP_ERROR_WRONG_DATA_TYPE = 0x1,
+		LOOKUP_ERROR_INDEX_OUTSIDE_BOUNDS = 0x2,
+		LOOKUP_ERROR_INVALID_STRUCT_PROPERTY = 0x3,
+		LOOKUP_ERROR_INVALID_ENUM_VALUE = 0x4,
+		LOOKUP_ERROR_COUNT = 0x5,
+	};
+
+	struct StructuredDataEnumEntry
+	{
+		scr_string_t name;
+		unsigned __int16 index;
+	};
+
+	struct StructuredDataEnum
+	{
+		int entryCount;
+		int reservedEntryCount;
+		StructuredDataEnumEntry* entries;
+	};
+
+	union StructuredDataTypeUnion
+	{
+		unsigned int stringDataLength;
+		int enumIndex;
+		int structIndex;
+		int indexedArrayIndex;
+		int enumedArrayIndex;
+	};
+
+	struct StructuredDataType
+	{
+		StructuredDataTypeCategory type;
+		StructuredDataTypeUnion u;
+	};
+
+	struct StructuredDataStructProperty
+	{
+		scr_string_t name;
+		StructuredDataType item;
+		int offset;
+		int validation;
+	};
+
+	struct StructuredDataStruct
+	{
+		int propertyCount;
+		StructuredDataStructProperty* properties;
+		int size;
+		unsigned int bitOffset;
+	};
+
+	struct StructuredDataIndexedArray
+	{
+		int arraySize;
+		StructuredDataType elementType;
+		unsigned int elementSize;
+	};
+
+	struct StructuredDataEnumedArray
+	{
+		int enumIndex;
+		StructuredDataType elementType;
+		unsigned int elementSize;
+	};
+
+	struct StructuredDataDef
+	{
+		int version;
+		unsigned int formatChecksum;
+		int enumCount;
+		StructuredDataEnum* enums;
+		int structCount;
+		StructuredDataStruct* structs;
+		int indexedArrayCount;
+		StructuredDataIndexedArray* indexedArrays;
+		int enumedArrayCount;
+		StructuredDataEnumedArray* enumedArrays;
+		StructuredDataType rootType;
+		unsigned int size;
+	};
+
+	struct StructuredDataDefSet
+	{
+		const char* name;
+		unsigned int defCount;
+		StructuredDataDef* defs;
+	};
+
+	struct StructuredDataLookup
+	{
+		StructuredDataDef* def;
+		StructuredDataType* rootType;
+		unsigned int offset;
+		LookupError error;
+	};
+
+	struct StructuredDataBuffer
+	{
+		char* data;
+		unsigned int size;
+	};
+
+	struct StringTableCell
+	{
+		const char* string;
+		int hash;
+	};
+
+	struct StringTable
+	{
+		const char* name;
+		int columnCount;
+		int rowCount; 
+		StringTableCell* values; 
+	};
+
 	struct Material
 	{
 		const char* name;
@@ -1301,11 +1467,6 @@ namespace game
 	{
 		unsigned short entnum;
 		unsigned short classnum;
-	};
-
-	enum scr_string_t
-	{
-		scr_string_t_dummy = 0x0,
 	};
 
 	struct function_stack_t
