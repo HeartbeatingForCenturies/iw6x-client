@@ -2221,4 +2221,208 @@ namespace game
 		int emissiveTechType;
 		int forceTechType;
 	};
+
+	namespace hks
+	{
+		struct GenericChunkHeader
+		{
+			unsigned __int64 m_flags;
+		};
+
+		struct ChunkHeader : GenericChunkHeader
+		{
+			ChunkHeader* m_next;
+		};
+
+		struct UserData : ChunkHeader
+		{
+			unsigned __int64 m_envAndSizeOffsetHighBits;
+			unsigned __int64 m_metaAndSizeOffsetLowBits;
+			char m_data[8];
+		};
+
+		struct InternString
+		{
+			unsigned __int64 m_flags;
+			unsigned __int64 m_lengthbits;
+			unsigned int m_hash;
+			char m_data[30];
+		};
+
+		struct HashTable;
+		struct cclosure;
+
+		union HksValue
+		{
+			cclosure* cClosure;
+			void* closure;
+			UserData* userData;
+			HashTable* table;
+			void* tstruct;
+			InternString* str;
+			void* thread;
+			void* ptr;
+			float number;
+			unsigned int native;
+			bool boolean;
+		};
+
+		enum HksObjectType
+		{
+			TANY = 0xFFFFFFFE,
+			TNONE = 0xFFFFFFFF,
+			TNIL = 0x0,
+			TBOOLEAN = 0x1,
+			TLIGHTUSERDATA = 0x2,
+			TNUMBER = 0x3,
+			TSTRING = 0x4,
+			TTABLE = 0x5,
+			TFUNCTION = 0x6,  // idk
+			TUSERDATA = 0x7,
+			TTHREAD = 0x8,
+			TIFUNCTION = 0x9, // Lua function
+			TCFUNCTION = 0xA, // C function
+			TUI64 = 0xB,
+			TSTRUCT = 0xC,
+			NUM_TYPE_OBJECTS = 0xE,
+		};
+
+		struct HksObject
+		{
+			HksObjectType t;
+			HksValue v;
+		};
+
+		const struct hksInstruction
+		{
+			unsigned int code;
+		};
+
+		struct ActivationRecord
+		{
+			HksObject* m_base;
+			const hksInstruction* m_returnAddress;
+			__int16 m_tailCallDepth;
+			__int16 m_numVarargs;
+			int m_numExpectedReturns;
+		};
+
+		struct CallStack
+		{
+			ActivationRecord* m_records;
+			ActivationRecord* m_lastrecord;
+			ActivationRecord* m_current;
+			const hksInstruction* m_current_lua_pc;
+			const hksInstruction* m_hook_return_addr;
+			int m_hook_level;
+		};
+
+		struct ApiStack
+		{
+			HksObject* top;
+			HksObject* base;
+			HksObject* alloc_top;
+			HksObject* bottom;
+		};
+
+		struct UpValue : ChunkHeader
+		{
+			HksObject m_storage;
+			HksObject* loc;
+			UpValue* m_next;
+		};
+
+		struct CallSite
+		{
+			_SETJMP_FLOAT128 m_jumpBuffer[16];
+			CallSite* m_prev;
+		};
+
+		enum Status
+		{
+			NEW = 0x1,
+			RUNNING = 0x2,
+			YIELDED = 0x3,
+			DEAD_ERROR = 0x4,
+		};
+
+		enum HksError
+		{
+		};
+
+		struct lua_Debug
+		{
+			int event;
+			const char* name;
+			const char* namewhat;
+			const char* what;
+			const char* source;
+			int currentline;
+			int nups;
+			int nparams;
+			int ishksfunc;
+			int linedefined;
+			int lastlinedefined;
+			char short_src[512];
+			int callstack_level;
+			int is_tail_call;
+		};
+
+		struct lua_State : ChunkHeader
+		{
+			void* m_global;
+			CallStack m_callStack;
+			ApiStack m_apistack;
+			UpValue* pending;
+			HksObject globals;
+			HksObject m_cEnv;
+			CallSite* m_callsites;
+			int m_numberOfCCalls;
+			void* m_context;
+			InternString* m_name;
+			lua_State* m_nextState;
+			lua_State* m_nextStateStack;
+			Status m_status;
+			HksError m_error;
+		};
+
+		using lua_function = int(__fastcall*)(lua_State*);
+
+		struct luaL_Reg
+		{
+			const char* name;
+			lua_function function;
+		};
+
+		struct Node
+		{
+			HksObject m_key;
+			HksObject m_value;
+		};
+
+		struct Metatable
+		{
+		};
+
+		struct HashTable : ChunkHeader
+		{
+			Metatable* m_meta;
+			unsigned int m_version;
+			unsigned int m_mask;
+			Node* m_hashPart;
+			HksObject* m_arrayPart;
+			unsigned int m_arraySize;
+			Node* m_freeNode;
+		};
+
+		struct cclosure : ChunkHeader
+		{
+			lua_function m_function;
+			HashTable* m_env;
+			__int16 m_numUpvalues;
+			__int16 m_flags;
+			InternString* m_name;
+			HksObject m_upvalues[1];
+		};
+	}
 }
