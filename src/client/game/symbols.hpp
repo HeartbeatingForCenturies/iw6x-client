@@ -312,5 +312,7 @@ namespace game
 		WEAK symbol<HashTable*(lua_State* s, unsigned int arraySize, unsigned int hashSize)> Hashtable_Create{0, 0x140186BD0};
 		WEAK symbol<cclosure*(lua_State* s, lua_function function, int num_upvalues, 
 			int internal_, int profilerTreatClosureAsFunc)> cclosure_Create{0, 0x140186DF0};
+		WEAK symbol<int(lua_State* s, int t)> hksi_luaL_ref{0, 0x14019C5C0};
+		WEAK symbol<void(lua_State* s, int t, int ref)> hksi_luaL_unref{0, 0x14019C750};
 	}
 }

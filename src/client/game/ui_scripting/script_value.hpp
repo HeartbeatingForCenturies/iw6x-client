@@ -29,8 +29,6 @@ namespace ui_scripting
 		script_value(const table& value);
 		script_value(const function& value);
 
-		bool operator==(const script_value& other);
-
 		template <typename T>
 		bool is() const;
 

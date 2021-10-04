@@ -189,21 +189,6 @@ namespace ui_scripting
 		return this->get<const char*>();
 	}
 
-	bool script_value::operator==(const script_value& other)
-	{
-		if (this->get_raw().t != other.get_raw().t)
-		{
-			return false;
-		}
-
-		if (this->get_raw().t == game::hks::TSTRING)
-		{
-			return this->get<std::string>() == other.get<std::string>();
-		}
-
-		return this->get_raw().v.native == other.get_raw().v.native;
-	}
-
 	/***************************************************************
 	 * Lightuserdata
 	 **************************************************************/

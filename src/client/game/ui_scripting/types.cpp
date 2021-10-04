@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "types.hpp"
 #include "execution.hpp"
+#include "stack_isolation.hpp"
 
 namespace ui_scripting
 {
@@ -65,6 +66,73 @@ namespace ui_scripting
 		: ptr(ptr_)
 		, type(type_)
 	{
+		this->add();
+	}
+
+	function::function(const function& other) : function(other.ptr, other.type)
+	{
+		this->ref = other.ref;
+	}
+
+	function::function(function&& other) noexcept
+	{
+		this->ptr = other.ptr;
+		this->type = other.type;
+		this->ref = other.ref;
+		other.ref = 0;
+	}
+
+	function::~function()
+	{
+		this->release();
+	}
+
+	function& function::operator=(const function& other)
+	{
+		if (&other != this)
+		{
+			this->release();
+			this->ptr = other.ptr;
+			this->type = other.type;
+			this->ref = other.ref;
+			this->add();
+		}
+
+		return *this;
+	}
+
+	function& function::operator=(function&& other) noexcept
+	{
+		if (&other != this)
+		{
+			this->release();
+			this->ptr = other.ptr;
+			this->type = other.type;
+			this->ref = other.ref;
+			other.ref = 0;
+		}
+
+		return *this;
+	}
+
+	void function::add()
+	{
+		game::hks::HksObject value{};
+		value.v.cClosure = this->ptr;
+		value.t = this->type;
+
+		stack_isolation _;
+		push_value(value);
+
+		this->ref = game::hks::hksi_luaL_ref(*game::hks::lua_state, -10000);
+	}
+
+	void function::release()
+	{
+		if (this->ref)
+		{
+			game::hks::hksi_luaL_unref(*game::hks::lua_state, -10000, this->ref);
+		}
 	}
 
 	arguments function::call(const arguments& arguments) const
