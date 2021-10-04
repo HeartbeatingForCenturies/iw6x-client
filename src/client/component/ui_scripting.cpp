@@ -130,6 +130,11 @@ namespace ui_scripting
 
 		void post_unpack() override
 		{
+			if (!game::environment::is_mp())
+			{
+				return;
+			}
+
 			scheduler::loop([]()
 			{
 				ui_scripting::lua::engine::run_frame();
