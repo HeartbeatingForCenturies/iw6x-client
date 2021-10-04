@@ -52,16 +52,29 @@ namespace ui_scripting::lua
 				}
 			);
 
-			userdata_type[sol::meta_function::index] = [](const userdata& userdata, const sol::this_state s, 
-				const std::string& name)
+			
+			userdata_type["get"] = [](const userdata& userdata, const sol::this_state s,
+				const sol::lua_value& key)
 			{
-				return convert(s, userdata.get(name));
+				return convert(s, userdata.get(convert({s, key})));
+			};
+
+			userdata_type["set"] = [](const userdata& userdata, const sol::this_state s,
+				const sol::lua_value& key, const sol::lua_value& value)
+			{
+				userdata.set(convert({s, key}), convert({s, value}));
+			};
+
+			userdata_type[sol::meta_function::index] = [](const userdata& userdata, const sol::this_state s, 
+				const sol::lua_value& key)
+			{
+				return convert(s, userdata.get(convert({s, key})));
 			};
 
 			userdata_type[sol::meta_function::new_index] = [](const userdata& userdata, const sol::this_state s, 
-				const std::string& name, const sol::lua_value& value)
+				const sol::lua_value& key, const sol::lua_value& value)
 			{
-				userdata.set(name, convert({s, value}));
+				userdata.set(convert({s, key }), convert({s, value}));
 			};
 
 			auto table_type = state.new_usertype<table>("table_");
@@ -78,27 +91,27 @@ namespace ui_scripting::lua
 			);
 
 			table_type["get"] = [](const table& table, const sol::this_state s,
-				const std::string& name)
+				const sol::lua_value& key)
 			{
-				return convert(s, table.get(name));
+				return convert(s, table.get(convert({s, key})));
 			};
 
 			table_type["set"] = [](const table& table, const sol::this_state s,
-				const std::string& name, const sol::lua_value& value)
+				const sol::lua_value& key, const sol::lua_value& value)
 			{
-				table.set(name, convert({s, value}));
+				table.set(convert({s, key}), convert({s, value}));
 			};
 
 			table_type[sol::meta_function::index] = [](const table& table, const sol::this_state s,
-				const std::string& name)
+				const sol::lua_value& key)
 			{
-				return convert(s, table.get(name));
+				return convert(s, table.get(convert({s, key})));
 			};
 
 			table_type[sol::meta_function::new_index] = [](const table& table, const sol::this_state s,
-				const std::string& name, const sol::lua_value& value)
+				const sol::lua_value& key, const sol::lua_value& value)
 			{
-				table.set(name, convert({s, value}));
+				table.set(convert({s, key}), convert({s, value}));
 			};
 
 			auto function_type = state.new_usertype<function>("function_");

@@ -87,7 +87,7 @@ namespace ui_scripting
 
 		try
 		{
-			game::hks::hks_obj_getfield(&value, state, &userdata, &state->m_apistack.top[-1]);
+			game::hks::hks_obj_gettable(&value, state, &userdata, &state->m_apistack.top[-1]);
 			return value;
 		}
 		catch (const std::exception& e)
@@ -116,7 +116,7 @@ namespace ui_scripting
 
 		try
 		{
-			game::hks::hks_obj_getfield(&value, state, &userdata, &state->m_apistack.top[-1]);
+			game::hks::hks_obj_gettable(&value, state, &userdata, &state->m_apistack.top[-1]);
 			return value;
 		}
 		catch (const std::exception& e)
