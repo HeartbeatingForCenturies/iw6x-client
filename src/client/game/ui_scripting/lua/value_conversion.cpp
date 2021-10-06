@@ -35,6 +35,11 @@ namespace ui_scripting::lua
 
 	script_value convert(const sol::lua_value& value)
 	{
+		if (value.is<bool>())
+		{
+			return {value.as<bool>()};
+		}
+
 		if (value.is<int>())
 		{
 			return {value.as<int>()};
@@ -43,11 +48,6 @@ namespace ui_scripting::lua
 		if (value.is<unsigned int>())
 		{
 			return {value.as<unsigned int>()};
-		}
-
-		if (value.is<bool>())
-		{
-			return {value.as<bool>()};
 		}
 
 		if (value.is<double>())
@@ -108,6 +108,11 @@ namespace ui_scripting::lua
 		if (value.is<float>())
 		{
 			return {state, value.as<float>()};
+		}
+
+		if (value.is<bool>())
+		{
+			return {state, value.as<bool>()};
 		}
 
 		if (value.is<std::string>())

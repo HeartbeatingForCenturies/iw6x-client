@@ -34,8 +34,12 @@ namespace ui_scripting
 	}
 
 	script_value::script_value(const bool value)
-		: script_value(static_cast<unsigned>(value))
 	{
+		game::hks::HksObject obj{};
+		obj.t = game::hks::TBOOLEAN;
+		obj.v.boolean = value;
+
+		this->value_ = obj;
 	}
 
 	script_value::script_value(const float value)
@@ -100,17 +104,12 @@ namespace ui_scripting
 	template <>
 	bool script_value::is<int>() const
 	{
-		return this->get_raw().t == game::hks::TNUMBER;
+		const auto number = this->get_raw().v.number;
+		return this->get_raw().t == game::hks::TNUMBER && static_cast<int>(number) == number;
 	}
 
 	template <>
 	bool script_value::is<unsigned int>() const
-	{
-		return this->is<int>();
-	}
-
-	template <>
-	bool script_value::is<bool>() const
 	{
 		return this->is<int>();
 	}
@@ -127,10 +126,20 @@ namespace ui_scripting
 		return static_cast<unsigned int>(this->get_raw().v.number);
 	}
 
+	/***************************************************************
+	 * Boolean
+	 **************************************************************/
+
+	template <>
+	bool script_value::is<bool>() const
+	{
+		return this->get_raw().t == game::hks::TBOOLEAN;
+	}
+
 	template <>
 	bool script_value::get() const
 	{
-		return this->get_raw().v.native != 0;
+		return this->get_raw().v.boolean;
 	}
 
 	/***************************************************************
