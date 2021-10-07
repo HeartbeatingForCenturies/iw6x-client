@@ -49,11 +49,8 @@ namespace ui_scripting
 			push_value(*i);
 		}
 
+		const auto _1 = gsl::finally(&disable_error_hook);
 		enable_error_hook();
-		const auto __ = gsl::finally([]()
-		{
-			disable_error_hook();
-		});
 
 		try
 		{
@@ -74,11 +71,8 @@ namespace ui_scripting
 		stack_isolation _;
 		push_value(key);
 
+		const auto _1 = gsl::finally(&disable_error_hook);
 		enable_error_hook();
-		const auto __ = gsl::finally([]()
-		{
-			disable_error_hook();
-		});
 
 		game::hks::HksObject value{};
 		game::hks::HksObject userdata{};
@@ -103,11 +97,8 @@ namespace ui_scripting
 		stack_isolation _;
 		push_value(key);
 
+		const auto _1 = gsl::finally(&disable_error_hook);
 		enable_error_hook();
-		const auto __ = gsl::finally([]()
-		{
-			disable_error_hook();
-		});
 
 		game::hks::HksObject value{};
 		game::hks::HksObject userdata{};
@@ -131,11 +122,8 @@ namespace ui_scripting
 
 		stack_isolation _;
 
+		const auto _1 = gsl::finally(&disable_error_hook);
 		enable_error_hook();
-		const auto __ = gsl::finally([]()
-		{
-			disable_error_hook();
-		});
 
 		game::hks::HksObject userdata{};
 		userdata.t = game::hks::TUSERDATA;
@@ -157,11 +145,8 @@ namespace ui_scripting
 
 		stack_isolation _;
 
+		const auto _1 = gsl::finally(&disable_error_hook);
 		enable_error_hook();
-		const auto __ = gsl::finally([]()
-		{
-			disable_error_hook();
-		});
 
 		game::hks::HksObject userdata{};
 		userdata.t = game::hks::TTABLE;

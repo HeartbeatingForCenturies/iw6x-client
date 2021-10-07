@@ -135,10 +135,7 @@ namespace ui_scripting
 				return;
 			}
 
-			scheduler::loop([]()
-			{
-				ui_scripting::lua::engine::run_frame();
-			}, scheduler::pipeline::renderer);
+			scheduler::loop(ui_scripting::lua::engine::run_frame, scheduler::pipeline::renderer);
 
 			hks_start_hook.create(0x1401D8E90, hks_start_stub);
 			hks_shutdown_hook.create(0x1401D24A0, hks_shutdown_stub);
@@ -153,10 +150,7 @@ namespace ui_scripting
 
 			command::add("reloaduiscripts", []()
 			{
-				scheduler::once([]()
-				{
-					ui_scripting::lua::engine::start();
-				}, scheduler::pipeline::renderer);
+				scheduler::once(ui_scripting::lua::engine::start, scheduler::pipeline::renderer);
 			});
 		}
 	};
