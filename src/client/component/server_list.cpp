@@ -143,6 +143,11 @@ namespace server_list
 				return utils::string::va("%s\n", servers[i].game_type.data());
 			}
 
+			if (column == 4)
+			{
+				return utils::string::va("%d\n", servers[i].ping);
+			}
+
 			return "";
 		}
 
