@@ -8,6 +8,7 @@
 #include "scheduler.hpp"
 #include "party.hpp"
 #include "game/game.hpp"
+#include "game/ui_scripting/execution.hpp"
 
 #include <utils/cryptography.hpp>
 #include <utils/string.hpp>
@@ -236,6 +237,57 @@ namespace server_list
 			trigger_refresh();
 			return true;
 		}
+
+		int get_client_count()
+		{
+			std::lock_guard<std::mutex> _(mutex);
+			auto count = 0;
+
+			for (const auto& server : servers)
+			{
+				count += server.clients;
+			}
+
+			return count;
+		}
+
+		int get_bot_count()
+		{
+			std::lock_guard<std::mutex> _(mutex);
+			auto count = 0;
+
+			for (const auto& server : servers)
+			{
+				count += server.bots;
+			}
+
+			return count;
+		}
+
+		int get_max_clients_count()
+		{
+			std::lock_guard<std::mutex> _(mutex);
+			auto count = 0;
+
+			for (const auto& server : servers)
+			{
+				count += server.max_clients;
+			}
+
+			return count;
+		}
+
+		int get_total_active_players_count_stub(game::hks::lua_State* s, void* a2)
+		{
+			const auto clients = get_client_count();
+			const auto bots = get_bot_count();
+			const auto max = get_max_clients_count();
+
+			const auto str = utils::string::va("%d/%d [%d]", clients, max, bots);
+			ui_scripting::push_value(str);
+
+			return 1;
+		}
 	}
 
 	bool get_master_server(game::netadr_s& address)
@@ -325,6 +377,9 @@ namespace server_list
 			// do feeder stuff
 			utils::hook::call(0x1401E7225, &ui_feeder_count);
 			utils::hook::call(0x1401E7405, &ui_feeder_item_text);
+
+			utils::hook::jump(0x1401EBE30, &get_total_active_players_count_stub, true);
+			scheduler::once(refresh_server_list, scheduler::pipeline::main);
 
 			command::add("lui_open", [](const command::params& params)
 			{
