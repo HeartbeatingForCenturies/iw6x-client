@@ -231,6 +231,22 @@ namespace patches
 				game::Com_Error(game::ERR_DROP, error, arg1);
 			}
 		}
+
+		utils::hook::detour cmd_lui_notify_server_hook;
+		void cmd_lui_notify_server_stub(game::mp::gentity_s* ent)
+		{
+			command::params_sv params{};
+			const auto menu_id = atoi(params.get(1));
+			const auto client = &game::mp::svs_clients[ent->s.clientNum];
+
+			// 9 => "end_game"
+			if (menu_id == 9 && client->header.netchan.remoteAddress.type != game::NA_LOOPBACK)
+			{
+				return;
+			}
+
+			cmd_lui_notify_server_hook.invoke<void>(ent);
+		}
 	}
 
 	class component final : public component_interface
@@ -346,6 +362,9 @@ namespace patches
 
 			// isProfanity
 			utils::hook::set(0x1402F61B0, 0xC3C033);
+
+			// Prevent clients from ending the game as non host by sending 'end_game' lui notification
+			cmd_lui_notify_server_hook.create(0x1403926A0, cmd_lui_notify_server_stub);
 		}
 
 		static void patch_sp()
