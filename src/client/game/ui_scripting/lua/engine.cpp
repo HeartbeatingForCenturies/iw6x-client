@@ -18,10 +18,8 @@ namespace ui_scripting::lua::engine
 			return scripts;
 		}
 
-		void load_scripts()
+		void load_scripts(const std::string& script_dir)
 		{
-			const auto script_dir = "iw6x/ui_scripts/"s;
-
 			if (!utils::io::directory_exists(script_dir))
 			{
 				return;
@@ -43,7 +41,8 @@ namespace ui_scripting::lua::engine
 	{
 		clear_converted_functions();
 		get_scripts().clear();
-		load_scripts();
+		load_scripts("iw6x/ui_scripts/");
+		load_scripts("data/ui_scripts/");
 	}
 
 	void stop()
