@@ -2145,7 +2145,13 @@ namespace game
 		struct client_t
 		{
 			clientHeader_t header;
-			char _0x818[0x41650];
+			const char* dropReason;
+			char userinfo[0x400];
+			int reliableSequence;
+			int reliableAcknowledge;
+			int reliableSent;
+			int messageAcknowledge;
+			char _0xC30[0x41238];
 			gentity_s* gentity;
 			char name[16];
 			int lastPacketTime;
