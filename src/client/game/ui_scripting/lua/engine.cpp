@@ -2,11 +2,10 @@
 #include "engine.hpp"
 #include "context.hpp"
 
-#include "../../../component/scheduler.hpp"
 #include "../../../component/ui_scripting.hpp"
+#include "../../../component/game_module.hpp"
 
 #include <utils/io.hpp>
-#include <utils/string.hpp>
 
 namespace ui_scripting::lua::engine
 {
@@ -41,6 +40,7 @@ namespace ui_scripting::lua::engine
 	{
 		clear_converted_functions();
 		get_scripts().clear();
+		load_scripts(game_module::get_host_module().get_folder() + "/data/ui_scripts/");
 		load_scripts("iw6x/ui_scripts/");
 		load_scripts("data/ui_scripts/");
 	}

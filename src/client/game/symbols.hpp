@@ -91,6 +91,9 @@ namespace game
 
 	WEAK symbol<long long (const char* qpath, char** buffer)> FS_ReadFile{0x14041D0B0, 0x1404DE900};
 	WEAK symbol<void (void* buffer)> FS_FreeFile{0x14041D0A0, 0x1404DE8F0};
+	WEAK symbol<void (const char *gameName)> FS_Startup{0x14041C660, 0x1404DDEB0};
+	WEAK symbol<void (const char *path, const char *dir, int bLanguageDirectory, int iLanguage)> FS_AddGameDirectory{0x14041A120, 0x1404DC570};
+	WEAK symbol<void (const char *path, const char *dir)> FS_AddLocalizedGameDirectory{0x14041A2F0, 0x1404DC760};
 
 	WEAK symbol<Weapon(const char* pickupName, int model)> G_FindItem{0x140462490, 0x14021B7E0};
 	WEAK symbol<int (playerState_s* ps, Weapon weapon, int dualWield, int startInAltMode, int usedBefore)>
