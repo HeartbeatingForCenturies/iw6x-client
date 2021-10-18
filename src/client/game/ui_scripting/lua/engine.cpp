@@ -42,7 +42,7 @@ namespace ui_scripting::lua::engine
 		clear_converted_functions();
 		get_scripts().clear();
 		load_scripts("iw6x/ui_scripts/");
-		load_scripts("data/scripts/");
+		load_scripts("data/ui_scripts/");
 	}
 
 	void stop()
