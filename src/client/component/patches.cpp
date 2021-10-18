@@ -260,7 +260,7 @@ namespace patches
 				return;
 			}
 
-			reinterpret_cast<size_t(*)(game::mp::client_t*, game::msg_t*)>(0x140472500)(client, msg);
+			reinterpret_cast<void(*)(game::mp::client_t*, game::msg_t*)>(0x140472500)(client, msg);
 		}
 	}
 
