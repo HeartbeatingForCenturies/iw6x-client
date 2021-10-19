@@ -38,5 +38,7 @@ LUI.MenuBuilder.m_definitions["menu_systemlink_join"] = function()
 	menu.children[2].states.default.left = 150
 	menu.children[2].states.default.right = -150
 
+	menu.children[3].properties.interval = 10
+
 	return menu
 end
