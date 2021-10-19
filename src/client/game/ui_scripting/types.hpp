@@ -28,10 +28,24 @@ namespace ui_scripting
 		table();
 		table(game::hks::HashTable* ptr_);
 
+		table(const table& other);
+		table(table&& other) noexcept;
+
+		~table();
+
+		table& operator=(const table& other);
+		table& operator=(table&& other) noexcept;
+
 		script_value get(const script_value& key) const;
 		void set(const script_value& key, const script_value& value) const;
 
 		game::hks::HashTable* ptr;
+
+	private:
+		void add();
+		void release();
+
+		int ref;
 	};
 
 	class function

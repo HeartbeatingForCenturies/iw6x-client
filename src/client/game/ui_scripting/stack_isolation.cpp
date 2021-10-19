@@ -8,9 +8,4 @@ namespace ui_scripting
 		const auto state = *game::hks::lua_state;
 		state->m_apistack.top = state->m_apistack.base;
 	}
-
-	stack_isolation::~stack_isolation()
-	{
-
-	}
 }

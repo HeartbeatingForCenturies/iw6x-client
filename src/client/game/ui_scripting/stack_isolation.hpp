@@ -7,14 +7,10 @@ namespace ui_scripting
 	{
 	public:
 		stack_isolation();
-		~stack_isolation();
-
 		stack_isolation(stack_isolation&&) = delete;
 		stack_isolation(const stack_isolation&) = delete;
 		stack_isolation& operator=(stack_isolation&&) = delete;
 		stack_isolation& operator=(const stack_isolation&) = delete;
-
-	private:
 
 	};
 }
