@@ -1,6 +1,5 @@
 #include <std_include.hpp>
 #include "execution.hpp"
-#include "stack_isolation.hpp"
 #include "component/ui_scripting.hpp"
 
 #include <utils/string.hpp>
@@ -41,8 +40,8 @@ namespace ui_scripting
 	arguments call_script_function(const function& function, const arguments& arguments)
 	{
 		const auto state = *game::hks::lua_state;
+		state->m_apistack.top = state->m_apistack.base;
 
-		stack_isolation _;
 		push_value(function);
 		for (auto i = arguments.begin(); i != arguments.end(); ++i)
 		{
@@ -67,8 +66,8 @@ namespace ui_scripting
 	script_value get_field(const userdata& self, const script_value& key)
 	{
 		const auto state = *game::hks::lua_state;
+		state->m_apistack.top = state->m_apistack.base;
 
-		stack_isolation _;
 		push_value(key);
 
 		const auto _1 = gsl::finally(&disable_error_hook);
@@ -93,8 +92,8 @@ namespace ui_scripting
 	script_value get_field(const table& self, const script_value& key)
 	{
 		const auto state = *game::hks::lua_state;
+		state->m_apistack.top = state->m_apistack.base;
 
-		stack_isolation _;
 		push_value(key);
 
 		const auto _1 = gsl::finally(&disable_error_hook);
@@ -119,8 +118,7 @@ namespace ui_scripting
 	void set_field(const userdata& self, const script_value& key, const script_value& value)
 	{
 		const auto state = *game::hks::lua_state;
-
-		stack_isolation _;
+		state->m_apistack.top = state->m_apistack.base;
 
 		const auto _1 = gsl::finally(&disable_error_hook);
 		enable_error_hook();
@@ -142,8 +140,7 @@ namespace ui_scripting
 	void set_field(const table& self, const script_value& key, const script_value& value)
 	{
 		const auto state = *game::hks::lua_state;
-
-		stack_isolation _;
+		state->m_apistack.top = state->m_apistack.base;
 
 		const auto _1 = gsl::finally(&disable_error_hook);
 		enable_error_hook();

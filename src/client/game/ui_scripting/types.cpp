@@ -1,7 +1,6 @@
 #include <std_include.hpp>
 #include "types.hpp"
 #include "execution.hpp"
-#include "stack_isolation.hpp"
 
 namespace ui_scripting
 {
@@ -99,7 +98,9 @@ namespace ui_scripting
 		value.v.table = this->ptr;
 		value.t = game::hks::TTABLE;
 
-		stack_isolation _;
+		const auto state = *game::hks::lua_state;
+		state->m_apistack.top = state->m_apistack.base;
+
 		push_value(value);
 
 		this->ref = game::hks::hksi_luaL_ref(*game::hks::lua_state, -10000);
@@ -186,7 +187,9 @@ namespace ui_scripting
 		value.v.cClosure = this->ptr;
 		value.t = this->type;
 
-		stack_isolation _;
+		const auto state = *game::hks::lua_state;
+		state->m_apistack.top = state->m_apistack.base;
+
 		push_value(value);
 
 		this->ref = game::hks::hksi_luaL_ref(*game::hks::lua_state, -10000);
