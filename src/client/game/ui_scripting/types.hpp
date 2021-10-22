@@ -45,7 +45,7 @@ namespace ui_scripting
 		void add();
 		void release();
 
-		int ref;
+		int ref{};
 	};
 
 	class function
@@ -70,6 +70,6 @@ namespace ui_scripting
 		void add();
 		void release();
 
-		int ref;
+		int ref{};
 	};
 }

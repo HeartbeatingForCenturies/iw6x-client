@@ -50,8 +50,9 @@ namespace ui_scripting
 		this->add();
 	}
 
-	table::table(const table& other) : table(other.ptr)
+	table::table(const table& other)
 	{
+		this->operator=(other);
 	}
 
 	table::table(table&& other) noexcept
@@ -133,8 +134,9 @@ namespace ui_scripting
 		this->add();
 	}
 
-	function::function(const function& other) : function(other.ptr, other.type)
+	function::function(const function& other)
 	{
+		this->operator=(other);
 	}
 
 	function::function(function&& other) noexcept
