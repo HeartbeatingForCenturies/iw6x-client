@@ -16,10 +16,24 @@ namespace ui_scripting
 	public:
 		userdata(void*);
 
+		userdata(const userdata& other);
+		userdata(userdata&& other) noexcept;
+
+		~userdata();
+
+		userdata& operator=(const userdata& other);
+		userdata& operator=(userdata&& other) noexcept;
+
 		script_value get(const script_value& key) const;
 		void set(const script_value& key, const script_value& value) const;
 
 		void* ptr;
+
+	private:
+		void add();
+		void release();
+
+		int ref{};
 	};
 
 	class table

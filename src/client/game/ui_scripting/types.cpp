@@ -20,6 +20,72 @@ namespace ui_scripting
 	userdata::userdata(void* ptr_)
 		: ptr(ptr_)
 	{
+		this->add();
+	}
+
+	userdata::userdata(const userdata& other)
+	{
+		this->operator=(other);
+	}
+
+	userdata::userdata(userdata&& other) noexcept
+	{
+		this->ptr = other.ptr;
+		this->ref = other.ref;
+		other.ref = 0;
+	}
+
+	userdata::~userdata()
+	{
+		this->release();
+	}
+
+	userdata& userdata::operator=(const userdata& other)
+	{
+		if (&other != this)
+		{
+			this->release();
+			this->ptr = other.ptr;
+			this->ref = other.ref;
+			this->add();
+		}
+
+		return *this;
+	}
+
+	userdata& userdata::operator=(userdata&& other) noexcept
+	{
+		if (&other != this)
+		{
+			this->release();
+			this->ptr = other.ptr;
+			this->ref = other.ref;
+			other.ref = 0;
+		}
+
+		return *this;
+	}
+
+	void userdata::add()
+	{
+		game::hks::HksObject value{};
+		value.v.ptr = this->ptr;
+		value.t = game::hks::TUSERDATA;
+
+		const auto state = *game::hks::lua_state;
+		state->m_apistack.top = state->m_apistack.base;
+
+		push_value(value);
+
+		this->ref = game::hks::hksi_luaL_ref(*game::hks::lua_state, -10000);
+	}
+
+	void userdata::release()
+	{
+		if (this->ref)
+		{
+			game::hks::hksi_luaL_unref(*game::hks::lua_state, -10000, this->ref);
+		}
 	}
 
 	void userdata::set(const script_value& key, const script_value& value) const
