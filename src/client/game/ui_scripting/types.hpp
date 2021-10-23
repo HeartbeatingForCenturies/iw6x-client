@@ -16,10 +16,24 @@ namespace ui_scripting
 	public:
 		userdata(void*);
 
+		userdata(const userdata& other);
+		userdata(userdata&& other) noexcept;
+
+		~userdata();
+
+		userdata& operator=(const userdata& other);
+		userdata& operator=(userdata&& other) noexcept;
+
 		script_value get(const script_value& key) const;
 		void set(const script_value& key, const script_value& value) const;
 
 		void* ptr;
+
+	private:
+		void add();
+		void release();
+
+		int ref{};
 	};
 
 	class table
@@ -28,10 +42,24 @@ namespace ui_scripting
 		table();
 		table(game::hks::HashTable* ptr_);
 
+		table(const table& other);
+		table(table&& other) noexcept;
+
+		~table();
+
+		table& operator=(const table& other);
+		table& operator=(table&& other) noexcept;
+
 		script_value get(const script_value& key) const;
 		void set(const script_value& key, const script_value& value) const;
 
 		game::hks::HashTable* ptr;
+
+	private:
+		void add();
+		void release();
+
+		int ref{};
 	};
 
 	class function
@@ -56,6 +84,6 @@ namespace ui_scripting
 		void add();
 		void release();
 
-		int ref;
+		int ref{};
 	};
 }

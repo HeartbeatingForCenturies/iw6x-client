@@ -1,7 +1,6 @@
 #include <std_include.hpp>
 #include "types.hpp"
 #include "execution.hpp"
-#include "stack_isolation.hpp"
 
 namespace ui_scripting
 {
@@ -21,6 +20,72 @@ namespace ui_scripting
 	userdata::userdata(void* ptr_)
 		: ptr(ptr_)
 	{
+		this->add();
+	}
+
+	userdata::userdata(const userdata& other)
+	{
+		this->operator=(other);
+	}
+
+	userdata::userdata(userdata&& other) noexcept
+	{
+		this->ptr = other.ptr;
+		this->ref = other.ref;
+		other.ref = 0;
+	}
+
+	userdata::~userdata()
+	{
+		this->release();
+	}
+
+	userdata& userdata::operator=(const userdata& other)
+	{
+		if (&other != this)
+		{
+			this->release();
+			this->ptr = other.ptr;
+			this->ref = other.ref;
+			this->add();
+		}
+
+		return *this;
+	}
+
+	userdata& userdata::operator=(userdata&& other) noexcept
+	{
+		if (&other != this)
+		{
+			this->release();
+			this->ptr = other.ptr;
+			this->ref = other.ref;
+			other.ref = 0;
+		}
+
+		return *this;
+	}
+
+	void userdata::add()
+	{
+		game::hks::HksObject value{};
+		value.v.ptr = this->ptr;
+		value.t = game::hks::TUSERDATA;
+
+		const auto state = *game::hks::lua_state;
+		state->m_apistack.top = state->m_apistack.base;
+
+		push_value(value);
+
+		this->ref = game::hks::hksi_luaL_ref(*game::hks::lua_state, -10000);
+	}
+
+	void userdata::release()
+	{
+		if (this->ref)
+		{
+			game::hks::hksi_luaL_unref(*game::hks::lua_state, -10000, this->ref);
+		}
 	}
 
 	void userdata::set(const script_value& key, const script_value& value) const
@@ -41,11 +106,78 @@ namespace ui_scripting
 	{
 		const auto state = *game::hks::lua_state;
 		this->ptr = game::hks::Hashtable_Create(state, 0, 0);
+		this->add();
 	}
 
 	table::table(game::hks::HashTable* ptr_)
 		: ptr(ptr_)
 	{
+		this->add();
+	}
+
+	table::table(const table& other)
+	{
+		this->operator=(other);
+	}
+
+	table::table(table&& other) noexcept
+	{
+		this->ptr = other.ptr;
+		this->ref = other.ref;
+		other.ref = 0;
+	}
+
+	table::~table()
+	{
+		this->release();
+	}
+
+	table& table::operator=(const table& other)
+	{
+		if (&other != this)
+		{
+			this->release();
+			this->ptr = other.ptr;
+			this->ref = other.ref;
+			this->add();
+		}
+
+		return *this;
+	}
+
+	table& table::operator=(table&& other) noexcept
+	{
+		if (&other != this)
+		{
+			this->release();
+			this->ptr = other.ptr;
+			this->ref = other.ref;
+			other.ref = 0;
+		}
+
+		return *this;
+	}
+
+	void table::add()
+	{
+		game::hks::HksObject value{};
+		value.v.table = this->ptr;
+		value.t = game::hks::TTABLE;
+
+		const auto state = *game::hks::lua_state;
+		state->m_apistack.top = state->m_apistack.base;
+
+		push_value(value);
+
+		this->ref = game::hks::hksi_luaL_ref(*game::hks::lua_state, -10000);
+	}
+
+	void table::release()
+	{
+		if (this->ref)
+		{
+			game::hks::hksi_luaL_unref(*game::hks::lua_state, -10000, this->ref);
+		}
 	}
 
 	void table::set(const script_value& key, const script_value& value) const
@@ -69,9 +201,9 @@ namespace ui_scripting
 		this->add();
 	}
 
-	function::function(const function& other) : function(other.ptr, other.type)
+	function::function(const function& other)
 	{
-		this->ref = other.ref;
+		this->operator=(other);
 	}
 
 	function::function(function&& other) noexcept
@@ -121,7 +253,9 @@ namespace ui_scripting
 		value.v.cClosure = this->ptr;
 		value.t = this->type;
 
-		stack_isolation _;
+		const auto state = *game::hks::lua_state;
+		state->m_apistack.top = state->m_apistack.base;
+
 		push_value(value);
 
 		this->ref = game::hks::hksi_luaL_ref(*game::hks::lua_state, -10000);
