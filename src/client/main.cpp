@@ -119,6 +119,8 @@ void remove_crash_file()
 	name = std::filesystem::path(name).replace_extension("").generic_string();
 
 	utils::io::remove_file("__" + name);
+	utils::io::remove_file("__iw6mp64_ship");
+	utils::io::remove_file("__iw6sp64_ship");
 }
 
 void enable_dpi_awareness()
@@ -188,7 +190,6 @@ int main()
 	limit_parallel_dll_loading();
 
 	srand(uint32_t(time(nullptr)));
-	remove_crash_file();
 
 	{
 		auto premature_shutdown = true;
@@ -203,6 +204,7 @@ int main()
 		try
 		{
 			apply_environment();
+			remove_crash_file();
 
 			if (!component_loader::post_start()) return 0;
 
