@@ -316,11 +316,11 @@ namespace party
 				}
 			});
 
-			command::add("kickClient", [](const command::params& params)
+			command::add("clientkick", [](const command::params& params)
 			{
 				if (params.size() < 2)
 				{
-					console::info("usage: kickClient <num>, <reason>(optional)\n");
+					console::info("usage: clientkick <num>, <reason>(optional)\n");
 					return;
 				}
 
