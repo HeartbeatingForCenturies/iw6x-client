@@ -251,6 +251,9 @@ namespace party
 				return;
 			}
 
+			// hook disconnect command function
+			utils::hook::jump(0x1402C6370, disconnect_stub);
+
 			if (game::environment::is_mp())
 			{
 				// show custom drop reason
