@@ -2,6 +2,7 @@
 #include "value_conversion.hpp"
 #include "../functions.hpp"
 #include "../execution.hpp"
+#include ".../../component/logfile.hpp"
 
 namespace scripting::lua
 {
@@ -111,19 +112,46 @@ namespace scripting::lua
 			return {state, table};
 		}
 
+		game::VariableValue convert_function(sol::lua_value value)
+		{
+			const auto function = value.as<sol::protected_function>();
+			const auto index = reinterpret_cast<char*>(logfile::vm_execute_hooks.size());
+
+			logfile::vm_execute_hooks[index] = function;
+
+			game::VariableValue func;
+			func.type = game::SCRIPT_FUNCTION;
+			func.u.codePosValue = index;
+
+			return func;
+		}
+
 		sol::lua_value convert_function(lua_State* state, const char* pos)
 		{
-			return [pos](const entity& entity, const sol::this_state s, sol::variadic_args va)
-			{
-				std::vector<script_value> arguments{};
-
-				for (auto arg : va)
+			return sol::overload(
+				[pos](const entity& entity, const sol::this_state s, sol::variadic_args va)
 				{
-					arguments.push_back(convert({s, arg}));
-				}
+					std::vector<script_value> arguments{};
 
-				return convert(s, scripting::exec_ent_thread(entity, pos, arguments));
-			};
+					for (auto arg : va)
+					{
+						arguments.push_back(convert({s, arg}));
+					}
+
+					return convert(s, exec_ent_thread(entity, pos, arguments));
+				},
+				[pos](const sol::this_state s, sol::variadic_args va)
+				{
+					std::vector<script_value> arguments{};
+
+					for (auto arg : va)
+					{
+						arguments.push_back(convert({s, arg}));
+					}
+
+					return convert(s, exec_ent_thread(*game::levelEntityId, pos, arguments));
+				}
+			);
 		}
 	}
 
@@ -235,6 +263,11 @@ namespace scripting::lua
 		if (value.is<vector>())
 		{
 			return {value.as<vector>()};
+		}
+
+		if (value.is<sol::protected_function>())
+		{
+			return convert_function(value);
 		}
 
 		return {};

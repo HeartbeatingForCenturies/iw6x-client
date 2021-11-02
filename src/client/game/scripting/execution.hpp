@@ -22,6 +22,9 @@ namespace scripting
 	}
 
 	script_value exec_ent_thread(const entity& entity, const char* pos, const std::vector<script_value>& arguments);
+	const char* get_function_pos(const std::string& filename, const std::string& function);
+	script_value call_script_function(const entity& entity, const std::string& filename,
+		const std::string& function, const std::vector<script_value>& arguments);
 
 	void clear_entity_fields(const entity& entity);
 	void clear_custom_fields();
