@@ -12,18 +12,31 @@ namespace filesystem
 {
 	namespace
 	{
+		bool custom_path_registered = false;
+
 		std::string get_binary_directory()
 		{
 			const auto dir = game_module::get_host_module().get_folder();
 			return utils::string::replace(dir, "/", "\\");
 		}
 
+		void register_custom_path_stub(const char* path, const char* dir)
+		{
+			if (!custom_path_registered)
+			{
+				custom_path_registered = true;
+
+				const auto launcher_dir = get_binary_directory();
+				game::FS_AddLocalizedGameDirectory(launcher_dir.data(), "data");
+			}
+
+			game::FS_AddLocalizedGameDirectory(path, dir);
+		}
+
 		void fs_startup_stub(const char* gamename)
 		{
+			custom_path_registered = false;
 			game::FS_Startup(gamename);
-
-			const auto launcher_dir = get_binary_directory();
-			game::FS_AddLocalizedGameDirectory(launcher_dir.data(), "data");
 		}
 	}
 
@@ -67,11 +80,19 @@ namespace filesystem
 			if (game::environment::is_sp())
 			{
 				utils::hook::call(0x14041B744, fs_startup_stub);
+
+				utils::hook::call(0x14041CD00, register_custom_path_stub);
+				utils::hook::call(0x14041CD20, register_custom_path_stub);
+				utils::hook::call(0x14041CD5F, register_custom_path_stub);
 			}
 			else
 			{
 				utils::hook::call(0x1404DD704, fs_startup_stub);
 				utils::hook::call(0x1404DDB43, fs_startup_stub);
+
+				utils::hook::call(0x1404DE550, register_custom_path_stub);
+				utils::hook::call(0x1404DE570, register_custom_path_stub);
+				utils::hook::call(0x1404DE5AF, register_custom_path_stub);
 			}
 		}
 	};
