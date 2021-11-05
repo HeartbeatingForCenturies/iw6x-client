@@ -274,6 +274,7 @@ namespace game
 
 	WEAK symbol<scrVarGlob_t> scr_VarGlob{0x1452CDF80, 0x144A67080};
 	WEAK symbol<scrVmPub_t> scr_VmPub{0x1455B1FA0, 0x144D4B090};
+	WEAK symbol<function_stack_t> scr_function_stack{0x1455BE708, 0x144D57808};
 	WEAK symbol<unsigned int> scr_levelEntityId{0x1452A9F30, 0x144A43020};
 
 	WEAK symbol<DWORD> threadIds{0x144DE6640, 0x1446B4960};

@@ -3,6 +3,8 @@
 #include "safe_execution.hpp"
 #include "stack_isolation.hpp"
 
+#include "component/scripting.hpp"
+
 namespace scripting
 {
 	namespace
@@ -128,6 +130,29 @@ namespace scripting
 		game::RemoveRefToObject(result);
 
 		return get_return_value();
+	}
+
+	const char* get_function_pos(const std::string& filename, const std::string& function)
+	{
+		if (scripting::script_function_table.find(filename) == scripting::script_function_table.end())
+		{
+			throw std::runtime_error("File '" + filename + "' not found");
+		};
+
+		const auto functions = scripting::script_function_table[filename];
+		if (functions.find(function) == functions.end())
+		{
+			throw std::runtime_error("Function '" + function + "' in file '" + filename + "' not found");
+		}
+
+		return functions.at(function);
+	}
+
+	script_value call_script_function(const entity& entity, const std::string& filename,
+		const std::string& function, const std::vector<script_value>& arguments)
+	{
+		const auto pos = get_function_pos(filename, function);
+		return exec_ent_thread(entity, pos, arguments);
 	}
 
 	static std::unordered_map<unsigned int, std::unordered_map<std::string, script_value>> custom_fields;

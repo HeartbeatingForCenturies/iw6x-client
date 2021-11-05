@@ -71,6 +71,44 @@ namespace scripting
 		}
 	}
 
+	std::string find_token(unsigned int id)
+	{
+		for (const auto& token : token_map)
+		{
+			if (token.second == id)
+			{
+				return token.first;
+			}
+		}
+
+		return utils::string::va("_ID%i", id);
+	}
+
+	std::string find_file(unsigned int id)
+	{
+		for (const auto& file : file_map)
+		{
+			if (file.second == id)
+			{
+				return file.first;
+			}
+		}
+
+		return utils::string::va("_ID%i", id);
+	}
+
+	unsigned int find_file_id(const std::string& name)
+	{
+		const auto result = file_map.find(name);
+
+		if (result != file_map.end())
+		{
+			return result->second;
+		}
+
+		return 0;
+	}
+
 	unsigned int find_token_id(const std::string& name)
 	{
 		const auto result = token_map.find(name);

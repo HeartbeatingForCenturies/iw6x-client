@@ -8,6 +8,7 @@
 
 #include "../../../component/command.hpp"
 #include "../../../component/logfile.hpp"
+#include "../../../component/scripting.hpp"
 
 #include <utils/string.hpp>
 
@@ -197,6 +198,19 @@ namespace scripting::lua
 				return scripting::lua::entity_to_struct(s, id);
 			};
 
+			entity_type["scriptcall"] = [](const entity& entity, const sol::this_state s, const std::string& filename,
+				const std::string function, sol::variadic_args va)
+			{
+				std::vector<script_value> arguments{};
+
+				for (auto arg : va)
+				{
+					arguments.push_back(convert({s, arg}));
+				}
+
+				return convert(s, call_script_function(entity, filename, function, arguments));
+			};
+
 			struct game
 			{
 			};
@@ -262,7 +276,6 @@ namespace scripting::lua
 			game_type["getgamevar"] = [](const sol::this_state s)
 			{
 				const auto id = *reinterpret_cast<unsigned int*>(0x144A43020);
-
 				const auto value = ::game::scr_VarGlob->childVariableValue[id];
 
 				::game::VariableValue variable{};
@@ -270,6 +283,120 @@ namespace scripting::lua
 				variable.u.uintValue = value.u.u.uintValue;
 
 				return convert(s, variable);
+			};
+
+			game_type["getfunctions"] = [entity_type](const game&, const sol::this_state s, const std::string& filename)
+			{
+				if (scripting::script_function_table.find(filename) == scripting::script_function_table.end())
+				{
+					throw std::runtime_error("File '" + filename + "' not found");
+				}
+
+				auto functions = sol::table::create(s.lua_state());
+
+				for (const auto& function : scripting::script_function_table[filename])
+				{
+					functions[function.first] = sol::overload(
+						[filename, function](const entity& entity, const sol::this_state s, sol::variadic_args va)
+						{
+							std::vector<script_value> arguments{};
+
+							for (auto arg : va)
+							{
+								arguments.push_back(convert({s, arg}));
+							}
+
+							gsl::finally(&logfile::enable_vm_execute_hook);
+							logfile::disable_vm_execute_hook();
+
+							return convert(s, call_script_function(entity, filename, function.first, arguments));
+						},
+						[filename, function](const sol::this_state s, sol::variadic_args va)
+						{
+							std::vector<script_value> arguments{};
+
+							for (auto arg : va)
+							{
+								arguments.push_back(convert({s, arg}));
+							}
+
+							gsl::finally(&logfile::enable_vm_execute_hook);
+							logfile::disable_vm_execute_hook();
+
+							return convert(s, call_script_function(*::game::levelEntityId, filename, function.first, arguments));
+						}
+					);
+				}
+
+				return functions;
+			};
+
+			game_type["scriptcall"] = [](const game&, const sol::this_state s, const std::string& filename,
+				const std::string function, sol::variadic_args va)
+			{
+				std::vector<script_value> arguments{};
+
+				for (auto arg : va)
+				{
+					arguments.push_back(convert({s, arg}));
+				}
+
+				gsl::finally(&logfile::enable_vm_execute_hook);
+				logfile::disable_vm_execute_hook();
+
+				return convert(s, call_script_function(*::game::levelEntityId, filename, function, arguments));
+			};
+
+			game_type["detour"] = [](const game&, const sol::this_state s, const std::string& filename,
+				const std::string function_name, const sol::protected_function& function)
+			{
+				const auto pos = get_function_pos(filename, function_name);
+				logfile::vm_execute_hooks[pos] = function;
+
+				auto detour = sol::table::create(function.lua_state());
+
+				detour["disable"] = [pos]()
+				{
+					logfile::vm_execute_hooks.erase(pos);
+				};
+
+				detour["enable"] = [pos, function]()
+				{
+					logfile::vm_execute_hooks[pos] = function;
+				};
+
+				detour["invoke"] = sol::overload(
+					[filename, function_name](const entity& entity, const sol::this_state s, sol::variadic_args va)
+					{
+						std::vector<script_value> arguments{};
+
+						for (auto arg : va)
+						{
+							arguments.push_back(convert({s, arg}));
+						}
+
+						gsl::finally(&logfile::enable_vm_execute_hook);
+						logfile::disable_vm_execute_hook();
+
+						return convert(s, call_script_function(entity, filename, function_name, arguments));
+					},
+					[filename, function_name](const sol::this_state s, sol::variadic_args va)
+					{
+						std::vector<script_value> arguments{};
+
+						for (auto arg : va)
+						{
+							arguments.push_back(convert({s, arg}));
+						}
+
+						gsl::finally(&logfile::enable_vm_execute_hook);
+						logfile::disable_vm_execute_hook();
+
+						return convert(s, call_script_function(*::game::levelEntityId, filename, function_name, arguments));
+					}
+				);
+
+				return detour;
 			};
 		}
 	}
