@@ -105,6 +105,9 @@ jobs:
           poll-interval-seconds: 10
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Remove old data files
+        run: ssh ${{ secrets.XLABS_MASTER_SSH_USER }}@${{ secrets.XLABS_MASTER_SSH_ADDRESS }} rm -rf ${{ env.XLABS_MASTER_PATH }}/iw6x/data/*
 
       - name: Upload iw6x binary
         run: rsync -avz iw6x.exe ${{ secrets.XLABS_MASTER_SSH_USER }}@${{ secrets.XLABS_MASTER_SSH_ADDRESS }}:${{ env.XLABS_MASTER_PATH }}/iw6x/
