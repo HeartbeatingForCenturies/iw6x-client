@@ -62,6 +62,15 @@ namespace system_check
 
 			return verify_hashes(mp_zone_hashes) && (game::environment::is_dedi() || verify_hashes(sp_zone_hashes));
 		}
+
+		void verify_binary_version()
+		{
+			const auto value = *reinterpret_cast<DWORD*>(0x140001337);
+			if (value != 0xDB0A33E7 && value != 0xA6D147E7)
+			{
+				throw std::runtime_error("Unsupported Call of Duty: Ghosts version");
+			}
+		}
 	}
 
 	bool is_valid()
@@ -75,6 +84,8 @@ namespace system_check
 	public:
 		void post_load() override
 		{
+			verify_binary_version();
+
 			if (!is_valid())
 			{
 				MessageBoxA(nullptr, "Your game files are outdated or unsupported.\n"

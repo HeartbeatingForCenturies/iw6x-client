@@ -11,6 +11,7 @@ jobs:
     name: Merge Release
     steps:
       - name: Check out files
+        if: github.event.pull_request.merged
         uses: actions/checkout@v2
         with:
           submodules: false
@@ -38,6 +39,7 @@ jobs:
           title="${{ github.event.pull_request.title }}"
           version="${title#Release }"
           echo "::set-output name=version::$version"
+
       - name: Create annotated tag
         if: github.event.pull_request.merged
         run: |
@@ -45,12 +47,15 @@ jobs:
             "${{ steps.extract_version.outputs.version }}" \
             "${{ github.event.pull_request.merge_commit_sha }}"
           git push origin --tags
+
       - name: Create Pull Request
+        if: github.event.pull_request.merged
         uses: repo-sync/pull-request@v2
         with:
           github_token: ${{ secrets.XLABS_CI_GITHUB_TOKEN }}
           source_branch: "master"
           destination_branch: "develop"
+          pr_allow_empty: true
           pr_body: |
             This Pull Request merges the release of X Labs Launcher ${{ steps.extract_version.outputs.version }} and was [automatically created by a workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) triggered by @${{ github.actor }}.
           pr_title: Merge release ${{ steps.extract_version.outputs.version }}

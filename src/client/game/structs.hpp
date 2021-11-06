@@ -790,6 +790,172 @@ namespace game
 		TC_COUNT = 0x3,
 	};
 
+	enum StatsGroup
+	{
+		STATSGROUP_RANKED = 0x0,
+		STATSGROUP_PRIVATE = 0x1,
+		STATSGROUP_COOP = 0x2,
+		STATSGROUP_COMMON = 0x3,
+		STATSGROUP_COUNT = 0x4,
+		STATSGROUP_IGNORE = 0x5,
+	};
+
+	enum StatsSource
+	{
+		STATS_ONLINE = 0x0,
+		STATS_COUNT = 0x1,
+	};
+
+	enum scr_string_t
+	{
+		scr_string_t_dummy = 0x0,
+	};
+
+	enum StructuredDataTypeCategory
+	{
+		DATA_INT = 0x0,
+		DATA_BYTE = 0x1,
+		DATA_BOOL = 0x2,
+		DATA_STRING = 0x3,
+		DATA_ENUM = 0x4,
+		DATA_STRUCT = 0x5,
+		DATA_INDEXED_ARRAY = 0x6,
+		DATA_ENUM_ARRAY = 0x7,
+		DATA_FLOAT = 0x8,
+		DATA_SHORT = 0x9,
+		DATA_COUNT = 0xA,
+	};
+
+	enum StructuredData_SetResult
+	{
+		SETRESULT_SUCCESS_CHANGED = 0x0,
+		SETRESULT_SUCCESS_NOCHANGE = 0x1,
+		SETRESULT_WRONG_DATA_TYPE = 0x2,
+		SETRESULT_ERROR_INT_TOO_LARGE_FOR_BYTE = 0x3,
+		SETRESULT_ERROR_STRING_TOO_LONG = 0x4,
+		SETRESULT_ERROR_INVALID_ENUM_VALUE = 0x5,
+		SETRESULT_COUNT = 0x6,
+	};
+
+	enum LookupError
+	{
+		LOOKUP_ERROR_NONE = 0x0,
+		LOOKUP_ERROR_WRONG_DATA_TYPE = 0x1,
+		LOOKUP_ERROR_INDEX_OUTSIDE_BOUNDS = 0x2,
+		LOOKUP_ERROR_INVALID_STRUCT_PROPERTY = 0x3,
+		LOOKUP_ERROR_INVALID_ENUM_VALUE = 0x4,
+		LOOKUP_ERROR_COUNT = 0x5,
+	};
+
+	struct StructuredDataEnumEntry
+	{
+		scr_string_t name;
+		unsigned __int16 index;
+	};
+
+	struct StructuredDataEnum
+	{
+		int entryCount;
+		int reservedEntryCount;
+		StructuredDataEnumEntry* entries;
+	};
+
+	union StructuredDataTypeUnion
+	{
+		unsigned int stringDataLength;
+		int enumIndex;
+		int structIndex;
+		int indexedArrayIndex;
+		int enumedArrayIndex;
+	};
+
+	struct StructuredDataType
+	{
+		StructuredDataTypeCategory type;
+		StructuredDataTypeUnion u;
+	};
+
+	struct StructuredDataStructProperty
+	{
+		scr_string_t name;
+		StructuredDataType item;
+		int offset;
+		int validation;
+	};
+
+	struct StructuredDataStruct
+	{
+		int propertyCount;
+		StructuredDataStructProperty* properties;
+		int size;
+		unsigned int bitOffset;
+	};
+
+	struct StructuredDataIndexedArray
+	{
+		int arraySize;
+		StructuredDataType elementType;
+		unsigned int elementSize;
+	};
+
+	struct StructuredDataEnumedArray
+	{
+		int enumIndex;
+		StructuredDataType elementType;
+		unsigned int elementSize;
+	};
+
+	struct StructuredDataDef
+	{
+		int version;
+		unsigned int formatChecksum;
+		int enumCount;
+		StructuredDataEnum* enums;
+		int structCount;
+		StructuredDataStruct* structs;
+		int indexedArrayCount;
+		StructuredDataIndexedArray* indexedArrays;
+		int enumedArrayCount;
+		StructuredDataEnumedArray* enumedArrays;
+		StructuredDataType rootType;
+		unsigned int size;
+	};
+
+	struct StructuredDataDefSet
+	{
+		const char* name;
+		unsigned int defCount;
+		StructuredDataDef* defs;
+	};
+
+	struct StructuredDataLookup
+	{
+		StructuredDataDef* def;
+		StructuredDataType* rootType;
+		unsigned int offset;
+		LookupError error;
+	};
+
+	struct StructuredDataBuffer
+	{
+		char* data;
+		unsigned int size;
+	};
+
+	struct StringTableCell
+	{
+		const char* string;
+		int hash;
+	};
+
+	struct StringTable
+	{
+		const char* name;
+		int columnCount;
+		int rowCount; 
+		StringTableCell* values; 
+	};
+
 	struct Material
 	{
 		const char* name;
@@ -1303,11 +1469,6 @@ namespace game
 		unsigned short classnum;
 	};
 
-	enum scr_string_t
-	{
-		scr_string_t_dummy = 0x0,
-	};
-
 	struct function_stack_t
 	{
 		const char* pos;
@@ -1356,7 +1517,7 @@ namespace game
 		unsigned __int16 self;
 	};
 
-	struct	ObjectVariableValue_u_o
+	struct ObjectVariableValue_u_o
 	{
 		unsigned __int16 refCount;
 		ObjectVariableValue_u_o_u u;
@@ -1395,7 +1556,7 @@ namespace game
 		unsigned int match;
 	};
 
-	struct	ChildVariableValue
+	struct ChildVariableValue
 	{
 		ChildVariableValue_u u;
 		unsigned __int16 next;
@@ -1503,6 +1664,37 @@ namespace game
 		const char* name;
 	};
 
+	struct StreamFileNameRaw
+	{
+		const char* dir;
+		const char* name;
+	};
+
+	struct StreamFileNamePacked
+	{
+		unsigned __int64 offset;
+		unsigned __int64 length;
+	};
+
+	union StreamFileInfo
+	{
+		StreamFileNameRaw raw;
+		StreamFileNamePacked packed;
+	};
+
+	struct StreamFileName
+	{
+		unsigned __int16 isLocalized;
+		unsigned __int16 fileIndex;
+		StreamFileInfo info;
+	};
+
+	struct StreamedSound
+	{
+		StreamFileName filename;
+		unsigned int totalMsec;
+	};
+
 	union XAssetHeader
 	{
 		void* data;
@@ -1554,7 +1746,7 @@ namespace game
 		AddonMapEnts *addonMapEnts;
 		NetConstStrings *netConstStrings;
 		ReverbPreset *reverbPreset;*/
-		LuaFile *luaFile;
+		LuaFile* luaFile;
 		/*ScriptableDef *scriptable;
 		Colorization *colorization;
 		ColorizationSet *colorizationSet;
@@ -1610,6 +1802,8 @@ namespace game
 		{
 			char __0x00[0x110];
 			gclient_s* client;
+			char __0x118[0x4C];
+			int flags;
 		};
 
 		struct playerState_s
@@ -1624,7 +1818,6 @@ namespace game
 			char gap4[121];
 			char gap5;
 		};
-
 	}
 
 	namespace mp
@@ -1952,7 +2145,13 @@ namespace game
 		struct client_t
 		{
 			clientHeader_t header;
-			char _0x818[0x41650];
+			const char* dropReason;
+			char userinfo[0x400];
+			int reliableSequence;
+			int reliableAcknowledge;
+			int reliableSent;
+			int messageAcknowledge;
+			char _0xC30[0x41238];
 			gentity_s* gentity;
 			char name[16];
 			int lastPacketTime;
@@ -2028,4 +2227,208 @@ namespace game
 		int emissiveTechType;
 		int forceTechType;
 	};
+
+	namespace hks
+	{
+		struct GenericChunkHeader
+		{
+			unsigned __int64 m_flags;
+		};
+
+		struct ChunkHeader : GenericChunkHeader
+		{
+			ChunkHeader* m_next;
+		};
+
+		struct UserData : ChunkHeader
+		{
+			unsigned __int64 m_envAndSizeOffsetHighBits;
+			unsigned __int64 m_metaAndSizeOffsetLowBits;
+			char m_data[8];
+		};
+
+		struct InternString
+		{
+			unsigned __int64 m_flags;
+			unsigned __int64 m_lengthbits;
+			unsigned int m_hash;
+			char m_data[30];
+		};
+
+		struct HashTable;
+		struct cclosure;
+
+		union HksValue
+		{
+			cclosure* cClosure;
+			void* closure;
+			UserData* userData;
+			HashTable* table;
+			void* tstruct;
+			InternString* str;
+			void* thread;
+			void* ptr;
+			float number;
+			unsigned int native;
+			bool boolean;
+		};
+
+		enum HksObjectType
+		{
+			TANY = 0xFFFFFFFE,
+			TNONE = 0xFFFFFFFF,
+			TNIL = 0x0,
+			TBOOLEAN = 0x1,
+			TLIGHTUSERDATA = 0x2,
+			TNUMBER = 0x3,
+			TSTRING = 0x4,
+			TTABLE = 0x5,
+			TFUNCTION = 0x6,  // idk
+			TUSERDATA = 0x7,
+			TTHREAD = 0x8,
+			TIFUNCTION = 0x9, // Lua function
+			TCFUNCTION = 0xA, // C function
+			TUI64 = 0xB,
+			TSTRUCT = 0xC,
+			NUM_TYPE_OBJECTS = 0xE,
+		};
+
+		struct HksObject
+		{
+			HksObjectType t;
+			HksValue v;
+		};
+
+		const struct hksInstruction
+		{
+			unsigned int code;
+		};
+
+		struct ActivationRecord
+		{
+			HksObject* m_base;
+			const hksInstruction* m_returnAddress;
+			__int16 m_tailCallDepth;
+			__int16 m_numVarargs;
+			int m_numExpectedReturns;
+		};
+
+		struct CallStack
+		{
+			ActivationRecord* m_records;
+			ActivationRecord* m_lastrecord;
+			ActivationRecord* m_current;
+			const hksInstruction* m_current_lua_pc;
+			const hksInstruction* m_hook_return_addr;
+			int m_hook_level;
+		};
+
+		struct ApiStack
+		{
+			HksObject* top;
+			HksObject* base;
+			HksObject* alloc_top;
+			HksObject* bottom;
+		};
+
+		struct UpValue : ChunkHeader
+		{
+			HksObject m_storage;
+			HksObject* loc;
+			UpValue* m_next;
+		};
+
+		struct CallSite
+		{
+			_SETJMP_FLOAT128 m_jumpBuffer[16];
+			CallSite* m_prev;
+		};
+
+		enum Status
+		{
+			NEW = 0x1,
+			RUNNING = 0x2,
+			YIELDED = 0x3,
+			DEAD_ERROR = 0x4,
+		};
+
+		enum HksError
+		{
+		};
+
+		struct lua_Debug
+		{
+			int event;
+			const char* name;
+			const char* namewhat;
+			const char* what;
+			const char* source;
+			int currentline;
+			int nups;
+			int nparams;
+			int ishksfunc;
+			int linedefined;
+			int lastlinedefined;
+			char short_src[512];
+			int callstack_level;
+			int is_tail_call;
+		};
+
+		struct lua_State : ChunkHeader
+		{
+			void* m_global;
+			CallStack m_callStack;
+			ApiStack m_apistack;
+			UpValue* pending;
+			HksObject globals;
+			HksObject m_cEnv;
+			CallSite* m_callsites;
+			int m_numberOfCCalls;
+			void* m_context;
+			InternString* m_name;
+			lua_State* m_nextState;
+			lua_State* m_nextStateStack;
+			Status m_status;
+			HksError m_error;
+		};
+
+		using lua_function = int(__fastcall*)(lua_State*);
+
+		struct luaL_Reg
+		{
+			const char* name;
+			lua_function function;
+		};
+
+		struct Node
+		{
+			HksObject m_key;
+			HksObject m_value;
+		};
+
+		struct Metatable
+		{
+		};
+
+		struct HashTable : ChunkHeader
+		{
+			Metatable* m_meta;
+			unsigned int m_version;
+			unsigned int m_mask;
+			Node* m_hashPart;
+			HksObject* m_arrayPart;
+			unsigned int m_arraySize;
+			Node* m_freeNode;
+		};
+
+		struct cclosure : ChunkHeader
+		{
+			lua_function m_function;
+			HashTable* m_env;
+			__int16 m_numUpvalues;
+			__int16 m_flags;
+			InternString* m_name;
+			HksObject m_upvalues[1];
+		};
+	}
 }

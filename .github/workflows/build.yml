@@ -56,6 +56,14 @@ jobs:
             build/bin/x64/${{matrix.configuration}}/iw6x.exe
             build/bin/x64/${{matrix.configuration}}/iw6x.pdb
 
+      - name: Upload ${{matrix.configuration}} data artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{matrix.configuration}} data artifacts
+          path: |
+            data/*
+
+
   deploy:
     name: Deploy artifacts
     needs: build
@@ -74,6 +82,12 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: Release binaries
+
+      - name: Download Release data artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: Release data artifacts
+          path: data
 
       # Set up committer info and GPG key
       - name: Install SSH key
@@ -94,6 +108,9 @@ jobs:
 
       - name: Upload iw6x binary
         run: rsync -avz iw6x.exe ${{ secrets.XLABS_MASTER_SSH_USER }}@${{ secrets.XLABS_MASTER_SSH_ADDRESS }}:${{ env.XLABS_MASTER_PATH }}/iw6x/
+      
+      - name: Upload data files
+        run: rsync -avz ./data/ ${{ secrets.XLABS_MASTER_SSH_USER }}@${{ secrets.XLABS_MASTER_SSH_ADDRESS }}:${{ env.XLABS_MASTER_PATH }}/iw6x/data/
       
       - name: Publish changes
         run: ssh ${{ secrets.XLABS_MASTER_SSH_USER }}@${{ secrets.XLABS_MASTER_SSH_ADDRESS }} ${{ secrets.XLABS_MASTER_SSH_CHANGE_PUBLISH_COMMAND }} 

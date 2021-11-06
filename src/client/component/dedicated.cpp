@@ -269,6 +269,10 @@ namespace dedicated
 			// Stop crashing from sys_errors
 			utils::hook::jump(0x1404FF510, sys_error_stub);
 
+			// Reduce min required memory
+			utils::hook::set<uint64_t>(0x1404FA6BD, 0x80000000);
+			utils::hook::set<uint64_t>(0x1404FA76F, 0x80000000);
+
 			scheduler::on_game_initialized([]()
 			{
 				initialize();

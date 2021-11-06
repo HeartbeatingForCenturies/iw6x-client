@@ -379,6 +379,34 @@ namespace command
 		
 		void add_sp_commands()
 		{
+			add("god", [&]()
+			{
+				if (!game::SV_Loaded())
+				{
+					return;
+				}
+
+				game::sp::g_entities[0].flags ^= game::FL_GODMODE;
+				game::CG_GameMessage(0, utils::string::va("godmode %s",
+				                                          game::sp::g_entities[0].flags & game::FL_GODMODE
+					                                          ? "^2on"
+					                                          : "^1off"));
+			});
+
+			add("notarget", [&]()
+			{
+				if (!game::SV_Loaded())
+				{
+					return;
+				}
+
+				game::sp::g_entities[0].flags ^= game::FL_NOTARGET;
+				game::CG_GameMessage(0, utils::string::va("notarget %s",
+				                                          game::sp::g_entities[0].flags & game::FL_NOTARGET
+					                                          ? "^2on"
+					                                          : "^1off"));
+			});
+			
 			add("noclip", [&]()
 			{
 				if (!game::SV_Loaded())
@@ -401,8 +429,10 @@ namespace command
 				}
 
 				game::sp::g_entities[0].client->flags ^= 2;
-				game::CG_GameMessage(
-					0, utils::string::va("ufo %s", game::sp::g_entities[0].client->flags & 2 ? "^2on" : "^1off"));
+				game::CG_GameMessage(0, utils::string::va("ufo %s", 
+				                                          game::sp::g_entities[0].client->flags & 2 
+					                                          ? "^2on" 
+					                                          : "^1off"));
 			});
 
 			add("give", [](const params& params)
@@ -461,9 +491,25 @@ namespace command
 				game::mp::g_entities[client_num].flags ^= game::FL_GODMODE;
 				game::SV_GameSendServerCommand(client_num, 1,
 				                               utils::string::va("f \"godmode %s\"",
-				                                                 game::mp::g_entities[client_num].flags & 1
+				                                                 game::mp::g_entities[client_num].flags & game::FL_GODMODE
 					                                                 ? "^2on"
 					                                                 : "^1off"));
+			});
+
+			add_sv("notarget", [&](const int client_num, const params_sv&)
+			{
+				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				{
+					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
+					return;
+				}
+
+				game::mp::g_entities[client_num].flags ^= game::FL_NOTARGET;
+				game::SV_GameSendServerCommand(client_num, 1,
+				                               utils::string::va("f \"notarget %s\"",
+				     	                                         game::mp::g_entities[client_num].flags & game::FL_NOTARGET 
+					                    	                         ? "^2on" 
+				                    		                         : "^1off"));
 			});
 
 			add_sv("noclip", [&](const int client_num, const params_sv&)

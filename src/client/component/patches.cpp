@@ -2,6 +2,7 @@
 #include "loader/component_loader.hpp"
 #include "command.hpp"
 #include "console.hpp"
+#include "network.hpp"
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 #include "filesystem.hpp"
@@ -231,6 +232,36 @@ namespace patches
 				game::Com_Error(game::ERR_DROP, error, arg1);
 			}
 		}
+
+		utils::hook::detour cmd_lui_notify_server_hook;
+		void cmd_lui_notify_server_stub(game::mp::gentity_s* ent)
+		{
+			command::params_sv params{};
+			const auto menu_id = atoi(params.get(1));
+			const auto client = &game::mp::svs_clients[ent->s.clientNum];
+
+			// 9 => "end_game"
+			if (menu_id == 9 && client->header.netchan.remoteAddress.type != game::NA_LOOPBACK)
+			{
+				return;
+			}
+
+			cmd_lui_notify_server_hook.invoke<void>(ent);
+		}
+
+		void sv_execute_client_message_stub(game::mp::client_t* client, game::msg_t* msg)
+		{
+			if (client->reliableAcknowledge < 0)
+			{
+				client->reliableAcknowledge = client->reliableSequence;
+				console::info("Negative reliableAcknowledge from %s - cl->reliableSequence is %i, reliableAcknowledge is %i\n",
+					client->name, client->reliableSequence, client->reliableAcknowledge);
+				network::send(client->header.netchan.remoteAddress, "error", "EXE_LOSTRELIABLECOMMANDS", '\n');
+				return;
+			}
+
+			reinterpret_cast<void(*)(game::mp::client_t*, game::msg_t*)>(0x140472500)(client, msg);
+		}
 	}
 
 	class component final : public component_interface
@@ -323,10 +354,9 @@ namespace patches
 			// block changing name in-game
 			utils::hook::set<uint8_t>(0x140470300, 0xC3);
 
-			// Unlock all patches/cardtitles and exclusive items/camos
-			utils::hook::set(0x140402B10, 0xC301B0); // LiveStorage_IsItemUnlockedFromTable_LocalClient
-			utils::hook::set(0x140402360, 0xC301B0); // LiveStorage_IsItemUnlockedFromTable
-			utils::hook::set(0x1404A94E0, 0xC301B0); // GetIsCardTitleUnlocked
+			// Unlock all DLC items
+			utils::hook::set(0x1404EAC50, 0xC301B0); // Content_DoWeHaveDLCPackByName
+			utils::hook::set(0x140599890, 0xC301B0); // Entitlements_IsIDUnlocked
 
 			// Enable DLC items, extra loadouts and map selection in extinction
 			dvar_register_int_hook.create(0x1404EE270, &dvar_register_int);
@@ -347,6 +377,13 @@ namespace patches
 
 			// isProfanity
 			utils::hook::set(0x1402F61B0, 0xC3C033);
+
+			// Prevent clients from ending the game as non host by sending 'end_game' lui notification
+			cmd_lui_notify_server_hook.create(0x1403926A0, cmd_lui_notify_server_stub);
+
+			// Checks that reliableAcknowledge isn't negative
+			// It is possible to make the server hang if left unchecked
+			utils::hook::call(0x14047A29A, sv_execute_client_message_stub);
 		}
 
 		static void patch_sp()

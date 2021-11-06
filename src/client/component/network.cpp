@@ -108,10 +108,10 @@ namespace network
 		packet.push_back(separator);
 		packet.append(data);
 
-		send(address, packet);
+		send_data(address, packet);
 	}
 
-	void send(const game::netadr_s& address, const std::string& data)
+	void send_data(const game::netadr_s& address, const std::string& data)
 	{
 		if (address.type == game::NA_LOOPBACK)
 		{

@@ -4,6 +4,7 @@
 
 #include "../execution.hpp"
 #include "../../../component/logfile.hpp"
+#include "../../../component/game_module.hpp"
 
 #include <utils/io.hpp>
 
@@ -17,10 +18,8 @@ namespace scripting::lua::engine
 			return scripts;
 		}
 
-		void load_scripts()
+		void load_scripts(const std::string& script_dir)
 		{
-			const auto script_dir = "iw6x/scripts/"s;
-
 			if (!utils::io::directory_exists(script_dir))
 			{
 				return;
@@ -32,7 +31,7 @@ namespace scripting::lua::engine
 			{
 				if (std::filesystem::is_directory(script) && utils::io::file_exists(script + "/__init__.lua"))
 				{
-					get_scripts().emplace_back(std::make_unique<context>(script));
+					get_scripts().push_back(std::make_unique<context>(script));
 				}
 			}
 		}
@@ -53,7 +52,9 @@ namespace scripting::lua::engine
 		}
 
 		stop();
-		load_scripts();
+		load_scripts(game_module::get_host_module().get_folder() + "/data/scripts/");
+		load_scripts("iw6x/scripts/");
+		load_scripts("data/scripts/");
 	}
 
 	void notify(const event& e)
