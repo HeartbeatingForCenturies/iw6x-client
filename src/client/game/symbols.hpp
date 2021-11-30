@@ -239,6 +239,11 @@ namespace game
 
 	WEAK symbol<DWOnlineStatus (int)> dwGetLogOnStatus{0, 0x140589490};
 
+	WEAK symbol<void(pmove_t* move, trace_t*, const float*, const float*,
+		const Bounds*, int, int)> PM_playerTrace{0, 0x140225C20};
+	WEAK symbol<void(const pmove_t* move, trace_t* trace, const float*,
+		const float*, const Bounds*, int, int)> PM_trace{0, 0x140225DB0};
+
 	WEAK symbol<void*(jmp_buf* Buf, int Value)> longjmp{0x14062E030, 0x140738060};
 	WEAK symbol<int (jmp_buf* Buf)> _setjmp{0x14062F030, 0x140739060};
 
