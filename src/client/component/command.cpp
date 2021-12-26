@@ -400,7 +400,7 @@ namespace command
 					return;
 				}
 
-				execute(utils::string::va("%s", dvar->current.string));
+				execute(dvar->current.string);
 			});
 		}
 		
