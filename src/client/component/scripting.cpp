@@ -90,7 +90,7 @@ namespace scripting
 			scr_set_thread_position_hook.invoke<void>(threadName, codePos);
 		}
 		
-		int32_t has_config_string_index(const unsigned int csIndex)
+		int has_config_string_index(const unsigned int csIndex)
 		{
 			const auto* s_constantConfigStringTypes = reinterpret_cast<uint8_t*>(0x141721F80);
 			return csIndex < 0xDC4 && s_constantConfigStringTypes[csIndex] < 0x18u;
@@ -104,8 +104,9 @@ namespace scripting
 		unsigned int g_find_config_string_index_stub(const char* name, const int start, const unsigned int max, 
 			const int create, const char* errormsg)
 		{
+			const auto sv_running = game::Dvar_FindVar("sv_running");
 			return g_find_config_string_index.invoke<unsigned int>(name, start, max, 
-				game::SV_Loaded(), errormsg);
+				sv_running->current.integer, errormsg);
 		}
 	}
 
