@@ -106,7 +106,7 @@ namespace scripting
 		{
 			const auto sv_running = game::Dvar_FindVar("sv_running");
 			return g_find_config_string_index.invoke<unsigned int>(name, start, max, 
-				sv_running->current.integer, errormsg);
+				sv_running->current.enabled, errormsg);
 		}
 	}
 
