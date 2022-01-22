@@ -26,6 +26,8 @@ namespace scripting
 		utils::hook::detour scr_set_thread_position_hook;
 		utils::hook::detour process_script_hook;
 
+		utils::hook::detour g_find_config_string_index;
+
 		std::string current_file;
 
 		void vm_notify_stub(const unsigned int notify_list_owner_id, const game::scr_string_t string_value,
@@ -87,18 +89,25 @@ namespace scripting
 			script_function_table[current_file][function_name] = codePos;
 			scr_set_thread_position_hook.invoke<void>(threadName, codePos);
 		}
-	}
+		
+		int has_config_string_index(const unsigned int csIndex)
+		{
+			const auto* s_constantConfigStringTypes = reinterpret_cast<uint8_t*>(0x141721F80);
+			return csIndex < 0xDC4 && s_constantConfigStringTypes[csIndex] < 0x18u;
+		}
 
-	int32_t has_config_string_index(const unsigned int csIndex)
-	{
-		const auto* s_constantConfigStringTypes = reinterpret_cast<uint8_t*>(0x141721F80);
-		return csIndex < 0xDC4 && s_constantConfigStringTypes[csIndex] < 0x18u;
-	}
+		int is_pre_main_stub()
+		{
+			return game::SV_Loaded();
+		}
 
-	int is_pre_main_stub()
-	{
-		auto* const sv_running = game::Dvar_FindVar("sv_running");
-		return sv_running->current.enabled;
+		unsigned int g_find_config_string_index_stub(const char* name, const int start, const unsigned int max, 
+			const int create, const char* errormsg)
+		{
+			const auto sv_running = game::Dvar_FindVar("sv_running");
+			return g_find_config_string_index.invoke<unsigned int>(name, start, max, 
+				sv_running->current.enabled, errormsg);
+		}
 	}
 
 	class component final : public component_interface
@@ -127,6 +136,7 @@ namespace scripting
 				// Allow precaching anytime
 				utils::hook::jump(0x1402084A5, is_pre_main_stub);
 				utils::hook::set<uint16_t>(0x1402084D0, 0xD3EB); // jump to 0x1402084A5
+				g_find_config_string_index.create(0x140161F90, g_find_config_string_index_stub);
 			}
 		}
 	};
