@@ -375,6 +375,33 @@ namespace command
 					console::info("Total %s assets: %d/%d", game::g_assetNames[type], total_assets, game::g_poolSize[type]);
 				}
 			});
+
+			add("vstr", [](const params& params)
+			{
+				if (params.size() < 2)
+				{
+					console::info("vstr <variablename> : execute a variable command\n");
+					return;
+				}
+
+				const auto* dvarName = params.get(1);
+				const auto* dvar = game::Dvar_FindVar(dvarName);
+
+				if (dvar == nullptr)
+				{
+					console::info("%s doesn't exist\n", dvarName);
+					return;
+				}
+
+				if (dvar->type != game::dvar_type::string
+					&& dvar->type != game::dvar_type::enumeration)
+				{
+					console::info("%s is not a string-based dvar\n", dvar->name);
+					return;
+				}
+
+				execute(dvar->current.string);
+			});
 		}
 		
 		void add_sp_commands()

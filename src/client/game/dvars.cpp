@@ -19,6 +19,7 @@ namespace dvars
 	game::dvar_t* g_playerCollision = nullptr;
 	game::dvar_t* g_gravity = nullptr;
 	game::dvar_t* g_speed = nullptr;
+	game::dvar_t* g_enableElevators = nullptr;
 
 	game::dvar_t* pm_bouncing = nullptr;
 

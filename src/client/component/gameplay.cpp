@@ -166,6 +166,28 @@ namespace gameplay
 
 			a.jmp(0x140213494);
 		});
+
+		void pm_player_trace_stub(game::pmove_t* move, game::trace_t* trace, const float* f3,
+			const float* f4, const game::Bounds* bounds, int a6, int a7)
+		{
+			game::PM_playerTrace(move, trace, f3, f4, bounds, a6, a7);
+
+			if (dvars::g_enableElevators->current.enabled)
+			{
+				trace->startsolid = false;
+			}
+		}
+
+		void pm_trace_stub(const game::pmove_t* move, game::trace_t* trace, const float* f3,
+			const float* f4, const game::Bounds* bounds, int a6, int a7)
+		{
+			game::PM_trace(move, trace, f3, f4, bounds, a6, a7);
+
+			if (dvars::g_enableElevators->current.enabled)
+			{
+				trace->allsolid = false;
+			}
+		}
 	}
 
 	class component final : public component_interface
@@ -224,6 +246,12 @@ namespace gameplay
 			dvars::jump_ladderPushVel = game::Dvar_RegisterFloat("jump_ladderPushVel", 128.f, 0.f, 1024.f,
 			                                                     game::DvarFlags::DVAR_FLAG_REPLICATED,
 			                                                     "Ladder push velocity");
+
+			utils::hook::call(0x140221F92, pm_player_trace_stub);
+			utils::hook::call(0x140221FFA, pm_player_trace_stub);
+			utils::hook::call(0x14021F0E3, pm_trace_stub);
+			dvars::g_enableElevators = game::Dvar_RegisterBool("g_enableElevators", false,
+				game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable Elevators");
 		}
 	};
 }

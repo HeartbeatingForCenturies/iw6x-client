@@ -2228,6 +2228,60 @@ namespace game
 		int forceTechType;
 	};
 
+	enum TraceHitType
+	{
+		TRACE_HITTYPE_NONE,
+		TRACE_HITTYPE_ENTITY,
+		TRACE_HITTYPE_DYNENT_MODEL,
+		TRACE_HITTYPE_DYNENT_BRUSH,
+		TRACE_HITTYPE_GLASS
+	};
+
+	struct trace_t
+	{
+		float fraction;
+		float normal[3];
+		int surfaceFlags;
+		int contents;
+		TraceHitType hitType;
+		unsigned __int16 hitId;
+		unsigned __int16 modelIndex;
+		scr_string_t partName;
+		unsigned __int16 partGroup;
+		bool allsolid;
+		bool startsolid;
+		bool walkable;
+		bool getPenetration;
+		bool removePitchAndRollRotations;
+	};
+
+	struct pmove_t
+	{
+		playerState_s* ps;
+		usercmd_s cmd;
+		usercmd_s oldcmd;
+		int tracemask;
+		int numtouch;
+		int touchents[32];
+		Bounds bounds;
+		float speed;
+		int contactEntity;
+		int proneChange;
+		bool mantleStarted;
+		float mantleEndPos[3];
+		int mantleDuration;
+		float meleeEntOrigin[3];
+		float meleeEntVelocity[3];
+		int viewChangeTime;
+		float viewChange;
+		float fTorsoPitch;
+		float fWaistPitch;
+		int remoteTurretFireTime;
+		int lastUpdateCMDServerTime;
+		unsigned int groundSurfaceType;
+		unsigned char handler;
+	};
+
 	namespace hks
 	{
 		struct GenericChunkHeader
