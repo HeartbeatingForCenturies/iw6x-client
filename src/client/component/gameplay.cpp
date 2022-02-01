@@ -67,7 +67,7 @@ namespace gameplay
 
 			a.push(rax);
 
-			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::pm_bouncing)));
+			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::bg_bouncing)));
 			a.mov(al, byte_ptr(rax, 0x10));
 			a.cmp(ptr(rbp, -0x40), al);
 
@@ -91,7 +91,7 @@ namespace gameplay
 
 			a.push(rax);
 
-			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::pm_bouncing)));
+			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::bg_bouncing)));
 			a.mov(al, byte_ptr(rax, 0x10));
 			a.cmp(byte_ptr(rbp, -0x38), al);
 
@@ -107,6 +107,33 @@ namespace gameplay
 			a.bind(loc_140228FB8);
 			a.jmp(0x140228FB8);
 		});
+
+		void pm_project_velocity_stub(const float* velIn, const float* normal, float* velOut)
+		{
+			const auto length_squared_2d = velIn[0] * velIn[0] + velIn[1] * velIn[1];
+
+			if (std::fabsf(normal[2]) < 0.001f || length_squared_2d == 0.0)
+			{
+				velOut[0] = velIn[0];
+				velOut[1] = velIn[1];
+				velOut[2] = velIn[2];
+				return;
+			}
+
+			auto new_z = velIn[0] * normal[0] + velIn[1] * normal[1];
+			new_z = -new_z / normal[2];
+
+			const auto length_scale = std::sqrtf((velIn[2] * velIn[2] + length_squared_2d)
+				/ (new_z * new_z + length_squared_2d));
+
+			if (dvars::bg_bouncingAllAngles->current.enabled
+				|| (length_scale < 1.f || new_z < 0.f || velIn[2] > 0.f))
+			{
+				velOut[0] = velIn[0] * length_scale;
+				velOut[1] = velIn[1] * length_scale;
+				velOut[2] = new_z * length_scale;
+			}
+		}
 
 		void pm_crashland_stub(void* ps, void* pml)
 		{
@@ -203,8 +230,12 @@ namespace gameplay
 
 			utils::hook::jump(
 				SELECT_VALUE(0x14046EC5C, 0x140228FFF), SELECT_VALUE(pm_bouncing_stub_sp, pm_bouncing_stub_mp), true);
-			dvars::pm_bouncing = game::Dvar_RegisterBool("pm_bouncing", false,
+			dvars::bg_bouncing = game::Dvar_RegisterBool("bg_bouncing", false,
 			                                             game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable bouncing");
+
+			utils::hook::call(SELECT_VALUE(0x14046ED6A, 0x1402290D0), pm_project_velocity_stub);
+			dvars::bg_bouncingAllAngles = game::Dvar_RegisterBool("bg_bouncingAllAngles", false,
+				game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable bouncing from all angles");
 
 			if (game::environment::is_sp()) return;
 
