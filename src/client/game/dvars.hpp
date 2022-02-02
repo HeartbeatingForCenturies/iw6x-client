@@ -21,8 +21,8 @@ namespace dvars
 	extern game::dvar_t* g_speed;
 	extern game::dvar_t* g_enableElevators;
 
-	extern game::dvar_t* bg_bouncing;
-	extern game::dvar_t* bg_bouncingAllAngles;
+	extern game::dvar_t* pm_bouncing;
+	extern game::dvar_t* pm_bouncingAllAngles;
 
 	extern game::dvar_t* r_aspectRatioCustom;
 	extern game::dvar_t* jump_slowDownEnable;
