@@ -108,30 +108,30 @@ namespace gameplay
 			a.jmp(0x140228FB8);
 		});
 
-		void pm_project_velocity_stub(const float* velIn, const float* normal, float* velOut)
+		void pm_project_velocity_stub(const float* vel_in, const float* normal, float* vel_out)
 		{
-			const auto length_squared_2d = velIn[0] * velIn[0] + velIn[1] * velIn[1];
+			const auto length_squared_2d = vel_in[0] * vel_in[0] + vel_in[1] * vel_in[1];
 
 			if (std::fabsf(normal[2]) < 0.001f || length_squared_2d == 0.0)
 			{
-				velOut[0] = velIn[0];
-				velOut[1] = velIn[1];
-				velOut[2] = velIn[2];
+				vel_out[0] = vel_in[0];
+				vel_out[1] = vel_in[1];
+				vel_out[2] = vel_in[2];
 				return;
 			}
 
-			auto new_z = velIn[0] * normal[0] + velIn[1] * normal[1];
+			auto new_z = vel_in[0] * normal[0] + vel_in[1] * normal[1];
 			new_z = -new_z / normal[2];
 
-			const auto length_scale = std::sqrtf((velIn[2] * velIn[2] + length_squared_2d)
+			const auto length_scale = std::sqrtf((vel_in[2] * vel_in[2] + length_squared_2d)
 				/ (new_z * new_z + length_squared_2d));
 
 			if (dvars::pm_bouncingAllAngles->current.enabled
-				|| (length_scale < 1.f || new_z < 0.f || velIn[2] > 0.f))
+				|| (length_scale < 1.f || new_z < 0.f || vel_in[2] > 0.f))
 			{
-				velOut[0] = velIn[0] * length_scale;
-				velOut[1] = velIn[1] * length_scale;
-				velOut[2] = new_z * length_scale;
+				vel_out[0] = vel_in[0] * length_scale;
+				vel_out[1] = vel_in[1] * length_scale;
+				vel_out[2] = new_z * length_scale;
 			}
 		}
 
