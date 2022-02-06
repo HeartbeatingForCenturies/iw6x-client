@@ -240,7 +240,7 @@ namespace game
 	WEAK symbol<DWOnlineStatus (int)> dwGetLogOnStatus{0, 0x140589490};
 
 	WEAK symbol<void(pmove_t* move, trace_t*, const float*, const float*,
-		const Bounds*, int, int)> PM_playerTrace{0, 0x140225C20};
+		const Bounds*, int, int)> PM_playerTrace{0x14046C910, 0x140225C20};
 	WEAK symbol<void(const pmove_t* move, trace_t* trace, const float*,
 		const float*, const Bounds*, int, int)> PM_trace{0, 0x140225DB0};
 
