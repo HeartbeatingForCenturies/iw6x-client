@@ -137,12 +137,10 @@ namespace ui_scripting
 
 			scheduler::loop([]()
 			{
-				if (!game::Sys_IsMainThread())
+				if (game::Sys_IsMainThread())
 				{
-					return;
+					ui_scripting::lua::engine::run_frame();
 				}
-
-				ui_scripting::lua::engine::run_frame();
 			}, scheduler::pipeline::renderer);
 
 			hks_start_hook.create(0x1401D8E90, hks_start_stub);
