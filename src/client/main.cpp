@@ -102,7 +102,7 @@ FARPROC load_binary(const launcher::mode mode)
 	if (!utils::io::read_file(binary, &data))
 	{
 		throw std::runtime_error(
-			"Failed to read game binary! Please copy the iw6x.exe into your Call of Duty: Ghosts installation folder and run it from there.");
+			"Failed to read game binary! Please select the correct path in the launcher settings.");
 	}
 
 #ifdef INJECT_HOST_AS_LIB
