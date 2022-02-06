@@ -9,17 +9,19 @@ namespace ultrawide
 {
 	namespace
 	{
+		game::dvar_t* r_aspectRatio;
+
 		game::dvar_t* dvar_register_aspect_ratio(const char* name, const char**, int default_index, unsigned int flags,
 		                                         const char* description)
 		{
-			static std::vector<const char*> values =
+			static const char* values[] =
 			{
 				"auto",
 				"standard",
 				"wide 16:10",
 				"wide 16:9",
 				"custom",
-				nullptr,
+				nullptr
 			};
 
 			// register custom aspect ratio dvar
@@ -28,7 +30,8 @@ namespace ultrawide
 			                                                      "Screen aspect ratio. Divide width by height to get the aspect ratio value. For example: 21 / 9 = 2,33");
 
 			// register r_aspectRatio dvar
-			return game::Dvar_RegisterEnum(name, values.data(), default_index, flags, description);
+			r_aspectRatio = game::Dvar_RegisterEnum(name, values, default_index, flags, description);
+			return r_aspectRatio;
 		}
 
 
@@ -41,11 +44,10 @@ namespace ultrawide
 		float hud_aspect_ratio = 1.77778f;
 		float hud_aspect_ratio_inv = -1.77778f;
 
-
-		void __fastcall ultrawide_patch(wnd_struct* wnd)
+		void ultrawide_patch(wnd_struct* wnd)
 		{
-			const auto& r_aspect_ratio = game::Dvar_FindVar("r_aspectRatio");
-			if (r_aspect_ratio && r_aspect_ratio->current.integer == 4 && dvars::r_aspectRatioCustom)
+			if (r_aspectRatio != nullptr
+				&& r_aspectRatio->current.integer == 4 && dvars::r_aspectRatioCustom != nullptr)
 			{
 				hud_aspect_ratio = dvars::r_aspectRatioCustom->current.value;
 				hud_aspect_ratio_inv = -hud_aspect_ratio;
