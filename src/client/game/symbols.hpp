@@ -324,5 +324,7 @@ namespace game
 			int internal_, int profilerTreatClosureAsFunc)> cclosure_Create{0, 0x140186DF0};
 		WEAK symbol<int(lua_State* s, int t)> hksi_luaL_ref{0, 0x14019C5C0};
 		WEAK symbol<void(lua_State* s, int t, int ref)> hksi_luaL_unref{0, 0x14019C750};
+		WEAK symbol<int(lua_State* s, int what, int data)> hks_lua_gc{0, 0x1401A4790};
+		WEAK symbol<int(lua_State* s, const char* filename)> hksi_hks_memorystats{0, 0x14019B580};
 	}
 }
