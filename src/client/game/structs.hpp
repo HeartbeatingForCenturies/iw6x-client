@@ -1281,6 +1281,16 @@ namespace game
 		vec3_t vDelta;
 	};
 
+	enum clientstate_t
+	{
+		CS_FREE = 0x0,
+		CS_ZOMBIE = 0x1,
+		CS_RECONNECTING = 0x2,
+		CS_CONNECTED = 0x3,
+		CS_CLIENTLOADING = 0x4,
+		CS_ACTIVE = 0x5,
+	};
+
 	enum netadrtype_t
 	{
 		NA_BOT = 0x0,

@@ -123,7 +123,7 @@ namespace party
 		auto count = 0;
 		for (auto i = 0; i < *game::mp::svs_numclients; ++i)
 		{
-			if (game::mp::svs_clients[i].header.state >= 3)
+			if (game::mp::svs_clients[i].header.state >= game::CS_CONNECTED)
 			{
 				++count;
 			}
@@ -137,7 +137,7 @@ namespace party
 		auto count = 0;
 		for (auto i = 0; i < *game::mp::svs_numclients; ++i)
 		{
-			if (game::mp::svs_clients[i].header.state >= 3 &&
+			if (game::mp::svs_clients[i].header.state >= game::CS_CONNECTED &&
 				game::mp::svs_clients[i].testClient != game::TC_NONE)
 			{
 				++count;

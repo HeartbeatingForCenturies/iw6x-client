@@ -44,7 +44,7 @@ namespace dedicated_info
 					auto* client = &game::mp::svs_clients[i];
 					auto* self = &game::mp::g_entities[i];
 
-					if (client->header.state >= 1 && self && self->client)
+					if (client->header.state > game::CS_FREE && self && self->client)
 					{
 						client_count++;
 						if (game::SV_BotIsBot(i))
