@@ -54,15 +54,15 @@ namespace rcon
 				strncpy_s(clean_name, self->client->sess.cs.name, sizeof(clean_name));
 				game::I_CleanStr(clean_name);
 
-				if (client->header.state >= 1 && self && self->client)
+				if (client->header.state > game::CS_FREE && self && self->client)
 				{
 					buffer.append(utils::string::va("%3i %5i %3s %s %32s %16s %21s %5i\n",
 					                                i,
 					                                self->client->sess.scores.score,
 					                                game::SV_BotIsBot(i) ? "Yes" : "No",
-					                                (client->header.state == 2)
+					                                (client->header.state == game::CS_RECONNECTING)
 						                                ? "CNCT"
-						                                : (client->header.state == 1)
+						                                : (client->header.state == game::CS_ZOMBIE)
 						                                ? "ZMBI"
 						                                : utils::string::va("%4i", client->ping),
 					                                game::SV_GetGuid(i),

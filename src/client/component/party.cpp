@@ -97,35 +97,6 @@ namespace party
 			return {};
 		}
 
-		int get_client_count()
-		{
-			auto count = 0;
-			for (auto i = 0; i < *game::mp::svs_numclients; ++i)
-			{
-				if (game::mp::svs_clients[i].header.state >= 3)
-				{
-					++count;
-				}
-			}
-
-			return count;
-		}
-
-		int get_bot_count()
-		{
-			auto count = 0;
-			for (auto i = 0; i < *game::mp::svs_numclients; ++i)
-			{
-				if (game::mp::svs_clients[i].header.state >= 3 &&
-					game::mp::svs_clients[i].testClient != game::TC_NONE)
-				{
-					++count;
-				}
-			}
-
-			return count;
-		}
-
 		void disconnect_stub()
 		{
 			if (game::CL_IsCgameInitialized())
@@ -145,6 +116,35 @@ namespace party
 			a.mov(ecx, 2);
 			a.jmp(0x1402C617D);
 		});
+	}
+
+	int get_client_count()
+	{
+		auto count = 0;
+		for (auto i = 0; i < *game::mp::svs_numclients; ++i)
+		{
+			if (game::mp::svs_clients[i].header.state >= game::CS_CONNECTED)
+			{
+				++count;
+			}
+		}
+
+		return count;
+	}
+
+	int get_bot_count()
+	{
+		auto count = 0;
+		for (auto i = 0; i < *game::mp::svs_numclients; ++i)
+		{
+			if (game::mp::svs_clients[i].header.state >= game::CS_CONNECTED &&
+				game::mp::svs_clients[i].testClient != game::TC_NONE)
+			{
+				++count;
+			}
+		}
+
+		return count;
 	}
 
 	void reset_connect_state()

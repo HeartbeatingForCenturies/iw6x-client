@@ -23,12 +23,12 @@ namespace network
 			const auto cmd_string = utils::string::to_lower(command);
 			auto& callbacks = get_callbacks();
 			const auto handler = callbacks.find(cmd_string);
-			if (handler == callbacks.end())
+			const auto offset = cmd_string.size() + 5;
+			if (message->cursize < offset || handler == callbacks.end())
 			{
 				return false;
 			}
 
-			const auto offset = cmd_string.size() + 5;
 			const std::string_view data(message->data + offset, message->cursize - offset);
 
 			handler->second(*address, data);

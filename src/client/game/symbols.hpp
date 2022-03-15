@@ -229,6 +229,7 @@ namespace game
 	WEAK symbol<void()> Sys_ShowConsole{0x14043E650, 0x140503130};
 	WEAK symbol<bool (int, void const*, const netadr_s*)> Sys_SendPacket{0x14043D000, 0x140501A00};
 	WEAK symbol<void*(int valueIndex)> Sys_GetValue{0x1403C2C30, 0x1404237D0};
+	WEAK symbol<bool()> Sys_IsMainThread{0x1478FC470, 0x140423950};
 
 	WEAK symbol<void ()> SwitchToCoreMode{0, 0x1401FA4A0};
 	WEAK symbol<void ()> SwitchToAliensMode{0, 0x1401FA4D0};
@@ -240,7 +241,7 @@ namespace game
 	WEAK symbol<DWOnlineStatus (int)> dwGetLogOnStatus{0, 0x140589490};
 
 	WEAK symbol<void(pmove_t* move, trace_t*, const float*, const float*,
-		const Bounds*, int, int)> PM_playerTrace{0, 0x140225C20};
+		const Bounds*, int, int)> PM_playerTrace{0x14046C910, 0x140225C20};
 	WEAK symbol<void(const pmove_t* move, trace_t* trace, const float*,
 		const float*, const Bounds*, int, int)> PM_trace{0, 0x140225DB0};
 
@@ -323,5 +324,7 @@ namespace game
 			int internal_, int profilerTreatClosureAsFunc)> cclosure_Create{0, 0x140186DF0};
 		WEAK symbol<int(lua_State* s, int t)> hksi_luaL_ref{0, 0x14019C5C0};
 		WEAK symbol<void(lua_State* s, int t, int ref)> hksi_luaL_unref{0, 0x14019C750};
+		WEAK symbol<int(lua_State* s, int what, int data)> hks_lua_gc{0, 0x1401A4790};
+		WEAK symbol<int(lua_State* s, const char* filename)> hksi_hks_memorystats{0, 0x14019B580};
 	}
 }

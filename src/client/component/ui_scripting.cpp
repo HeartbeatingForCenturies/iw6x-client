@@ -26,12 +26,14 @@ namespace ui_scripting
 		utils::hook::detour hksi_lual_error_hook2;
 		utils::hook::detour hks_start_hook;
 		utils::hook::detour hks_shutdown_hook;
+		utils::hook::detour hks_allocator_hook;
+		utils::hook::detour hks_frame_hook;
 
 		bool error_hook_enabled = false;
 
 		void hksi_lual_error_stub(game::hks::lua_State* s, const char* fmt, ...)
 		{
-			char va_buffer[0x200] = { 0 };
+			char va_buffer[2048] = {0};
 
 			va_list ap;
 			va_start(ap, fmt);
@@ -52,7 +54,7 @@ namespace ui_scripting
 
 		void* hks_start_stub(char a1)
 		{
-			const auto _ = gsl::finally([]()
+			const auto _1 = gsl::finally([]()
 			{
 				ui_scripting::lua::engine::start();
 			});
@@ -64,6 +66,26 @@ namespace ui_scripting
 		{
 			ui_scripting::lua::engine::stop();
 			hks_shutdown_hook.invoke<void*>();
+		}
+
+		void* hks_allocator_stub(void* userData, void* oldMemory, unsigned __int64 oldSize, unsigned __int64 newSize)
+		{
+			const auto closure = reinterpret_cast<game::hks::cclosure*>(oldMemory);
+			if (converted_functions.find(closure) != converted_functions.end())
+			{
+				converted_functions.erase(closure);
+			}
+
+			return hks_allocator_hook.invoke<void*>(userData, oldMemory, oldSize, newSize);
+		}
+
+		void hks_frame_stub()
+		{
+			const auto state = *game::hks::lua_state;
+			if (state)
+			{
+				ui_scripting::lua::engine::run_frame();
+			}
 		}
 	}
 
@@ -135,22 +157,17 @@ namespace ui_scripting
 				return;
 			}
 
-			scheduler::loop(ui_scripting::lua::engine::run_frame, scheduler::pipeline::renderer);
-
 			hks_start_hook.create(0x1401D8E90, hks_start_stub);
 			hks_shutdown_hook.create(0x1401D24A0, hks_shutdown_stub);
 			hksi_lual_error_hook.create(0x14019C4C0, hksi_lual_error_stub);
 			hksi_lual_error_hook2.create(0x1401A4130, hksi_lual_error_stub);
+			hks_allocator_hook.create(0x140198950, hks_allocator_stub);
+			hks_frame_hook.create(0x1401D7F20, hks_frame_stub);
 
 			command::add("lui_restart", []()
 			{
 				utils::hook::invoke<void>(0x1401D24A0);
 				utils::hook::invoke<void>(0x1401D9FB0);
-			});
-
-			command::add("reloaduiscripts", []()
-			{
-				scheduler::once(ui_scripting::lua::engine::start, scheduler::pipeline::renderer);
 			});
 		}
 	};

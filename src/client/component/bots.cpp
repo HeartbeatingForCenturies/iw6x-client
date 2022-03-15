@@ -3,6 +3,7 @@
 
 #include "command.hpp"
 #include "scheduler.hpp"
+#include "party.hpp"
 #include "network.hpp"
 #include "server_list.hpp"
 
@@ -16,6 +17,11 @@ namespace bots
 {
 	namespace
 	{
+		bool can_add()
+		{
+			return party::get_client_count() < *game::mp::svs_numclients;
+		}
+
 		void bot_team_join(const int entity_num)
 		{
 			// schedule the select team call
@@ -62,6 +68,11 @@ namespace bots
 
 		void add_bot()
 		{
+			if (!can_add())
+			{
+				return;
+			}
+
 			auto* bot_name = game::SV_BotGetRandomName();
 			auto* bot_ent = game::SV_AddBot(bot_name, 26, 62, 0);
 			if (bot_ent)
@@ -121,6 +132,8 @@ namespace bots
 				{
 					num_bots = atoi(params.get(1));
 				}
+
+				num_bots = std::min(num_bots, *game::mp::svs_numclients);
 
 				for (auto i = 0; i < num_bots; i++)
 				{

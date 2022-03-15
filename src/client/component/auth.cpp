@@ -121,7 +121,7 @@ namespace auth
 			const auto offset = sizeof("connect") + 4;
 
 			proto::network::connect_info info;
-			if (!info.ParseFromArray(msg->data + offset, msg->cursize - offset))
+			if (msg->cursize < offset || !info.ParseFromArray(msg->data + offset, msg->cursize - offset))
 			{
 				network::send(*from, "error", "Invalid connect data!", '\n');
 				return;
