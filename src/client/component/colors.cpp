@@ -81,7 +81,7 @@ namespace colors
 
 		char* i_clean_str_stub(char* string)
 		{
-			utils::string::strip(string, string, static_cast<int>(strlen(string)) + 1);
+			utils::string::strip(string, string, std::strlen(string) + 1);
 
 			return string;
 		}
