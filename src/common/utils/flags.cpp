@@ -41,6 +41,6 @@ namespace utils::flags
 		}
 
 		return std::ranges::any_of(enabled_flags.cbegin(), enabled_flags.cend(),
-			[flag](const auto& elem) { return elem == flag; });
+			[flag](const auto& elem) { return string::to_lower(elem) == string::to_lower(flag); });
 	}
 }
