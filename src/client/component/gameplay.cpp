@@ -11,12 +11,14 @@ namespace gameplay
 	{
 		utils::hook::detour pm_weapon_use_ammo_hook;
 
-		void stuck_in_client_stub(void* self)
+		int stuck_in_client_stub(void* self)
 		{
 			if (dvars::g_playerEjection->current.enabled)
 			{
-				reinterpret_cast<void(*)(void*)>(0x140386950)(self); // StuckInClient
+				return utils::hook::invoke<int>(0x140386950, self); // StuckInClient
 			}
+
+			return 0;
 		}
 
 		void cm_transformed_capsule_trace_stub(game::trace_t* results, const float* start, const float* end, 
@@ -24,10 +26,8 @@ namespace gameplay
 		{
 			if (dvars::g_playerCollision->current.enabled)
 			{
-				reinterpret_cast<void(*)
-					(game::trace_t*, const float*, const float*, game::Bounds*, game::Bounds*, unsigned int, const float*, const float*)>
-					(0x1403F3050)
-					(results, start, end, bounds, capsule, contents, origin, angles); // CM_TransformedCapsuleTrace
+				utils::hook::invoke<void>(0x1403F3050,
+				results, start, end, bounds, capsule, contents, origin, angles); // CM_TransformedCapsuleTrace
 			}
 		}
 
@@ -36,7 +36,7 @@ namespace gameplay
 			a.push(rax);
 
 			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::g_gravity)));
-			a.mov(rax, dword_ptr(rax, 0x10));
+			a.mov(eax, dword_ptr(rax, 0x10));
 			a.mov(dword_ptr(rbx, 0x5C), eax);
 			a.mov(eax, ptr(rbx, 0x33E8));
 			a.mov(ptr(rbx, 0x25C), eax);
@@ -51,7 +51,7 @@ namespace gameplay
 			a.push(rax);
 
 			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::g_speed)));
-			a.mov(rax, dword_ptr(rax, 0x10));
+			a.mov(eax, dword_ptr(rax, 0x10));
 			a.mov(dword_ptr(rdi, 0x60), eax);
 
 			a.pop(rax);
