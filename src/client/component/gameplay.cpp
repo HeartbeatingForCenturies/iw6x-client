@@ -9,23 +9,25 @@ namespace gameplay
 {
 	namespace
 	{
-		void stuck_in_client_stub(void* self)
+		utils::hook::detour pm_weapon_use_ammo_hook;
+
+		int stuck_in_client_stub(void* self)
 		{
 			if (dvars::g_playerEjection->current.enabled)
 			{
-				reinterpret_cast<void(*)(void*)>(0x140386950)(self); // StuckInClient
+				return utils::hook::invoke<int>(0x140386950, self); // StuckInClient
 			}
+
+			return 0;
 		}
 
-		void cm_transformed_capsule_trace_stub(struct trace_t* results, const float* start, const float* end, 
-			struct Bounds* bounds, struct Bounds* capsule, int contents, const float* origin, const float* angles)
+		void cm_transformed_capsule_trace_stub(game::trace_t* results, const float* start, const float* end, 
+			game::Bounds* bounds, game::Bounds* capsule, int contents, const float* origin, const float* angles)
 		{
 			if (dvars::g_playerCollision->current.enabled)
 			{
-				reinterpret_cast<void(*)
-					(struct trace_t*, const float*, const float*, struct Bounds*, struct Bounds*, unsigned int, const float*, const float*)>
-					(0x1403F3050)
-					(results, start, end, bounds, capsule, contents, origin, angles); // CM_TransformedCapsuleTrace
+				utils::hook::invoke<void>(0x1403F3050,
+				results, start, end, bounds, capsule, contents, origin, angles); // CM_TransformedCapsuleTrace
 			}
 		}
 
@@ -34,7 +36,7 @@ namespace gameplay
 			a.push(rax);
 
 			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::g_gravity)));
-			a.mov(rax, dword_ptr(rax, 0x10));
+			a.mov(eax, dword_ptr(rax, 0x10));
 			a.mov(dword_ptr(rbx, 0x5C), eax);
 			a.mov(eax, ptr(rbx, 0x33E8));
 			a.mov(ptr(rbx, 0x25C), eax);
@@ -49,7 +51,7 @@ namespace gameplay
 			a.push(rax);
 
 			a.mov(rax, qword_ptr(reinterpret_cast<int64_t>(&dvars::g_speed)));
-			a.mov(rax, dword_ptr(rax, 0x10));
+			a.mov(eax, dword_ptr(rax, 0x10));
 			a.mov(dword_ptr(rdi, 0x60), eax);
 
 			a.pop(rax);
@@ -215,6 +217,15 @@ namespace gameplay
 				trace->allsolid = false;
 			}
 		}
+
+		void pm_weapon_use_ammo_stub(game::playerState_s* ps, game::Weapon weapon,
+			bool is_alternate, int amount, game::PlayerHandIndex hand)
+		{
+			if (!dvars::player_sustainAmmo->current.enabled)
+			{
+				pm_weapon_use_ammo_hook.invoke<void>(ps, weapon, is_alternate, amount, hand);
+			}
+		}
 	}
 
 	class component final : public component_interface
@@ -236,6 +247,10 @@ namespace gameplay
 			utils::hook::call(SELECT_VALUE(0x14046ED6A, 0x1402290D0), pm_project_velocity_stub);
 			dvars::pm_bouncingAllAngles = game::Dvar_RegisterBool("pm_bouncingAllAngles", false,
 				game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable bouncing from all angles");
+
+			dvars::player_sustainAmmo = game::Dvar_RegisterBool("player_sustainAmmo", false,
+				game::DVAR_FLAG_REPLICATED, "Firing weapon will not decrease clip ammo.");
+			pm_weapon_use_ammo_hook.create(SELECT_VALUE(0x140479640, 0x140238A90), &pm_weapon_use_ammo_stub);
 
 			if (game::environment::is_sp()) return;
 

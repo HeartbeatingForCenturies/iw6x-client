@@ -24,6 +24,8 @@ namespace dvars
 	game::dvar_t* pm_bouncing = nullptr;
 	game::dvar_t* pm_bouncingAllAngles = nullptr;
 
+	game::dvar_t* player_sustainAmmo = nullptr;
+
 	game::dvar_t* jump_slowDownEnable = nullptr;
 	game::dvar_t* jump_enableFallDamage = nullptr;
 	game::dvar_t* jump_height = nullptr;

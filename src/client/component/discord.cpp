@@ -39,7 +39,7 @@ namespace discord
 				discord_presence.details = utils::string::va("%s on %s", gametype, map);
 
 				auto* const host_name = reinterpret_cast<char*>(0x14187EBC4);
-				utils::string::strip(host_name, host_name, static_cast<int>(strlen(host_name)) + 1);
+				utils::string::strip(host_name, host_name, std::strlen(host_name) + 1);
 
 				discord_presence.state = host_name;
 
