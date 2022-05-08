@@ -101,10 +101,10 @@ namespace network
 		get_callbacks()[utils::string::to_lower(command)] = callback;
 	}
 
-	int dw_send_to_stub(const int size, const char* src, game::netadr_s* a3)
+	int dw_send_to_stub(const int size, const char* src, game::netadr_s* addr)
 	{
 		sockaddr s = {};
-		game::NetadrToSockadr(a3, &s);
+		game::NetadrToSockadr(addr, &s);
 		return sendto(*game::query_socket, src, size, 0, &s, 16) >= 0;
 	}
 
