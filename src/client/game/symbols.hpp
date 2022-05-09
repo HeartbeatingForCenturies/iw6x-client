@@ -157,6 +157,7 @@ namespace game
 		0, 0x14041D780
 	};
 	WEAK symbol<bool (const char* s, game::netadr_s* a)> NET_StringToAdr{0, 0x14041D870};
+	WEAK symbol<void(netadr_s*, sockaddr*)> NetadrToSockadr{0, 0x1404E53D0};
 
 	WEAK symbol<void (float x, float y, float width, float height, float s0, float t0, float s1, float t1,
 	                  float* color, Material* material)> R_AddCmdDrawStretchPic{0x140234460, 0x140600BE0};

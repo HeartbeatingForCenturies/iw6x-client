@@ -101,6 +101,13 @@ namespace network
 		get_callbacks()[utils::string::to_lower(command)] = callback;
 	}
 
+	int dw_send_to_stub(const int size, const char* src, game::netadr_s* addr)
+	{
+		sockaddr s = {};
+		game::NetadrToSockadr(addr, &s);
+		return sendto(*game::query_socket, src, size, 0, &s, 16) >= 0;
+	}
+
 	void send(const game::netadr_s& address, const std::string& command, const std::string& data, const char separator)
 	{
 		std::string packet = "\xFF\xFF\xFF\xFF";
@@ -204,7 +211,7 @@ namespace network
 				}
 
 				// redirect dw_sendto to raw socket
-				utils::hook::jump(0x140501AAA, reinterpret_cast<void*>(0x140501A3A));
+				utils::hook::jump(0x140501A00, dw_send_to_stub);
 
 				// intercept command handling
 				utils::hook::jump(0x1402C64CB, utils::hook::assemble(handle_command_stub), true);
