@@ -21,6 +21,8 @@ namespace dvars
 	game::dvar_t* g_speed = nullptr;
 	game::dvar_t* g_enableElevators = nullptr;
 
+	game::dvar_t* bg_surfacePenetration = nullptr;
+
 	game::dvar_t* pm_bouncing = nullptr;
 	game::dvar_t* pm_bouncingAllAngles = nullptr;
 
