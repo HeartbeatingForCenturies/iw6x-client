@@ -19,6 +19,7 @@ namespace dvars
 	extern game::dvar_t* g_gravity;
 	extern game::dvar_t* g_speed;
 	extern game::dvar_t* g_enableElevators;
+	extern game::dvar_t* g_dump_scripts;
 
 	extern game::dvar_t* bg_surfacePenetration;
 

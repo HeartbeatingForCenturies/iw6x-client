@@ -1705,6 +1705,16 @@ namespace game
 		unsigned int totalMsec;
 	};
 
+	struct ScriptFile
+	{
+		const char* name;
+		int compressedLen;
+		int len;
+		int bytecodeLen;
+		const char* buffer;
+		unsigned char* bytecode;
+	};
+
 	union XAssetHeader
 	{
 		void* data;
@@ -1746,9 +1756,9 @@ namespace game
 		FxEffectDef *fx;
 		FxImpactTable *impactFx;
 		SurfaceFxTable *surfaceFx;
-		RawFile *rawfile;
-		ScriptFile *scriptfile;
-		StringTable *stringTable;
+		RawFile *rawfile;*/
+		ScriptFile* scriptfile;
+		/*StringTable *stringTable;
 		LeaderboardDef *leaderboardDef;
 		StructuredDataDefSet *structuredDataDefSet;
 		TracerDef *tracerDef;
