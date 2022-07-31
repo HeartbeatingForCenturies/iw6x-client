@@ -2292,6 +2292,59 @@ namespace game
 		unsigned char handler;
 	};
 
+	struct WinVars_t
+	{
+		HINSTANCE reflib_library;
+		int reflib_active;
+		HWND hWnd;
+		HINSTANCE hInstance;
+		int activeApp;
+		int isMinimized;
+		int hasFocus;
+		int activationStateChanged;
+		int recenterMouse;
+		HHOOK lowLevelKeyboardHook;
+		unsigned int sysMsgTime;
+	};
+
+	static_assert(sizeof(WinVars_t) == 0x48);
+
+	struct WinMouseVars_t
+	{
+		int oldButtonState;
+		tagPOINT oldPos;
+		bool mouseActive;
+		bool mouseInitialized;
+	};
+
+	static_assert(sizeof(WinMouseVars_t) == 0x10);
+
+	struct displayFreq_t
+	{
+		unsigned int numerator;
+		unsigned int denominator;
+	};
+
+	struct vidConfig_t
+	{
+		unsigned int sceneWidth;
+		unsigned int sceneHeight;
+		unsigned int displayWidth;
+		unsigned int displayHeight;
+		char omitRTFlags;
+		unsigned __int16 shadowTileResSmall;
+		unsigned __int16 shadowTileResLarge;
+		displayFreq_t displayFrequency;
+		unsigned int monitorWidth;
+		unsigned int monitorHeight;
+		int displayMode;
+		float windowAspectRatio;
+		float displayAspectRatio;
+		float sceneAspectRatio;
+		float aspectRatioScenePixel;
+		float aspectRatioDisplayPixel;
+	};
+
 	namespace hks
 	{
 		struct GenericChunkHeader
