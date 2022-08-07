@@ -55,10 +55,9 @@ namespace game
 	WEAK symbol<game::XAssetEntry* (game::XAssetType type, const char* name)> DB_FindXAssetEntry{0x140272230, 0x14031F2D0};
 	WEAK symbol<const char* (const XAsset* asset)> DB_GetXAssetName{0x14024FB10, 0x1402FB160};
 	WEAK symbol<int(XAssetType type)> DB_GetXAssetTypeSize{0x14024FB30, 0x1402FB180};
-	WEAK symbol<void(XZoneInfo* zoneInfo, unsigned int zoneCount, DBSyncMode syncMode)> DB_LoadXAssets{
-		0x140273FD0, 0x140320F20
-	};
+	WEAK symbol<void(XZoneInfo* zoneInfo, unsigned int zoneCount, DBSyncMode syncMode)> DB_LoadXAssets{0x140273FD0, 0x140320F20};
 	WEAK symbol<void(void* buffer, int size)> DB_ReadXFileUncompressed{0x140250FB0, 0x1402FC9C0};
+	WEAK symbol<XAssetHeader(XAssetType type, const char* name, int allowCreateDefault)> DB_FindXAssetHeader{0x140272300, 0x14031F3A0};
 
 	WEAK symbol<dvar_t*(const char* name)> Dvar_FindVar{0x140429E70, 0x1404ECB60};
 	WEAK symbol<void (char* buffer, int index)> Dvar_GetCombinedString{0x1403BFD80, 0x140416B30};
