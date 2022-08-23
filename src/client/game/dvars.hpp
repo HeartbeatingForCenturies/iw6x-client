@@ -18,6 +18,7 @@ namespace dvars
 	extern game::dvar_t* g_playerEjection;
 	extern game::dvar_t* g_gravity;
 	extern game::dvar_t* g_speed;
+	extern game::dvar_t* g_rocketPushbackScale;
 	extern game::dvar_t* g_enableElevators;
 	extern game::dvar_t* g_dump_scripts;
 
