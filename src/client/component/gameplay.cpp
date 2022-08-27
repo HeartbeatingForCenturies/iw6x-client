@@ -226,6 +226,22 @@ namespace gameplay
 				pm_weapon_use_ammo_hook.invoke<void>(ps, weapon, is_alternate, amount, hand);
 			}
 		}
+
+		game::mp::gentity_s* weapon_rocket_launcher_fire_stub(game::mp::gentity_s* ent, game::Weapon weapon, float spread, game::weaponParms* wp,
+			const float* gun_vel, game::mp::missileFireParms* fire_parms, bool magic_bullet)
+		{
+			auto* result = utils::hook::invoke<game::mp::gentity_s*>(0x1403DB8A0, ent, weapon, spread, wp, gun_vel, fire_parms, magic_bullet);
+
+			if (ent->client != nullptr && wp->weapDef->inventoryType != game::WEAPINVENTORY_EXCLUSIVE)
+			{
+				const auto scale = dvars::g_rocketPushbackScale->current.value;
+				ent->client->ps.velocity[0] += (0.0f - wp->forward[0]) * scale;
+				ent->client->ps.velocity[1] += (0.0f - wp->forward[1]) * scale;
+				ent->client->ps.velocity[2] += (0.0f - wp->forward[2]) * scale;
+			}
+
+			return result;
+		}
 	}
 
 	class component final : public component_interface
@@ -298,6 +314,10 @@ namespace gameplay
 			utils::hook::call(0x14021F0E3, pm_trace_stub);
 			dvars::g_enableElevators = game::Dvar_RegisterBool("g_enableElevators", false,
 				game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable Elevators");
+
+			utils::hook::call(0x1403D933E, weapon_rocket_launcher_fire_stub);
+			dvars::g_rocketPushbackScale = game::Dvar_RegisterFloat("g_rocketPushbackScale", 1.0f, 1.0f, std::numeric_limits<float>::max(),
+				game::DvarFlags::DVAR_FLAG_REPLICATED, "The scale applied to the pushback force of a rocket");
 		}
 	};
 }

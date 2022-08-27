@@ -1705,6 +1705,90 @@ namespace game
 		unsigned int totalMsec;
 	};
 
+	struct ScriptFile
+	{
+		const char* name;
+		int compressedLen;
+		int len;
+		int bytecodeLen;
+		const char* buffer;
+		unsigned char* bytecode;
+	};
+
+	enum weapType_t
+	{
+		WEAPTYPE_NONE = 0x0,
+		WEAPTYPE_BULLET = 0x1,
+		WEAPTYPE_GRENADE = 0x2,
+		WEAPTYPE_PROJECTILE = 0x3,
+		WEAPTYPE_RIOTSHIELD = 0x4,
+		WEAPTYPE_NUM = 0x5,
+	};
+
+	enum weapClass_t
+	{
+		WEAPCLASS_RIFLE = 0x0,
+		WEAPCLASS_SNIPER = 0x1,
+		WEAPCLASS_MG = 0x2,
+		WEAPCLASS_SMG = 0x3,
+		WEAPCLASS_SPREAD = 0x4,
+		WEAPCLASS_PISTOL = 0x5,
+		WEAPCLASS_GRENADE = 0x6,
+		WEAPCLASS_ROCKETLAUNCHER = 0x7,
+		WEAPCLASS_TURRET = 0x8,
+		WEAPCLASS_THROWINGKNIFE = 0x9,
+		WEAPCLASS_NON_PLAYER = 0xA,
+		WEAPCLASS_ITEM = 0xB,
+		WEAPCLASS_NUM = 0xC,
+	};
+
+	enum PenetrateType
+	{
+		PENETRATE_TYPE_NONE = 0x0,
+		PENETRATE_TYPE_SMALL = 0x1,
+		PENETRATE_TYPE_MEDIUM = 0x2,
+		PENETRATE_TYPE_LARGE = 0x3,
+		PENETRATE_TYPE_COUNT = 0x4,
+	};
+
+	enum weapInventoryType_t
+	{
+		WEAPINVENTORY_PRIMARY = 0x0,
+		WEAPINVENTORY_OFFHAND = 0x1,
+		WEAPINVENTORY_ITEM = 0x2,
+		WEAPINVENTORY_ALTMODE = 0x3,
+		WEAPINVENTORY_EXCLUSIVE = 0x4,
+		WEAPINVENTORY_SCAVENGER = 0x5,
+		WEAPINVENTORYCOUNT = 0x6,
+	};
+
+	struct WeaponDef
+	{
+		const char* szOverlayName;
+		void** gunXModel;
+		void* handXModel;
+		void* camoWorldModel;
+		void* camoViewModel;
+		Material* camoWorldModelMaterialOverride;
+		Material* camoViewModelMaterialOverride;
+		Material** camoMaterialTarget;
+		void** szXAnimsRightHanded;
+		void** szXAnimsLeftHanded;
+		const char* szModeName;
+		scr_string_t* notetrackSoundMapKeys;
+		scr_string_t* notetrackSoundMapValues;
+		scr_string_t* notetrackRumbleMapKeys;
+		scr_string_t* notetrackRumbleMapValues;
+		scr_string_t* notetrackFXMapKeys;
+		const void** notetrackFXMapValues;
+		scr_string_t* notetrackFXMapTagValues;
+		int playerAnimType;
+		weapType_t weapType;
+		weapClass_t weapClass;
+		PenetrateType penetrateType;
+		weapInventoryType_t inventoryType;
+	}; // Incomplete
+
 	union XAssetHeader
 	{
 		void* data;
@@ -1746,9 +1830,9 @@ namespace game
 		FxEffectDef *fx;
 		FxImpactTable *impactFx;
 		SurfaceFxTable *surfaceFx;
-		RawFile *rawfile;
-		ScriptFile *scriptfile;
-		StringTable *stringTable;
+		RawFile *rawfile;*/
+		ScriptFile* scriptfile;
+		/*StringTable *stringTable;
 		LeaderboardDef *leaderboardDef;
 		StructuredDataDefSet *structuredDataDefSet;
 		TracerDef *tracerDef;
@@ -1798,6 +1882,18 @@ namespace game
 		unsigned int nextPoolEntry;
 	};
 
+	struct weaponParms
+	{
+		float forward[3];
+		float right[3];
+		float up[3];
+		float muzzleTrace[3];
+		float gunForward[3];
+		Weapon weapon;
+		bool isAlternate;
+		const WeaponDef* weapDef;
+		const void* weapCompleteDef;
+	};
 
 	namespace sp
 	{
@@ -2192,6 +2288,17 @@ namespace game
 			char gap4[399];
 			char gap5;
 		};
+
+		struct missileFireParms
+		{
+			gentity_s* target;
+			float targetPosOrOffset[3];
+			float autoDetonateTime;
+			bool lockon;
+			bool topFire;
+		};
+
+		static_assert(sizeof(missileFireParms) == 0x20);
 	}
 
 	static_assert(sizeof(mp::client_t) == 0x83570);
@@ -2290,6 +2397,59 @@ namespace game
 		int lastUpdateCMDServerTime;
 		unsigned int groundSurfaceType;
 		unsigned char handler;
+	};
+
+	struct WinVars_t
+	{
+		HINSTANCE reflib_library;
+		int reflib_active;
+		HWND hWnd;
+		HINSTANCE hInstance;
+		int activeApp;
+		int isMinimized;
+		int hasFocus;
+		int activationStateChanged;
+		int recenterMouse;
+		HHOOK lowLevelKeyboardHook;
+		unsigned int sysMsgTime;
+	};
+
+	static_assert(sizeof(WinVars_t) == 0x48);
+
+	struct WinMouseVars_t
+	{
+		int oldButtonState;
+		tagPOINT oldPos;
+		bool mouseActive;
+		bool mouseInitialized;
+	};
+
+	static_assert(sizeof(WinMouseVars_t) == 0x10);
+
+	struct displayFreq_t
+	{
+		unsigned int numerator;
+		unsigned int denominator;
+	};
+
+	struct vidConfig_t
+	{
+		unsigned int sceneWidth;
+		unsigned int sceneHeight;
+		unsigned int displayWidth;
+		unsigned int displayHeight;
+		char omitRTFlags;
+		unsigned __int16 shadowTileResSmall;
+		unsigned __int16 shadowTileResLarge;
+		displayFreq_t displayFrequency;
+		unsigned int monitorWidth;
+		unsigned int monitorHeight;
+		int displayMode;
+		float windowAspectRatio;
+		float displayAspectRatio;
+		float sceneAspectRatio;
+		float aspectRatioScenePixel;
+		float aspectRatioDisplayPixel;
 	};
 
 	namespace hks

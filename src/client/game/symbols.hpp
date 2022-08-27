@@ -55,10 +55,9 @@ namespace game
 	WEAK symbol<game::XAssetEntry* (game::XAssetType type, const char* name)> DB_FindXAssetEntry{0x140272230, 0x14031F2D0};
 	WEAK symbol<const char* (const XAsset* asset)> DB_GetXAssetName{0x14024FB10, 0x1402FB160};
 	WEAK symbol<int(XAssetType type)> DB_GetXAssetTypeSize{0x14024FB30, 0x1402FB180};
-	WEAK symbol<void(XZoneInfo* zoneInfo, unsigned int zoneCount, DBSyncMode syncMode)> DB_LoadXAssets{
-		0x140273FD0, 0x140320F20
-	};
+	WEAK symbol<void(XZoneInfo* zoneInfo, unsigned int zoneCount, DBSyncMode syncMode)> DB_LoadXAssets{0x140273FD0, 0x140320F20};
 	WEAK symbol<void(void* buffer, int size)> DB_ReadXFileUncompressed{0x140250FB0, 0x1402FC9C0};
+	WEAK symbol<XAssetHeader(XAssetType type, const char* name, int allowCreateDefault)> DB_FindXAssetHeader{0x140272300, 0x14031F3A0};
 
 	WEAK symbol<dvar_t*(const char* name)> Dvar_FindVar{0x140429E70, 0x1404ECB60};
 	WEAK symbol<void (char* buffer, int index)> Dvar_GetCombinedString{0x1403BFD80, 0x140416B30};
@@ -137,6 +136,11 @@ namespace game
 	WEAK symbol<uint8_t*(const int controllerIndex)>LiveStorage_GetPersistentDataBuffer{0x1403B6F80, 0x140400170};
 	WEAK symbol<void(const int controllerIndex)>LiveStorage_StatsWriteNeeded{0x1403BA400, 0x1404090E0};
 
+	WEAK symbol<BOOL(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)>MainWndProc{0x14043E6A0, 0x140504A00};
+	WEAK symbol<void()>IN_MouseMove{0x140438840, 0x1404FC7B0};
+	WEAK symbol<void()>IN_RecenterMouse{0x1404389E0, 0x1404FC950};
+	WEAK symbol<int(int x, int y, int dx, int dy)>CL_MouseEvent{0x14023B8E0, 0x1402C12A0};
+
 	WEAK symbol<StructuredDataDef*(const char* filename, unsigned int maxSize)>StructuredDataDef_GetAsset{0, 0x1404E6560};
 	WEAK symbol<StringTable*(const char* fileName, const StringTable** tablePtr)>StringTable_GetAsset{0, 0x1404E6170};
 	WEAK symbol<const char*(const StringTable* table, const int row, const int column)>
@@ -157,6 +161,7 @@ namespace game
 		0, 0x14041D780
 	};
 	WEAK symbol<bool (const char* s, game::netadr_s* a)> NET_StringToAdr{0, 0x14041D870};
+	WEAK symbol<void(netadr_s*, sockaddr*)> NetadrToSockadr{0, 0x1404E53D0};
 
 	WEAK symbol<void (float x, float y, float width, float height, float s0, float t0, float s1, float t1,
 	                  float* color, Material* material)> R_AddCmdDrawStretchPic{0x140234460, 0x140600BE0};
@@ -276,7 +281,15 @@ namespace game
 	// db_hashTable
 	WEAK symbol<int> g_poolSize{0x14086DBB0, 0x1409E4E20};
 	// g_assetEntryPool
-	WEAK symbol<const char*> g_assetNames{0x14086CA40,0x1409E40C0};
+	WEAK symbol<const char*> g_assetNames{0x14086CA40, 0x1409E40C0};
+
+	WEAK symbol<WinVars_t> g_wv{0x145A7BAD0, 0x147AD2630};
+	WEAK symbol<WinMouseVars_t> s_wmv{0x145A73750, 0x147AC9D78};
+
+	WEAK symbol<int> window_center_x{0x145A73760, 0x147AC9D74};
+	WEAK symbol<int> window_center_y{0x145A73764, 0x147AC9D88};
+	
+	WEAK symbol<vidConfig_t> vidConfigOut{0x141644464, 0x141D1ACE0};
 
 	WEAK symbol<scrVarGlob_t> scr_VarGlob{0x1452CDF80, 0x144A67080};
 	WEAK symbol<scrVmPub_t> scr_VmPub{0x1455B1FA0, 0x144D4B090};
