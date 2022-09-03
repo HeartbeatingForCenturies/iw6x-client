@@ -13,6 +13,8 @@ namespace dedicated
 {
 	namespace
 	{
+		utils::hook::detour gscr_set_dynamic_dvar_hook;
+
 		utils::hook::detour dvar_get_string_hook;
 
 		void init_dedicated_server()
@@ -68,12 +70,11 @@ namespace dedicated
 			return command_queue;
 		}
 
-		void execute_console_command(const int client, const char* command)
+		void execute_console_command([[maybe_unused]] const int client, const char* command)
 		{
 			if (game::Live_SyncOnlineDataFlags(0) == 0)
 			{
-				game::Cbuf_AddText(client, command);
-				game::Cbuf_AddText(client, "\n");
+				command::execute(command);
 			}
 			else
 			{
@@ -88,8 +89,7 @@ namespace dedicated
 
 			for (const auto& command : queue)
 			{
-				game::Cbuf_AddText(0, command.data());
-				game::Cbuf_AddText(0, "\n");
+				command::execute(command);
 			}
 		}
 
@@ -111,6 +111,18 @@ namespace dedicated
 			}
 
 			return dvar_get_string_hook.invoke<const char*>(dvar, default_value);
+		}
+
+		void gscr_set_dynamic_dvar()
+		{
+			auto s = game::Scr_GetString(0);
+			auto* dvar = game::Dvar_FindVar(s);
+			if (dvar && !std::strncmp("scr_", dvar->name, 4))
+			{
+				return;
+			}
+
+			gscr_set_dynamic_dvar_hook.invoke<void>();
 		}
 
 		void glass_update()
@@ -138,9 +150,9 @@ namespace dedicated
 			va_end(ap);
 
 			scheduler::once([]()
-				{
-					command::execute("map_rotate");
-				}, scheduler::pipeline::main, 3s); // scheduler::main -> scheduler::pipeline::main ???
+			{
+				command::execute("map_rotate");
+			}, scheduler::pipeline::main, 3s); // scheduler::main -> scheduler::pipeline::main ???
 
 			game::Com_Error(game::ERR_DROP, "%s", buffer);
 		}
@@ -188,6 +200,9 @@ namespace dedicated
 
 			// Make dedis ranked
 			dvar_get_string_hook.create(game::Dvar_GetVariantStringWithDefault, dvar_get_string_stub);
+
+			// Prevent GScr_SetDynamicDvar from overriding the cfg
+			gscr_set_dynamic_dvar_hook.create(0x1403B92D0, gscr_set_dynamic_dvar);
 
 			// Hook R_SyncGpu
 			utils::hook::jump(0x1405E8530, sync_gpu_stub);
