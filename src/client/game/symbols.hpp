@@ -185,6 +185,7 @@ namespace game
 	};
 	WEAK symbol<const float*(const float* v)> Scr_AllocVector{0x1403D9AF0, 0x140434A10};
 	WEAK symbol<const char*(unsigned int index)> Scr_GetString{0, 0x140439160};
+	WEAK symbol<void(int value)> Scr_AddInt{0x0, 0x140437E70};
 	WEAK symbol<float(unsigned int index)> Scr_GetFloat{0, 0x140438D60};
 	WEAK symbol<unsigned int()> Scr_GetNumParam{0x1403DDF60, 0x140438EC0};
 	WEAK symbol<void()> Scr_ClearOutParams{0x1403DD500, 0x140438600};

@@ -13,8 +13,6 @@ namespace dedicated
 {
 	namespace
 	{
-		utils::hook::detour gscr_set_dynamic_dvar_hook;
-
 		utils::hook::detour dvar_get_string_hook;
 
 		void init_dedicated_server()
@@ -113,16 +111,9 @@ namespace dedicated
 			return dvar_get_string_hook.invoke<const char*>(dvar, default_value);
 		}
 
-		void gscr_set_dynamic_dvar()
+		void gscr_is_using_match_rules_data_stub()
 		{
-			auto s = game::Scr_GetString(0);
-			auto* dvar = game::Dvar_FindVar(s);
-			if (dvar && !std::strncmp("scr_", dvar->name, 4))
-			{
-				return;
-			}
-
-			gscr_set_dynamic_dvar_hook.invoke<void>();
+			game::Scr_AddInt(0);
 		}
 
 		void glass_update()
@@ -201,8 +192,8 @@ namespace dedicated
 			// Make dedis ranked
 			dvar_get_string_hook.create(game::Dvar_GetVariantStringWithDefault, dvar_get_string_stub);
 
-			// Prevent GScr_SetDynamicDvar from overriding the cfg
-			gscr_set_dynamic_dvar_hook.create(0x1403B92D0, gscr_set_dynamic_dvar);
+			// Make GScr_IsUsingMatchRulesData return 0 so the game doesn't override the cfg
+			utils::hook::jump(0x1403C9660, gscr_is_using_match_rules_data_stub);
 
 			// Hook R_SyncGpu
 			utils::hook::jump(0x1405E8530, sync_gpu_stub);
