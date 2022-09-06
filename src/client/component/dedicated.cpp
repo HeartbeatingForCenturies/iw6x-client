@@ -68,7 +68,7 @@ namespace dedicated
 			return command_queue;
 		}
 
-		void execute_console_command([[maybe_unused]] const int client, const char* command)
+		void execute_console_command([[maybe_unused]] const int local_client_num, const char* command)
 		{
 			if (game::Live_SyncOnlineDataFlags(0) == 0)
 			{
