@@ -35,10 +35,10 @@ namespace slowmotion
 			const float start = game::Scr_GetFloat(0);
 
 			if (game::Scr_GetNumParam() >= 2)
-				end = game::Scr_GetFloat(1u);
+				end = game::Scr_GetFloat(1);
 
 			if (game::Scr_GetNumParam() >= 3)
-				duration = static_cast<int>(game::Scr_GetFloat(2u) * 1000.0f);
+				duration = static_cast<int>(game::Scr_GetFloat(2) * 1000.0f);
 
 			const auto _delay = (start > end) ? 150 : 0;
 

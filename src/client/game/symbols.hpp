@@ -179,18 +179,19 @@ namespace game
 	WEAK symbol<void ()> GScr_LoadConsts{0x140367AA0, 0x1403E0420};
 	WEAK symbol<unsigned int (unsigned int parentId, unsigned int name)> FindVariable{0x1403D84F0, 0x1404334A0};
 	WEAK symbol<unsigned int(int entnum, unsigned int classnum)> FindEntityId{0, 0x1404333A0};
-	WEAK symbol<scr_string_t (unsigned int parentId, unsigned int id)> GetVariableName{0x1403D8E90, 0x140433E60};
+	WEAK symbol<scr_string_t(unsigned int parentId, unsigned int id)> GetVariableName{0x1403D8E90, 0x140433E60};
 	WEAK symbol<void (VariableValue* result, unsigned int classnum, int entnum, int offset)> GetEntityFieldValue{
 		0x1403DC810, 0x140437860
 	};
-	WEAK symbol<const float *(const float* v)> Scr_AllocVector{0x1403D9AF0, 0x140434A10};
-	WEAK symbol<const char*(int index)> Scr_GetString{0, 0x140439160};
-	WEAK symbol<float (int index)> Scr_GetFloat{0, 0x140438D60};
-	WEAK symbol<int ()> Scr_GetNumParam{0x1403DDF60, 0x140438EC0};
-	WEAK symbol<void ()> Scr_ClearOutParams{0x1403DD500, 0x140438600};
-	WEAK symbol<scr_entref_t (unsigned int entId)> Scr_GetEntityIdRef{0x1403DBDC0, 0x140436E10};
-	WEAK symbol<int (unsigned int classnum, int entnum, int offset)> Scr_SetObjectField{0x140350E70, 0x1403D3FE0};
-	WEAK symbol<void (unsigned int id, scr_string_t stringValue, unsigned int paramcount)> Scr_NotifyId{
+	WEAK symbol<const float*(const float* v)> Scr_AllocVector{0x1403D9AF0, 0x140434A10};
+	WEAK symbol<const char*(unsigned int index)> Scr_GetString{0, 0x140439160};
+	WEAK symbol<void(int value)> Scr_AddInt{0x0, 0x140437E70};
+	WEAK symbol<float(unsigned int index)> Scr_GetFloat{0, 0x140438D60};
+	WEAK symbol<unsigned int()> Scr_GetNumParam{0x1403DDF60, 0x140438EC0};
+	WEAK symbol<void()> Scr_ClearOutParams{0x1403DD500, 0x140438600};
+	WEAK symbol<scr_entref_t(unsigned int entId)> Scr_GetEntityIdRef{0x1403DBDC0, 0x140436E10};
+	WEAK symbol<int(unsigned int classnum, int entnum, int offset)> Scr_SetObjectField{0x140350E70, 0x1403D3FE0};
+	WEAK symbol<void(unsigned int id, scr_string_t stringValue, unsigned int paramcount)> Scr_NotifyId{
 		0x1403DE730, 0x140439700
 	};
 
