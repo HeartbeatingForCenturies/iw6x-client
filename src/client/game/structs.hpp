@@ -10,7 +10,7 @@ namespace game
 	typedef vec_t vec3_t[3];
 	typedef vec_t vec4_t[4];
 
-	enum $219904913BC1E6DB920C78C8CC0BD8F1
+	enum
 	{
 		FL_GODMODE = 0x1,
 		FL_DEMI_GODMODE = 0x2,
@@ -120,7 +120,7 @@ namespace game
 		DB_LOAD_SYNC_SKIP_ALWAYS_LOADED = 0x5,
 	};
 
-	enum $44ED595A48CF2D4BF24165A45E7595BF
+	enum
 	{
 		THREAD_CONTEXT_MAIN = 0x0,
 		THREAD_CONTEXT_BACKEND = 0x1,
@@ -143,20 +143,28 @@ namespace game
 		THREAD_CONTEXT_COUNT = 0x10,
 	};
 
-	struct $9704E9D6F23D6A5E526351953F37E26F
-	{
-		unsigned int weaponIdx : 8;
-		unsigned int weaponVariation : 6;
-		unsigned int weaponScopes : 3;
-		unsigned int weaponUnderBarrels : 2;
-		unsigned int weaponOthers : 7;
-		unsigned int scopeVariation : 6;
-	};
-
 	union Weapon
 	{
-		$9704E9D6F23D6A5E526351953F37E26F __s0;
+		struct
+		{
+			unsigned int weaponIdx : 8;
+			unsigned int weaponVariation : 6;
+			unsigned int weaponScopes : 3;
+			unsigned int weaponUnderBarrels : 2;
+			unsigned int weaponOthers : 7;
+			unsigned int scopeVariation : 6;
+		} __s0;
 		unsigned int data;
+	};
+
+	enum PMem_Source
+	{
+		PMEM_SOURCE_EXTERNAL = 0x0,
+		PMEM_SOURCE_DATABASE = 0x1,
+		PMEM_SOURCE_DEFAULT_LOW = 0x2,
+		PMEM_SOURCE_DEFAULT_HIGH = 0x3,
+		PMEM_SOURCE_MOVIE = 0x4,
+		PMEM_SOURCE_SCRIPT = 0x5,
 	};
 
 	enum errorParm
@@ -1789,6 +1797,14 @@ namespace game
 		weapInventoryType_t inventoryType;
 	}; // Incomplete
 
+	struct RawFile
+	{
+		const char* name;
+		int compressedLen;
+		int len;
+		const char* buffer;
+	};
+
 	union XAssetHeader
 	{
 		void* data;
@@ -1829,8 +1845,8 @@ namespace game
 		SndDriverGlobals *sndDriverGlobals;
 		FxEffectDef *fx;
 		FxImpactTable *impactFx;
-		SurfaceFxTable *surfaceFx;
-		RawFile *rawfile;*/
+		SurfaceFxTable *surfaceFx;*/
+		RawFile* rawfile;
 		ScriptFile* scriptfile;
 		/*StringTable *stringTable;
 		LeaderboardDef *leaderboardDef;
