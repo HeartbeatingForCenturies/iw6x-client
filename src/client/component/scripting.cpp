@@ -30,6 +30,8 @@ namespace scripting
 
 		std::string current_file;
 
+		std::vector<std::function<void(int)>> shutdown_callbacks;
+
 		void vm_notify_stub(const unsigned int notify_list_owner_id, const game::scr_string_t string_value,
 		                    game::VariableValue* top)
 		{
@@ -65,6 +67,12 @@ namespace scripting
 		void g_shutdown_game_stub(const int free_scripts)
 		{
 			lua::engine::stop();
+
+			for (const auto& callback : shutdown_callbacks)
+			{
+				callback(free_scripts);
+			}
+
 			return g_shutdown_game_hook.invoke<void>(free_scripts);
 		}
 
@@ -108,6 +116,11 @@ namespace scripting
 			return g_find_config_string_index.invoke<unsigned int>(name, start, max, 
 				sv_running->current.enabled, errormsg);
 		}
+	}
+
+	void on_shutdown(const std::function<void(int)>& callback)
+	{
+		shutdown_callbacks.push_back(callback);
 	}
 
 	class component final : public component_interface
