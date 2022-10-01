@@ -44,3 +44,6 @@
 [submodule "deps/stb"]
 	path = deps/stb
 	url = https://github.com/nothings/stb.git
+[submodule "deps/gsc-tool"]
+	path = deps/gsc-tool
+	url = https://github.com/xensik/gsc-tool.git
