@@ -7,7 +7,6 @@
 #include "game/game.hpp"
 
 #include <utils/hook.hpp>
-#include <utils/string.hpp>
 
 namespace dedicated
 {
