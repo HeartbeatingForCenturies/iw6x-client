@@ -182,10 +182,10 @@ namespace gsc
 			const auto id = static_cast<std::uint16_t>(std::atoi(name));
 			if (id)
 			{
-				real_name = xsk::gsc::iw6::resolver::token_name(id);
+				real_name = xsk::gsc::iw6::resolver::file_name(id);
 			}
 
-			const auto script = load_custom_script(name, real_name);
+			auto* script = load_custom_script(name, real_name);
 			if (script)
 			{
 				return script;
