@@ -50,8 +50,8 @@ namespace game
 	WEAK symbol<void(XZoneInfo* zoneInfo, unsigned int zoneCount, DBSyncMode syncMode)> DB_LoadXAssets{0x140273FD0, 0x140320F20};
 	WEAK symbol<void(void* buffer, int size)> DB_ReadXFileUncompressed{0x140250FB0, 0x1402FC9C0};
 	WEAK symbol<XAssetHeader(XAssetType type, const char* name, int allowCreateDefault)> DB_FindXAssetHeader{0x140272300, 0x14031F3A0};
-	WEAK symbol<bool(XAssetType type, const char* name)> DB_XAssetExists{0x140276200, 0x1403245E0};
-	WEAK symbol<bool(XAssetType type, const char* name)> DB_IsXAssetDefault{0x140273480 , 0x1403204D0};
+	WEAK symbol<int(XAssetType type, const char* name)> DB_XAssetExists{0x140276200, 0x1403245E0};
+	WEAK symbol<int(XAssetType type, const char* name)> DB_IsXAssetDefault{0x140273480 , 0x1403204D0};
 	WEAK symbol<int(const RawFile* rawfile)> DB_GetRawFileLen{0x0140272E80, 0x14031FF80};
 	WEAK symbol<void(const RawFile* rawfile, char* buf, int size)> DB_GetRawBuffer{0x140272D50, 0x14031FE50};
 
