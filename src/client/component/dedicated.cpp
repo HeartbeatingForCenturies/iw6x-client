@@ -13,6 +13,8 @@ namespace dedicated
 	namespace
 	{
 		utils::hook::detour dvar_get_string_hook;
+		
+		const game::dvar_t* sv_lanOnly;
 
 		void init_dedicated_server()
 		{
@@ -54,6 +56,11 @@ namespace dedicated
 
 		void send_heartbeat()
 		{
+			if (sv_lanOnly->current.enabled)
+			{
+				return;
+			}
+
 			game::netadr_s target{};
 			if (server_list::get_master_server(target))
 			{
@@ -187,6 +194,9 @@ namespace dedicated
 
 			// Arxan error fix
 			utils::hook::call(0x1403A0AF9, glass_update);
+
+			// Add lanonly mode
+			sv_lanOnly = game::Dvar_RegisterBool("sv_lanOnly", false, game::DVAR_FLAG_NONE, "Don't send heartbeat");
 
 			// Make dedis ranked
 			dvar_get_string_hook.create(game::Dvar_GetVariantStringWithDefault, dvar_get_string_stub);
