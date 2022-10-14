@@ -327,10 +327,8 @@ namespace gsc
 					{
 						return decompile_script_file(name, real_name);
 					}
-					else
-					{
-						throw std::runtime_error(std::format("Could not load gsc file '{}'", real_name));
-					}
+
+					throw std::runtime_error(std::format("Could not load gsc file '{}'", real_name));
 				}
 
 				std::vector<std::uint8_t> result;
