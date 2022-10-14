@@ -1,10 +1,11 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game/game.hpp"
+
 #include "scheduler.hpp"
 #include "server_list.hpp"
 #include "network.hpp"
 #include "command.hpp"
-#include "game/game.hpp"
 
 #include <utils/hook.hpp>
 
@@ -12,9 +13,15 @@ namespace dedicated
 {
 	namespace
 	{
-		utils::hook::detour dvar_get_string_hook;
-		
 		const game::dvar_t* sv_lanOnly;
+
+		void initialize()
+		{
+			command::execute("exec default_xboxlive.cfg", true);
+			command::execute("xstartprivatematch", true); // IW6 specific, doesn't work without
+			command::execute("onlinegame 1", true);
+			command::execute("xblive_privatematch 1", true);
+		}
 
 		void init_dedicated_server()
 		{
@@ -102,21 +109,6 @@ namespace dedicated
 			std::this_thread::sleep_for(1ms);
 		}
 
-		const char* dvar_get_string_stub(const char* dvar, const char* default_value)
-		{
-			if (dvar == "xblive_privatematch"s || dvar == "dedicated"s || dvar == "onlinegame"s)
-			{
-				return "0";
-			}
-
-			if (dvar == "xblive_rankedmatch"s)
-			{
-				return "1";
-			}
-
-			return dvar_get_string_hook.invoke<const char*>(dvar, default_value);
-		}
-
 		void gscr_is_using_match_rules_data_stub()
 		{
 			game::Scr_AddInt(0);
@@ -155,27 +147,12 @@ namespace dedicated
 		}
 	}
 
-	void initialize()
-	{
-		command::execute("exec default_xboxlive.cfg", true);
-
-		command::execute("xstartprivatematch", true);
-		command::execute("xstartpartyhost", true);
-
-		command::execute("exec default_mp_gamesettings.cfg", true);
-		command::execute("exec default_private.cfg", true);
-
-		command::execute("onlinegame 1", true);
-		command::execute("xblive_rankedmatch 1", true);
-		command::execute("xblive_privatematch 1", true);
-	}
-
 	class component final : public component_interface
 	{
 	public:
 		void* load_import(const std::string& library, const std::string& function) override
 		{
-			if(!game::environment::is_dedi() && !game::environment::is_linker()) return nullptr;
+			if (!game::environment::is_dedi() && !game::environment::is_linker()) return nullptr;
 
 			if(function == "SetFocus")
 			{
@@ -197,9 +174,6 @@ namespace dedicated
 
 			// Add lanonly mode
 			sv_lanOnly = game::Dvar_RegisterBool("sv_lanOnly", false, game::DVAR_FLAG_NONE, "Don't send heartbeat");
-
-			// Make dedis ranked
-			dvar_get_string_hook.create(game::Dvar_GetVariantStringWithDefault, dvar_get_string_stub);
 
 			// Make GScr_IsUsingMatchRulesData return 0 so the game doesn't override the cfg
 			utils::hook::jump(0x1403C9660, gscr_is_using_match_rules_data_stub);
