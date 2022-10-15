@@ -1,13 +1,12 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game/game.hpp"
 
 #include "command.hpp"
 #include "scheduler.hpp"
 #include "party.hpp"
 #include "network.hpp"
 #include "server_list.hpp"
-
-#include "game/game.hpp"
 
 #include <utils/hook.hpp>
 #include <utils/string.hpp>
