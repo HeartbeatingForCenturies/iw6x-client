@@ -5,6 +5,7 @@
 #include "game_console.hpp"
 
 #include "game/game.hpp"
+#include "game/dvars.hpp"
 
 #include <utils/hook.hpp>
 #include <utils/string.hpp>
@@ -14,6 +15,8 @@ namespace command
 {
 	namespace
 	{
+		constexpr auto CMD_MAX_NESTING = 8;
+
 		utils::hook::detour client_command_hook;
 
 		std::unordered_map<std::string, std::function<void(params&)>> handlers;
@@ -118,6 +121,7 @@ namespace command
 	params::params()
 		: nesting_(game::cmd_args->nesting)
 	{
+		assert(this->nesting_ < CMD_MAX_NESTING);
 	}
 
 	int params::size() const
@@ -150,6 +154,7 @@ namespace command
 	params_sv::params_sv()
 		: nesting_(game::sv_cmd_args->nesting)
 	{
+		assert(this->nesting_ < CMD_MAX_NESTING);
 	}
 
 	int params_sv::size() const
@@ -509,7 +514,7 @@ namespace command
 
 			add_sv("god", [&](const int client_num, const params_sv&)
 			{
-				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				if (!dvars::sv_cheats->current.enabled)
 				{
 					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
 					return;
@@ -525,7 +530,7 @@ namespace command
 
 			add_sv("notarget", [&](const int client_num, const params_sv&)
 			{
-				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				if (!dvars::sv_cheats->current.enabled)
 				{
 					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
 					return;
@@ -541,7 +546,7 @@ namespace command
 
 			add_sv("noclip", [&](const int client_num, const params_sv&)
 			{
-				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				if (!dvars::sv_cheats->current.enabled)
 				{
 					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
 					return;
@@ -557,7 +562,7 @@ namespace command
 
 			add_sv("ufo", [&](const int client_num, const params_sv&)
 			{
-				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				if (!dvars::sv_cheats->current.enabled)
 				{
 					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
 					return;
@@ -573,7 +578,7 @@ namespace command
 
 			add_sv("setviewpos", [&](const int client_num, const params_sv& params)
 			{
-				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				if (!dvars::sv_cheats->current.enabled)
 				{
 					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
 					return;
@@ -593,7 +598,7 @@ namespace command
 
 			add_sv("setviewang", [&](const int client_num, const params_sv& params)
 			{
-				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				if (!dvars::sv_cheats->current.enabled)
 				{
 					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
 					return;
@@ -613,7 +618,7 @@ namespace command
 
 			add_sv("give", [](const int client_num, const params_sv& params)
 			{
-				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				if (!dvars::sv_cheats->current.enabled)
 				{
 					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
 					return;
@@ -636,7 +641,7 @@ namespace command
 
 			add_sv("take", [](const int client_num, const params_sv& params)
 			{
-				if (!game::Dvar_FindVar("sv_cheats")->current.enabled)
+				if (!dvars::sv_cheats->current.enabled)
 				{
 					game::SV_GameSendServerCommand(client_num, 1, "f \"Cheats are not enabled on this server\"");
 					return;

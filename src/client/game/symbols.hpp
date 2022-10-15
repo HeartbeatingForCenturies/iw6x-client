@@ -18,12 +18,12 @@ namespace game
 
 	WEAK symbol<void(unsigned int weapon, bool isAlternate, char* output, unsigned int maxStringLen)> BG_GetWeaponNameComplete{0, 0x140239370};
 
-	WEAK symbol<void ()> Com_Frame_Try_Block_Function{0x1403BC980, 0x1404131A0};
+	WEAK symbol<void()> Com_Frame_Try_Block_Function{0x1403BC980, 0x1404131A0};
 	WEAK symbol<const char*(char const**)> Com_Parse{0x1404313E0, 0x1404F50E0};
 	WEAK symbol<void (errorParm code, const char* message, ...)> Com_Error{0x1403BBFF0, 0x140412740};
-	WEAK symbol<void ()> Com_Quit{0x1403BDDD0, 0x140414920};
+	WEAK symbol<void()> Com_Quit{0x1403BDDD0, 0x140414920};
 	WEAK symbol<CodPlayMode ()> Com_GetCurrentCoDPlayMode{0, 0x1404f6140};
-	WEAK symbol<void (float, float, int)> Com_SetSlowMotion{0, 0x1404158C0};
+	WEAK symbol<void(float, float, int)> Com_SetSlowMotion{0, 0x1404158C0};
 	WEAK symbol<void(const char* text_in)> Com_TokenizeString{0x1403B4150, 0x1403F7CC0};
 	WEAK symbol<void()> Com_EndTokenizeString{0x1403B37C0, 0x1403F7330};
 
@@ -72,14 +72,12 @@ namespace game
 	                    const char* description)> Dvar_RegisterVec2{0x14042B880, 0x1404EE740};
 	WEAK symbol<dvar_t*(const char* dvarName, float x, float y, float z, float w, float min, float max,
 	                    unsigned int flags, const char* description)> Dvar_RegisterVec4{0x14042BC10, 0x1404EEA50};
-	WEAK symbol<void (dvar_t* dvar, DvarSetSource source)> Dvar_Reset{0x14042C150, 0x1404EF020};
-	WEAK symbol<void (dvar_t* dvar, bool value)> Dvar_SetBool{0x14042C370, 0x1404EF1A0};
-	WEAK symbol<void (const char* dvar, const char* buffer)> Dvar_SetCommand{0x14042C8E0, 0x1404EF790};
-	WEAK symbol<void (dvar_t* dvar, const char* string)> Dvar_SetString{0x14042D6E0, 0x1404F08E0};
-	WEAK symbol<void (const char*, const char*, DvarSetSource)> Dvar_SetFromStringByNameFromSource{
-		0x14042D000, 0x1404F00B0
-	};
-	WEAK symbol<void ()> Dvar_Sort{0x14042DEF0, 0x1404F1210};
+	WEAK symbol<void(dvar_t* dvar, DvarSetSource source)> Dvar_Reset{0x14042C150, 0x1404EF020};
+	WEAK symbol<void(dvar_t* dvar, bool value)> Dvar_SetBool{0x14042C370, 0x1404EF1A0};
+	WEAK symbol<void(const char* dvar, const char* buffer)> Dvar_SetCommand{0x14042C8E0, 0x1404EF790};
+	WEAK symbol<void(dvar_t* dvar, const char* string)> Dvar_SetString{0x14042D6E0, 0x1404F08E0};
+	WEAK symbol<void(const char*, const char*, DvarSetSource)> Dvar_SetFromStringByNameFromSource{0x14042D000, 0x1404F00B0};
+	WEAK symbol<void()> Dvar_Sort{0x14042DEF0, 0x1404F1210};
 	WEAK symbol<const char*(dvar_t* dvar, dvar_value value)> Dvar_ValueToString{0x14042E710, 0x1404F1A30};
 
 	WEAK symbol<long long (const char* qpath, char** buffer)> FS_ReadFile{0x14041D0B0, 0x1404DE900};
