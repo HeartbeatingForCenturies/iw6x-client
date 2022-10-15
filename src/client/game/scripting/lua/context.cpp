@@ -89,8 +89,7 @@ namespace scripting::lua
 
 			for (const auto& func : xsk::gsc::iw6::resolver::get_methods())
 			{
-				const auto func_name = std::string(func.first);
-				const auto name = utils::string::to_lower(func_name);
+				const auto name = std::string(func.first);
 				entity_type[name.data()] = [name](const entity& entity, const sol::this_state s, sol::variadic_args va)
 				{
 					std::vector<script_value> arguments{};
@@ -222,8 +221,7 @@ namespace scripting::lua
 
 			for (const auto& func : xsk::gsc::iw6::resolver::get_functions())
 			{
-				const auto func_name = std::string(func.first);
-				const auto name = utils::string::to_lower(func_name);
+				const auto name = std::string(func.first);
 				game_type[name] = [name](const game&, const sol::this_state s, sol::variadic_args va)
 				{
 					std::vector<script_value> arguments{};
