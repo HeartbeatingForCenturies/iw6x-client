@@ -147,7 +147,7 @@ namespace scripting
 
 		void add_function(const std::string& file, unsigned int id, const char* pos)
 		{
-			const auto function_names = scripting::get_token_names(id);
+			const auto function_names = get_token_names(id);
 			for (const auto& name : function_names)
 			{
 				script_function_table[file][name] = pos;
@@ -160,7 +160,7 @@ namespace scripting
 
 			if (current_file_id)
 			{
-				const auto names = scripting::get_token_names(current_file_id);
+				const auto names = get_token_names(current_file_id);
 				for (const auto& name : names)
 				{
 					add_function(name, thread_name, code_pos);
