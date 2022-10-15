@@ -154,7 +154,7 @@ namespace dedicated
 		{
 			if (!game::environment::is_dedi() && !game::environment::is_linker()) return nullptr;
 
-			if(function == "SetFocus")
+			if (function == "SetFocus")
 			{
 				return set_focus_stub;
 			}

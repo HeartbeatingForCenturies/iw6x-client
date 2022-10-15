@@ -110,7 +110,7 @@ namespace map_rotation
 
 		void trigger_map_rotation()
 		{
-			scheduler::schedule([]()
+			scheduler::schedule([]
 			{
 				if (game::CL_IsCgameInitialized())
 				{
