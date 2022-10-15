@@ -47,3 +47,4 @@
 [submodule "deps/gsc-tool"]
 	path = deps/gsc-tool
 	url = https://github.com/xensik/gsc-tool.git
+	branch = xlabs
