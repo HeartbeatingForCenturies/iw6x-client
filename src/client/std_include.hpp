@@ -60,6 +60,7 @@
 #undef min
 #endif
 
+#include <ranges>
 #include <map>
 #include <atomic>
 #include <vector>

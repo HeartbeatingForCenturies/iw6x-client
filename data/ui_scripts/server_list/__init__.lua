@@ -1,9 +1,8 @@
-local Lobby = luiglobals.Lobby
-local SystemLinkJoinMenu = LUI.mp_menus.SystemLinkJoinMenu
-
-if (not SystemLinkJoinMenu) then
-	return
+if (game:issingleplayer() or not Engine.InFrontend()) then
+    return
 end
+
+local SystemLinkJoinMenu = LUI.mp_menus.SystemLinkJoinMenu
 
 local CreateRowDef = SystemLinkJoinMenu.CreateRowDef
 local menu_systemlink_join = LUI.MenuBuilder.m_definitions["menu_systemlink_join"]
@@ -32,7 +31,7 @@ LUI.MenuBuilder.m_definitions["menu_systemlink_join"] = function()
 	header.children[3].states.default.right = -90
 
 	-- Add ping header column
-	luiglobals.table.insert(header.children, SystemLinkJoinMenu.CreateColumnText("ping_header", Engine.Localize("@MENU_PING"), true, true, COLUMN_4, 0))
+	table.insert(header.children, SystemLinkJoinMenu.CreateColumnText("ping_header", Engine.Localize("@MENU_PING"), true, true, COLUMN_4, 0))
 
 	-- Increase server list width
 	menu.children[2].states.default.left = 150

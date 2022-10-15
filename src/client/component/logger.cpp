@@ -1,7 +1,7 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
-
 #include "game/game.hpp"
+
 #include "console.hpp"
 
 #include <utils/hook.hpp>
@@ -12,99 +12,73 @@ namespace logger
 	{
 		utils::hook::detour com_error_hook;
 
-		void print_error(const char* msg, ...)
-		{
-			char buffer[2048];
-
-			va_list ap;
-			va_start(ap, msg);
-
-			vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, msg, ap);
-
-			va_end(ap);
-
-			console::error(buffer);
-		}
+		const game::dvar_t* logger_dev = nullptr;
 
 		void print_com_error(int, const char* msg, ...)
 		{
-			char buffer[2048];
-
+			char buffer[2048]{};
 			va_list ap;
+
 			va_start(ap, msg);
-
-			vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, msg, ap);
-
+			vsnprintf_s(buffer, _TRUNCATE, msg, ap);
 			va_end(ap);
 
-			console::error(buffer);
+			console::error("%s", buffer);
 		}
 
 		void com_error_stub(const int error, const char* msg, ...)
 		{
-			char buffer[2048];
+			char buffer[2048]{};
+			va_list ap;
 
-			{
-				va_list ap;
-				va_start(ap, msg);
+			va_start(ap, msg);
+			vsnprintf_s(buffer, _TRUNCATE, msg, ap);
+			va_end(ap);
 
-				vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, msg, ap);
-
-				va_end(ap);
-
-				console::error("Error: %s\n", buffer);
-			}
+			console::error("Error: %s\n", buffer);
 
 			com_error_hook.invoke<void>(error, "%s", buffer);
 		}
 
 		void print_warning(const char* msg, ...)
 		{
-			char buffer[2048];
-
+			char buffer[2048]{};
 			va_list ap;
+
 			va_start(ap, msg);
-
-			vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, msg, ap);
-
+			vsnprintf_s(buffer, _TRUNCATE, msg, ap);
 			va_end(ap);
 
-			console::warn(buffer);
+			console::warn("%s", buffer);
 		}
 
 		void print(const char* msg, ...)
 		{
-			char buffer[2048];
-
+			char buffer[2048]{};
 			va_list ap;
+
 			va_start(ap, msg);
-
-			vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, msg, ap);
-
+			vsnprintf_s(buffer, _TRUNCATE, msg, ap);
 			va_end(ap);
 
-			console::info(buffer);
+			console::info("%s", buffer);
 		}
 
 		void print_dev(const char* msg, ...)
 		{
-			static auto* enabled =
-				game::Dvar_RegisterBool("logger_dev", false, game::DVAR_FLAG_SAVED, "Print dev stuff");
-			if (!enabled->current.enabled)
+			if (!logger_dev->current.enabled)
 			{
 				return;
 			}
 
-			char buffer[2048];
-
+			char buffer[2048]{};
 			va_list ap;
+
 			va_start(ap, msg);
-
-			vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, msg, ap);
-
+			vsnprintf_s(buffer, _TRUNCATE, msg, ap);
 			va_end(ap);
 
-			console::info(buffer);
+			console::info("%s", buffer);
 		}
 
 		// nullsub_56 -> nullsub_16 (iw6x)
@@ -173,6 +147,11 @@ namespace logger
 			}
 
 			com_error_hook.create(game::Com_Error, com_error_stub);
+
+			// Make havok script's print function actually print
+			utils::hook::jump(SELECT_VALUE(0x1406283A4, 0x140732184), print);
+
+			logger_dev = game::Dvar_RegisterBool("logger_dev", false, game::DVAR_FLAG_SAVED, "Print dev stuff");
 		}
 	};
 }

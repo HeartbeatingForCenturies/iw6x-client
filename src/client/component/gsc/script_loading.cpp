@@ -10,6 +10,8 @@
 #include "component/scripting.hpp"
 #include "component/fastfiles.hpp"
 
+#include "script_loading.hpp"
+
 #include <xsk/gsc/types.hpp>
 #include <xsk/gsc/interfaces/compiler.hpp>
 #include <xsk/gsc/interfaces/decompiler.hpp>
@@ -215,24 +217,6 @@ namespace gsc
 			}
 		}
 
-		game::ScriptFile* find_script(game::XAssetType /*type*/, const char* name, int /*allow_create_default*/)
-		{
-			std::string real_name = name;
-			const auto id = static_cast<std::uint16_t>(std::atoi(name));
-			if (id)
-			{
-				real_name = xsk::gsc::iw6::resolver::token_name(id);
-			}
-
-			auto* script = load_custom_script(name, real_name);
-			if (script)
-			{
-				return script;
-			}
-
-			return game::DB_FindXAssetHeader(game::ASSET_TYPE_SCRIPTFILE, name, 1).scriptfile;
-		}
-
 		int db_is_x_asset_default(game::XAssetType type, const char* name)
 		{
 			if (loaded_scripts.contains(name))
@@ -304,6 +288,24 @@ namespace gsc
 		}
 	}
 
+	game::ScriptFile* find_script([[maybe_unused]] game::XAssetType type, const char* name, [[maybe_unused]] int allow_create_default)
+	{
+		std::string real_name = name;
+		const auto id = static_cast<std::uint16_t>(std::atoi(name));
+		if (id)
+		{
+			real_name = xsk::gsc::iw6::resolver::token_name(id);
+		}
+
+		auto* script = load_custom_script(name, real_name);
+		if (script)
+		{
+			return script;
+		}
+
+		return game::DB_FindXAssetHeader(game::ASSET_TYPE_SCRIPTFILE, name, 1).scriptfile;
+	}
+
 	class loading final : public component_interface
 	{
 	public:
@@ -327,10 +329,8 @@ namespace gsc
 					{
 						return decompile_script_file(name, real_name);
 					}
-					else
-					{
-						throw std::runtime_error(std::format("Could not load gsc file '{}'", real_name));
-					}
+
+					throw std::runtime_error(std::format("Could not load gsc file '{}'", real_name));
 				}
 
 				std::vector<std::uint8_t> result;

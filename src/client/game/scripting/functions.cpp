@@ -3,6 +3,9 @@
 
 #include <utils/string.hpp>
 
+#include <xsk/gsc/types.hpp>
+#include <xsk/resolver.hpp>
+
 namespace scripting
 {
 	namespace
@@ -69,56 +72,49 @@ namespace scripting
 
 			return reinterpret_cast<script_function*>(method_table)[index - 0x8000];
 		}
-	}
 
-	std::string find_token(unsigned int id)
-	{
-		for (const auto& token : token_map)
+		unsigned int parse_token_id(const std::string& name)
 		{
-			if (token.second == id)
+			if (name.starts_with("_ID"))
 			{
-				return token.first;
+				return static_cast<unsigned int>(std::strtol(name.substr(3).data(), nullptr, 10));
 			}
-		}
 
-		return utils::string::va("_ID%i", id);
+			return 0;
+		}
 	}
 
-	std::string find_file(unsigned int id)
+	std::vector<std::string> find_token(unsigned int id)
 	{
-		for (const auto& file : file_map)
-		{
-			if (file.second == id)
-			{
-				return file.first;
-			}
-		}
+		std::vector<std::string> results;
 
-		return utils::string::va("_ID%i", id);
+		results.push_back(utils::string::va("_ID%i", id));
+		results.push_back(utils::string::va("_id_%04X", id));
+		results.push_back(xsk::gsc::iw6::resolver::token_name(static_cast<std::uint16_t>(id)));
+
+		return results;
 	}
 
-	unsigned int find_file_id(const std::string& name)
+	std::string find_token_single(unsigned int id)
 	{
-		const auto result = file_map.find(name);
-
-		if (result != file_map.end())
-		{
-			return result->second;
-		}
-
-		return 0;
+		return xsk::gsc::iw6::resolver::token_name(static_cast<std::uint16_t>(id));
 	}
 
 	unsigned int find_token_id(const std::string& name)
 	{
-		const auto result = token_map.find(name);
-
-		if (result != token_map.end())
+		const auto id = xsk::gsc::iw6::resolver::token_id(name);
+		if (id)
 		{
-			return result->second;
+			return id;
 		}
 
-		return 0;
+		const auto parsed_id = parse_token_id(name);
+		if (parsed_id)
+		{
+			return parsed_id;
+		}
+
+		return game::SL_GetCanonicalString(name.data());
 	}
 
 	script_function find_function(const std::string& name, const bool prefer_global)
