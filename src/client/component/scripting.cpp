@@ -175,7 +175,7 @@ namespace scripting
 			}
 			else
 			{
-				add_function(current_file, thread_name, code_pos);
+				add_function(current_script_file, thread_name, code_pos);
 			}
 
 			scr_set_thread_position_hook.invoke<void>(thread_name, code_pos);
