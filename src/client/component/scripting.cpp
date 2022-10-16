@@ -77,6 +77,13 @@ namespace scripting
 		{
 			lua::engine::stop();
 
+			if (free_scripts)
+			{
+				script_function_table_sort.clear();
+				script_function_table.clear();
+				canonical_string_table.clear();
+			}
+
 			for (const auto& callback : shutdown_callbacks)
 			{
 				callback(free_scripts);
@@ -89,7 +96,7 @@ namespace scripting
 		{
 			current_script_file = filename;
 
-			const auto file_id = atoi(filename);
+			const auto file_id = std::atoi(filename);
 			if (file_id)
 			{
 				current_file_id = file_id;
@@ -231,7 +238,7 @@ namespace scripting
 			process_script_hook.create(SELECT_VALUE(0x1403DC870, 0x1404378C0), process_script_stub);
 			sl_get_canonical_string_hook.create(game::SL_GetCanonicalString, sl_get_canonical_string_stub);
 
-			scheduler::loop([]()
+			scheduler::loop([]
 			{
 				lua::engine::run_frame();
 			}, scheduler::pipeline::server);

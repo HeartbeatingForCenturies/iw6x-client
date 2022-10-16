@@ -90,7 +90,7 @@ namespace scripting::lua
 			for (const auto& func : xsk::gsc::iw6::resolver::get_methods())
 			{
 				const auto name = std::string(func.first);
-				entity_type[name.data()] = [name](const entity& entity, const sol::this_state s, sol::variadic_args va)
+				entity_type[name] = [name](const entity& entity, const sol::this_state s, sol::variadic_args va)
 				{
 					std::vector<script_value> arguments{};
 
@@ -191,13 +191,13 @@ namespace scripting::lua
 			entity_type["struct"] = sol::property([](const entity& entity, const sol::this_state s)
 			{
 				const auto id = entity.get_entity_id();
-				return scripting::lua::entity_to_struct(s, id);
+				return entity_to_struct(s, id);
 			});
 
 			entity_type["getstruct"] = [](const entity& entity, const sol::this_state s)
 			{
 				const auto id = entity.get_entity_id();
-				return scripting::lua::entity_to_struct(s, id);
+				return entity_to_struct(s, id);
 			};
 
 			entity_type["scriptcall"] = [](const entity& entity, const sol::this_state s, const std::string& filename,
@@ -289,7 +289,7 @@ namespace scripting::lua
 
 			game_type["getfunctions"] = [entity_type](const game&, const sol::this_state s, const std::string& filename)
 			{
-				if (scripting::script_function_table.find(filename) == scripting::script_function_table.end())
+				if (!script_function_table.contains(filename))
 				{
 					throw std::runtime_error("File '" + filename + "' not found");
 				}
@@ -308,7 +308,7 @@ namespace scripting::lua
 								arguments.push_back(convert({s, arg}));
 							}
 
-							gsl::finally(&logfile::enable_vm_execute_hook);
+							const auto _0 = gsl::finally(&logfile::enable_vm_execute_hook);
 							logfile::disable_vm_execute_hook();
 
 							return convert(s, call_script_function(entity, filename, function.first, arguments));
@@ -322,7 +322,7 @@ namespace scripting::lua
 								arguments.push_back(convert({s, arg}));
 							}
 
-							gsl::finally(&logfile::enable_vm_execute_hook);
+							const auto _0 = gsl::finally(&logfile::enable_vm_execute_hook);
 							logfile::disable_vm_execute_hook();
 
 							return convert(s, call_script_function(*::game::levelEntityId, filename, function.first, arguments));
@@ -343,7 +343,7 @@ namespace scripting::lua
 					arguments.push_back(convert({s, arg}));
 				}
 
-				gsl::finally(&logfile::enable_vm_execute_hook);
+				const auto _0 = gsl::finally(&logfile::enable_vm_execute_hook);
 				logfile::disable_vm_execute_hook();
 
 				return convert(s, call_script_function(*::game::levelEntityId, filename, function, arguments));
@@ -377,7 +377,7 @@ namespace scripting::lua
 							arguments.push_back(convert({s, arg}));
 						}
 
-						gsl::finally(&logfile::enable_vm_execute_hook);
+						const auto _0 = gsl::finally(&logfile::enable_vm_execute_hook);
 						logfile::disable_vm_execute_hook();
 
 						return convert(s, call_script_function(entity, filename, function_name, arguments));
@@ -391,7 +391,7 @@ namespace scripting::lua
 							arguments.push_back(convert({s, arg}));
 						}
 
-						gsl::finally(&logfile::enable_vm_execute_hook);
+						const auto _0 = gsl::finally(&logfile::enable_vm_execute_hook);
 						logfile::disable_vm_execute_hook();
 
 						return convert(s, call_script_function(*::game::levelEntityId, filename, function_name, arguments));
