@@ -42,7 +42,7 @@ namespace scripting
 
 			if (index < 0x25D)
 			{
-				return reinterpret_cast<script_function*>(function_table)[index];
+				return reinterpret_cast<script_function*>(function_table)[index - 1];
 			}
 
 			return reinterpret_cast<script_function*>(method_table)[index - 0x8000];
