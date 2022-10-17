@@ -20,6 +20,12 @@ namespace ranked
 				return;
 			}
 
+			if (game::environment::is_mp())
+			{
+				// This must be registered as 'true' to avoid crash when starting a private match 
+				dvars::override::Dvar_RegisterBool("xblive_privatematch", true, game::DVAR_FLAG_REPLICATED);
+			}
+
 			if (game::environment::is_dedi() && !utils::flags::has_flag("unranked"))
 			{
 				dvars::override::Dvar_RegisterBool("xblive_privatematch", false, game::DVAR_FLAG_WRITE);
