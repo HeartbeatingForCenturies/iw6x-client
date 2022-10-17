@@ -20,7 +20,7 @@ namespace dedicated
 			command::execute("exec default_xboxlive.cfg", true);
 			command::execute("xstartprivatematch", true); // IW6 specific, doesn't work without
 			command::execute("onlinegame 1", true);
-			command::execute("xblive_privatematch 1", true);
+			command::execute("xblive_privatematch 0", true);
 		}
 
 		void init_dedicated_server()
