@@ -32,10 +32,12 @@ namespace ranked
 
 				// Some dvar used in gsc
 				game::Dvar_RegisterBool("force_ranking", true, game::DVAR_FLAG_WRITE, "Force ranking");
+
+				// Fix sessionteam always returning none (SV_HasAssignedTeam_Internal)
+				utils::hook::set(0x140479CF0, 0xC300B0);
 			}
 
 			// Always run bots, even if xblive_privatematch is 0
-			// OP codes = xor eax, eax; inc eax; ret;
 			utils::hook::set<std::uint32_t>(0x140217020, 0xC0FFC031); // BG_BotSystemEnabled
 			utils::hook::set<std::uint8_t>(0x140217020 + 4, 0xC3);
 
@@ -47,10 +49,6 @@ namespace ranked
 
 			utils::hook::set<std::uint32_t>(0x1402170E0, 0xC0FFC031); // BG_BotsUsingTeamDifficulty
 			utils::hook::set<std::uint8_t>(0x1402170E0 + 4, 0xC3);
-
-			// SV_HasAssignedTeam_Internal
-			// OP codes = mov al, 0; ret;
-			utils::hook::set(0x140479CF0, 0xC300B0);
 		}
 	};
 }
