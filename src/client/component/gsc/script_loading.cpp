@@ -49,6 +49,14 @@ namespace gsc
 				return true;
 			}
 
+			// This will prevent 'fake' GSC raw files from being compiled.
+			// They are parsed by the game's own parser later as they are special files.
+			if (name.starts_with("maps/createfx") || name.starts_with("maps/createart") ||
+				(name.starts_with("maps/mp") && name.ends_with("_fx.gsc")))
+			{
+				return false;
+			}
+
 			const auto* name_str = name.data();
 			if (game::DB_XAssetExists(game::ASSET_TYPE_RAWFILE, name_str) &&
 				!game::DB_IsXAssetDefault(game::ASSET_TYPE_RAWFILE, name_str))
@@ -70,9 +78,9 @@ namespace gsc
 
 		game::ScriptFile* load_custom_script(const char* file_name, const std::string& real_name)
 		{
-			if (const auto got = loaded_scripts.find(real_name); got != loaded_scripts.end())
+			if (const auto itr = loaded_scripts.find(real_name); itr != loaded_scripts.end())
 			{
-				return got->second;
+				return itr->second;
 			}
 
 			std::string source_buffer{};
@@ -288,7 +296,7 @@ namespace gsc
 		}
 	}
 
-	game::ScriptFile* find_script([[maybe_unused]] game::XAssetType type, const char* name, [[maybe_unused]] int allow_create_default)
+	game::ScriptFile* find_script(game::XAssetType type, const char* name, int allow_create_default)
 	{
 		std::string real_name = name;
 		const auto id = static_cast<std::uint16_t>(std::atoi(name));
@@ -303,7 +311,7 @@ namespace gsc
 			return script;
 		}
 
-		return game::DB_FindXAssetHeader(game::ASSET_TYPE_SCRIPTFILE, name, 1).scriptfile;
+		return game::DB_FindXAssetHeader(type, name, allow_create_default).scriptfile;
 	}
 
 	class loading final : public component_interface
