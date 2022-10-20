@@ -19,18 +19,16 @@ namespace gsc
 	std::uint16_t function_id_start = 0x25D;
 	std::uint16_t method_id_start = 0x8429;
 
+	void* func_table[0x1000];
+
 	namespace
 	{
 		#define RVA(ptr) static_cast<std::uint32_t>(reinterpret_cast<std::size_t>(ptr) - 0x140000000)
-
-		void* func_table[0x1000];
 
 		std::unordered_map<std::uint16_t, game::BuiltinFunction> functions;
 
 		unsigned int scr_get_function_stub(const char** p_name, int* type)
 		{
-			std::memset(func_table, 0, sizeof(func_table));
-
 			const auto result = utils::hook::invoke<unsigned int>(0x1403CD9F0, p_name, type);
 
 			for (const auto& [name, func] : functions)
@@ -105,17 +103,18 @@ namespace gsc
 			utils::hook::set<void(*)()>(SELECT_VALUE(0x14086F468, 0x1409E6CE8), scr_print);
 			utils::hook::set<void(*)()>(SELECT_VALUE(0x14086F480, 0x1409E6D00), scr_print_ln);
 
+			utils::hook::set<std::uint32_t>(SELECT_VALUE(0x1403D353C, 0x14042E33C), 0x1000); // Scr_RegisterFunction
+
+			utils::hook::set<std::uint32_t>(SELECT_VALUE(0x1403D3542 + 4, 0x14042E342 + 4), RVA(&func_table)); // Scr_RegisterFunction
+			utils::hook::set<std::uint32_t>(SELECT_VALUE(0x1403E0BDD + 3, 0x14043BBBE + 3), RVA(&func_table)); // VM_Execute_0
+			utils::hook::inject(SELECT_VALUE(0x1403D38E4 + 3, 0x14042E734 + 3), &func_table); // Scr_BeginLoadScripts
+
 			if (game::environment::is_sp())
 			{
 				return;
 			}
 
-			utils::hook::set<std::uint32_t>(0x14042E33C, 0x1000);
-
 			utils::hook::call(0x14042E76F, scr_get_function_stub);
-
-			utils::hook::set<std::uint32_t>(0x14042E342 + 4, RVA(&func_table));
-			utils::hook::set<std::uint32_t>(0x14043BBBE + 3, RVA(&func_table));
 
 			add_function("getfunction", []
 			{
