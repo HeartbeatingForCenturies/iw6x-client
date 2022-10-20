@@ -175,11 +175,13 @@ namespace game
 	WEAK symbol<scr_entref_t(unsigned int entId)> Scr_GetEntityIdRef{0x1403DBDC0, 0x140436E10};
 	WEAK symbol<int(unsigned int classnum, int entnum, int offset)> Scr_SetObjectField{0x140350E70, 0x1403D3FE0};
 	WEAK symbol<void(unsigned int id, scr_string_t stringValue, unsigned int paramcount)> Scr_NotifyId{0x1403DE730, 0x140439700};
+	WEAK symbol<unsigned int(int entnum, unsigned int classnum)> Scr_GetEntityId{0x0, 0x140436D60};
 
 	WEAK symbol<unsigned __int16(int handle, unsigned int paramcount)> Scr_ExecThread{0x1403DD600, 0x1404386E0};
 	WEAK symbol<unsigned int(const char* name)> Scr_LoadScript{0x1403D3C50, 0x14042EAA0};
 	WEAK symbol<unsigned int(const char* script, unsigned int name)> Scr_GetFunctionHandle{0x1403D3AD0 , 0x14042E920};
 	WEAK symbol<unsigned int(void* func, int type, unsigned int name)> Scr_RegisterFunction{0x1403D3530, 0x14042E330};
+	WEAK symbol<void()> Scr_ErrorInternal{0x0, 0x140438660};
 
 	WEAK symbol<unsigned int(unsigned int localId, const char* pos, unsigned int paramcount)> VM_Execute{0, 0x14043A280};
 

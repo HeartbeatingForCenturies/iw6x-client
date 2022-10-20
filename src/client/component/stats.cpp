@@ -12,7 +12,7 @@ namespace stats
 {
 	namespace
 	{
-		const int controller_index{ 0 };
+		const int controller_index = 0;
 
 		//Checks if it's a valid reserved lookup string otherwise it crashes the client.
 		bool is_reserved_lookup_string(const char* lookup_string)

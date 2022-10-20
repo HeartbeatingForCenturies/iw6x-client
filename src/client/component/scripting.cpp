@@ -19,6 +19,7 @@ namespace scripting
 {
 	std::unordered_map<std::string, std::unordered_map<std::string, const char*>> script_function_table;
 	std::unordered_map<std::string, std::vector<std::pair<std::string, const char*>>> script_function_table_sort;
+	std::unordered_map<const char*, std::pair<std::string, std::string>> script_function_table_rev;
 
 	std::string current_file;
 
@@ -104,7 +105,7 @@ namespace scripting
 			else
 			{
 				current_file_id = 0;
-				current_script_file = filename;
+				current_file = filename;
 			}
 
 			process_script_hook.invoke<void>(filename);
@@ -117,24 +118,12 @@ namespace scripting
 			return result;
 		}
 
-		std::vector<std::string> get_token_names(unsigned int id)
-		{
-			auto result = find_token(id);
-
-			if (canonical_string_table.contains(id))
-			{
-				result.push_back(canonical_string_table[id]);
-			}
-
-			return result;
-		}
-
 		void add_function_sort(unsigned int id, const char* pos)
 		{
 			std::string filename = current_file;
 			if (current_file_id)
 			{
-				filename = get_token_single(current_file_id);
+				filename = get_token(current_file_id);
 			}
 
 			if (!script_function_table_sort.contains(filename))
@@ -147,18 +136,16 @@ namespace scripting
 				}
 			}
 
-			const auto name = get_token_single(id);
+			const auto name = get_token(id);
 			auto& itr = script_function_table_sort[filename];
 			itr.insert(itr.end() - 1, {name, pos});
 		}
 
 		void add_function(const std::string& file, unsigned int id, const char* pos)
 		{
-			const auto function_names = get_token_names(id);
-			for (const auto& name : function_names)
-			{
-				script_function_table[file][name] = pos;
-			}
+			const auto name = get_token(id);
+			script_function_table[file][name] = pos;
+			script_function_table_rev[pos] = { file, name };
 		}
 
 		void scr_set_thread_position_stub(unsigned int thread_name, const char* code_pos)
@@ -167,15 +154,12 @@ namespace scripting
 
 			if (current_file_id)
 			{
-				const auto names = get_token_names(current_file_id);
-				for (const auto& name : names)
-				{
-					add_function(name, thread_name, code_pos);
-				}
+				const auto name = get_token(current_file_id);
+				add_function(name, thread_name, code_pos);
 			}
 			else
 			{
-				add_function(current_script_file, thread_name, code_pos);
+				add_function(current_file, thread_name, code_pos);
 			}
 
 			scr_set_thread_position_hook.invoke<void>(thread_name, code_pos);
@@ -199,19 +183,19 @@ namespace scripting
 		}
 	}
 
-	void on_shutdown(const std::function<void(int)>& callback)
-	{
-		shutdown_callbacks.push_back(callback);
-	}
-
-	std::string get_token_single(unsigned int id)
+	std::string get_token(unsigned int id)
 	{
 		if (const auto itr = canonical_string_table.find(id); itr != canonical_string_table.end())
 		{
 			return itr->second;
 		}
 
-		return find_token_single(id);
+		return find_token(id);
+	}
+
+	void on_shutdown(const std::function<void(int)>& callback)
+	{
+		shutdown_callbacks.push_back(callback);
 	}
 
 	std::optional<std::string> get_canonical_string(const unsigned int id)

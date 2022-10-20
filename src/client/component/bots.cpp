@@ -76,7 +76,7 @@ namespace bots
 			auto* bot_ent = game::SV_AddBot(bot_name, 26, 62, 0);
 			if (bot_ent)
 			{
-				spawn_bot(bot_ent->s.entityNum);
+				spawn_bot(bot_ent->s.number);
 			}
 		}
 

@@ -1,6 +1,5 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
-#include "scheduler.hpp"
 
 #include "game/scripting/entity.hpp"
 #include "game/scripting/execution.hpp"
@@ -10,22 +9,31 @@
 #include <utils/hook.hpp>
 
 #include "logfile.hpp"
+#include "scripting.hpp"
+#include "scheduler.hpp"
 
 namespace logfile
 {
-	std::unordered_map<const char*, sol::protected_function> vm_execute_hooks;
+	bool hook_enabled = true;
 
 	namespace
 	{
+		struct gsc_hook
+		{
+			bool is_lua_hook{};
+			const char* target_pos{};
+			sol::protected_function lua_function;
+		};
+
+		std::unordered_map<const char*, gsc_hook> vm_execute_hooks;
 		utils::hook::detour scr_player_killed_hook;
 		utils::hook::detour scr_player_damage_hook;
 
 		std::vector<sol::protected_function> player_killed_callbacks;
 		std::vector<sol::protected_function> player_damage_callbacks;
 
-		utils::hook::detour vm_execute_hook;
 		char empty_function[2] = {0x32, 0x34}; // CHECK_CLEAR_PARAMS, END
-		bool hook_enabled = true;
+		const char* target_function = nullptr;
 
 		sol::lua_value convert_entity(lua_State* state, const game::mp::gentity_s* ent)
 		{
@@ -34,15 +42,14 @@ namespace logfile
 				return {};
 			}
 
-			const auto player = scripting::call("getEntByNum", {ent->s.entityNum});
-
+			const scripting::entity player{game::Scr_GetEntityId(ent->s.number, 0)};
 			return scripting::lua::convert(state, player);
 		}
 
-		std::string get_weapon_name(unsigned int weapon, bool isAlternate)
+		std::string get_weapon_name(unsigned int weapon, bool is_alternate)
 		{
-			char output[1024] = {0};
-			game::BG_GetWeaponNameComplete(weapon, isAlternate, output, 1024);
+			char output[1024]{};
+			game::BG_GetWeaponNameComplete(weapon, is_alternate, output, sizeof(output));
 
 			return output;
 		}
@@ -55,26 +62,23 @@ namespace logfile
 			}
 
 			const auto _vec = scripting::vector(vec);
-
 			return scripting::lua::convert(state, _vec);
 		}
 
-		std::string convert_mod(const int meansOfDeath)
+		std::string convert_mod(const int means_of_death)
 		{
-			const auto value = reinterpret_cast<game::scr_string_t**>(0x1409E6360)[meansOfDeath];
-			const auto string = game::SL_ConvertToString(*value);
-
-			return string;
+			const auto value = reinterpret_cast<game::scr_string_t**>(0x1409E6360)[means_of_death];
+			return game::SL_ConvertToString(*value);
 		}
 
 		void scr_player_killed_stub(game::mp::gentity_s* self, const game::mp::gentity_s* inflictor, game::mp::gentity_s* attacker, int damage,
-			const int meansOfDeath, const unsigned int weapon, const bool isAlternate, const float* vDir, const unsigned int hitLoc, int psTimeOffset, int deathAnimDuration)
+			const int means_of_death, const unsigned int weapon, const bool is_alternate, const float* v_dir, const unsigned int hit_loc, int ps_time_offset, int death_anim_duration)
 		{
 			{
-				const std::string _hitLoc = reinterpret_cast<const char**>(0x1409E62B0)[hitLoc];
-				const auto _mod = convert_mod(meansOfDeath);
+				const std::string _hit_loc = reinterpret_cast<const char**>(0x1409E62B0)[hit_loc];
+				const auto _mod = convert_mod(means_of_death);
 
-				const auto _weapon = get_weapon_name(weapon, isAlternate);
+				const auto _weapon = get_weapon_name(weapon, is_alternate);
 
 				for (const auto& callback : player_killed_callbacks)
 				{
@@ -84,9 +88,9 @@ namespace logfile
 					const auto _inflictor = convert_entity(state, inflictor);
 					const auto _attacker = convert_entity(state, attacker);
 
-					const auto _vDir = convert_vector(state, vDir);
+					const auto _v_dir = convert_vector(state, v_dir);
 
-					const auto result = callback(_self, _inflictor, _attacker, damage, _mod, _weapon, _vDir, _hitLoc, psTimeOffset, deathAnimDuration);
+					const auto result = callback(_self, _inflictor, _attacker, damage, _mod, _weapon, _v_dir, _hit_loc, ps_time_offset, death_anim_duration);
 
 					scripting::lua::handle_error(result);
 
@@ -102,17 +106,17 @@ namespace logfile
 				}
 			}
 
-			scr_player_killed_hook.invoke<void>(self, inflictor, attacker, damage, meansOfDeath, weapon, isAlternate, vDir, hitLoc, psTimeOffset, deathAnimDuration);
+			scr_player_killed_hook.invoke<void>(self, inflictor, attacker, damage, means_of_death, weapon, is_alternate, v_dir, hit_loc, ps_time_offset, death_anim_duration);
 		}
 
 		void scr_player_damage_stub(game::mp::gentity_s* self, const game::mp::gentity_s* inflictor, game::mp::gentity_s* attacker, int damage, int dflags,
-			const int meansOfDeath, const unsigned int weapon, const bool isAlternate, const float* vPoint, const float* vDir, const unsigned int hitLoc, const int timeOffset)
+			const int means_of_death, const unsigned int weapon, const bool is_alternate, const float* v_point, const float* v_dir, const unsigned int hit_loc, const int time_offset)
 		{
 			{
-				const std::string _hitLoc = reinterpret_cast<const char**>(0x1409E62B0)[hitLoc];
-				const auto _mod = convert_mod(meansOfDeath);
+				const std::string _hit_loc = reinterpret_cast<const char**>(0x1409E62B0)[hit_loc];
+				const auto _mod = convert_mod(means_of_death);
 
-				const auto _weapon = get_weapon_name(weapon, isAlternate);
+				const auto _weapon = get_weapon_name(weapon, is_alternate);
 
 				for (const auto& callback : player_damage_callbacks)
 				{
@@ -122,10 +126,10 @@ namespace logfile
 					const auto _inflictor = convert_entity(state, inflictor);
 					const auto _attacker = convert_entity(state, attacker);
 
-					const auto _vPoint = convert_vector(state, vPoint);
-					const auto _vDir = convert_vector(state, vDir);
+					const auto _v_point = convert_vector(state, v_point);
+					const auto _v_dir = convert_vector(state, v_dir);
 
-					const auto result = callback(_self, _inflictor, _attacker, damage, dflags, _mod, _weapon, _vPoint, _vDir, _hitLoc);
+					const auto result = callback(_self, _inflictor, _attacker, damage, dflags, _mod, _weapon, _v_point, _v_dir, _hit_loc);
 
 					scripting::lua::handle_error(result);
 
@@ -141,15 +145,20 @@ namespace logfile
 				}
 			}
 
-			scr_player_damage_hook.invoke<void>(self, inflictor, attacker, damage, dflags, meansOfDeath, weapon, isAlternate, vPoint, vDir, hitLoc, timeOffset);
+			scr_player_damage_hook.invoke<void>(self, inflictor, attacker, damage, dflags, means_of_death, weapon, is_alternate, v_point, v_dir, hit_loc, time_offset);
 		}
 
-		void client_command_stub(const int clientNum)
+		void client_command_stub(const int client_num)
 		{
-			auto self = &game::mp::g_entities[clientNum];
-			char cmd[1024]{};
+			auto self = &game::mp::g_entities[client_num];
 
-			game::SV_Cmd_ArgvBuffer(0, cmd, 1024);
+			if (!self->client)
+			{
+				return;
+			}
+
+			char cmd[1024]{};
+			game::SV_Cmd_ArgvBuffer(0, cmd, sizeof(cmd));
 
 			if (cmd == "say"s || cmd == "say_team"s)
 			{
@@ -162,7 +171,7 @@ namespace logfile
 				scheduler::once([cmd, message, self]()
 				{
 					const scripting::entity level{*game::levelEntityId};
-					const auto player = scripting::call("getEntByNum", {self->s.entityNum}).as<scripting::entity>();
+					const auto player = scripting::call("getEntByNum", {self->s.number}).as<scripting::entity>();
 
 					scripting::notify(level, cmd, {player, message});
 					scripting::notify(player, cmd, {message});
@@ -175,15 +184,13 @@ namespace logfile
 			}
 
 			// ClientCommand
-			return reinterpret_cast<void(*)(int)>(0x1403929B0)(clientNum);
+			utils::hook::invoke<void>(0x1403929B0, client_num);
 		}
 
 		void g_shutdown_game_stub(const int freeScripts)
 		{
-			{
-				const scripting::entity level{*game::levelEntityId};
-				scripting::notify(level, "shutdownGame_called", {1});
-			}
+			const scripting::entity level{*game::levelEntityId};
+			scripting::notify(level, "shutdownGame_called", {1});
 
 			// G_ShutdownGame
 			return reinterpret_cast<void(*)(int)>(0x1403A0DF0)(freeScripts);
@@ -197,7 +204,7 @@ namespace logfile
 
 		bool execute_vm_hook(const char* pos)
 		{
-			if (vm_execute_hooks.find(pos) == vm_execute_hooks.end())
+			if (!vm_execute_hooks.contains(pos))
 			{
 				hook_enabled = true;
 				return false;
@@ -210,21 +217,28 @@ namespace logfile
 			}
 
 			const auto hook = vm_execute_hooks[pos];
-			const auto state = hook.lua_state();
-
-			const scripting::entity self = local_id_to_entity(game::scr_VmPub->function_frame->fs.localId);
-
-			std::vector<sol::lua_value> args;
-
-			const auto top = game::scr_function_stack->top;
-
-			for (auto* value = top; value->type != game::SCRIPT_END; --value)
+			if (hook.is_lua_hook)
 			{
-				args.push_back(scripting::lua::convert(state, *value));
-			}
+				const auto& function = hook.lua_function;
+				const auto state = function.lua_state();
 
-			const auto result = hook(self, sol::as_args(args));
-			scripting::lua::handle_error(result);
+				const scripting::entity self = local_id_to_entity(game::scr_VmPub->function_frame->fs.localId);
+				std::vector<sol::lua_value> args;
+
+				const auto top = game::scr_function_stack->top;
+				for (auto* value = top; value->type != game::SCRIPT_END; --value)
+				{
+					args.push_back(scripting::lua::convert(state, *value));
+				}
+
+				const auto result = function(self, sol::as_args(args));
+				scripting::lua::handle_error(result);
+				target_function = empty_function;
+			}
+			else
+			{
+				target_function = hook.target_pos;
+			}
 
 			return true;
 		}
@@ -257,7 +271,8 @@ namespace logfile
 			a.bind(replace);
 
 			a.popad64();
-			a.mov(r14, reinterpret_cast<char*>(empty_function));
+			a.mov(rax, qword_ptr(reinterpret_cast<std::int64_t>(&target_function)));
+			a.mov(r14, rax);
 			a.jmp(end);
 		}
 	}
@@ -289,6 +304,32 @@ namespace logfile
 		hook_enabled = false;
 	}
 
+	void set_lua_hook(const char* pos, const sol::protected_function& callback)
+	{
+		gsc_hook hook;
+		hook.is_lua_hook = true;
+		hook.lua_function = callback;
+		vm_execute_hooks[pos] = hook;
+	}
+
+	void set_gsc_hook(const char* source, const char* target)
+	{
+		gsc_hook hook;
+		hook.is_lua_hook = false;
+		hook.target_pos = target;
+		vm_execute_hooks[source] = hook;
+	}
+
+	void clear_hook(const char* pos)
+	{
+		vm_execute_hooks.erase(pos);
+	}
+
+	std::size_t get_hook_count()
+	{
+		return vm_execute_hooks.size();
+	}
+
 	class component final : public component_interface
 	{
 	public:
@@ -308,6 +349,14 @@ namespace logfile
 			utils::hook::call(0x140476181, g_shutdown_game_stub);
 
 			utils::hook::jump(0x14043A584, utils::hook::assemble(vm_execute_stub), true);
+
+			scripting::on_shutdown([](bool free_scripts)
+			{
+				if (free_scripts)
+				{
+					vm_execute_hooks.clear();
+				}
+			});
 		}
 	};
 }
