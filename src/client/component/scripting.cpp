@@ -41,6 +41,7 @@ namespace scripting
 		std::unordered_map<unsigned int, std::string> canonical_string_table;
 
 		std::vector<std::function<void(int)>> shutdown_callbacks;
+		std::vector<std::function<void()>> init_callbacks;
 
 		void vm_notify_stub(const unsigned int notify_list_owner_id, const game::scr_string_t string_value,
 		                    game::VariableValue* top)
@@ -71,6 +72,12 @@ namespace scripting
 		void scr_load_level_stub()
 		{
 			scr_load_level_hook.invoke<void>();
+
+			for (const auto& callback : init_callbacks)
+			{
+				callback();
+			}
+
 			lua::engine::start();
 		}
 
@@ -196,6 +203,11 @@ namespace scripting
 	void on_shutdown(const std::function<void(int)>& callback)
 	{
 		shutdown_callbacks.push_back(callback);
+	}
+
+	void on_init(const std::function<void()>& callback)
+	{
+		init_callbacks.push_back(callback);
 	}
 
 	std::optional<std::string> get_canonical_string(const unsigned int id)

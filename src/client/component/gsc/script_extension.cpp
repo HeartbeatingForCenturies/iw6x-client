@@ -10,6 +10,7 @@
 #include "component/console.hpp"
 #include "component/scripting.hpp"
 #include "component/notifies.hpp"
+#include "component/game_log.hpp"
 
 #include <xsk/gsc/types.hpp>
 #include <xsk/resolver.hpp>
@@ -93,6 +94,28 @@ namespace gsc
 
 			console::info("\n");
 		}
+
+		void gscr_log_print()
+		{
+			char buf[1024]{};
+			std::size_t out_chars = 0;
+
+			for (auto i = 0u; i < game::Scr_GetNumParam(); ++i)
+			{
+				const auto* value = game::Scr_GetString(i);
+				const auto len = std::strlen(value);
+
+				out_chars += len;
+				if (out_chars >= sizeof(buf))
+				{
+					break;
+				}
+
+				strncat_s(buf, value, _TRUNCATE);
+			}
+
+			game_log::g_log_printf("%s", buf);
+		}
 	}
 
 	class extension final : public component_interface
@@ -113,6 +136,8 @@ namespace gsc
 			{
 				return;
 			}
+
+			utils::hook::set<void(*)()>(0x1409E8A20, gscr_log_print);
 
 			utils::hook::call(0x14042E76F, scr_get_function_stub);
 

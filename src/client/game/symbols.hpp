@@ -201,9 +201,7 @@ namespace game
 	WEAK symbol<void (int, int, const char*)> SV_GameSendServerCommand{0x140490F40, 0x1404758C0};
 	WEAK symbol<bool ()> SV_Loaded{0x140491820, 0x1404770C0};
 	WEAK symbol<void (int localClientNum, const char* map, bool mapIsPreloaded)> SV_StartMap{0, 0x140470170};
-	WEAK symbol<void (int localClientNum, const char* map, bool mapIsPreloaded, bool migrate)> SV_StartMapForParty{
-		0, 0x1404702F0
-	};
+	WEAK symbol<void (int localClientNum, const char* map, bool mapIsPreloaded, bool migrate)> SV_StartMapForParty{0, 0x1404702F0};
 
 	WEAK symbol<mp::gentity_s*(const char*, unsigned int, unsigned int, unsigned int)> SV_AddBot{0, 0x140470920};
 	WEAK symbol<bool (int clientNum)> SV_BotIsBot{0, 0x140461340};
@@ -284,6 +282,8 @@ namespace game
 	WEAK symbol<scrVmPub_t> scr_VmPub{0x1455B1FA0, 0x144D4B090};
 	WEAK symbol<function_stack_t> scr_function_stack{0x1455BE708, 0x144D57808};
 	WEAK symbol<unsigned int> scr_levelEntityId{0x1452A9F30, 0x144A43020};
+
+	WEAK symbol<int> level_time{0x0, 0x1443F4B6C};
 
 	WEAK symbol<DWORD> threadIds{0x144DE6640, 0x1446B4960};
 
