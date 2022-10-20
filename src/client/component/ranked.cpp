@@ -10,6 +10,46 @@
 
 namespace ranked
 {
+	namespace
+	{
+		utils::hook::detour bg_bot_system_enabled_hook;
+		utils::hook::detour bg_ai_system_enabled_hook;
+		utils::hook::detour bg_bot_fast_file_enabled_hook;
+
+		int bg_bot_system_enabled_stub()
+		{
+			const auto* game_type = game::Dvar_FindVar("g_gametype")->current.string;
+			if (!std::strcmp(game_type, "aliens") || !std::strcmp(game_type, "horde"))
+			{
+				return bg_bot_system_enabled_hook.invoke<int>();
+			}
+
+			return 1;
+		}
+
+		int bg_ai_system_enabled_stub()
+		{
+			const auto* game_type = game::Dvar_FindVar("g_gametype")->current.string;
+			if (!std::strcmp(game_type, "aliens") || !std::strcmp(game_type, "horde"))
+			{
+				return bg_ai_system_enabled_hook.invoke<int>();
+			}
+
+			return 1;
+		}
+
+		int bg_bot_fast_file_enabled_stub()
+		{
+			const auto* game_type = game::Dvar_FindVar("g_gametype")->current.string;
+			if (!std::strcmp(game_type, "aliens") || !std::strcmp(game_type, "horde"))
+			{
+				return bg_bot_fast_file_enabled_hook.invoke<int>();
+			}
+
+			return 1;
+		}
+	}
+
 	class component final : public component_interface
 	{
 	public:
@@ -38,17 +78,19 @@ namespace ranked
 			}
 
 			// Always run bots, even if xblive_privatematch is 0
-			utils::hook::set<std::uint32_t>(0x140217020, 0xC0FFC031); // BG_BotSystemEnabled
-			utils::hook::set<std::uint8_t>(0x140217020 + 4, 0xC3);
-
-			utils::hook::set<std::uint32_t>(0x140216DC0, 0xC0FFC031); // BG_AISystemEnabled
-			utils::hook::set<std::uint8_t>(0x140216DC0 + 4, 0xC3);
-
-			utils::hook::set<std::uint32_t>(0x140216F70, 0xC0FFC031); // BG_BotFastFileEnabled
-			utils::hook::set<std::uint8_t>(0x140216F70 + 4, 0xC3);
+			bg_bot_system_enabled_hook.create(0x140217020, &bg_bot_system_enabled_stub);
+			bg_ai_system_enabled_hook.create(0x140216DC0, &bg_ai_system_enabled_stub);
+			bg_bot_fast_file_enabled_hook.create(0x140216F70, &bg_bot_fast_file_enabled_stub);
 
 			utils::hook::set<std::uint32_t>(0x1402170E0, 0xC0FFC031); // BG_BotsUsingTeamDifficulty
 			utils::hook::set<std::uint8_t>(0x1402170E0 + 4, 0xC3);
+		}
+
+		void pre_destroy() override
+		{
+			bg_bot_system_enabled_hook.clear();
+			bg_ai_system_enabled_hook.clear();
+			bg_bot_fast_file_enabled_hook.clear();
 		}
 	};
 }
