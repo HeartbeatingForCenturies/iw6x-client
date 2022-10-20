@@ -10,6 +10,7 @@
 
 #include <utils/hook.hpp>
 #include <utils/io.hpp>
+#include <utils/string.hpp>
 
 namespace game_log
 {
@@ -31,7 +32,7 @@ namespace game_log
 		va_end(ap);
 
 		const auto time = *game::level_time / 1000;
-		utils::io::write_file(log, std::format("{:03d}:{}{} {}",
+		utils::io::write_file(log, utils::string::va("%3i:%i%i %s",
 			time / 60,
 			time % 60 / 10,
 			time % 60 % 10,
