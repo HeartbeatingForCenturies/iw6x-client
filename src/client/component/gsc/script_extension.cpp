@@ -9,7 +9,7 @@
 
 #include "component/console.hpp"
 #include "component/scripting.hpp"
-#include "component/logfile.hpp"
+#include "component/notifies.hpp"
 
 #include <xsk/gsc/types.hpp>
 #include <xsk/resolver.hpp>
@@ -141,7 +141,7 @@ namespace gsc
 					game::Scr_ErrorInternal();
 				}
 
-				logfile::set_gsc_hook(what.u.codePosValue, with.u.codePosValue);
+				notifies::set_gsc_hook(what.u.codePosValue, with.u.codePosValue);
 			});
 		}
 	};

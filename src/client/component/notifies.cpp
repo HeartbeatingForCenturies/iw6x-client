@@ -8,11 +8,11 @@
 
 #include <utils/hook.hpp>
 
-#include "logfile.hpp"
+#include "notifies.hpp"
 #include "scripting.hpp"
 #include "scheduler.hpp"
 
-namespace logfile
+namespace notifies
 {
 	bool hook_enabled = true;
 
@@ -361,4 +361,4 @@ namespace logfile
 	};
 }
 
-REGISTER_COMPONENT(logfile::component)
+REGISTER_COMPONENT(notifies::component)

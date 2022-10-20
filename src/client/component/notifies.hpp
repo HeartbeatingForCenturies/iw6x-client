@@ -1,6 +1,6 @@
 #pragma once
 
-namespace logfile
+namespace notifies
 {
 	extern bool hook_enabled;
 

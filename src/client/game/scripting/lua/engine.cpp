@@ -2,9 +2,9 @@
 #include "engine.hpp"
 #include "context.hpp"
 
-#include "../execution.hpp"
-#include "../../../component/logfile.hpp"
-#include "../../../component/game_module.hpp"
+#include "game/scripting/execution.hpp"
+#include "component/notifies.hpp"
+#include "component/game_module.hpp"
 
 #include <utils/io.hpp>
 
@@ -39,7 +39,7 @@ namespace scripting::lua::engine
 
 	void stop()
 	{
-		logfile::clear_callbacks();
+		notifies::clear_callbacks();
 		get_scripts().clear();
 	}
 
