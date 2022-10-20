@@ -105,6 +105,11 @@ namespace gsc
 			utils::hook::set<void(*)()>(SELECT_VALUE(0x14086F468, 0x1409E6CE8), scr_print);
 			utils::hook::set<void(*)()>(SELECT_VALUE(0x14086F480, 0x1409E6D00), scr_print_ln);
 
+			if (game::environment::is_sp())
+			{
+				return;
+			}
+
 			utils::hook::set<std::uint32_t>(0x14042E33C, 0x1000);
 
 			utils::hook::call(0x14042E76F, scr_get_function_stub);
