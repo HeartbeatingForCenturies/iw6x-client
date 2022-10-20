@@ -5,7 +5,7 @@ namespace scripting
 {
 	using script_function = void(*)(game::scr_entref_t);
 
-	std::vector<std::string> find_token(std::uint32_t id);
+	std::string find_token(std::uint32_t id);
 	std::string find_token_single(std::uint32_t id);
 	unsigned int find_token_id(const std::string& name);
 

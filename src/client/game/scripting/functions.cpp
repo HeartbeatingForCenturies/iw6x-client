@@ -40,7 +40,7 @@ namespace scripting
 			static const auto function_table = SELECT_VALUE(0x144E1E6F0, 0x1446B77A0);
 			static const auto method_table = SELECT_VALUE(0x144E1F9E0, 0x1446B8A90);
 
-			if (index < 0x25D)
+			if (index <= 0x1000)
 			{
 				return reinterpret_cast<script_function*>(function_table)[index - 1];
 			}
@@ -59,15 +59,9 @@ namespace scripting
 		}
 	}
 
-	std::vector<std::string> find_token(std::uint32_t id)
+	std::string find_token(std::uint32_t id)
 	{
-		std::vector<std::string> results;
-
-		results.emplace_back(utils::string::va("_ID%i", id));
-		results.emplace_back(utils::string::va("_id_%04X", id));
-		results.emplace_back(xsk::gsc::iw6::resolver::token_name(static_cast<std::uint16_t>(id)));
-
-		return results;
+		return xsk::gsc::iw6::resolver::token_name(static_cast<std::uint16_t>(id));
 	}
 
 	std::string find_token_single(std::uint32_t id)

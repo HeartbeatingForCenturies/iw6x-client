@@ -1487,6 +1487,9 @@ namespace game
 		unsigned short classnum;
 	};
 
+	typedef void(*BuiltinMethod)(scr_entref_t);
+	typedef void(*BuiltinFunction)();
+
 	struct function_stack_t
 	{
 		const char* pos;
@@ -2133,9 +2136,9 @@ namespace game
 
 		struct EntityState
 		{
-			int entityNum;
-			int entityType;
-			LerpEntityState lerpEntityState;
+			int number;
+			int eType;
+			LerpEntityState lerp;
 			char _0x70[0x8];
 			int otherEntityNum;
 			int attackerEntityNum;

@@ -1,8 +1,10 @@
 #include <std_include.hpp>
 #include "value_conversion.hpp"
-#include "../functions.hpp"
-#include "../execution.hpp"
-#include ".../../component/logfile.hpp"
+
+#include "game/scripting/functions.hpp"
+#include "game/scripting/execution.hpp"
+
+#include "component/notifies.hpp"
 
 namespace scripting::lua
 {
@@ -115,9 +117,8 @@ namespace scripting::lua
 		game::VariableValue convert_function(sol::lua_value value)
 		{
 			const auto function = value.as<sol::protected_function>();
-			const auto index = reinterpret_cast<char*>(logfile::vm_execute_hooks.size());
-
-			logfile::vm_execute_hooks[index] = function;
+			const auto index = reinterpret_cast<char*>(notifies::get_hook_count() + 1);
+			notifies::set_lua_hook(index, function);
 
 			game::VariableValue func;
 			func.type = game::SCRIPT_FUNCTION;

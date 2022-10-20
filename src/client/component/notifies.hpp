@@ -1,8 +1,13 @@
 #pragma once
 
-namespace logfile
+namespace notifies
 {
-	extern std::unordered_map<const char*, sol::protected_function> vm_execute_hooks;
+	extern bool hook_enabled;
+
+	void set_lua_hook(const char* pos, const sol::protected_function&);
+	void set_gsc_hook(const char* source, const char* target);
+	void clear_hook(const char* pos);
+	std::size_t get_hook_count();
 
 	void add_player_damage_callback(const sol::protected_function& callback);
 	void add_player_killed_callback(const sol::protected_function& callback);
