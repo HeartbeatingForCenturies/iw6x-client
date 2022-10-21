@@ -52,8 +52,14 @@ namespace filesystem
 			custom_path_registered = false;
 
 			register_path(get_binary_directory() + "\\data");
-			register_path(".");
 			register_path("iw6x");
+
+			// game's search paths
+			register_path("devraw");
+			register_path("devraw_shared");
+			register_path("raw_shared");
+			register_path("raw");
+			register_path("main");
 
 			game::FS_Startup(gamename);
 		}
