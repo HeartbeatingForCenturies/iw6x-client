@@ -1025,7 +1025,7 @@ callback_playerdisconnect( var_0 )
 
     var_5 = self getentitynumber();
     var_6 = self.guid;
-    logprint( "Q;" + var_6 + ";" + var_5 + ";" + self.name + "\\n" );
+    logprint( "Q;" + var_6 + ";" + var_5 + ";" + self.name + "\n" );
     thread maps\mp\_events::disconnected();
 
     if ( level.gameended )
@@ -1203,7 +1203,7 @@ callback_playerconnect()
 
     self.clientid = self.pers["clientid"];
     self.pers["teamKillPunish"] = 0;
-    logprint( "J;" + self.guid + ";" + self getentitynumber() + ";" + self.name + "\\n" );
+    logprint( "J;" + self.guid + ";" + self getentitynumber() + ";" + self.name + "\n" );
 
     if ( game["clientid"] <= 30 && game["clientid"] != getmatchdata( "playerCount" ) )
     {
