@@ -143,7 +143,7 @@ namespace gsc
 
 				if (function.has_value())
 				{
-					console::warn("\tat function \"%s\" in file \"%s.gsc\"\n", 	function.value().first.data(), function.value().second.data());
+					console::warn("\tat function \"%s\" in file \"%s.gsc\"\n", function.value().first.data(), function.value().second.data());
 				}
 				else
 				{
