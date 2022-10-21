@@ -3,6 +3,8 @@
 
 #include <utils/string.hpp>
 
+#include "component/gsc/script_extension.hpp"
+
 #include <xsk/gsc/types.hpp>
 #include <xsk/resolver.hpp>
 
@@ -37,7 +39,7 @@ namespace scripting
 
 		script_function get_function_by_index(const std::uint32_t index)
 		{
-			static const auto function_table = SELECT_VALUE(0x144E1E6F0, 0x1446B77A0);
+			static const auto function_table = &gsc::func_table;
 			static const auto method_table = SELECT_VALUE(0x144E1F9E0, 0x1446B8A90);
 
 			if (index <= 0x1000)

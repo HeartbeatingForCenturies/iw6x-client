@@ -11,6 +11,7 @@
 #include "notifies.hpp"
 #include "scripting.hpp"
 #include "scheduler.hpp"
+#include "game_log.hpp"
 
 namespace notifies
 {
@@ -175,6 +176,15 @@ namespace notifies
 
 					scripting::notify(level, cmd, {player, message});
 					scripting::notify(player, cmd, {message});
+
+					game_log::g_log_printf("%s;%s;%i;%s;%s\n",
+						cmd,
+						player.call("getguid").as<const char*>(),
+						player.call("getentitynumber").as<int>(),
+						player.get("name").as<const char*>(),
+						message.data()
+					);
+
 				}, scheduler::pipeline::server);
 
 				if (hidden)

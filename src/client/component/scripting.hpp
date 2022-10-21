@@ -9,6 +9,7 @@ namespace scripting
 	extern std::string current_file;
 
 	void on_shutdown(const std::function<void(int)>& callback);
+	void on_init(const std::function<void()>& callback);
 
 	std::optional<std::string> get_canonical_string(unsigned int id);
 	std::string get_token(unsigned int id);

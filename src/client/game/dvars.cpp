@@ -24,6 +24,7 @@ namespace dvars
 	game::dvar_t* g_rocketPushbackScale = nullptr;
 	game::dvar_t* g_enableElevators = nullptr;
 	game::dvar_t* g_dump_scripts = nullptr;
+	game::dvar_t* g_log = nullptr;
 
 	game::dvar_t* bg_surfacePenetration = nullptr;
 
