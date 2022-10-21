@@ -679,22 +679,19 @@ addtoteam( team, firstConnect, changeTeamsWithoutRespawning )
     }
 
     // session team is readonly in ranked matches if "teambased" is set on the playlist
-    if ( !maps\mp\_utility::matchmakinggame() || isdefined( self.pers["isBot"] ) || !maps\mp\_utility::allowteamchoice() || getdvarint( "force_ranking" ) )
+    if ( level.teambased )
     {
-        if ( level.teambased )
+        self.sessionteam = team;
+    }
+    else
+    {
+        if ( team == "spectator" )
         {
-            self.sessionteam = team;
+            self.sessionteam = "spectator";
         }
         else
         {
-            if ( team == "spectator" )
-            {
-                self.sessionteam = "spectator";
-            }
-            else
-            {
-                self.sessionteam = "none";
-            }
+            self.sessionteam = "none";
         }
     }
 
