@@ -3,4 +3,6 @@
 namespace gsc
 {
 	extern void* func_table[0x1000];
+
+	extern const game::dvar_t* developer_script;
 }

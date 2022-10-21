@@ -37,19 +37,6 @@ namespace scripting
 			return -1;
 		}
 
-		script_function get_function_by_index(const std::uint32_t index)
-		{
-			static const auto function_table = &gsc::func_table;
-			static const auto method_table = SELECT_VALUE(0x144E1F9E0, 0x1446B8A90);
-
-			if (index <= 0x1000)
-			{
-				return reinterpret_cast<script_function*>(function_table)[index - 1];
-			}
-
-			return reinterpret_cast<script_function*>(method_table)[index - 0x8000];
-		}
-
 		std::uint32_t parse_token_id(const std::string& name)
 		{
 			if (name.starts_with("_ID"))
@@ -86,6 +73,19 @@ namespace scripting
 		}
 
 		return game::SL_GetCanonicalString(name.data());
+	}
+
+	script_function get_function_by_index(const std::uint32_t index)
+	{
+		static const auto function_table = &gsc::func_table;
+		static const auto method_table = SELECT_VALUE(0x144E1F9E0, 0x1446B8A90);
+
+		if (index <= 0x1000)
+		{
+			return reinterpret_cast<script_function*>(function_table)[index - 1];
+		}
+
+		return reinterpret_cast<script_function*>(method_table)[index - 0x8000];
 	}
 
 	script_function find_function(const std::string& name, const bool prefer_global)

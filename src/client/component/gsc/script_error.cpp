@@ -2,6 +2,8 @@
 #include "loader/component_loader.hpp"
 #include "game/game.hpp"
 
+#include "script_error.hpp"
+
 #include "component/scripting.hpp"
 
 #include <utils/hook.hpp>
@@ -32,23 +34,6 @@ namespace gsc
 			}
 
 			return scripting::get_token(id);
-		}
-
-		std::optional<std::pair<std::string, std::string>> find_function(const char* pos)
-		{
-			for (const auto& file : scripting::script_function_table_sort)
-			{
-				for (auto i = file.second.begin(); i != file.second.end() && std::next(i) != file.second.end(); ++i)
-				{
-					const auto next = std::next(i);
-					if (pos >= i->second && pos < next->second)
-					{
-						return {std::make_pair(i->first, file.first)};
-					}
-				}
-			}
-
-			return {};
 		}
 
 		void get_unknown_function_error(const char* code_pos)
@@ -94,6 +79,23 @@ namespace gsc
 
 			return res;
 		}
+	}
+
+	std::optional<std::pair<std::string, std::string>> find_function(const char* pos)
+	{
+		for (const auto& file : scripting::script_function_table_sort)
+		{
+			for (auto i = file.second.begin(); i != file.second.end() && std::next(i) != file.second.end(); ++i)
+			{
+				const auto next = std::next(i);
+				if (pos >= i->second && pos < next->second)
+				{
+					return {std::make_pair(i->first, file.first)};
+				}
+			}
+		}
+
+		return {};
 	}
 
 	class error final : public component_interface
