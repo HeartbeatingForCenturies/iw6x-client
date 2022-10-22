@@ -11,7 +11,6 @@
 #include "component/console.hpp"
 #include "component/scripting.hpp"
 #include "component/notifies.hpp"
-#include "component/game_log.hpp"
 
 #include <xsk/gsc/types.hpp>
 #include <xsk/resolver.hpp>
@@ -206,7 +205,7 @@ namespace gsc
 		void add_code_pos(const char* pos)
 		{
 			inc_in_param();
-			game::scr_VmPub->top->type = game::SCRIPT_FUNCTION;
+			game::scr_VmPub->top->type = game::VAR_FUNCTION;
 			game::scr_VmPub->top->u.codePosValue = pos;
 		}
 
@@ -227,28 +226,14 @@ namespace gsc
 
 			console::info("\n");
 		}
+	}
 
-		void gscr_log_print()
-		{
-			char buf[1024]{};
-			std::size_t out_chars = 0;
+	void scr_error(const char* error)
+	{
+		force_error_print = true;
+		gsc_error_msg = error;
 
-			for (auto i = 0u; i < game::Scr_GetNumParam(); ++i)
-			{
-				const auto* value = game::Scr_GetString(i);
-				const auto len = std::strlen(value);
-
-				out_chars += len;
-				if (out_chars >= sizeof(buf))
-				{
-					break;
-				}
-
-				strncat_s(buf, value, _TRUNCATE);
-			}
-
-			game_log::g_log_printf("%s", buf);
-		}
+		game::Scr_ErrorInternal();
 	}
 
 	class extension final : public component_interface
@@ -256,8 +241,8 @@ namespace gsc
 	public:
 		void post_unpack() override
 		{
-			utils::hook::set<void(*)()>(SELECT_VALUE(0x14086F468, 0x1409E6CE8), scr_print);
-			utils::hook::set<void(*)()>(SELECT_VALUE(0x14086F480, 0x1409E6D00), scr_print_ln);
+			utils::hook::set<game::BuiltinFunction>(SELECT_VALUE(0x14086F468, 0x1409E6CE8), scr_print);
+			utils::hook::set<game::BuiltinFunction>(SELECT_VALUE(0x14086F480, 0x1409E6D00), scr_print_ln);
 
 			utils::hook::set<std::uint32_t>(SELECT_VALUE(0x1403D353C, 0x14042E33C), 0x1000); // Scr_RegisterFunction
 
@@ -276,8 +261,6 @@ namespace gsc
 			utils::hook::call(0x14043BBBE, vm_call_builtin_function);
 
 			utils::hook::call(0x14043CEB1, vm_error_stub);
-
-			utils::hook::set<void(*)()>(0x1409E8A20, gscr_log_print);
 
 			utils::hook::call(0x14042E76F, scr_get_function_stub);
 
@@ -300,7 +283,7 @@ namespace gsc
 				const auto what = get_argument(0).get_raw();
 				const auto with = get_argument(1).get_raw();
 
-				if (what.type != game::SCRIPT_FUNCTION || with.type != game::SCRIPT_FUNCTION)
+				if (what.type != game::VAR_FUNCTION || with.type != game::VAR_FUNCTION)
 				{
 					throw gsc_error("Parameter must be a function");
 				}

@@ -8,12 +8,65 @@
 #include "console.hpp"
 #include "game_log.hpp"
 
+#include "gsc/script_extension.hpp"
+
 #include <utils/hook.hpp>
 #include <utils/io.hpp>
 #include <utils/string.hpp>
 
 namespace game_log
 {
+	namespace
+	{
+		void gscr_exit_level_stub()
+		{
+			if (*game::level_finished)
+			{
+				if (*game::level_finished == 1)
+				{
+					gsc::scr_error("map_restart already called");
+				}
+				else
+				{
+					gsc::scr_error("exitlevel already called");
+				}
+			}
+
+			*game::level_finished = 3;
+			*game::level_savepersist = 0;
+			if (game::Scr_GetNumParam() != 0)
+			{
+				*game::level_savepersist = game::Scr_GetInt(0);
+			}
+
+			game::SV_MatchEnd();
+			utils::hook::invoke<void>(0x14039E2E0); // ExitLevel
+			g_log_printf("ExitLevel: executed\n");
+		}
+
+		void gscr_log_print()
+		{
+			char buf[1024]{};
+			std::size_t out_chars = 0;
+
+			for (auto i = 0u; i < game::Scr_GetNumParam(); ++i)
+			{
+				const auto* value = game::Scr_GetString(i);
+				const auto len = std::strlen(value);
+
+				out_chars += len;
+				if (out_chars >= sizeof(buf))
+				{
+					break;
+				}
+
+				strncat_s(buf, value, _TRUNCATE);
+			}
+
+			g_log_printf("%s", buf);
+		}
+	}
+
 	void g_log_printf(const char* fmt, ...)
 	{
 		const auto* log = dvars::g_log->current.string;
@@ -49,6 +102,9 @@ namespace game_log
 			{
 				return;
 			}
+
+			utils::hook::set<game::BuiltinFunction>(0x1409E8B70, gscr_exit_level_stub);
+			utils::hook::set<game::BuiltinFunction>(0x1409E8A20, gscr_log_print);
 
 			scheduler::once([]
 			{

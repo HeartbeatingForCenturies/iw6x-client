@@ -236,7 +236,7 @@ namespace notifies
 				std::vector<sol::lua_value> args;
 
 				const auto top = game::scr_function_stack->top;
-				for (auto* value = top; value->type != game::SCRIPT_END; --value)
+				for (auto* value = top; value->type != game::VAR_PRECODEPOS; --value)
 				{
 					args.push_back(scripting::lua::convert(state, *value));
 				}

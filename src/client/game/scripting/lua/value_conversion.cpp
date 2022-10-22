@@ -32,7 +32,7 @@ namespace scripting::lua
 			{
 				const auto var = game::scr_VarGlob->childVariableValue[i];
 
-				if (var.type == game::SCRIPT_NONE)
+				if (var.type == game::VAR_UNDEFINED)
 				{
 					current = var.nextSibling;
 					continue;
@@ -121,7 +121,7 @@ namespace scripting::lua
 			notifies::set_lua_hook(index, function);
 
 			game::VariableValue func;
-			func.type = game::SCRIPT_FUNCTION;
+			func.type = game::VAR_FUNCTION;
 			func.u.codePosValue = index;
 
 			return func;
@@ -214,7 +214,7 @@ namespace scripting::lua
 
 			game::VariableValue result{};
 			result.u = variable.u.u;
-			result.type = (game::scriptType_e)variable.type;
+			result.type = variable.type;
 
 			return convert(s, result);
 		};

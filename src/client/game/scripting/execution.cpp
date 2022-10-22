@@ -30,7 +30,7 @@ namespace scripting
 			const auto field_str = game::SL_GetString(field.data(), 0);
 			const auto _0 = gsl::finally([field_str]
 			{
-				game::RemoveRefToValue(game::SCRIPT_STRING, {static_cast<int>(field_str)});
+				game::RemoveRefToValue(game::VAR_STRING, {static_cast<int>(field_str)});
 			});
 
 			const auto offset = game::FindVariable(class_id, field_str);
