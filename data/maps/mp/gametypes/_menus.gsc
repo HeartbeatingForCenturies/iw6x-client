@@ -430,7 +430,7 @@ waitforclassselect()
 
     for (;;)
     {
-        if ( maps\mp\_utility::allowclasschoice() || maps\mp\_utility::showfakeloadout() && !isai( self ) )
+        if ( ( maps\mp\_utility::allowclasschoice() || maps\mp\_utility::showfakeloadout() ) && !isai( self ) && level.gametype != "infect" )
             self waittill( "luinotifyserver", var_0, var_1 );
         else
         {

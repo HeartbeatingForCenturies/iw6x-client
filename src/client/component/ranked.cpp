@@ -15,6 +15,7 @@ namespace ranked
 		utils::hook::detour bg_bot_system_enabled_hook;
 		utils::hook::detour bg_ai_system_enabled_hook;
 		utils::hook::detour bg_bot_fast_file_enabled_hook;
+		utils::hook::detour bg_bots_using_team_difficulty_hook;
 
 		int bg_bot_system_enabled_stub()
 		{
@@ -44,6 +45,17 @@ namespace ranked
 			if (!std::strcmp(game_type, "aliens") || !std::strcmp(game_type, "horde"))
 			{
 				return bg_bot_fast_file_enabled_hook.invoke<int>();
+			}
+
+			return 1;
+		}
+
+		int bg_bots_using_team_difficulty_stub()
+		{
+			const auto* game_type = game::Dvar_FindVar("g_gametype")->current.string;
+			if (!std::strcmp(game_type, "aliens") || !std::strcmp(game_type, "horde"))
+			{
+				return bg_bots_using_team_difficulty_hook.invoke<int>();
 			}
 
 			return 1;
@@ -81,9 +93,7 @@ namespace ranked
 			bg_bot_system_enabled_hook.create(0x140217020, &bg_bot_system_enabled_stub);
 			bg_ai_system_enabled_hook.create(0x140216DC0, &bg_ai_system_enabled_stub);
 			bg_bot_fast_file_enabled_hook.create(0x140216F70, &bg_bot_fast_file_enabled_stub);
-
-			utils::hook::set<std::uint32_t>(0x1402170E0, 0xC0FFC031); // BG_BotsUsingTeamDifficulty
-			utils::hook::set<std::uint8_t>(0x1402170E0 + 4, 0xC3);
+			bg_bots_using_team_difficulty_hook.create(0x1402170E0, &bg_bots_using_team_difficulty_stub);
 		}
 
 		void pre_destroy() override
@@ -91,6 +101,7 @@ namespace ranked
 			bg_bot_system_enabled_hook.clear();
 			bg_ai_system_enabled_hook.clear();
 			bg_bot_fast_file_enabled_hook.clear();
+			bg_bots_using_team_difficulty_hook.clear();
 		}
 	};
 }
