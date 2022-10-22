@@ -430,7 +430,14 @@ waitforclassselect()
 
     for (;;)
     {
-        if ( ( maps\mp\_utility::allowclasschoice() || maps\mp\_utility::showfakeloadout() ) && !isai( self ) && level.gametype != "infect" )
+        // Fix for infect dedicated servers
+        if ( level.gametype == "infect" )
+        {
+            bypassclasschoice();
+            break;
+        }
+
+        if ( maps\mp\_utility::allowclasschoice() || maps\mp\_utility::showfakeloadout() && !isai( self ) )
             self waittill( "luinotifyserver", var_0, var_1 );
         else
         {
