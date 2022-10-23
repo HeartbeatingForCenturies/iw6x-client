@@ -17,6 +17,8 @@
 #include <utils/cryptography.hpp>
 #include <utils/hook.hpp>
 
+#include <version.hpp>
+
 namespace party
 {
 	namespace
@@ -63,10 +65,10 @@ namespace party
 
 		std::string get_dvar_string(const std::string& dvar)
 		{
-			auto* dvar_value = game::Dvar_FindVar(dvar.data());
+			const auto* dvar_value = game::Dvar_FindVar(dvar.data());
 			if (dvar_value)
 			{
-				return dvar_value->current.string;
+				return {dvar_value->current.string};
 			}
 
 			return {};
@@ -481,7 +483,7 @@ namespace party
 				info.set("bots", utils::string::va("%i", get_bot_count()));
 				info.set("sv_maxclients", utils::string::va("%i", *game::mp::svs_numclients));
 				info.set("protocol", utils::string::va("%i", PROTOCOL));
-				//info.set("shortversion", SHORTVERSION);
+				info.set("shortversion", SHORTVERSION);
 				//info.set("hc", (Dvar::Var("g_hardcore").get<bool>() ? "1" : "0"));
 
 				network::send(target, "infoResponse", info.build(), '\n');

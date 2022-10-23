@@ -11,6 +11,7 @@
 #include "component/console.hpp"
 #include "component/scripting.hpp"
 #include "component/notifies.hpp"
+#include "component/command.hpp"
 
 #include <xsk/gsc/types.hpp>
 #include <xsk/resolver.hpp>
@@ -289,6 +290,12 @@ namespace gsc
 				}
 
 				notifies::set_gsc_hook(what.u.codePosValue, with.u.codePosValue);
+			});
+
+			add_function("executecommand", []()
+			{
+				const auto cmd = get_argument(0).as<std::string>();
+				command::execute(cmd);
 			});
 		}
 	};

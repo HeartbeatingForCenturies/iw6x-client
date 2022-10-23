@@ -1,11 +1,12 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game/game.hpp"
+#include "game/dvars.hpp"
+
 #include "command.hpp"
 #include "console.hpp"
 #include "game_console.hpp"
-
-#include "game/game.hpp"
-#include "game/dvars.hpp"
+#include "fastfiles.hpp"
 
 #include <utils/hook.hpp>
 #include <utils/string.hpp>
@@ -232,15 +233,6 @@ namespace command
 		}
 	}
 
-	void enum_assets(const game::XAssetType type, const std::function<void(game::XAssetHeader)>& callback, const bool includeOverride)
-	{
-		game::DB_EnumXAssets_Internal(type, static_cast<void(*)(game::XAssetHeader, void*)>([](game::XAssetHeader header, void* data)
-			{
-				const auto& cb = *static_cast<const std::function<void(game::XAssetHeader)>*>(data);
-				cb(header);
-			}), &callback, includeOverride);
-	}
-
 	class component final : public component_interface
 	{
 	public:
@@ -351,7 +343,7 @@ namespace command
 
 					auto total_assets = 0;
 					const std::string filter = params.get(2);
-					enum_assets(type, [type, &total_assets, filter](const game::XAssetHeader header)
+					fastfiles::enum_assets(type, [type, &total_assets, filter](const game::XAssetHeader header)
 					{
 						const game::XAsset asset{ type, header };
 						const auto* const asset_name = game::DB_GetXAssetName(&asset);
