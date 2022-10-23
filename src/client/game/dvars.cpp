@@ -15,6 +15,8 @@ namespace dvars
 	game::dvar_t* con_inputDvarInactiveValueColor = nullptr;
 	game::dvar_t* con_inputCmdMatchColor = nullptr;
 
+	game::dvar_t* sv_cheats = nullptr;
+
 	game::dvar_t* g_playerEjection = nullptr;
 	game::dvar_t* g_playerCollision = nullptr;
 	game::dvar_t* g_gravity = nullptr;
@@ -22,6 +24,7 @@ namespace dvars
 	game::dvar_t* g_rocketPushbackScale = nullptr;
 	game::dvar_t* g_enableElevators = nullptr;
 	game::dvar_t* g_dump_scripts = nullptr;
+	game::dvar_t* g_log = nullptr;
 
 	game::dvar_t* bg_surfacePenetration = nullptr;
 

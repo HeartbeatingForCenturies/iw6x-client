@@ -3,122 +3,89 @@
 
 #include <utils/string.hpp>
 
+#include "component/gsc/script_extension.hpp"
+
+#include <xsk/gsc/types.hpp>
+#include <xsk/resolver.hpp>
+
 namespace scripting
 {
 	namespace
 	{
-		std::unordered_map<std::string, unsigned> lowercase_map(
-			const std::unordered_map<std::string, unsigned>& old_map)
-		{
-			std::unordered_map<std::string, unsigned> new_map{};
-			for (auto& entry : old_map)
-			{
-				new_map[utils::string::to_lower(entry.first)] = entry.second;
-			}
-
-			return new_map;
-		}
-
-		const std::unordered_map<std::string, unsigned>& get_methods()
-		{
-			static auto methods = lowercase_map(method_map);
-			return methods;
-		}
-
-		const std::unordered_map<std::string, unsigned>& get_functions()
-		{
-			static auto function = lowercase_map(function_map);
-			return function;
-		}
-
 		int find_function_index(const std::string& name, const bool prefer_global)
 		{
 			const auto target = utils::string::to_lower(name);
-
-			const auto& primary_map = prefer_global
-				                          ? get_functions()
-				                          : get_methods();
-			const auto& secondary_map = !prefer_global
-				                            ? get_functions()
-				                            : get_methods();
-
-			auto function_entry = primary_map.find(target);
-			if (function_entry != primary_map.end())
+			auto first = xsk::gsc::iw6::resolver::function_id;
+			auto second = xsk::gsc::iw6::resolver::method_id;
+			if (!prefer_global)
 			{
-				return function_entry->second;
+				std::swap(first, second);
 			}
 
-			function_entry = secondary_map.find(target);
-			if (function_entry != secondary_map.end())
+			const auto first_res = first(target);
+			if (first_res)
 			{
-				return function_entry->second;
+				return first_res;
+			}
+
+			const auto second_res = second(target);
+			if (second_res)
+			{
+				return second_res;
 			}
 
 			return -1;
 		}
 
-		script_function get_function_by_index(const unsigned index)
+		std::uint32_t parse_token_id(const std::string& name)
 		{
-			static const auto function_table = SELECT_VALUE(0x144E1E6F0, 0x1446B77A0);
-			static const auto method_table = SELECT_VALUE(0x144E1F9E0, 0x1446B8A90);
-
-			if (index < 0x25D)
+			if (name.starts_with("_ID"))
 			{
-				return reinterpret_cast<script_function*>(function_table)[index];
+				return static_cast<std::uint32_t>(std::strtol(name.substr(3).data(), nullptr, 10));
 			}
 
-			return reinterpret_cast<script_function*>(method_table)[index - 0x8000];
+			return 0;
 		}
 	}
 
-	std::string find_token(unsigned int id)
+	std::string find_token(std::uint32_t id)
 	{
-		for (const auto& token : token_map)
-		{
-			if (token.second == id)
-			{
-				return token.first;
-			}
-		}
-
-		return utils::string::va("_ID%i", id);
+		return xsk::gsc::iw6::resolver::token_name(static_cast<std::uint16_t>(id));
 	}
 
-	std::string find_file(unsigned int id)
+	std::string find_token_single(std::uint32_t id)
 	{
-		for (const auto& file : file_map)
-		{
-			if (file.second == id)
-			{
-				return file.first;
-			}
-		}
-
-		return utils::string::va("_ID%i", id);
-	}
-
-	unsigned int find_file_id(const std::string& name)
-	{
-		const auto result = file_map.find(name);
-
-		if (result != file_map.end())
-		{
-			return result->second;
-		}
-
-		return 0;
+		return xsk::gsc::iw6::resolver::token_name(static_cast<std::uint16_t>(id));
 	}
 
 	unsigned int find_token_id(const std::string& name)
 	{
-		const auto result = token_map.find(name);
-
-		if (result != token_map.end())
+		const auto id = xsk::gsc::iw6::resolver::token_id(name);
+		if (id)
 		{
-			return result->second;
+			return id;
 		}
 
-		return 0;
+		const auto parsed_id = parse_token_id(name);
+		if (parsed_id)
+		{
+			return parsed_id;
+		}
+
+		return game::SL_GetCanonicalString(name.data());
+	}
+
+	script_function get_function_by_index(const std::uint32_t index)
+	{
+		static const auto function_table = &gsc::func_table;
+		static const auto method_table = SELECT_VALUE(0x144E1F9E0, 0x1446B8A90);
+
+		if (index <= 0x1000)
+		{
+			return reinterpret_cast<script_function*>(function_table)[index - 1];
+		}
+
+		return reinterpret_cast<script_function*>(method_table)[index - 0x8000];
 	}
 
 	script_function find_function(const std::string& name, const bool prefer_global)

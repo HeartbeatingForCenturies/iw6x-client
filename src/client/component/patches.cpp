@@ -316,7 +316,7 @@ namespace patches
 			//Use a relative jump to empty memory first
 			utils::hook::jump(SELECT_VALUE(0x1403B3A12, 0x1403F7582), SELECT_VALUE(cmd_exec_stub_sp, cmd_exec_stub_mp),
 			                  true);
-			//Use empty memory to go to our stub first (can't do close jump, so need space for 12 bytes)
+			// Use empty memory to go to our stub first (can't do close jump, so need space for 12 bytes)
 
 			// Fix mouse lag
 			utils::hook::nop(SELECT_VALUE(0x14043E6CB, 0x140504A2B), 6);
@@ -351,7 +351,7 @@ namespace patches
 			// Patch SV_KickClientNum
 			sv_kick_client_num_hook.create(0x14046F730, &sv_kick_client_num);
 
-			// block changing name in-game
+			// Block changing name in-game
 			utils::hook::set<uint8_t>(0x140470300, 0xC3);
 
 			// Unlock all DLC items
@@ -361,7 +361,7 @@ namespace patches
 			// Enable DLC items, extra loadouts and map selection in extinction
 			dvar_register_int_hook.create(0x1404EE270, &dvar_register_int);
 
-			// patch game chat on resolutions higher than 1080p to use the right font
+			// Patch game chat on resolutions higher than 1080p to use the right font
 			utils::hook::call(0x14025C825, get_chat_font_handle);
 			utils::hook::call(0x1402BC42F, get_chat_font_handle);
 			utils::hook::call(0x1402C3699, get_chat_font_handle);
@@ -369,14 +369,17 @@ namespace patches
 			dvars::aimassist_enabled = game::Dvar_RegisterBool("aimassist_enabled", true,
 			                                                   game::DvarFlags::DVAR_FLAG_SAVED,
 			                                                   "Enables aim assist for controllers");
-			//client side aim assist dvar
+			// Client side aim assist dvar
 			utils::hook::call(0x14013B9AC, aim_assist_add_to_target_list);
 
-			// patch "Couldn't find the bsp for this map." error to not be fatal in mp
+			// Patch "Couldn't find the bsp for this map." error to not be fatal in mp
 			utils::hook::call(0x14031E8AB, bsp_sys_error_stub);
 
 			// isProfanity
 			utils::hook::set(0x1402F61B0, 0xC3C033);
+
+			// Don't register every replicated dvar as a network dvar
+			utils::hook::nop(0x1403E984E, 5); // Dvar_ForEach
 
 			// Prevent clients from ending the game as non host by sending 'end_game' lui notification
 			cmd_lui_notify_server_hook.create(0x1403926A0, cmd_lui_notify_server_stub);

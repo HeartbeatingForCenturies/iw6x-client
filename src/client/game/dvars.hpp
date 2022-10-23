@@ -14,6 +14,8 @@ namespace dvars
 	extern game::dvar_t* con_inputDvarInactiveValueColor;
 	extern game::dvar_t* con_inputCmdMatchColor;
 
+	extern game::dvar_t* sv_cheats;
+
 	extern game::dvar_t* g_playerCollision;
 	extern game::dvar_t* g_playerEjection;
 	extern game::dvar_t* g_gravity;
@@ -21,6 +23,7 @@ namespace dvars
 	extern game::dvar_t* g_rocketPushbackScale;
 	extern game::dvar_t* g_enableElevators;
 	extern game::dvar_t* g_dump_scripts;
+	extern game::dvar_t* g_log;
 
 	extern game::dvar_t* bg_surfacePenetration;
 
@@ -41,6 +44,6 @@ namespace dvars
 
 	extern game::dvar_t* cg_legacyCrashHandling;
 
-	std::string dvar_get_vector_domain(const int components, const game::dvar_limits& domain);
-	std::string dvar_get_domain(const game::dvar_type type, const game::dvar_limits& domain);
+	std::string dvar_get_vector_domain(int components, const game::dvar_limits& domain);
+	std::string dvar_get_domain(game::dvar_type type, const game::dvar_limits& domain);
 }

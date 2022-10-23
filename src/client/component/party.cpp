@@ -1,15 +1,16 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
-#include "party.hpp"
+#include "game/game.hpp"
+#include "game/dvars.hpp"
 
 #include "command.hpp"
+#include "console.hpp"
 #include "network.hpp"
 #include "scheduler.hpp"
 #include "server_list.hpp"
+#include "party.hpp"
 
 #include "steam/steam.hpp"
-
-#include "component/console.hpp"
 
 #include <utils/string.hpp>
 #include <utils/info_string.hpp>
@@ -56,9 +57,50 @@ namespace party
 			command::execute("onlinegame 1", true);
 			command::execute("exec default_xboxlive.cfg", true);
 			command::execute("xstartprivateparty", true);
-			command::execute("xblive_rankedmatch 1", true);
-			command::execute("xblive_privatematch 1", true);
+			command::execute("xblive_privatematch 0", true);
 			command::execute("startentitlements", true);
+		}
+
+		std::string get_dvar_string(const std::string& dvar)
+		{
+			auto* dvar_value = game::Dvar_FindVar(dvar.data());
+			if (dvar_value)
+			{
+				return dvar_value->current.string;
+			}
+
+			return {};
+		}
+
+		void start_map(const std::string& mapname)
+		{
+			if (game::Live_SyncOnlineDataFlags(0) != 0)
+			{
+				scheduler::on_game_initialized([mapname]
+				{
+					command::execute("map " + mapname, false);
+				}, scheduler::pipeline::main, 1s);
+			}
+			else
+			{
+				switch_gamemode_if_necessary(get_dvar_string("g_gametype"));
+
+				if (!game::environment::is_dedi())
+				{
+					perform_game_initialization();
+				}
+
+				auto* current_mapname = game::Dvar_FindVar("mapname");
+				if (current_mapname && utils::string::to_lower(current_mapname->current.string) == utils::string::to_lower(mapname) && game::SV_Loaded())
+				{
+					console::info("Restarting map: %s\n", mapname.data());
+					command::execute("map_restart", false);
+					return;
+				}
+
+				console::info("Starting map: %s\n", mapname.data());
+				game::SV_StartMapForParty(0, mapname.data(), false, false);
+			}
 		}
 
 		void connect_to_party(const game::netadr_s& target, const std::string& mapname, const std::string& gametype)
@@ -84,17 +126,6 @@ namespace party
 			char session_info[0x100] = {};
 			reinterpret_cast<void(*)(int, char*, const game::netadr_s*, const char*, const char*)>(0x1402C5700)(
 				0, session_info, &target, mapname.data(), gametype.data());
-		}
-
-		std::string get_dvar_string(const std::string& dvar)
-		{
-			auto* dvar_value = game::Dvar_FindVar(dvar.data());
-			if (dvar_value && dvar_value->current.string)
-			{
-				return dvar_value->current.string;
-			}
-
-			return {};
 		}
 
 		void disconnect_stub()
@@ -187,38 +218,6 @@ namespace party
 		network::send(target, "getInfo", connect_state.challenge);
 	}
 
-	void start_map(const std::string& mapname)
-	{
-		if (game::Live_SyncOnlineDataFlags(0) != 0)
-		{
-			scheduler::on_game_initialized([mapname]()
-			{
-				//start_map(mapname);
-				command::execute("map " + mapname, false);
-			}, scheduler::pipeline::main, 1s);
-		}
-		else
-		{
-			switch_gamemode_if_necessary(get_dvar_string("g_gametype"));
-
-			if (!game::environment::is_dedi())
-			{
-				perform_game_initialization();
-			}
-
-			auto* current_mapname = game::Dvar_FindVar("mapname");
-			if (current_mapname && utils::string::to_lower(current_mapname->current.string) == utils::string::to_lower(mapname) && game::SV_Loaded())
-			{
-				console::info("Restarting map: %s\n", mapname.data());
-				command::execute("map_restart", false);
-				return;
-			}
-
-			console::info("Starting map: %s\n", mapname.data());
-			game::SV_StartMapForParty(0, mapname.data(), false, false);
-		}
-	}
-
 	void map_restart()
 	{
 		if (!game::SV_Loaded())
@@ -278,7 +277,7 @@ namespace party
 
 			command::add("map_restart", map_restart);
 
-			command::add("fast_restart", []()
+			command::add("fast_restart", []
 			{
 				if (game::SV_Loaded())
 				{
@@ -348,7 +347,7 @@ namespace party
 					return;
 				}
 
-				scheduler::once([client_num, reason]()
+				scheduler::once([client_num, reason]
 				{
 					game::SV_KickClientNum(client_num, reason.data());
 				}, scheduler::pipeline::server);
@@ -382,7 +381,7 @@ namespace party
 				{
 					for (auto i = 0; i < *game::mp::svs_numclients; ++i)
 					{
-						scheduler::once([i, reason]()
+						scheduler::once([i, reason]
 						{
 							game::SV_KickClientNum(i, reason.data());
 						}, scheduler::pipeline::server);
@@ -396,13 +395,13 @@ namespace party
 					return;
 				}
 
-				scheduler::once([client_num, reason]()
+				scheduler::once([client_num, reason]
 				{
 					game::SV_KickClientNum(client_num, reason.data());
 				}, scheduler::pipeline::server);
 			});
 
-			scheduler::once([]()
+			scheduler::once([]
 			{
 				game::Dvar_RegisterString("sv_sayName", "console", game::DvarFlags::DVAR_FLAG_NONE,
 				                          "The name to pose as for 'say' commands");

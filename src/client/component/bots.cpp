@@ -1,13 +1,12 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game/game.hpp"
 
 #include "command.hpp"
 #include "scheduler.hpp"
 #include "party.hpp"
 #include "network.hpp"
 #include "server_list.hpp"
-
-#include "game/game.hpp"
 
 #include <utils/hook.hpp>
 #include <utils/string.hpp>
@@ -77,7 +76,7 @@ namespace bots
 			auto* bot_ent = game::SV_AddBot(bot_name, 26, 62, 0);
 			if (bot_ent)
 			{
-				spawn_bot(bot_ent->s.entityNum);
+				spawn_bot(bot_ent->s.number);
 			}
 		}
 

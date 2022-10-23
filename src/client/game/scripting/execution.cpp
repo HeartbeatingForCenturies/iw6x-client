@@ -28,9 +28,9 @@ namespace scripting
 		{
 			const auto class_id = game::g_classMap[classnum].id;
 			const auto field_str = game::SL_GetString(field.data(), 0);
-			const auto _ = gsl::finally([field_str]()
+			const auto _0 = gsl::finally([field_str]
 			{
-				game::RemoveRefToValue(game::SCRIPT_STRING, {static_cast<int>(field_str)});
+				game::RemoveRefToValue(game::VAR_STRING, {static_cast<int>(field_str)});
 			});
 
 			const auto offset = game::FindVariable(class_id, field_str);
@@ -120,13 +120,13 @@ namespace scripting
 		stack_isolation _;
 		for (auto i = arguments.rbegin(); i != arguments.rend(); ++i)
 		{
-			scripting::push_value(*i);
+			push_value(*i);
 		}
 
 		game::AddRefToObject(id);
 
 		const auto local_id = game::AllocThread(id);
-		const auto result = game::VM_Execute(local_id, pos, (unsigned int)arguments.size());
+		const auto result = game::VM_Execute(local_id, pos, static_cast<std::uint32_t>(arguments.size()));
 		game::RemoveRefToObject(result);
 
 		return get_return_value();
@@ -134,13 +134,13 @@ namespace scripting
 
 	const char* get_function_pos(const std::string& filename, const std::string& function)
 	{
-		if (scripting::script_function_table.find(filename) == scripting::script_function_table.end())
+		if (!script_function_table.contains(filename))
 		{
 			throw std::runtime_error("File '" + filename + "' not found");
-		};
+		}
 
-		const auto functions = scripting::script_function_table[filename];
-		if (functions.find(function) == functions.end())
+		const auto& functions = script_function_table[filename];
+		if (!functions.contains(function))
 		{
 			throw std::runtime_error("Function '" + function + "' in file '" + filename + "' not found");
 		}
@@ -160,19 +160,16 @@ namespace scripting
 	script_value get_custom_field(const entity& entity, const std::string& field)
 	{
 		auto fields = custom_fields[entity.get_entity_id()];
-		const auto _field = fields.find(field);
-		if (_field != fields.end())
-		{
-			return _field->second;
-		}
-		return {};
+
+		const auto itr = fields.find(field);
+		return itr == fields.end() ? script_value() : itr->second;
 	}
 
 	void set_custom_field(const entity& entity, const std::string& field, const script_value& value)
 	{
 		const auto id = entity.get_entity_id();
 
-		if (custom_fields[id].find(field) != custom_fields[id].end())
+		if (custom_fields[id].contains(field))
 		{
 			custom_fields[id][field] = value;
 			return;
@@ -185,7 +182,7 @@ namespace scripting
 	{
 		const auto id = entity.get_entity_id();
 
-		if (custom_fields.find(id) != custom_fields.end())
+		if (custom_fields.contains(id))
 		{
 			custom_fields[id].clear();
 		}

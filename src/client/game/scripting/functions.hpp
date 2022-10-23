@@ -3,17 +3,12 @@
 
 namespace scripting
 {
-	extern std::unordered_map<std::string, unsigned> method_map;
-	extern std::unordered_map<std::string, unsigned> function_map;
-	extern std::unordered_map<std::string, unsigned> token_map;
-	extern std::unordered_map<std::string, unsigned> file_map;
-
 	using script_function = void(*)(game::scr_entref_t);
 
-	std::string find_token(unsigned int id);
+	std::string find_token(std::uint32_t id);
+	std::string find_token_single(std::uint32_t id);
 	unsigned int find_token_id(const std::string& name);
-	std::string find_file(unsigned int id);
-	unsigned int find_file_id(const std::string& name);
 
-	script_function find_function(const std::string& name, const bool prefer_global);
+	script_function get_function_by_index(std::uint32_t index);
+	script_function find_function(const std::string& name, bool prefer_global);
 }

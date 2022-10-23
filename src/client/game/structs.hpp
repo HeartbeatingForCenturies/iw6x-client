@@ -10,7 +10,7 @@ namespace game
 	typedef vec_t vec3_t[3];
 	typedef vec_t vec4_t[4];
 
-	enum $219904913BC1E6DB920C78C8CC0BD8F1
+	enum
 	{
 		FL_GODMODE = 0x1,
 		FL_DEMI_GODMODE = 0x2,
@@ -120,7 +120,7 @@ namespace game
 		DB_LOAD_SYNC_SKIP_ALWAYS_LOADED = 0x5,
 	};
 
-	enum $44ED595A48CF2D4BF24165A45E7595BF
+	enum
 	{
 		THREAD_CONTEXT_MAIN = 0x0,
 		THREAD_CONTEXT_BACKEND = 0x1,
@@ -143,20 +143,28 @@ namespace game
 		THREAD_CONTEXT_COUNT = 0x10,
 	};
 
-	struct $9704E9D6F23D6A5E526351953F37E26F
-	{
-		unsigned int weaponIdx : 8;
-		unsigned int weaponVariation : 6;
-		unsigned int weaponScopes : 3;
-		unsigned int weaponUnderBarrels : 2;
-		unsigned int weaponOthers : 7;
-		unsigned int scopeVariation : 6;
-	};
-
 	union Weapon
 	{
-		$9704E9D6F23D6A5E526351953F37E26F __s0;
+		struct
+		{
+			unsigned int weaponIdx : 8;
+			unsigned int weaponVariation : 6;
+			unsigned int weaponScopes : 3;
+			unsigned int weaponUnderBarrels : 2;
+			unsigned int weaponOthers : 7;
+			unsigned int scopeVariation : 6;
+		} __s0;
 		unsigned int data;
+	};
+
+	enum PMem_Source
+	{
+		PMEM_SOURCE_EXTERNAL = 0x0,
+		PMEM_SOURCE_DATABASE = 0x1,
+		PMEM_SOURCE_DEFAULT_LOW = 0x2,
+		PMEM_SOURCE_DEFAULT_HIGH = 0x3,
+		PMEM_SOURCE_MOVIE = 0x4,
+		PMEM_SOURCE_SCRIPT = 0x5,
 	};
 
 	enum errorParm
@@ -1429,19 +1437,39 @@ namespace game
 		int currentShowInKillcam;
 	};
 
-	enum scriptType_e
+	enum
 	{
-		SCRIPT_NONE = 0,
-		SCRIPT_OBJECT = 1,
-		SCRIPT_STRING = 2,
-		SCRIPT_VECTOR = 4,
-		SCRIPT_FLOAT = 5,
-		SCRIPT_INTEGER = 6,
-		SCRIPT_END = 8,
-		SCRIPT_FUNCTION = 9,
-		SCRIPT_STRUCT = 19,
-		SCRIPT_ARRAY = 22
-		// Custom
+		VAR_UNDEFINED = 0x0,
+		VAR_BEGIN_REF = 0x1,
+		VAR_POINTER = 0x1,
+		VAR_STRING = 0x2,
+		VAR_ISTRING = 0x3,
+		VAR_VECTOR = 0x4,
+		VAR_END_REF = 0x5,
+		VAR_FLOAT = 0x5,
+		VAR_INTEGER = 0x6,
+		VAR_CODEPOS = 0x7,
+		VAR_PRECODEPOS = 0x8,
+		VAR_FUNCTION = 0x9,
+		VAR_BUILTIN_FUNCTION = 0xA,
+		VAR_BUILTIN_METHOD = 0xB,
+		VAR_STACK = 0xC,
+		VAR_ANIMATION = 0xD,
+		VAR_PRE_ANIMATION = 0xE,
+		VAR_THREAD = 0xF,
+		VAR_NOTIFY_THREAD = 0x10,
+		VAR_TIME_THREAD = 0x11,
+		VAR_CHILD_THREAD = 0x12,
+		VAR_OBJECT = 0x13,
+		VAR_DEAD_ENTITY = 0x14,
+		VAR_ENTITY = 0x15,
+		VAR_ARRAY = 0x16,
+		VAR_DEAD_THREAD = 0x17,
+		VAR_COUNT = 0x18,
+		VAR_FREE = 0x18,
+		VAR_THREAD_LIST = 0x19,
+		VAR_ENDON_LIST = 0x1A,
+		VAR_TOTAL_COUNT = 0x1B,
 	};
 
 	struct VariableStackBuffer
@@ -1478,6 +1506,9 @@ namespace game
 		unsigned short entnum;
 		unsigned short classnum;
 	};
+
+	typedef void(*BuiltinMethod)(scr_entref_t);
+	typedef void(*BuiltinFunction)();
 
 	struct function_stack_t
 	{
@@ -1789,6 +1820,14 @@ namespace game
 		weapInventoryType_t inventoryType;
 	}; // Incomplete
 
+	struct RawFile
+	{
+		const char* name;
+		int compressedLen;
+		int len;
+		const char* buffer;
+	};
+
 	union XAssetHeader
 	{
 		void* data;
@@ -1829,8 +1868,8 @@ namespace game
 		SndDriverGlobals *sndDriverGlobals;
 		FxEffectDef *fx;
 		FxImpactTable *impactFx;
-		SurfaceFxTable *surfaceFx;
-		RawFile *rawfile;*/
+		SurfaceFxTable *surfaceFx;*/
+		RawFile* rawfile;
 		ScriptFile* scriptfile;
 		/*StringTable *stringTable;
 		LeaderboardDef *leaderboardDef;
@@ -2117,9 +2156,9 @@ namespace game
 
 		struct EntityState
 		{
-			int entityNum;
-			int entityType;
-			LerpEntityState lerpEntityState;
+			int number;
+			int eType;
+			LerpEntityState lerp;
 			char _0x70[0x8];
 			int otherEntityNum;
 			int attackerEntityNum;
@@ -2454,6 +2493,10 @@ namespace game
 
 	namespace hks
 	{
+		struct lua_State;
+		struct HashTable;
+		struct cclosure;
+
 		struct GenericChunkHeader
 		{
 			unsigned __int64 m_flags;
@@ -2478,9 +2521,6 @@ namespace game
 			unsigned int m_hash;
 			char m_data[30];
 		};
-
-		struct HashTable;
-		struct cclosure;
 
 		union HksValue
 		{
@@ -2578,6 +2618,14 @@ namespace game
 
 		enum HksError
 		{
+			HKS_NO_ERROR = 0,
+			HKS_ERRSYNTAX = -4,
+			HKS_ERRFILE = -5,
+			HKS_ERRRUN = -100,
+			HKS_ERRMEM = -200,
+			HKS_ERRERR = -300,
+			HKS_THROWING_ERROR = -500,
+			HKS_GC_YIELD = 1,
 		};
 
 		struct lua_Debug
@@ -2596,24 +2644,6 @@ namespace game
 			char short_src[512];
 			int callstack_level;
 			int is_tail_call;
-		};
-
-		struct lua_State : ChunkHeader
-		{
-			void* m_global;
-			CallStack m_callStack;
-			ApiStack m_apistack;
-			UpValue* pending;
-			HksObject globals;
-			HksObject m_cEnv;
-			CallSite* m_callsites;
-			int m_numberOfCCalls;
-			void* m_context;
-			InternString* m_name;
-			lua_State* m_nextState;
-			lua_State* m_nextStateStack;
-			Status m_status;
-			HksError m_error;
 		};
 
 		using lua_function = int(__fastcall*)(lua_State*);
@@ -2653,6 +2683,232 @@ namespace game
 			__int16 m_flags;
 			InternString* m_name;
 			HksObject m_upvalues[1];
+		};
+
+		enum HksCompilerSettings_BytecodeSharingFormat
+		{
+			BYTECODE_DEFAULT = 0x0,
+			BYTECODE_INPLACE = 0x1,
+			BYTECODE_REFERENCED = 0x2,
+		};
+
+		enum HksCompilerSettings_IntLiteralOptions
+		{
+			INT_LITERALS_NONE = 0x0,
+			INT_LITERALS_LUD = 0x1,
+			INT_LITERALS_32BIT = 0x1,
+			INT_LITERALS_UI64 = 0x2,
+			INT_LITERALS_64BIT = 0x2,
+			INT_LITERALS_ALL = 0x3,
+		};
+
+		struct HksCompilerSettings
+		{
+			int m_emitStructCode;
+			const char** m_stripNames;
+			int m_emitGlobalMemoization;
+			int _m_isHksGlobalMemoTestingMode;
+			HksCompilerSettings_BytecodeSharingFormat m_bytecodeSharingFormat;
+			HksCompilerSettings_IntLiteralOptions m_enableIntLiterals;
+			int(*m_debugMap)(const char*, int);
+		};
+
+		enum HksBytecodeSharingMode
+		{
+			HKS_BYTECODE_SHARING_OFF = 0x0,
+			HKS_BYTECODE_SHARING_ON = 0x1,
+			HKS_BYTECODE_SHARING_SECURE = 0x2,
+		};
+
+		struct HksGcWeights
+		{
+			int m_removeString;
+			int m_finalizeUserdataNoMM;
+			int m_finalizeUserdataGcMM;
+			int m_cleanCoroutine;
+			int m_removeWeak;
+			int m_markObject;
+			int m_traverseString;
+			int m_traverseUserdata;
+			int m_traverseCoroutine;
+			int m_traverseWeakTable;
+			int m_freeChunk;
+			int m_sweepTraverse;
+		};
+
+		struct GarbageCollector_Stack
+		{
+			void* m_storage;
+			unsigned int m_numEntries;
+			unsigned int m_numAllocated;
+		};
+
+		struct ProtoList
+		{
+			void** m_protoList;
+			unsigned __int16 m_protoSize;
+			unsigned __int16 m_protoAllocSize;
+		};
+
+		struct GarbageCollector
+		{
+			int m_target;
+			int m_stepsLeft;
+			int m_stepLimit;
+			HksGcWeights m_costs;
+			int m_unit;
+			_SETJMP_FLOAT128(*m_jumpPoint)[16];
+			lua_State* m_mainState;
+			lua_State* m_finalizerState;
+			void* m_memory;
+			int m_phase;
+			GarbageCollector_Stack m_resumeStack;
+			GarbageCollector_Stack m_greyStack;
+			GarbageCollector_Stack m_remarkStack;
+			GarbageCollector_Stack m_weakStack;
+			int m_finalizing;
+			HksObject m_safeTableValue;
+			lua_State* m_startOfStateStackList;
+			lua_State* m_endOfStateStackList;
+			lua_State* m_currentState;
+			HksObject m_safeValue;
+			void* m_compiler;
+			void* m_bytecodeReader;
+			void* m_bytecodeWriter;
+			int m_pauseMultiplier;
+			int m_stepMultiplier;
+			bool m_stopped;
+			int(*m_gcPolicy)(lua_State*);
+			unsigned __int64 m_pauseTriggerMemoryUsage;
+			int m_stepTriggerCountdown;
+			unsigned int m_stringTableIndex;
+			unsigned int m_stringTableSize;
+			UserData* m_lastBlackUD;
+			UserData* m_activeUD;
+		};
+
+		enum MemoryManager_ChunkColor
+		{
+			RED = 0x0,
+			BLACK = 0x1,
+		};
+
+		struct ChunkList
+		{
+			ChunkHeader m_prevToStart;
+		};
+
+		enum Hks_DeleteCheckingMode
+		{
+			HKS_DELETE_CHECKING_OFF = 0x0,
+			HKS_DELETE_CHECKING_ACCURATE = 0x1,
+			HKS_DELETE_CHECKING_SAFE = 0x2,
+		};
+
+		struct MemoryManager
+		{
+			void* (*m_allocator)(void*, void*, unsigned __int64, unsigned __int64);
+			void* m_allocatorUd;
+			MemoryManager_ChunkColor m_chunkColor;
+			unsigned __int64 m_used;
+			unsigned __int64 m_highwatermark;
+			ChunkList m_allocationList;
+			ChunkList m_sweepList;
+			ChunkHeader* m_lastKeptChunk;
+			lua_State* m_state;
+			ChunkList m_deletedList;
+			int m_deleteMode;
+			Hks_DeleteCheckingMode m_deleteCheckingMode;
+		};
+
+		struct StaticStringCache
+		{
+			HksObject m_objects[41];
+		};
+
+		enum HksBytecodeEndianness
+		{
+			HKS_BYTECODE_DEFAULT_ENDIAN = 0x0,
+			HKS_BYTECODE_BIG_ENDIAN = 0x1,
+			HKS_BYTECODE_LITTLE_ENDIAN = 0x2,
+		};
+
+		struct RuntimeProfileData_Stats
+		{
+			unsigned __int64 hksTime;
+			unsigned __int64 callbackTime;
+			unsigned __int64 gcTime;
+			unsigned __int64 cFinalizerTime;
+			unsigned __int64 compilerTime;
+			unsigned int hkssTimeSamples;
+			unsigned int callbackTimeSamples;
+			unsigned int gcTimeSamples;
+			unsigned int compilerTimeSamples;
+			unsigned int num_newuserdata;
+			unsigned int num_tablerehash;
+			unsigned int num_pushstring;
+			unsigned int num_pushcfunction;
+			unsigned int num_newtables;
+		};
+
+		struct RuntimeProfileData
+		{
+			__int64 stackDepth;
+			__int64 callbackDepth;
+			unsigned __int64 lastTimer;
+			RuntimeProfileData_Stats frameStats;
+			unsigned __int64 gcStartTime;
+			unsigned __int64 finalizerStartTime;
+			unsigned __int64 compilerStartTime;
+			unsigned __int64 compilerStartGCTime;
+			unsigned __int64 compilerStartGCFinalizerTime;
+			unsigned __int64 compilerCallbackStartTime;
+			__int64 compilerDepth;
+			void* outFile;
+			lua_State* rootState;
+		};
+
+		struct HksGlobal
+		{
+			MemoryManager m_memory;
+			GarbageCollector m_collector;
+			StringTable m_stringTable;
+			HksBytecodeSharingMode m_bytecodeSharingMode;
+			unsigned int m_tableVersionInitializer;
+			HksObject m_registry;
+			ProtoList m_protoList;
+			HashTable* m_structProtoByName;
+			ChunkList m_userDataList;
+			lua_State* m_root;
+			StaticStringCache m_staticStringCache;
+			void* m_debugger;
+			void* m_profiler;
+			RuntimeProfileData m_runProfilerData;
+			HksCompilerSettings m_compilerSettings;
+			int(*m_panicFunction)(lua_State*);
+			void* m_luaplusObjectList;
+			int m_heapAssertionFrequency;
+			int m_heapAssertionCount;
+			void (*m_logFunction)(lua_State*, const char*, ...);
+			HksBytecodeEndianness m_bytecodeDumpEndianness;
+		};
+
+		struct lua_State : ChunkHeader
+		{
+			HksGlobal* m_global;
+			CallStack m_callStack;
+			ApiStack m_apistack;
+			UpValue* pending;
+			HksObject globals;
+			HksObject m_cEnv;
+			CallSite* m_callsites;
+			int m_numberOfCCalls;
+			void* m_context;
+			InternString* m_name;
+			lua_State* m_nextState;
+			lua_State* m_nextStateStack;
+			Status m_status;
+			HksError m_error;
 		};
 	}
 }

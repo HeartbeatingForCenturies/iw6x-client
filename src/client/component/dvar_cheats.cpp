@@ -2,9 +2,9 @@
 #include "loader/component_loader.hpp"
 
 #include "game/game.hpp"
+#include "game/dvars.hpp"
 
 #include "console.hpp"
-#include "scheduler.hpp"
 
 #include <utils/hook.hpp>
 #include <utils/string.hpp>
@@ -21,7 +21,7 @@ namespace dvar_cheats
 				value->enabled = dvar->current.enabled;
 			}
 
-				// if sv_cheats was enabled and it changes to disabled, we need to reset all cheat dvars
+			// if sv_cheats was enabled and it changes to disabled, we need to reset all cheat dvars
 			else if (dvar->current.enabled && !value->enabled)
 			{
 				for (auto i = 0; i < *game::dvarCount; ++i)
@@ -180,12 +180,8 @@ namespace dvar_cheats
 			utils::hook::jump(0x14038A59A, player_cmd_set_client_dvar, true); // send non-network dvars as string
 			utils::hook::call(0x140287AED, cg_set_client_dvar_from_server); // check for dvars being sent as string before parsing ids
 			utils::hook::set<uint8_t>(0x14026B50E, 0xEB); // fov thing
-			
-			scheduler::once([]()
-			{
-				game::Dvar_RegisterBool("sv_cheats", false, game::DvarFlags::DVAR_FLAG_REPLICATED,
-				                        "Allow cheat commands and dvars on this server");
-			}, scheduler::pipeline::main);
+
+			dvars::sv_cheats = game::Dvar_RegisterBool("sv_cheats", false, game::DVAR_FLAG_REPLICATED, "Allow cheat commands and dvars on this server");
 		}
 	};
 }

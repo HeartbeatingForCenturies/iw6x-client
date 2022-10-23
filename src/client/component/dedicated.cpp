@@ -1,19 +1,27 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game/game.hpp"
+
 #include "scheduler.hpp"
 #include "server_list.hpp"
 #include "network.hpp"
 #include "command.hpp"
-#include "game/game.hpp"
 
 #include <utils/hook.hpp>
-#include <utils/string.hpp>
 
 namespace dedicated
 {
 	namespace
 	{
-		utils::hook::detour dvar_get_string_hook;
+		const game::dvar_t* sv_lanOnly;
+
+		void initialize()
+		{
+			command::execute("exec default_xboxlive.cfg", true);
+			command::execute("xstartprivatematch", true); // IW6 specific, doesn't work without
+			command::execute("onlinegame 1", true);
+			command::execute("xblive_privatematch 0", true);
+		}
 
 		void init_dedicated_server()
 		{
@@ -55,6 +63,11 @@ namespace dedicated
 
 		void send_heartbeat()
 		{
+			if (sv_lanOnly->current.enabled)
+			{
+				return;
+			}
+
 			game::netadr_s target{};
 			if (server_list::get_master_server(target))
 			{
@@ -68,12 +81,11 @@ namespace dedicated
 			return command_queue;
 		}
 
-		void execute_console_command(const int client, const char* command)
+		void execute_console_command([[maybe_unused]] const int local_client_num, const char* command)
 		{
 			if (game::Live_SyncOnlineDataFlags(0) == 0)
 			{
-				game::Cbuf_AddText(client, command);
-				game::Cbuf_AddText(client, "\n");
+				command::execute(command);
 			}
 			else
 			{
@@ -88,8 +100,7 @@ namespace dedicated
 
 			for (const auto& command : queue)
 			{
-				game::Cbuf_AddText(0, command.data());
-				game::Cbuf_AddText(0, "\n");
+				command::execute(command);
 			}
 		}
 
@@ -98,19 +109,9 @@ namespace dedicated
 			std::this_thread::sleep_for(1ms);
 		}
 
-		const char* dvar_get_string_stub(const char* dvar, const char* default_value)
+		void gscr_is_using_match_rules_data_stub()
 		{
-			if (dvar == "xblive_privatematch"s || dvar == "dedicated"s || dvar == "onlinegame"s)
-			{
-				return "0";
-			}
-
-			if (dvar == "xblive_rankedmatch"s)
-			{
-				return "1";
-			}
-
-			return dvar_get_string_hook.invoke<const char*>(dvar, default_value);
+			game::Scr_AddInt(0);
 		}
 
 		void glass_update()
@@ -128,37 +129,22 @@ namespace dedicated
 
 		void sys_error_stub(const char* msg, ...)
 		{
-			char buffer[2048];
+			char buffer[2048]{};
 
 			va_list ap;
 			va_start(ap, msg);
 
-			vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, msg, ap);
+			vsnprintf_s(buffer, _TRUNCATE, msg, ap);
 
 			va_end(ap);
 
 			scheduler::once([]()
-				{
-					command::execute("map_rotate");
-				}, scheduler::pipeline::main, 3s); // scheduler::main -> scheduler::pipeline::main ???
+			{
+				command::execute("map_rotate");
+			}, scheduler::pipeline::main, 3s); // scheduler::main -> scheduler::pipeline::main ???
 
 			game::Com_Error(game::ERR_DROP, "%s", buffer);
 		}
-	}
-
-	void initialize()
-	{
-		command::execute("exec default_xboxlive.cfg", true);
-
-		command::execute("xstartprivatematch", true);
-		command::execute("xstartpartyhost", true);
-
-		command::execute("exec default_mp_gamesettings.cfg", true);
-		command::execute("exec default_private.cfg", true);
-
-		command::execute("onlinegame 1", true);
-		command::execute("xblive_rankedmatch 1", true);
-		command::execute("xblive_privatematch 1", true);
 	}
 
 	class component final : public component_interface
@@ -166,9 +152,9 @@ namespace dedicated
 	public:
 		void* load_import(const std::string& library, const std::string& function) override
 		{
-			if(!game::environment::is_dedi() && !game::environment::is_linker()) return nullptr;
+			if (!game::environment::is_dedi() && !game::environment::is_linker()) return nullptr;
 
-			if(function == "SetFocus")
+			if (function == "SetFocus")
 			{
 				return set_focus_stub;
 			}
@@ -186,8 +172,11 @@ namespace dedicated
 			// Arxan error fix
 			utils::hook::call(0x1403A0AF9, glass_update);
 
-			// Make dedis ranked
-			dvar_get_string_hook.create(game::Dvar_GetVariantStringWithDefault, dvar_get_string_stub);
+			// Add lanonly mode
+			sv_lanOnly = game::Dvar_RegisterBool("sv_lanOnly", false, game::DVAR_FLAG_NONE, "Don't send heartbeat");
+
+			// Make GScr_IsUsingMatchRulesData return 0 so the game doesn't override the cfg
+			utils::hook::jump(0x1403C9660, gscr_is_using_match_rules_data_stub);
 
 			// Hook R_SyncGpu
 			utils::hook::jump(0x1405E8530, sync_gpu_stub);
