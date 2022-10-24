@@ -300,6 +300,7 @@ namespace gsc
 				{
 					const auto func = scripting::function{scripting::script_function_table[filename][function]};
 					add_code_pos(func.get_pos());
+					return;
 				}
 
 				throw gsc_error("Function not found");
