@@ -7,6 +7,7 @@
 #include "game/scripting/lua/error.hpp"
 
 #include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 #include "component/console.hpp"
 #include "component/scripting.hpp"
@@ -227,6 +228,27 @@ namespace gsc
 
 			console::info("\n");
 		}
+
+		void assert_cmd()
+		{
+			if (!game::Scr_GetInt(0))
+			{
+				scr_error("Assert fail");
+			}
+		}
+
+		void assert_ex_cmd()
+		{
+			if (!game::Scr_GetInt(0))
+			{
+				scr_error(utils::string::va("Assert fail: %s", game::Scr_GetString(1)));
+			}
+		}
+
+		void assert_msg_cmd()
+		{
+			scr_error(utils::string::va("Assert fail: %s", game::Scr_GetString(0)));
+		}
 	}
 
 	void scr_error(const char* error)
@@ -264,6 +286,10 @@ namespace gsc
 			utils::hook::call(0x14043CEB1, vm_error_stub);
 
 			utils::hook::call(0x14042E76F, scr_get_function_stub);
+
+			utils::hook::set<game::BuiltinFunction>(0x1409E6E38, assert_ex_cmd);
+			utils::hook::set<game::BuiltinFunction>(0x1409E6E50, assert_msg_cmd);
+			utils::hook::set<game::BuiltinFunction>(0x1409E6E20, assert_cmd);
 
 			add_function("getfunction", []
 			{
