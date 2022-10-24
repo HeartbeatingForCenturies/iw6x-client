@@ -65,7 +65,7 @@ namespace gsc
 		{
 			if (static_cast<std::uint32_t>(index) >= game::scr_VmPub->outparamcount)
 			{
-				return {};
+				throw gsc_error(std::format("Parameter {} does not exist", index + 1));
 			}
 
 			return {game::scr_VmPub->top[-index]};

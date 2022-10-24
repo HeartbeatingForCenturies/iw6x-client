@@ -115,151 +115,152 @@ namespace gsc
 			return res;
 		}
 
-		unsigned int scr_get_object(unsigned int index)
-		{
-			if (index < game::scr_VmPub->outparamcount)
-			{
-				auto* value = game::scr_VmPub->top - index;
-				if (value->type == game::VAR_POINTER)
-				{
-					return value->u.pointerValue;
-				}
+	}
 
-				scr_error(va("Type %s is not an object", var_typename[value->type]));
+	unsigned int scr_get_object(unsigned int index)
+	{
+		if (index < game::scr_VmPub->outparamcount)
+		{
+			auto* value = game::scr_VmPub->top - index;
+			if (value->type == game::VAR_POINTER)
+			{
+				return value->u.pointerValue;
 			}
 
-			scr_error(va("Parameter %u does not exist", index + 1));
-			return 0;
+			scr_error(va("Type %s is not an object", var_typename[value->type]));
 		}
 
-		unsigned int scr_get_const_string(unsigned int index)
-		{
-			if (index < game::scr_VmPub->outparamcount)
-			{
-				auto* value = game::scr_VmPub->top - index;
-				if (game::Scr_CastString(value))
-				{
-					assert(value->type == game::VAR_STRING);
-					return value->u.stringValue;
-				}
+		scr_error(va("Parameter %u does not exist", index + 1));
+		return 0;
+	}
 
-				game::Scr_ErrorInternal();
+	unsigned int scr_get_const_string(unsigned int index)
+	{
+		if (index < game::scr_VmPub->outparamcount)
+		{
+			auto* value = game::scr_VmPub->top - index;
+			if (game::Scr_CastString(value))
+			{
+				assert(value->type == game::VAR_STRING);
+				return value->u.stringValue;
 			}
 
-			scr_error(va("Parameter %u does not exist", index + 1));
-			return 0;
+			game::Scr_ErrorInternal();
 		}
 
-		unsigned int scr_get_const_istring(unsigned int index)
-		{
-			if (index < game::scr_VmPub->outparamcount)
-			{
-				auto* value = game::scr_VmPub->top - index;
-				if (value->type == game::VAR_ISTRING)
-				{
-					return value->u.stringValue;
-				}
+		scr_error(va("Parameter %u does not exist", index + 1));
+		return 0;
+	}
 
-				scr_error(va("Type %s is not a localized string", var_typename[value->type]));
+	unsigned int scr_get_const_istring(unsigned int index)
+	{
+		if (index < game::scr_VmPub->outparamcount)
+		{
+			auto* value = game::scr_VmPub->top - index;
+			if (value->type == game::VAR_ISTRING)
+			{
+				return value->u.stringValue;
 			}
 
-			scr_error(va("Parameter %u does not exist", index + 1));
-			return 0;
+			scr_error(va("Type %s is not a localized string", var_typename[value->type]));
 		}
 
-		void scr_get_vector(unsigned int index, float* vector_value)
-		{
-			if (index < game::scr_VmPub->outparamcount)
-			{
-				auto* value = game::scr_VmPub->top - index;
-				if (value->type == game::VAR_VECTOR)
-				{
-					std::memcpy(vector_value, value->u.vectorValue, sizeof(std::float_t[3]));
-					return;
-				}
+		scr_error(va("Parameter %u does not exist", index + 1));
+		return 0;
+	}
 
-				scr_error(va("Type %s is not a vector", var_typename[value->type]));
+	void scr_get_vector(unsigned int index, float* vector_value)
+	{
+		if (index < game::scr_VmPub->outparamcount)
+		{
+			auto* value = game::scr_VmPub->top - index;
+			if (value->type == game::VAR_VECTOR)
+			{
+				std::memcpy(vector_value, value->u.vectorValue, sizeof(std::float_t[3]));
+				return;
 			}
 
-			scr_error(va("Parameter %u does not exist", index + 1));
+			scr_error(va("Type %s is not a vector", var_typename[value->type]));
 		}
 
-		int scr_get_int(unsigned int index)
-		{
-			if (index < game::scr_VmPub->outparamcount)
-			{
-				auto* value = game::scr_VmPub->top - index;
-				if (value->type == game::VAR_INTEGER)
-				{
-					return value->u.intValue;
-				}
+		scr_error(va("Parameter %u does not exist", index + 1));
+	}
 
-				scr_error(va("Type %s is not an int", var_typename[value->type]));
+	int scr_get_int(unsigned int index)
+	{
+		if (index < game::scr_VmPub->outparamcount)
+		{
+			auto* value = game::scr_VmPub->top - index;
+			if (value->type == game::VAR_INTEGER)
+			{
+				return value->u.intValue;
 			}
 
-			scr_error(va("Parameter %u does not exist", index + 1));
-			return 0;
+			scr_error(va("Type %s is not an int", var_typename[value->type]));
 		}
 
-		float scr_get_float(unsigned int index)
+		scr_error(va("Parameter %u does not exist", index + 1));
+		return 0;
+	}
+
+	float scr_get_float(unsigned int index)
+	{
+		if (index < game::scr_VmPub->outparamcount)
 		{
-			if (index < game::scr_VmPub->outparamcount)
+			auto* value = game::scr_VmPub->top - index;
+			if (value->type == game::VAR_FLOAT)
 			{
-				auto* value = game::scr_VmPub->top - index;
-				if (value->type == game::VAR_FLOAT)
-				{
-					return value->u.floatValue;
-				}
-
-				if (value->type == game::VAR_INTEGER)
-				{
-					return static_cast<float>(value->u.intValue);
-				}
-
-				scr_error(va("Type %s is not a float", var_typename[value->type]));
+				return value->u.floatValue;
 			}
 
-			scr_error(va("Parameter %u does not exist", index + 1));
-			return 0.0f;
-		}
-
-		int scr_get_pointer_type(unsigned int index)
-		{
-			if (index < game::scr_VmPub->outparamcount)
+			if (value->type == game::VAR_INTEGER)
 			{
-				if ((game::scr_VmPub->top - index)->type == game::VAR_POINTER)
-				{
-					return game::GetObjectType((game::scr_VmPub->top - index)->u.intValue);
-				}
-
-				scr_error(va("Type %s is not an object", var_typename[(game::scr_VmPub->top - index)->type]));
+				return static_cast<float>(value->u.intValue);
 			}
 
-			scr_error(va("Parameter %u does not exist", index + 1));
-			return 0;
+			scr_error(va("Type %s is not a float", var_typename[value->type]));
 		}
 
-		int scr_get_type(unsigned int index)
+		scr_error(va("Parameter %u does not exist", index + 1));
+		return 0.0f;
+	}
+
+	int scr_get_pointer_type(unsigned int index)
+	{
+		if (index < game::scr_VmPub->outparamcount)
 		{
-			if (index < game::scr_VmPub->outparamcount)
+			if ((game::scr_VmPub->top - index)->type == game::VAR_POINTER)
 			{
-				return (game::scr_VmPub->top - index)->type;
+				return game::GetObjectType((game::scr_VmPub->top - index)->u.intValue);
 			}
 
-			scr_error(va("Parameter %u does not exist", index + 1));
-			return 0;
+			scr_error(va("Type %s is not an object", var_typename[(game::scr_VmPub->top - index)->type]));
 		}
 
-		const char* scr_get_type_name(unsigned int index)
+		scr_error(va("Parameter %u does not exist", index + 1));
+		return 0;
+	}
+
+	int scr_get_type(unsigned int index)
+	{
+		if (index < game::scr_VmPub->outparamcount)
 		{
-			if (index < game::scr_VmPub->outparamcount)
-			{
-				return var_typename[(game::scr_VmPub->top - index)->type];
-			}
-
-			scr_error(va("Parameter %u does not exist", index + 1));
-			return nullptr;
+			return (game::scr_VmPub->top - index)->type;
 		}
+
+		scr_error(va("Parameter %u does not exist", index + 1));
+		return 0;
+	}
+
+	const char* scr_get_type_name(unsigned int index)
+	{
+		if (index < game::scr_VmPub->outparamcount)
+		{
+			return var_typename[(game::scr_VmPub->top - index)->type];
+		}
+
+		scr_error(va("Parameter %u does not exist", index + 1));
+		return nullptr;
 	}
 
 	std::optional<std::pair<std::string, std::string>> find_function(const char* pos)
