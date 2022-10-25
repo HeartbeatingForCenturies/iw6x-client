@@ -66,7 +66,7 @@ namespace scripting::lua
 
 	event_listener_handle event_handler::add_event_listener(event_listener&& listener)
 	{
-		const uint64_t id = ++this->current_listener_id_;
+		const std::uint64_t id = ++this->current_listener_id_;
 		listener.id = id;
 		listener.is_deleted = false;
 
@@ -78,12 +78,11 @@ namespace scripting::lua
 		return {id};
 	}
 
-	void event_handler::add_endon_condition(const event_listener_handle& handle, const entity& entity,
-			const std::string& event)
+	void event_handler::add_endon_condition(const event_listener_handle& handle, const entity& entity, const std::string& event)
 	{
 		auto merger = [&](task_list& tasks)
 		{
-			for(auto& task : tasks)
+			for (auto& task : tasks)
 			{
 				if(task.id == handle.id)
 				{
@@ -132,14 +131,13 @@ namespace scripting::lua
 	void event_handler::merge_callbacks()
 	{
 		callbacks_.access([&](task_list& tasks)
+		{
+			new_callbacks_.access([&](task_list& new_tasks)
 			{
-				new_callbacks_.access([&](task_list& new_tasks)
-					{
-						tasks.insert(tasks.end(), std::move_iterator(new_tasks.begin()),
-							std::move_iterator(new_tasks.end()));
-						new_tasks = {};
-					});
+				tasks.insert(tasks.end(), std::move_iterator(new_tasks.begin()), std::move_iterator(new_tasks.end()));
+				new_tasks = {};
 			});
+		});
 	}
 
 	void event_handler::handle_endon_conditions(const event& event)
@@ -160,6 +158,7 @@ namespace scripting::lua
 		};
 
 		callbacks_.access(deleter);
+		new_callbacks_.access(deleter);
 	}
 
 	event_arguments event_handler::build_arguments(const event& event) const

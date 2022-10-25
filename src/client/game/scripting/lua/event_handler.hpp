@@ -9,7 +9,7 @@ namespace scripting::lua
 	class event_listener_handle
 	{
 	public:
-		uint64_t id = 0;
+		std::uint64_t id = 0;
 	};
 
 	class event_listener final : public event_listener_handle
@@ -38,6 +38,8 @@ namespace scripting::lua
 
 		event_listener_handle add_event_listener(event_listener&& listener);
 
+		void handle_endon_conditions(const event& event);
+
 		void clear();
 
 	private:
@@ -50,7 +52,6 @@ namespace scripting::lua
 
 		void remove(const event_listener_handle& handle);
 		void merge_callbacks();
-		void handle_endon_conditions(const event& event);
 
 		void add_endon_condition(const event_listener_handle& handle, const entity& entity, const std::string& event);
 

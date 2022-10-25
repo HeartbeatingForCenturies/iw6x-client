@@ -6,7 +6,6 @@
 #include "game/scripting/functions.hpp"
 #include "game/scripting/event.hpp"
 #include "game/scripting/lua/engine.hpp"
-#include "game/scripting/execution.hpp"
 
 #include "scheduler.hpp"
 #include "scripting.hpp"
@@ -14,6 +13,7 @@
 #include "gsc/script_loading.hpp"
 
 #include <utils/hook.hpp>
+#include <utils/concurrency.hpp>
 
 namespace scripting
 {
@@ -28,6 +28,7 @@ namespace scripting
 		utils::hook::detour vm_notify_hook;
 		utils::hook::detour scr_load_level_hook;
 		utils::hook::detour g_shutdown_game_hook;
+		utils::hook::detour scr_run_current_threads_hook;
 
 		utils::hook::detour scr_set_thread_position_hook;
 		utils::hook::detour process_script_hook;
@@ -39,6 +40,9 @@ namespace scripting
 		std::uint32_t current_file_id = 0;
 
 		std::unordered_map<unsigned int, std::string> canonical_string_table;
+
+		using notify_list = std::vector<event>;
+		utils::concurrency::container<notify_list> scheduled_notifies;
 
 		std::vector<std::function<void(int)>> shutdown_callbacks;
 		std::vector<std::function<void()>> init_callbacks;
@@ -58,15 +62,23 @@ namespace scripting
 					e.arguments.emplace_back(*value);
 				}
 
-				if (e.name == "connected")
-				{
-					clear_entity_fields(e.entity);
-				}
+				lua::engine::handle_endon_conditions(e);
 
-				lua::engine::notify(e);
+				scheduled_notifies.access([&](notify_list& list)
+				{
+					list.push_back(e);
+				});
 			}
 
 			vm_notify_hook.invoke<void>(notify_list_owner_id, string_value, top);
+		}
+
+		void clear_scheduled_notifies()
+		{
+			scheduled_notifies.access([](notify_list& list)
+			{
+				list.clear();
+			});
 		}
 
 		void scr_load_level_stub()
@@ -78,11 +90,13 @@ namespace scripting
 				callback();
 			}
 
+			clear_scheduled_notifies();
 			lua::engine::start();
 		}
 
 		void g_shutdown_game_stub(const int free_scripts)
 		{
+			clear_scheduled_notifies();
 			lua::engine::stop();
 
 			if (free_scripts)
@@ -98,6 +112,23 @@ namespace scripting
 			}
 
 			return g_shutdown_game_hook.invoke<void>(free_scripts);
+		}
+
+		void scr_run_current_threads_stub()
+		{
+			notify_list list_copy;
+			scheduled_notifies.access([&](notify_list& list)
+			{
+				list_copy = list;
+				list.clear();
+			});
+
+			for (const auto& e : list_copy)
+			{
+				lua::engine::notify(e);
+			}
+
+			scr_run_current_threads_hook.invoke<void>();
 		}
 
 		void process_script_stub(const char* filename)
@@ -225,14 +256,15 @@ namespace scripting
 	public:
 		void post_unpack() override
 		{
-			vm_notify_hook.create(SELECT_VALUE(0x1403E29C0, 0x14043D9B0), vm_notify_stub);
+			vm_notify_hook.create(SELECT_VALUE(0x1403E29C0, 0x14043D9B0), &vm_notify_stub);
 			// SP address is wrong, but should be ok
-			scr_load_level_hook.create(SELECT_VALUE(0x14013D5D0, 0x1403C4E60), scr_load_level_stub);
-			g_shutdown_game_hook.create(SELECT_VALUE(0x140318C10, 0x1403A0DF0), g_shutdown_game_stub);
+			scr_load_level_hook.create(SELECT_VALUE(0x14013D5D0, 0x1403C4E60), &scr_load_level_stub);
+			g_shutdown_game_hook.create(SELECT_VALUE(0x140318C10, 0x1403A0DF0), &g_shutdown_game_stub);
+			scr_run_current_threads_hook.create(SELECT_VALUE(0x1403DE860, 0x140439830), &scr_run_current_threads_stub);
 
-			scr_set_thread_position_hook.create(SELECT_VALUE(0x1403D3560, 0x14042E360), scr_set_thread_position_stub);
-			process_script_hook.create(SELECT_VALUE(0x1403DC870, 0x1404378C0), process_script_stub);
-			sl_get_canonical_string_hook.create(game::SL_GetCanonicalString, sl_get_canonical_string_stub);
+			scr_set_thread_position_hook.create(SELECT_VALUE(0x1403D3560, 0x14042E360), &scr_set_thread_position_stub);
+			process_script_hook.create(SELECT_VALUE(0x1403DC870, 0x1404378C0), &process_script_stub);
+			sl_get_canonical_string_hook.create(game::SL_GetCanonicalString, &sl_get_canonical_string_stub);
 
 			scheduler::loop([]
 			{
@@ -247,7 +279,7 @@ namespace scripting
 				// Allow precaching anytime
 				utils::hook::jump(0x1402084A5, is_pre_main_stub);
 				utils::hook::set<uint16_t>(0x1402084D0, 0xD3EB); // jump to 0x1402084A5
-				g_find_config_string_index.create(0x140161F90, g_find_config_string_index_stub);
+				g_find_config_string_index.create(0x140161F90, &g_find_config_string_index_stub);
 			}
 		}
 	};

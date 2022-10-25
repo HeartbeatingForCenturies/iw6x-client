@@ -57,6 +57,21 @@ namespace scripting
 
 			return script_value(game::scr_VmPub->top[1 - game::scr_VmPub->outparamcount]);
 		}
+
+		bool is_entity_variable(const game::scr_entref_t& entref, const unsigned int id)
+		{
+			const auto type = game::scr_VarGlob->objectVariableValue[id].w.type;
+			if (entref.classnum == 0)
+			{
+				return type == game::VAR_ENTITY;
+			}
+			else if (entref.classnum > 0)
+			{
+				return true;
+			}
+
+			return false;
+		}
 	}
 
 	void notify(const entity& entity, const std::string& event, const std::vector<script_value>& arguments)
@@ -95,8 +110,7 @@ namespace scripting
 
 		if (!safe_execution::call(function, entref))
 		{
-			throw std::runtime_error(
-				"Error executing "s + (is_method_call ? "method" : "function") + " '" + name + "'");
+			throw std::runtime_error("Error executing "s + (is_method_call ? "method" : "function") + " '" + name + "'");
 		}
 
 		return get_return_value();
@@ -197,8 +211,9 @@ namespace scripting
 	{
 		const auto entref = entity.get_entity_reference();
 		const int id = get_field_id(entref.classnum, field);
+		const auto ent_id = entity.get_entity_id();
 
-		if (id != -1)
+		if (id != -1 && is_entity_variable(entref, ent_id))
 		{
 			stack_isolation _;
 			push_value(value);
@@ -213,8 +228,7 @@ namespace scripting
 		}
 		else
 		{
-			// Read custom fields
-			set_custom_field(entity, field, value);
+			set_object_variable(ent_id, field, value);
 		}
 	}
 
@@ -222,8 +236,9 @@ namespace scripting
 	{
 		const auto entref = entity.get_entity_reference();
 		const auto id = get_field_id(entref.classnum, field);
+		const auto ent_id = entity.get_entity_id();
 
-		if (id != -1)
+		if (id != -1 && is_entity_variable(entref, ent_id))
 		{
 			stack_isolation _;
 
@@ -233,7 +248,7 @@ namespace scripting
 				throw std::runtime_error("Failed to get value for field '" + field + "'");
 			}
 
-			const auto __ = gsl::finally([value]()
+			const auto _0 = gsl::finally([value]()
 			{
 				game::RemoveRefToValue(value.type, value.u);
 			});
@@ -241,7 +256,60 @@ namespace scripting
 			return value;
 		}
 
-		// Add custom fields
-		return get_custom_field(entity, field);
+		return get_object_variable(ent_id, field);
+	}
+
+	unsigned int make_array()
+	{
+		unsigned int index = 0;
+		const auto variable = game::AllocVariable(&index);
+		variable->w.type = game::VAR_ARRAY;
+		variable->u.f.prev = 0;
+		variable->u.f.next = 0;
+
+		return index;
+	}
+
+	script_value get_object_variable(const unsigned int parent_id, const unsigned int id)
+	{
+		const auto offset = 0xC800 * (parent_id & 1);
+		const auto variable_id = game::FindVariable(parent_id, id);
+		if (!variable_id)
+		{
+			return {};
+		}
+
+		const auto variable = &game::scr_VarGlob->childVariableValue[variable_id + offset];
+		game::VariableValue value{};
+		value.type = static_cast<int>(variable->type);
+		value.u = variable->u.u;
+
+		return value;
+	}
+
+	script_value get_object_variable(const unsigned int parent_id, const std::string& name)
+	{
+		const auto id = scripting::find_token_id(name);
+		return get_object_variable(parent_id, id);
+	}
+
+	void set_object_variable(const unsigned int parent_id, const unsigned int id, const script_value& value)
+	{
+		const auto offset = 0xC800 * (parent_id & 1);
+		const auto variable_id = game::GetVariable(parent_id, id);
+		const auto variable = &game::scr_VarGlob->childVariableValue[variable_id + offset];
+		const auto& raw_value = value.get_raw();
+
+		game::AddRefToValue(raw_value.type, raw_value.u);
+		game::RemoveRefToValue(variable->type, variable->u.u);
+
+		variable->type = static_cast<char>(raw_value.type);
+		variable->u.u = raw_value.u;
+	}
+
+	void set_object_variable(const unsigned int parent_id, const std::string& name, const script_value& value)
+	{
+		const auto id = scripting::find_token_id(name);
+		set_object_variable(parent_id, id, value);
 	}
 }

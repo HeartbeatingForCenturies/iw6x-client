@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../event.hpp"
+#include "game/scripting/event.hpp"
 
 #pragma warning(push)
 #pragma warning(disable: 4702)
@@ -29,6 +29,8 @@ namespace scripting::lua
 
 		void run_frame();
 		void notify(const event& e);
+		void handle_endon_conditions(const event& e);
+
 		void collect_garbage();
 
 	private:

@@ -6,8 +6,7 @@
 namespace scripting
 {
 	script_value call_function(const std::string& name, const std::vector<script_value>& arguments);
-	script_value call_function(const std::string& name, const entity& entity,
-	                           const std::vector<script_value>& arguments);
+	script_value call_function(const std::string& name, const entity& entity, const std::vector<script_value>& arguments);
 
 	template <typename T = script_value>
 	T call(const std::string& name, const std::vector<script_value>& arguments = {});
@@ -23,8 +22,7 @@ namespace scripting
 
 	script_value exec_ent_thread(const entity& entity, const char* pos, const std::vector<script_value>& arguments);
 	const char* get_function_pos(const std::string& filename, const std::string& function);
-	script_value call_script_function(const entity& entity, const std::string& filename,
-		const std::string& function, const std::vector<script_value>& arguments);
+	script_value call_script_function(const entity& entity, const std::string& filename, const std::string& function, const std::vector<script_value>& arguments);
 
 	void clear_entity_fields(const entity& entity);
 	void clear_custom_fields();
@@ -33,4 +31,12 @@ namespace scripting
 	script_value get_entity_field(const entity& entity, const std::string& field);
 
 	void notify(const entity& entity, const std::string& event, const std::vector<script_value>& arguments);
+
+	unsigned int make_array();
+
+	script_value get_object_variable(const unsigned int parent_id, const unsigned int id);
+	script_value get_object_variable(const unsigned int parent_id, const std::string& name);
+
+	void set_object_variable(const unsigned int parent_id, const std::string& name, const script_value& value);
+	void set_object_variable(const unsigned int parent_id, const unsigned int id, const script_value& value);
 }

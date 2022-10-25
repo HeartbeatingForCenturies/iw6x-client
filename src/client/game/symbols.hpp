@@ -11,8 +11,10 @@ namespace game
 	WEAK symbol<void(unsigned int id)> AddRefToObject{0, 0x1404326D0};
 	WEAK symbol<void(int type, VariableUnion u)> AddRefToValue{0x1403D7740, 0x1404326E0};
 	WEAK symbol<unsigned int(unsigned int id)> AllocThread{0, 0x1404329B0};
+	WEAK symbol<ObjectVariableValue*(unsigned int* index)> AllocVariable{0x1403D7A70, 0x140432A10};
 	WEAK symbol<void(int type, VariableUnion u)> RemoveRefToValue{0x1403D90F0, 0x1404340C0};
 	WEAK symbol<void(unsigned int id)> RemoveRefToObject{0, 0x140433FB0};
+	WEAK symbol<void(unsigned int parentId, unsigned int index)> RemoveVariableValue{0x1403D91C0, 0x140434190};
 
 	WEAK symbol<void(void*, void*)> AimAssist_AddToTargetList{0, 0x140139D80};
 
@@ -22,7 +24,7 @@ namespace game
 	WEAK symbol<const char*(char const**)> Com_Parse{0x1404313E0, 0x1404F50E0};
 	WEAK symbol<void (errorParm code, const char* message, ...)> Com_Error{0x1403BBFF0, 0x140412740};
 	WEAK symbol<void()> Com_Quit{0x1403BDDD0, 0x140414920};
-	WEAK symbol<CodPlayMode ()> Com_GetCurrentCoDPlayMode{0, 0x1404f6140};
+	WEAK symbol<CodPlayMode()> Com_GetCurrentCoDPlayMode{0, 0x1404f6140};
 	WEAK symbol<void(float, float, int)> Com_SetSlowMotion{0, 0x1404158C0};
 	WEAK symbol<void(const char* text_in)> Com_TokenizeString{0x1403B4150, 0x1403F7CC0};
 	WEAK symbol<void()> Com_EndTokenizeString{0x1403B37C0, 0x1403F7330};
@@ -165,7 +167,10 @@ namespace game
 	WEAK symbol<unsigned int(unsigned int parentId, unsigned int name)> FindVariable{0x1403D84F0, 0x1404334A0};
 	WEAK symbol<unsigned int(int entnum, unsigned int classnum)> FindEntityId{0, 0x1404333A0};
 	WEAK symbol<scr_string_t(unsigned int parentId, unsigned int id)> GetVariableName{0x1403D8E90, 0x140433E60};
+	WEAK symbol<unsigned int(unsigned int parentId, unsigned int unsignedValue)> GetVariable{0x1403D8DE0, 0x140433DB0};
 	WEAK symbol<void (VariableValue* result, unsigned int classnum, int entnum, int offset)> GetEntityFieldValue{0x1403DC810, 0x140437860};
+	WEAK symbol<unsigned int(unsigned int parentId, unsigned int unsignedValue)> GetNewArrayVariable{0x1403D88C0 , 0x140433880};
+	WEAK symbol<unsigned int(unsigned int parentId, unsigned int name)> GetNewVariable{0x1403D8A20, 0x1404339E0};
 	WEAK symbol<const float*(const float* v)> Scr_AllocVector{0x1403D9AF0, 0x140434A10};
 	WEAK symbol<const char*(unsigned int index)> Scr_GetString{0, 0x140439160};
 	WEAK symbol<void(int value)> Scr_AddInt{0x0, 0x140437E70};
