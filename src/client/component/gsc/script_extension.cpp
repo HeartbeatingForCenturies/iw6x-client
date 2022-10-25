@@ -55,13 +55,6 @@ namespace gsc
 			return result;
 		}
 
-		void add_function(const std::string& name, game::BuiltinFunction function)
-		{
-			++function_id_start;
-			functions[function_id_start] = function;
-			xsk::gsc::iw6::resolver::add_function(name, function_id_start);
-		}
-
 		scripting::script_value get_argument(int index)
 		{
 			if (static_cast<std::uint32_t>(index) >= game::scr_VmPub->outparamcount)
@@ -251,6 +244,13 @@ namespace gsc
 		}
 	}
 
+	void add_function(const std::string& name, game::BuiltinFunction function)
+	{
+		++function_id_start;
+		functions[function_id_start] = function;
+		xsk::gsc::iw6::resolver::add_function(name, function_id_start);
+	}
+
 	void scr_error(const char* error)
 	{
 		force_error_print = true;
@@ -319,7 +319,7 @@ namespace gsc
 				notifies::set_gsc_hook(what.u.codePosValue, with.u.codePosValue);
 			});
 
-			add_function("executecommand", []()
+			add_function("executecommand", []
 			{
 				const auto cmd = get_argument(0).as<std::string>();
 				command::execute(cmd);

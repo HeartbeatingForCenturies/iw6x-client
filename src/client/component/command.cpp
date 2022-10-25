@@ -28,14 +28,20 @@ namespace command
 			params params = {};
 
 			const auto command = utils::string::to_lower(params[0]);
-			if (handlers.find(command) != handlers.end())
+			if (const auto itr = handlers.find(command); itr != handlers.end())
 			{
-				handlers[command](params);
+				itr->second(params);
 			}
 		}
 
-		void client_command(const int client_num, void* a2)
+		void client_command(const int client_num)
 		{
+			if (game::mp::g_entities[client_num].client == nullptr)
+			{
+				// Client is not fully connected
+				return;
+			}
+
 			params_sv params = {};
 
 			const auto command = utils::string::to_lower(params[0]);
@@ -44,7 +50,7 @@ namespace command
 				handlers_sv[command](client_num, params);
 			}
 
-			client_command_hook.invoke<void>(client_num, a2);
+			client_command_hook.invoke<void>(client_num);
 		}
 
 		// Shamelessly stolen from Quake3
@@ -194,8 +200,10 @@ namespace command
 	{
 		const auto command = utils::string::to_lower(name);
 
-		if (handlers.find(command) == handlers.end())
+		if (!handlers.contains(command))
+		{
 			add_raw(name, main_handler);
+		}
 
 		handlers[command] = callback;
 	}
@@ -208,15 +216,17 @@ namespace command
 		});
 	}
 
-	void add_sv(const char* name, std::function<void(int, const params_sv&)> callback)
+	void add_sv(const char* name, const std::function<void(int, const params_sv&)>& callback)
 	{
 		// doing this so the sv command would show up in the console
 		add_raw(name, nullptr);
 
 		const auto command = utils::string::to_lower(name);
 
-		if (handlers_sv.find(command) == handlers_sv.end())
-			handlers_sv[command] = std::move(callback);
+		if (!handlers_sv.contains(command))
+		{
+			handlers_sv[command] = callback;
+		}
 	}
 
 	void execute(std::string command, const bool sync)
