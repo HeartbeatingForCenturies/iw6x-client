@@ -47,9 +47,9 @@ namespace scripting::lua::engine
 		}
 
 		stop();
-		load_scripts(game_module::get_host_module().get_folder() + "/data/scripts/");
-		load_scripts("iw6x/scripts/");
-		load_scripts("data/scripts/");
+		load_scripts(game_module::get_host_module().get_folder() + "/data/lua-scripts/");
+		load_scripts("iw6x/lua-scripts/");
+		load_scripts("data/lua-scripts/");
 	}
 
 	void stop()
