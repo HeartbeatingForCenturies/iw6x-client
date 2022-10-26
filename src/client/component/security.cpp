@@ -14,6 +14,11 @@ namespace security
 				reinterpret_cast<void(*)(int, int, int)>(0x1405834B0)(localclient, index1, index2);
 			}
 		}
+
+		int luaopen_io(void* l)
+		{
+			return 0;
+		}
 	}
 
 	class component final : public component_interface
@@ -25,6 +30,9 @@ namespace security
 
 			// Patch vulnerability in PlayerCards_SetCachedPlayerData
 			utils::hook::call(0x140287C5C, set_cached_playerdata_stub);
+
+			// Do not allow the HKS vm to open LUA's IO lib
+			utils::hook::jump(0x14017E040, luaopen_io);
 		}
 	};
 }
