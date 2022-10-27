@@ -38,6 +38,12 @@ namespace scripting::lua::engine
 		}
 	}
 
+	void stop()
+	{
+		notifies::clear_callbacks();
+		get_scripts().clear();
+	}
+
 	void start()
 	{
 		// No SP until there is a concept
@@ -52,25 +58,11 @@ namespace scripting::lua::engine
 		load_scripts("data/lua-scripts/");
 	}
 
-	void stop()
-	{
-		notifies::clear_callbacks();
-		get_scripts().clear();
-	}
-
 	void notify(const event& e)
 	{
 		for (auto& script : get_scripts())
 		{
 			script->notify(e);
-		}
-	}
-
-	void handle_endon_conditions(const event& e)
-	{
-		for (auto& script : get_scripts())
-		{
-			script->handle_endon_conditions(e);
 		}
 	}
 

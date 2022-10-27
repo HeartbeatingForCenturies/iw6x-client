@@ -6,6 +6,7 @@
 #include "game/scripting/functions.hpp"
 #include "game/scripting/event.hpp"
 #include "game/scripting/lua/engine.hpp"
+#include "game/scripting/execution.hpp"
 
 #include "scheduler.hpp"
 #include "scripting.hpp"
@@ -13,7 +14,6 @@
 #include "gsc/script_loading.hpp"
 
 #include <utils/hook.hpp>
-#include <utils/concurrency.hpp>
 
 namespace scripting
 {
@@ -28,7 +28,6 @@ namespace scripting
 		utils::hook::detour vm_notify_hook;
 		utils::hook::detour scr_load_level_hook;
 		utils::hook::detour g_shutdown_game_hook;
-		utils::hook::detour scr_run_current_threads_hook;
 
 		utils::hook::detour scr_set_thread_position_hook;
 		utils::hook::detour process_script_hook;
@@ -41,14 +40,10 @@ namespace scripting
 
 		std::unordered_map<unsigned int, std::string> canonical_string_table;
 
-		using notify_list = std::vector<event>;
-		utils::concurrency::container<notify_list> scheduled_notifies;
-
 		std::vector<std::function<void(int)>> shutdown_callbacks;
 		std::vector<std::function<void()>> init_callbacks;
 
-		void vm_notify_stub(const unsigned int notify_list_owner_id, const game::scr_string_t string_value,
-		                    game::VariableValue* top)
+		void vm_notify_stub(const unsigned int notify_list_owner_id, const unsigned int string_value, game::VariableValue* top)
 		{
 			const auto* string = game::SL_ConvertToString(string_value);
 			if (string)
@@ -62,23 +57,15 @@ namespace scripting
 					e.arguments.emplace_back(*value);
 				}
 
-				lua::engine::handle_endon_conditions(e);
-
-				scheduled_notifies.access([&](notify_list& list)
+				if (e.name == "connected")
 				{
-					list.push_back(e);
-				});
+					clear_entity_fields(e.entity);
+				}
+
+				lua::engine::notify(e);
 			}
 
 			vm_notify_hook.invoke<void>(notify_list_owner_id, string_value, top);
-		}
-
-		void clear_scheduled_notifies()
-		{
-			scheduled_notifies.access([](notify_list& list)
-			{
-				list.clear();
-			});
 		}
 
 		void scr_load_level_stub()
@@ -90,13 +77,11 @@ namespace scripting
 				callback();
 			}
 
-			clear_scheduled_notifies();
 			lua::engine::start();
 		}
 
 		void g_shutdown_game_stub(const int free_scripts)
 		{
-			clear_scheduled_notifies();
 			lua::engine::stop();
 
 			if (free_scripts)
@@ -112,23 +97,6 @@ namespace scripting
 			}
 
 			return g_shutdown_game_hook.invoke<void>(free_scripts);
-		}
-
-		void scr_run_current_threads_stub()
-		{
-			notify_list list_copy;
-			scheduled_notifies.access([&](notify_list& list)
-			{
-				list_copy = list;
-				list.clear();
-			});
-
-			for (const auto& e : list_copy)
-			{
-				lua::engine::notify(e);
-			}
-
-			scr_run_current_threads_hook.invoke<void>();
 		}
 
 		void process_script_stub(const char* filename)
@@ -260,7 +228,6 @@ namespace scripting
 			// SP address is wrong, but should be ok
 			scr_load_level_hook.create(SELECT_VALUE(0x14013D5D0, 0x1403C4E60), &scr_load_level_stub);
 			g_shutdown_game_hook.create(SELECT_VALUE(0x140318C10, 0x1403A0DF0), &g_shutdown_game_stub);
-			scr_run_current_threads_hook.create(SELECT_VALUE(0x1403DE860, 0x140439830), &scr_run_current_threads_stub);
 
 			scr_set_thread_position_hook.create(SELECT_VALUE(0x1403D3560, 0x14042E360), &scr_set_thread_position_stub);
 			process_script_hook.create(SELECT_VALUE(0x1403DC870, 0x1404378C0), &process_script_stub);

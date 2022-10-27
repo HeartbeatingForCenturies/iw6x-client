@@ -29,8 +29,6 @@ namespace scripting::lua
 
 		void run_frame();
 		void notify(const event& e);
-		void handle_endon_conditions(const event& e);
-
 		void collect_garbage();
 
 	private:

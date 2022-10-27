@@ -78,11 +78,12 @@ namespace scripting::lua
 		return {id};
 	}
 
-	void event_handler::add_endon_condition(const event_listener_handle& handle, const entity& entity, const std::string& event)
+	void event_handler::add_endon_condition(const event_listener_handle& handle, const entity& entity,
+			const std::string& event)
 	{
 		auto merger = [&](task_list& tasks)
 		{
-			for (auto& task : tasks)
+			for(auto& task : tasks)
 			{
 				if(task.id == handle.id)
 				{
@@ -158,7 +159,6 @@ namespace scripting::lua
 		};
 
 		callbacks_.access(deleter);
-		new_callbacks_.access(deleter);
 	}
 
 	event_arguments event_handler::build_arguments(const event& event) const

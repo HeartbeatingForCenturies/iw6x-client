@@ -86,9 +86,9 @@ namespace stats
 			return statsgroup;
 		}
 
-		std::vector<game::scr_string_t> parse_params_to_lookup_strings(const command::params& params, bool setData)
+		std::vector<unsigned int> parse_params_to_lookup_strings(const command::params& params, bool setData)
 		{
-			std::vector<game::scr_string_t> lookup_strings_vector{};
+			std::vector<unsigned int> lookup_strings_vector{};
 			int amount_lookup_strings{ params.size() };
 
 			//last param is a value if we're setting data.
@@ -115,7 +115,7 @@ namespace stats
 		void set_player_data_for_lookup_string(const char* lookup_string, 
 			const std::vector<std::tuple<const char*, const int>>& data, game::StatsGroup statsgroup)
 		{
-			game::scr_string_t nav_strings[2]{};
+			unsigned int nav_strings[2]{};
 
 			nav_strings[0] = game::SL_FindString(lookup_string);
 			for (int i = 0; i < data.size(); ++i)
@@ -128,7 +128,7 @@ namespace stats
 
 		void register_squadmembers_purchase()
 		{
-			game::scr_string_t nav_strings[2]{};
+			unsigned int nav_strings[2]{};
 			const game::StringTable* unlock_table{ nullptr };
 			game::StringTable_GetAsset("mp/unlocktable.csv", &unlock_table);
 
@@ -155,7 +155,7 @@ namespace stats
 
 		void unlock_all_squadmember(const int squadmember_index)
 		{
-			game::scr_string_t nav_strings[5]{};
+			unsigned int nav_strings[5]{};
 			const int amount_regular_loadouts{ 6 };
 			const game::StringTable* squad_unlocktable{ nullptr };
 			game::StringTable_GetAsset("mp/squadunlocktable.csv", &squad_unlocktable);
@@ -255,13 +255,12 @@ namespace stats
 				persistent_data_buffer, "prestigeLevel", 10, 0, game::STATSGROUP_RANKED);
 
 			//gives unlock points but not really necassary since everything is already unlocked
-			game::LiveStorage_PlayerDataSetIntByName(
-				controller_index, game::SL_FindString("unlockPoints"), 5000, game::StatsGroup::STATSGROUP_RANKED);
+			game::LiveStorage_PlayerDataSetIntByName(controller_index, game::SL_FindString("unlockPoints"), 5000, game::StatsGroup::STATSGROUP_RANKED);
 		}
 
 		void unlock_all_challenges()
 		{
-			game::scr_string_t nav_strings[2]{};
+			unsigned int nav_strings[2]{};
 			const game::StringTable* challenges_table{ nullptr };
 			game::StringTable_GetAsset("mp/allchallengestable.csv", &challenges_table);
 
@@ -362,12 +361,11 @@ namespace stats
 					return;
 				}
 
-				const std::vector<game::scr_string_t> lookup_strings_vector{ parse_params_to_lookup_strings(params, true) };
+				const std::vector lookup_strings_vector{parse_params_to_lookup_strings(params, true)};
 				const auto value = atoi(params.get(params.size() - 1));
-				const auto statsgroup{ get_statsgroup_for_lookup_string(params.get(1)) };
+				const auto statsgroup{get_statsgroup_for_lookup_string(params.get(1))};
 
-				game::LiveStorage_PlayerDataSetIntByNameArray(controller_index, 
-					&lookup_strings_vector[0], params.size() - 2, value, statsgroup);
+				game::LiveStorage_PlayerDataSetIntByNameArray(controller_index, &lookup_strings_vector[0], params.size() - 2, value, statsgroup);
 
 				//This is necessary for the stats to stick after closing the game
 				game::LiveStorage_StatsWriteNeeded(controller_index);
@@ -381,11 +379,10 @@ namespace stats
 					return;
 				}
 
-				const std::vector<game::scr_string_t> lookup_strings_vector{ parse_params_to_lookup_strings(params, false) };
+				const std::vector lookup_strings_vector{parse_params_to_lookup_strings(params, false)};
 				const auto statsgroup{ get_statsgroup_for_lookup_string(params.get(1)) };
 
-				const auto result{ game::LiveStorage_PlayerDataGetIntByNameArray(controller_index,
-					&lookup_strings_vector[0], params.size() - 1, statsgroup) };
+				const auto result{game::LiveStorage_PlayerDataGetIntByNameArray(controller_index, &lookup_strings_vector[0], params.size() - 1, statsgroup)};
 
 				console::info("%d\n", result);
 			});

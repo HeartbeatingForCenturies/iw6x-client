@@ -68,7 +68,7 @@ namespace notifies
 
 		std::string convert_mod(const int means_of_death)
 		{
-			const auto value = reinterpret_cast<game::scr_string_t**>(0x1409E6360)[means_of_death];
+			const auto value = reinterpret_cast<unsigned int**>(0x1409E6360)[means_of_death];
 			return game::SL_ConvertToString(*value);
 		}
 

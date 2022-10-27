@@ -235,9 +235,9 @@ namespace gsc
 			return game::DB_IsXAssetDefault(type, name);
 		}
 
-		void gscr_post_load_scripts_stub()
+		void gscr_load_game_type_script_stub()
 		{
-			utils::hook::invoke<void>(0x1403C3EC0);
+			utils::hook::invoke<void>(0x1403CCB10);
 
 			clear();
 
@@ -352,7 +352,7 @@ namespace gsc
 			utils::hook::call(0x1404378E7, db_is_x_asset_default);
 
 			// GScr_LoadScripts
-			utils::hook::call(0x1403CD088, gscr_post_load_scripts_stub);
+			utils::hook::call(0x1403CD009, gscr_load_game_type_script_stub);
 
 			// Load our scripts with an uncompressed stack
 			utils::hook::call(0x140437940, db_get_raw_buffer_stub);

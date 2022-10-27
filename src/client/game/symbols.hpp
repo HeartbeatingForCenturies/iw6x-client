@@ -22,7 +22,7 @@ namespace game
 
 	WEAK symbol<void()> Com_Frame_Try_Block_Function{0x1403BC980, 0x1404131A0};
 	WEAK symbol<const char*(char const**)> Com_Parse{0x1404313E0, 0x1404F50E0};
-	WEAK symbol<void (errorParm code, const char* message, ...)> Com_Error{0x1403BBFF0, 0x140412740};
+	WEAK symbol<void(errorParm code, const char* message, ...)> Com_Error{0x1403BBFF0, 0x140412740};
 	WEAK symbol<void()> Com_Quit{0x1403BDDD0, 0x140414920};
 	WEAK symbol<CodPlayMode()> Com_GetCurrentCoDPlayMode{0, 0x1404f6140};
 	WEAK symbol<void(float, float, int)> Com_SetSlowMotion{0, 0x1404158C0};
@@ -111,28 +111,19 @@ namespace game
 
 	WEAK symbol<unsigned int (int)> Live_SyncOnlineDataFlags{0, 0x1405ABF70};
 
-	WEAK symbol<bool(const int controllerIndex, const scr_string_t name, int value, const StatsGroup statsGroup)>
-	LiveStorage_PlayerDataSetIntByName{0x1403B8C20, 0x140404730};
-	WEAK symbol<bool(uint8_t* const persistentData, const char* lookupString, const int value,
-		uint8_t* modifiedFlags, const StatsGroup statsGroup)>
-	LiveStorage_PlayerDataSetReservedInt{0x1403B8D00, 0x140404820};
-	WEAK symbol<int64_t(uint8_t* const persistentData, const char* lookupString, const StatsGroup statsGroup)>
-	LiveStorage_PlayerDataGetReservedInt{0x1403B84F0, 0x140403CF0};
-	WEAK symbol<bool(const int controllerIndex, const scr_string_t* navStrings, const int navStringCount,
-	                 int value, const StatsGroup statsGroup)>
-	LiveStorage_PlayerDataSetIntByNameArray{0, 0x140404640};
-	WEAK symbol<int(const int controllerIndex, const scr_string_t* navStrings, const int navStringCount,
-		            const StatsGroup statsGroup)>
-	LiveStorage_PlayerDataGetIntByNameArray{0, 0x140403B80};
-	WEAK symbol<int(const int controllerIndex, const scr_string_t name, const StatsGroup statsGroup)>
-	LiveStorage_PlayerDataGetIntByName{0x1403B8460, 0x140403C40};
-	WEAK symbol<uint8_t*(const int controllerIndex)>LiveStorage_GetPersistentDataBuffer{0x1403B6F80, 0x140400170};
-	WEAK symbol<void(const int controllerIndex)>LiveStorage_StatsWriteNeeded{0x1403BA400, 0x1404090E0};
+	WEAK symbol<bool(int controllerIndex, unsigned int name, int value, StatsGroup statsGroup)> LiveStorage_PlayerDataSetIntByName{0x1403B8C20, 0x140404730};
+	WEAK symbol<bool(std::uint8_t* persistentData, const char* lookupString, int value, std::uint8_t* modifiedFlags, StatsGroup statsGroup)> LiveStorage_PlayerDataSetReservedInt{0x1403B8D00, 0x140404820};
+	WEAK symbol<std::int64_t(std::uint8_t* persistentData, const char* lookupString, const StatsGroup statsGroup)> LiveStorage_PlayerDataGetReservedInt{0x1403B84F0, 0x140403CF0};
+	WEAK symbol<bool(int controllerIndex, const unsigned int* navStrings, int navStringCount, int value, StatsGroup statsGroup)> LiveStorage_PlayerDataSetIntByNameArray{0, 0x140404640};
+	WEAK symbol<int(int controllerIndex, const unsigned int* navStrings, int navStringCount, StatsGroup statsGroup)> LiveStorage_PlayerDataGetIntByNameArray{0, 0x140403B80};
+	WEAK symbol<int(int controllerIndex, unsigned int name, StatsGroup statsGroup)> LiveStorage_PlayerDataGetIntByName{0x1403B8460, 0x140403C40};
+	WEAK symbol<std::uint8_t*(int controllerIndex)>LiveStorage_GetPersistentDataBuffer{0x1403B6F80, 0x140400170};
+	WEAK symbol<void(int controllerIndex)> LiveStorage_StatsWriteNeeded{0x1403BA400, 0x1404090E0};
 
-	WEAK symbol<BOOL(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)>MainWndProc{0x14043E6A0, 0x140504A00};
-	WEAK symbol<void()>IN_MouseMove{0x140438840, 0x1404FC7B0};
-	WEAK symbol<void()>IN_RecenterMouse{0x1404389E0, 0x1404FC950};
-	WEAK symbol<int(int x, int y, int dx, int dy)>CL_MouseEvent{0x14023B8E0, 0x1402C12A0};
+	WEAK symbol<BOOL(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)> MainWndProc{0x14043E6A0, 0x140504A00};
+	WEAK symbol<void()> IN_MouseMove{0x140438840, 0x1404FC7B0};
+	WEAK symbol<void()> IN_RecenterMouse{0x1404389E0, 0x1404FC950};
+	WEAK symbol<int(int x, int y, int dx, int dy)> CL_MouseEvent{0x14023B8E0, 0x1402C12A0};
 
 	WEAK symbol<StructuredDataDef*(const char* filename, unsigned int maxSize)>StructuredDataDef_GetAsset{0, 0x1404E6560};
 	WEAK symbol<StringTable*(const char* fileName, const StringTable** tablePtr)>StringTable_GetAsset{0, 0x1404E6170};
@@ -166,11 +157,8 @@ namespace game
 	WEAK symbol<void()> GScr_LoadConsts{0x140367AA0, 0x1403E0420};
 	WEAK symbol<unsigned int(unsigned int parentId, unsigned int name)> FindVariable{0x1403D84F0, 0x1404334A0};
 	WEAK symbol<unsigned int(int entnum, unsigned int classnum)> FindEntityId{0, 0x1404333A0};
-	WEAK symbol<scr_string_t(unsigned int parentId, unsigned int id)> GetVariableName{0x1403D8E90, 0x140433E60};
-	WEAK symbol<unsigned int(unsigned int parentId, unsigned int unsignedValue)> GetVariable{0x1403D8DE0, 0x140433DB0};
+	WEAK symbol<unsigned int(unsigned int parentId, unsigned int id)> GetVariableName{0x1403D8E90, 0x140433E60};
 	WEAK symbol<void (VariableValue* result, unsigned int classnum, int entnum, int offset)> GetEntityFieldValue{0x1403DC810, 0x140437860};
-	WEAK symbol<unsigned int(unsigned int parentId, unsigned int unsignedValue)> GetNewArrayVariable{0x1403D88C0 , 0x140433880};
-	WEAK symbol<unsigned int(unsigned int parentId, unsigned int name)> GetNewVariable{0x1403D8A20, 0x1404339E0};
 	WEAK symbol<const float*(const float* v)> Scr_AllocVector{0x1403D9AF0, 0x140434A10};
 	WEAK symbol<const char*(unsigned int index)> Scr_GetString{0, 0x140439160};
 	WEAK symbol<void(int value)> Scr_AddInt{0x0, 0x140437E70};
@@ -180,7 +168,7 @@ namespace game
 	WEAK symbol<void()> Scr_ClearOutParams{0x1403DD500, 0x140438600};
 	WEAK symbol<scr_entref_t(unsigned int entId)> Scr_GetEntityIdRef{0x1403DBDC0, 0x140436E10};
 	WEAK symbol<int(unsigned int classnum, int entnum, int offset)> Scr_SetObjectField{0x140350E70, 0x1403D3FE0};
-	WEAK symbol<void(unsigned int id, scr_string_t stringValue, unsigned int paramcount)> Scr_NotifyId{0x1403DE730, 0x140439700};
+	WEAK symbol<void(unsigned int id, unsigned int stringValue, unsigned int paramcount)> Scr_NotifyId{0x1403DE730, 0x140439700};
 	WEAK symbol<unsigned int(int entnum, unsigned int classnum)> Scr_GetEntityId{0x0, 0x140436D60};
 	WEAK symbol<bool(VariableValue* value)> Scr_CastString{0x0, 0x140434AC0};
 
@@ -196,10 +184,10 @@ namespace game
 
 	WEAK symbol<const char*(const char*)> SEH_StringEd_GetString{0, 0x1404A5F60};
 
-	WEAK symbol<const char*(scr_string_t stringValue)> SL_ConvertToString{0x1403D6870, 0x1404317F0};
-	WEAK symbol<scr_string_t(const char* str, unsigned int user)> SL_GetString{0x1403D6CD0, 0x140431C70};
-	WEAK symbol<scr_string_t(int)> SL_GetStringForInt{0x1403D6D50, 0x140431CF0};
-	WEAK symbol<scr_string_t(const char* str)> SL_FindString{0x1403D6AF0, 0x140431A90};
+	WEAK symbol<const char*(unsigned int stringValue)> SL_ConvertToString{0x1403D6870, 0x1404317F0};
+	WEAK symbol<unsigned int(const char* str, unsigned int user)> SL_GetString{0x1403D6CD0, 0x140431C70};
+	WEAK symbol<unsigned int(int)> SL_GetStringForInt{0x1403D6D50, 0x140431CF0};
+	WEAK symbol<unsigned int(const char* str)> SL_FindString{0x1403D6AF0, 0x140431A90};
 	WEAK symbol<unsigned int(char const* str)> SL_GetCanonicalString{0x1403D36F0, 0x14042E4F0};
 
 	WEAK symbol<void(int arg, char* buffer, int bufferLength)> SV_Cmd_ArgvBuffer{0x1403B4560, 0x1403F80D0};

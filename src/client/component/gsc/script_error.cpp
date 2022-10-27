@@ -61,7 +61,7 @@ namespace gsc
 
 		std::string get_filename_name()
 		{
-			const auto filename_str = game::SL_ConvertToString(static_cast<game::scr_string_t>(current_filename));
+			const auto filename_str = game::SL_ConvertToString(current_filename);
 			const auto id = std::atoi(filename_str);
 			if (!id)
 			{
