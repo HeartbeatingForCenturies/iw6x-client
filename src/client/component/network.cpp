@@ -1,5 +1,6 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game/game.hpp"
 
 #include "command.hpp"
 #include "network.hpp"
@@ -29,7 +30,7 @@ namespace network
 				return false;
 			}
 
-			const std::string_view data(message->data + offset, message->cursize - offset);
+			const std::string data(message->data + offset, message->cursize - offset);
 
 			handler->second(*address, data);
 			return true;
@@ -277,11 +278,10 @@ namespace network
 				utils::hook::call(0x140500FD0, register_netport_stub);
 
 				// ignore built in "print" oob command and add in our own
-				utils::hook::set<uint8_t>(0x1402C6AA4, 0xEB);
-				on("print", [](const game::netadr_s&, const std::string_view& data)
+				utils::hook::set<std::uint8_t>(0x1402C6AA4, 0xEB);
+				on("print", [](const game::netadr_s&, const std::string& data)
 				{
-					const std::string message{data};
-					console::info(message.data());
+					console::info("%s", data.data());
 				});
 			}
 		}

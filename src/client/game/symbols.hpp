@@ -195,40 +195,40 @@ namespace game
 	WEAK symbol<void()> SV_Cmd_EndTokenizedString{0, 0x1403F8110};
 	WEAK symbol<void()> SV_MatchEnd{0x0, 0x14047A090};
 
-	WEAK symbol<void (netadr_s* from)> SV_DirectConnect{0, 0x140471390};
-	WEAK symbol<void (int, int, const char*)> SV_GameSendServerCommand{0x140490F40, 0x1404758C0};
-	WEAK symbol<bool ()> SV_Loaded{0x140491820, 0x1404770C0};
-	WEAK symbol<void (int localClientNum, const char* map, bool mapIsPreloaded)> SV_StartMap{0, 0x140470170};
-	WEAK symbol<void (int localClientNum, const char* map, bool mapIsPreloaded, bool migrate)> SV_StartMapForParty{0, 0x1404702F0};
+	WEAK symbol<void(netadr_s* from)> SV_DirectConnect{0, 0x140471390};
+	WEAK symbol<void(int, int, const char*)> SV_GameSendServerCommand{0x140490F40, 0x1404758C0};
+	WEAK symbol<bool()> SV_Loaded{0x140491820, 0x1404770C0};
+	WEAK symbol<void(int localClientNum, const char* map, bool mapIsPreloaded)> SV_StartMap{0, 0x140470170};
+	WEAK symbol<void(int localClientNum, const char* map, bool mapIsPreloaded, bool migrate)> SV_StartMapForParty{0, 0x1404702F0};
 
 	WEAK symbol<mp::gentity_s*(const char*, unsigned int, unsigned int, unsigned int)> SV_AddBot{0, 0x140470920};
-	WEAK symbol<bool (int clientNum)> SV_BotIsBot{0, 0x140461340};
-	WEAK symbol<const char* ()> SV_BotGetRandomName{0, 0x140460B80};
+	WEAK symbol<bool(int clientNum)> SV_BotIsBot{0, 0x140461340};
+	WEAK symbol<const char*()> SV_BotGetRandomName{0, 0x140460B80};
 	WEAK symbol<void(mp::gentity_s*)> SV_SpawnTestClient{0, 0x1404740A0};
 
-	WEAK symbol<void (mp::client_t*, const char*, int)> SV_ExecuteClientCommand{0, 0x140472430};
-	WEAK symbol<void ()> SV_FastRestart{0x14048B890, 0x14046F440};
+	WEAK symbol<void(mp::client_t*, const char*, int)> SV_ExecuteClientCommand{0, 0x140472430};
+	WEAK symbol<void()> SV_FastRestart{0x14048B890, 0x14046F440};
 	WEAK symbol<playerState_s*(int num)> SV_GetPlayerstateForClientNum{0x140490F80, 0x140475A10};
 	WEAK symbol<const char*(int clientNum)> SV_GetGuid{0, 0x140475990};
-	WEAK symbol<void (int clientNum, const char* reason)> SV_KickClientNum{0, 0x14046F730};
-	WEAK symbol<void (int index, const char* string)> SV_SetConfigstring{0, 0x140477450};
+	WEAK symbol<void(int clientNum, const char* reason)> SV_KickClientNum{0, 0x14046F730};
+	WEAK symbol<void(int index, const char* string)> SV_SetConfigstring{0, 0x140477450};
 
-	WEAK symbol<void (const char* error, ...)> Sys_Error{0x14043AC20, 0x1404FF510};
-	WEAK symbol<bool ()> Sys_IsDatabaseReady2{0x1403C2D40, 0x140423920};
-	WEAK symbol<int ()> Sys_Milliseconds{0x14043D2A0, 0x140501CA0};
+	WEAK symbol<void(const char* error, ...)> Sys_Error{0x14043AC20, 0x1404FF510};
+	WEAK symbol<bool()> Sys_IsDatabaseReady2{0x1403C2D40, 0x140423920};
+	WEAK symbol<int()> Sys_Milliseconds{0x14043D2A0, 0x140501CA0};
 	WEAK symbol<void()> Sys_ShowConsole{0x14043E650, 0x140503130};
-	WEAK symbol<bool (int, void const*, const netadr_s*)> Sys_SendPacket{0x14043D000, 0x140501A00};
+	WEAK symbol<bool(int, void const*, const netadr_s*)> Sys_SendPacket{0x14043D000, 0x140501A00};
 	WEAK symbol<void*(int valueIndex)> Sys_GetValue{0x1403C2C30, 0x1404237D0};
 	WEAK symbol<bool()> Sys_IsMainThread{0x1478FC470, 0x140423950};
 
-	WEAK symbol<void ()> SwitchToCoreMode{0, 0x1401FA4A0};
-	WEAK symbol<void ()> SwitchToAliensMode{0, 0x1401FA4D0};
-	WEAK symbol<void ()> SwitchToSquadVsSquadMode{0, 0x1401FA500};
+	WEAK symbol<void()> SwitchToCoreMode{0, 0x1401FA4A0};
+	WEAK symbol<void()> SwitchToAliensMode{0, 0x1401FA4D0};
+	WEAK symbol<void()> SwitchToSquadVsSquadMode{0, 0x1401FA500};
 
 	WEAK symbol<const char*(const char*)> UI_LocalizeMapname{0, 0x1404B96D0};
 	WEAK symbol<const char*(const char*)> UI_LocalizeGametype{0, 0x1404B90F0};
 
-	WEAK symbol<DWOnlineStatus (int)> dwGetLogOnStatus{0, 0x140589490};
+	WEAK symbol<DWOnlineStatus(int)> dwGetLogOnStatus{0, 0x140589490};
 
 	WEAK symbol<void(pmove_t* move, trace_t*, const float*, const float*,
 		const Bounds*, int, int)> PM_playerTrace{0x14046C910, 0x140225C20};

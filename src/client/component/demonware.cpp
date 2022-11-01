@@ -217,12 +217,12 @@ namespace demonware
 				return;
 			}
 
-			char buffer[2048];
+			char buffer[2048]{};
 
 			va_list ap;
 			va_start(ap, msg);
 
-			vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, msg, ap);
+			vsnprintf_s(buffer, _TRUNCATE, msg, ap);
 			printf("%s: %s\n", function, buffer);
 
 			va_end(ap);

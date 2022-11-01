@@ -3,6 +3,7 @@
 #include "game/game.hpp"
 
 #include "command.hpp"
+#include "console.hpp"
 #include "scheduler.hpp"
 #include "party.hpp"
 #include "network.hpp"
@@ -104,7 +105,7 @@ namespace bots
 			game::netadr_s master{};
 			if (server_list::get_master_server(master))
 			{
-				printf("Getting bots...\n");
+				console::info("Getting bots...\n");
 				network::send(master, "getbots");
 			}
 		}
@@ -146,12 +147,12 @@ namespace bots
 				scheduler::loop(update_bot_names, scheduler::main, 1h);
 			}, scheduler::main);
 
-			network::on("getbotsResponse", [](const game::netadr_s& target, const std::string_view& data)
+			network::on("getbotsResponse", [](const game::netadr_s& target, const std::string& data)
 			{
 				game::netadr_s master{};
 				if (server_list::get_master_server(master) && !bot_names_received && target == master)
 				{
-					bot_names = utils::string::split(std::string(data), '\n');
+					bot_names = utils::string::split(data, '\n');
 					bot_names_received = true;
 				}
 			});

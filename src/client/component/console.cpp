@@ -1,8 +1,9 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "game/game.hpp"
-#include "scheduler.hpp"
+
 #include "console.hpp"
+#include "game_console.hpp"
 
 #include "component/command.hpp"
 
@@ -12,11 +13,6 @@
 #include <utils/concurrency.hpp>
 #include <utils/flags.hpp>
 #include <utils/hook.hpp>
-
-namespace game_console
-{
-	void print(int type, const std::string& data);
-}
 
 namespace console
 {
@@ -42,10 +38,10 @@ namespace console
 		{
 			static thread_local char buffer[0x1000];
 
-			const auto count = _vsnprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, *ap);
+			const auto count = vsnprintf_s(buffer, _TRUNCATE, message, *ap);
 
 			if (count < 0) return {};
-			return { buffer, static_cast<size_t>(count) };
+			return {buffer, static_cast<size_t>(count)};
 		}
 
 		void dispatch_message(const int type, const std::string& message)
@@ -115,7 +111,7 @@ namespace console
 
 			messages.access([&](message_queue& msgs)
 			{
-				msgs = {};
+				msgs = std::queue<std::string>();
 			});
 		}
 
@@ -183,7 +179,6 @@ namespace console
 
 		void log_messages()
 		{
-			/*while*/
 			if (this->console_initialized_ && !messages.get_raw().empty())
 			{
 				std::queue<std::string> message_queue_copy;
@@ -192,7 +187,7 @@ namespace console
 					messages.access([&](message_queue& msgs)
 					{
 						message_queue_copy = std::move(msgs);
-						msgs = {};
+						msgs = std::queue<std::string>();
 					});
 				}
 

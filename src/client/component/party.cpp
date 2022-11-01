@@ -291,7 +291,7 @@ namespace party
 			{
 				if (!connect_state.hostDefined)
 				{
-					printf("Cannot connect to server.\n");
+					console::info("Cannot connect to server.\n");
 					return;
 				}
 				
@@ -421,9 +421,8 @@ namespace party
 				const auto message = params.join(2);
 				const auto* const name = game::Dvar_FindVar("sv_sayName")->current.string;
 
-				game::SV_GameSendServerCommand(client_num, 0,
-				                               utils::string::va("%c \"%s: %s\"", 84, name, message.data()));
-				printf("%s -> %i: %s\n", name, client_num, message.data());
+				game::SV_GameSendServerCommand(client_num, 0, utils::string::va("%c \"%s: %s\"", 84, name, message.data()));
+				console::info("%s -> %i: %s\n", name, client_num, message.data());
 			});
 
 			command::add("tellraw", [](const command::params& params)
@@ -437,7 +436,7 @@ namespace party
 				const auto message = params.join(2);
 
 				game::SV_GameSendServerCommand(client_num, 0, utils::string::va("%c \"%s\"", 84, message.data()));
-				printf("%i: %s\n", client_num, message.data());
+				console::info("%i: %s\n", client_num, message.data());
 			});
 
 			command::add("say", [](const command::params& params)
@@ -450,9 +449,8 @@ namespace party
 				const auto message = params.join(1);
 				const auto* const name = game::Dvar_FindVar("sv_sayName")->current.string;
 
-				game::SV_GameSendServerCommand(
-					-1, 0, utils::string::va("%c \"%s: %s\"", 84, name, message.data()));
-				printf("%s: %s\n", name, message.data());
+				game::SV_GameSendServerCommand(-1, 0, utils::string::va("%c \"%s: %s\"", 84, name, message.data()));
+				console::info("%s: %s\n", name, message.data());
 			});
 
 			command::add("sayraw", [](const command::params& params)
@@ -465,13 +463,13 @@ namespace party
 				const auto message = params.join(1);
 
 				game::SV_GameSendServerCommand(-1, 0, utils::string::va("%c \"%s\"", 84, message.data()));
-				printf("%s\n", message.data());
+				console::info("%s\n", message.data());
 			});
 
-			network::on("getInfo", [](const game::netadr_s& target, const std::string_view& data)
+			network::on("getInfo", [](const game::netadr_s& target, const std::string& data)
 			{
-				utils::info_string info{};
-				info.set("challenge", std::string{data});
+				utils::info_string info;
+				info.set("challenge", data);
 				info.set("gamename", "IW6");
 				info.set("hostname", get_dvar_string("sv_hostname"));
 				info.set("gametype", get_dvar_string("g_gametype"));
@@ -489,9 +487,9 @@ namespace party
 				network::send(target, "infoResponse", info.build(), '\n');
 			});
 
-			network::on("infoResponse", [](const game::netadr_s& target, const std::string_view& data)
+			network::on("infoResponse", [](const game::netadr_s& target, const std::string& data)
 			{
-				const utils::info_string info{data};
+				const utils::info_string info(data);
 				server_list::handle_info_response(target, info);
 
 				if (connect_state.host != target)
@@ -501,28 +499,28 @@ namespace party
 
 				if (info.get("challenge") != connect_state.challenge)
 				{
-					printf("Invalid challenge.\n");
+					console::info("Invalid challenge.\n");
 					return;
 				}
 
 				const auto mapname = info.get("mapname");
 				if (mapname.empty())
 				{
-					printf("Invalid map.\n");
+					console::info("Invalid map.\n");
 					return;
 				}
 
 				const auto gametype = info.get("gametype");
 				if (gametype.empty())
 				{
-					printf("Invalid gametype.\n");
+					console::info("Invalid gametype.\n");
 					return;
 				}
 
 				const auto gamename = info.get("gamename");
 				if (gamename != "IW6"s)
 				{
-					printf("Invalid gamename.\n");
+					console::info("Invalid gamename.\n");
 					return;
 				}
 
