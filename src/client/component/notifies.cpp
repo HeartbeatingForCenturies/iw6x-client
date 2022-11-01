@@ -8,6 +8,7 @@
 
 #include <utils/hook.hpp>
 
+#include "command.hpp"
 #include "notifies.hpp"
 #include "scripting.hpp"
 #include "scheduler.hpp"
@@ -151,34 +152,47 @@ namespace notifies
 
 		void client_command_stub(const int client_num)
 		{
-			auto self = &game::mp::g_entities[client_num];
-
-			if (!self->client)
+			if (game::mp::g_entities[client_num].client == nullptr)
 			{
 				return;
 			}
 
-			char cmd[1024]{};
-			game::SV_Cmd_ArgvBuffer(0, cmd, sizeof(cmd));
+			command::params_sv params;
 
-			if (cmd == "say"s || cmd == "say_team"s)
+			if (params[0] == "say"s || params[0] == "say_team"s)
 			{
+				std::string message(params.get(1));
+
+				auto msg_index = 0;
+				if (message[msg_index] == '\x15')
+				{
+					msg_index = 1;
+				}
+
 				auto hidden = false;
-				std::string message(game::ConcatArgs(1));
+				if (message[msg_index] == '/')
+				{
+					hidden = true;
 
-				hidden = message[1] == '/';
-				message.erase(0, hidden ? 2 : 1);
+					if (msg_index == 1)
+					{
+						// Overwrite / with \x15 only if present
+						message[msg_index] = message[msg_index - 1];
+					}
+					// Skip over the first character
+					message.erase(message.begin());
+				}
 
-				scheduler::once([cmd, message, self]()
+				scheduler::once([params, message, client_num]
 				{
 					const scripting::entity level{*game::levelEntityId};
-					const auto player = scripting::call("getEntByNum", {self->s.number}).as<scripting::entity>();
+					const auto player = scripting::call("getEntByNum", {client_num}).as<scripting::entity>();
 
-					notify(level, cmd, {player, message});
-					notify(player, cmd, {message});
+					notify(level, params[0], {player, message});
+					notify(player, params[0], {message});
 
 					game_log::g_log_printf("%s;%s;%i;%s;%s\n",
-						cmd,
+						params[0],
 						player.call("getguid").as<const char*>(),
 						player.call("getentitynumber").as<int>(),
 						player.get("name").as<const char*>(),
