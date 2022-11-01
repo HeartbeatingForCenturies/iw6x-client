@@ -6,13 +6,13 @@
 #include "game/scripting/lua/value_conversion.hpp"
 #include "game/scripting/lua/error.hpp"
 
-#include <utils/hook.hpp>
-
 #include "command.hpp"
 #include "notifies.hpp"
 #include "scripting.hpp"
 #include "scheduler.hpp"
 #include "game_log.hpp"
+
+#include <utils/hook.hpp>
 
 namespace notifies
 {
