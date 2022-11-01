@@ -68,7 +68,7 @@ namespace notifies
 
 		std::string convert_mod(const int means_of_death)
 		{
-			const auto value = reinterpret_cast<game::scr_string_t**>(0x1409E6360)[means_of_death];
+			const auto value = reinterpret_cast<unsigned int**>(0x1409E6360)[means_of_death];
 			return game::SL_ConvertToString(*value);
 		}
 
@@ -174,8 +174,8 @@ namespace notifies
 					const scripting::entity level{*game::levelEntityId};
 					const auto player = scripting::call("getEntByNum", {self->s.number}).as<scripting::entity>();
 
-					scripting::notify(level, cmd, {player, message});
-					scripting::notify(player, cmd, {message});
+					notify(level, cmd, {player, message});
+					notify(player, cmd, {message});
 
 					game_log::g_log_printf("%s;%s;%i;%s;%s\n",
 						cmd,
@@ -195,15 +195,6 @@ namespace notifies
 
 			// ClientCommand
 			utils::hook::invoke<void>(0x1403929B0, client_num);
-		}
-
-		void g_shutdown_game_stub(const int freeScripts)
-		{
-			const scripting::entity level{*game::levelEntityId};
-			scripting::notify(level, "shutdownGame_called", {1});
-
-			// G_ShutdownGame
-			return reinterpret_cast<void(*)(int)>(0x1403A0DF0)(freeScripts);
 		}
 
 		unsigned int local_id_to_entity(unsigned int local_id)
@@ -355,9 +346,6 @@ namespace notifies
 			scr_player_damage_hook.create(0x1403CE0C0, scr_player_damage_stub);
 			scr_player_killed_hook.create(0x1403CE260, scr_player_killed_stub);
 
-			utils::hook::call(0x140475CD0, g_shutdown_game_stub);
-			utils::hook::call(0x140476181, g_shutdown_game_stub);
-
 			utils::hook::jump(0x14043A584, utils::hook::assemble(vm_execute_stub), true);
 
 			scripting::on_shutdown([](bool free_scripts)
@@ -366,6 +354,9 @@ namespace notifies
 				{
 					vm_execute_hooks.clear();
 				}
+
+				const scripting::entity level{*game::levelEntityId};
+				scripting::notify(level, "shutdownGame_called", {free_scripts});
 			});
 		}
 	};

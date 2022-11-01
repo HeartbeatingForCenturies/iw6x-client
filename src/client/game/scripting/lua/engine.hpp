@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../event.hpp"
+#include "game/scripting/event.hpp"
 
 namespace scripting::lua::engine
 {

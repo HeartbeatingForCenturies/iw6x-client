@@ -1,10 +1,13 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game/game.hpp"
+
 #include "command.hpp"
+#include "console.hpp"
 #include "scheduler.hpp"
+
 #include <utils/hook.hpp>
 #include <utils/string.hpp>
-#include "game/game.hpp"
 
 namespace map_rotation
 {
@@ -100,7 +103,7 @@ namespace map_rotation
 				}
 				else
 				{
-					printf("Invalid map rotation key: %s\n", key.data());
+					console::info("Invalid map rotation key: %s\n", key.data());
 				}
 			}
 

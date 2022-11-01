@@ -1,11 +1,12 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game/game.hpp"
+#include "game/dvars.hpp"
+
 #include "command.hpp"
 #include "console.hpp"
 #include "game_console.hpp"
-
-#include "game/game.hpp"
-#include "game/dvars.hpp"
+#include "fastfiles.hpp"
 
 #include <utils/hook.hpp>
 #include <utils/string.hpp>
@@ -27,14 +28,20 @@ namespace command
 			params params = {};
 
 			const auto command = utils::string::to_lower(params[0]);
-			if (handlers.find(command) != handlers.end())
+			if (const auto itr = handlers.find(command); itr != handlers.end())
 			{
-				handlers[command](params);
+				itr->second(params);
 			}
 		}
 
-		void client_command(const int client_num, void* a2)
+		void client_command(const int client_num)
 		{
+			if (game::mp::g_entities[client_num].client == nullptr)
+			{
+				// Client is not fully connected
+				return;
+			}
+
 			params_sv params = {};
 
 			const auto command = utils::string::to_lower(params[0]);
@@ -43,7 +50,7 @@ namespace command
 				handlers_sv[command](client_num, params);
 			}
 
-			client_command_hook.invoke<void>(client_num, a2);
+			client_command_hook.invoke<void>(client_num);
 		}
 
 		// Shamelessly stolen from Quake3
@@ -193,8 +200,10 @@ namespace command
 	{
 		const auto command = utils::string::to_lower(name);
 
-		if (handlers.find(command) == handlers.end())
+		if (!handlers.contains(command))
+		{
 			add_raw(name, main_handler);
+		}
 
 		handlers[command] = callback;
 	}
@@ -207,15 +216,17 @@ namespace command
 		});
 	}
 
-	void add_sv(const char* name, std::function<void(int, const params_sv&)> callback)
+	void add_sv(const char* name, const std::function<void(int, const params_sv&)>& callback)
 	{
 		// doing this so the sv command would show up in the console
 		add_raw(name, nullptr);
 
 		const auto command = utils::string::to_lower(name);
 
-		if (handlers_sv.find(command) == handlers_sv.end())
-			handlers_sv[command] = std::move(callback);
+		if (!handlers_sv.contains(command))
+		{
+			handlers_sv[command] = callback;
+		}
 	}
 
 	void execute(std::string command, const bool sync)
@@ -230,15 +241,6 @@ namespace command
 		{
 			game::Cbuf_AddText(0, command.data());
 		}
-	}
-
-	void enum_assets(const game::XAssetType type, const std::function<void(game::XAssetHeader)>& callback, const bool includeOverride)
-	{
-		game::DB_EnumXAssets_Internal(type, static_cast<void(*)(game::XAssetHeader, void*)>([](game::XAssetHeader header, void* data)
-			{
-				const auto& cb = *static_cast<const std::function<void(game::XAssetHeader)>*>(data);
-				cb(header);
-			}), &callback, includeOverride);
 	}
 
 	class component final : public component_interface
@@ -351,7 +353,7 @@ namespace command
 
 					auto total_assets = 0;
 					const std::string filter = params.get(2);
-					enum_assets(type, [type, &total_assets, filter](const game::XAssetHeader header)
+					fastfiles::enum_assets(type, [type, &total_assets, filter](const game::XAssetHeader header)
 					{
 						const game::XAsset asset{ type, header };
 						const auto* const asset_name = game::DB_GetXAssetName(&asset);

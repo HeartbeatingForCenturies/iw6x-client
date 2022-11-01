@@ -1,8 +1,11 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game/game.hpp"
+#include "steam/steam.hpp"
 
 #include "auth.hpp"
 #include "command.hpp"
+#include "console.hpp"
 #include "network.hpp"
 
 #include <utils/hook.hpp>
@@ -10,9 +13,6 @@
 #include <utils/smbios.hpp>
 #include <utils/info_string.hpp>
 #include <utils/cryptography.hpp>
-
-#include "game/game.hpp"
-#include "steam/steam.hpp"
 
 namespace auth
 {
@@ -217,9 +217,9 @@ namespace auth
 				utils::hook::call(0x1402C4F8E, send_connect_data_stub);
 			}
 
-			command::add("guid", []()
+			command::add("guid", []
 			{
-				printf("Your guid: %llX\n", steam::SteamUser()->GetSteamID().bits);
+				console::info("Your guid: %llX\n", steam::SteamUser()->GetSteamID().bits);
 			});
 		}
 	};

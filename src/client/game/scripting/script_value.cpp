@@ -180,7 +180,7 @@ namespace scripting
 	template <>
 	const char* script_value::get() const
 	{
-		return game::SL_ConvertToString(static_cast<game::scr_string_t>(this->get_raw().u.stringValue));
+		return game::SL_ConvertToString(this->get_raw().u.stringValue);
 	}
 
 	template <>

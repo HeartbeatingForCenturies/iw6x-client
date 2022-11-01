@@ -814,11 +814,6 @@ namespace game
 		STATS_COUNT = 0x1,
 	};
 
-	enum scr_string_t
-	{
-		scr_string_t_dummy = 0x0,
-	};
-
 	enum StructuredDataTypeCategory
 	{
 		DATA_INT = 0x0,
@@ -857,7 +852,7 @@ namespace game
 
 	struct StructuredDataEnumEntry
 	{
-		scr_string_t name;
+		unsigned int name;
 		unsigned __int16 index;
 	};
 
@@ -885,7 +880,7 @@ namespace game
 
 	struct StructuredDataStructProperty
 	{
-		scr_string_t name;
+		unsigned int name;
 		StructuredDataType item;
 		int offset;
 		int validation;
@@ -1806,13 +1801,13 @@ namespace game
 		void** szXAnimsRightHanded;
 		void** szXAnimsLeftHanded;
 		const char* szModeName;
-		scr_string_t* notetrackSoundMapKeys;
-		scr_string_t* notetrackSoundMapValues;
-		scr_string_t* notetrackRumbleMapKeys;
-		scr_string_t* notetrackRumbleMapValues;
-		scr_string_t* notetrackFXMapKeys;
+		unsigned int* notetrackSoundMapKeys;
+		unsigned int* notetrackSoundMapValues;
+		unsigned int* notetrackRumbleMapKeys;
+		unsigned int* notetrackRumbleMapValues;
+		unsigned int* notetrackFXMapKeys;
 		const void** notetrackFXMapValues;
-		scr_string_t* notetrackFXMapTagValues;
+		unsigned int* notetrackFXMapTagValues;
 		int playerAnimType;
 		weapType_t weapType;
 		weapClass_t weapClass;
@@ -2402,7 +2397,7 @@ namespace game
 		TraceHitType hitType;
 		unsigned __int16 hitId;
 		unsigned __int16 modelIndex;
-		scr_string_t partName;
+		unsigned int partName;
 		unsigned __int16 partGroup;
 		bool allsolid;
 		bool startsolid;

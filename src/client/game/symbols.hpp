@@ -11,8 +11,10 @@ namespace game
 	WEAK symbol<void(unsigned int id)> AddRefToObject{0, 0x1404326D0};
 	WEAK symbol<void(int type, VariableUnion u)> AddRefToValue{0x1403D7740, 0x1404326E0};
 	WEAK symbol<unsigned int(unsigned int id)> AllocThread{0, 0x1404329B0};
+	WEAK symbol<ObjectVariableValue*(unsigned int* index)> AllocVariable{0x1403D7A70, 0x140432A10};
 	WEAK symbol<void(int type, VariableUnion u)> RemoveRefToValue{0x1403D90F0, 0x1404340C0};
 	WEAK symbol<void(unsigned int id)> RemoveRefToObject{0, 0x140433FB0};
+	WEAK symbol<void(unsigned int parentId, unsigned int index)> RemoveVariableValue{0x1403D91C0, 0x140434190};
 
 	WEAK symbol<void(void*, void*)> AimAssist_AddToTargetList{0, 0x140139D80};
 
@@ -20,9 +22,9 @@ namespace game
 
 	WEAK symbol<void()> Com_Frame_Try_Block_Function{0x1403BC980, 0x1404131A0};
 	WEAK symbol<const char*(char const**)> Com_Parse{0x1404313E0, 0x1404F50E0};
-	WEAK symbol<void (errorParm code, const char* message, ...)> Com_Error{0x1403BBFF0, 0x140412740};
+	WEAK symbol<void(errorParm code, const char* message, ...)> Com_Error{0x1403BBFF0, 0x140412740};
 	WEAK symbol<void()> Com_Quit{0x1403BDDD0, 0x140414920};
-	WEAK symbol<CodPlayMode ()> Com_GetCurrentCoDPlayMode{0, 0x1404f6140};
+	WEAK symbol<CodPlayMode()> Com_GetCurrentCoDPlayMode{0, 0x1404f6140};
 	WEAK symbol<void(float, float, int)> Com_SetSlowMotion{0, 0x1404158C0};
 	WEAK symbol<void(const char* text_in)> Com_TokenizeString{0x1403B4150, 0x1403F7CC0};
 	WEAK symbol<void()> Com_EndTokenizeString{0x1403B37C0, 0x1403F7330};
@@ -109,28 +111,19 @@ namespace game
 
 	WEAK symbol<unsigned int (int)> Live_SyncOnlineDataFlags{0, 0x1405ABF70};
 
-	WEAK symbol<bool(const int controllerIndex, const scr_string_t name, int value, const StatsGroup statsGroup)>
-	LiveStorage_PlayerDataSetIntByName{0x1403B8C20, 0x140404730};
-	WEAK symbol<bool(uint8_t* const persistentData, const char* lookupString, const int value,
-		uint8_t* modifiedFlags, const StatsGroup statsGroup)>
-	LiveStorage_PlayerDataSetReservedInt{0x1403B8D00, 0x140404820};
-	WEAK symbol<int64_t(uint8_t* const persistentData, const char* lookupString, const StatsGroup statsGroup)>
-	LiveStorage_PlayerDataGetReservedInt{0x1403B84F0, 0x140403CF0};
-	WEAK symbol<bool(const int controllerIndex, const scr_string_t* navStrings, const int navStringCount,
-	                 int value, const StatsGroup statsGroup)>
-	LiveStorage_PlayerDataSetIntByNameArray{0, 0x140404640};
-	WEAK symbol<int(const int controllerIndex, const scr_string_t* navStrings, const int navStringCount,
-		            const StatsGroup statsGroup)>
-	LiveStorage_PlayerDataGetIntByNameArray{0, 0x140403B80};
-	WEAK symbol<int(const int controllerIndex, const scr_string_t name, const StatsGroup statsGroup)>
-	LiveStorage_PlayerDataGetIntByName{0x1403B8460, 0x140403C40};
-	WEAK symbol<uint8_t*(const int controllerIndex)>LiveStorage_GetPersistentDataBuffer{0x1403B6F80, 0x140400170};
-	WEAK symbol<void(const int controllerIndex)>LiveStorage_StatsWriteNeeded{0x1403BA400, 0x1404090E0};
+	WEAK symbol<bool(int controllerIndex, unsigned int name, int value, StatsGroup statsGroup)> LiveStorage_PlayerDataSetIntByName{0x1403B8C20, 0x140404730};
+	WEAK symbol<bool(std::uint8_t* persistentData, const char* lookupString, int value, std::uint8_t* modifiedFlags, StatsGroup statsGroup)> LiveStorage_PlayerDataSetReservedInt{0x1403B8D00, 0x140404820};
+	WEAK symbol<std::int64_t(std::uint8_t* persistentData, const char* lookupString, const StatsGroup statsGroup)> LiveStorage_PlayerDataGetReservedInt{0x1403B84F0, 0x140403CF0};
+	WEAK symbol<bool(int controllerIndex, const unsigned int* navStrings, int navStringCount, int value, StatsGroup statsGroup)> LiveStorage_PlayerDataSetIntByNameArray{0, 0x140404640};
+	WEAK symbol<int(int controllerIndex, const unsigned int* navStrings, int navStringCount, StatsGroup statsGroup)> LiveStorage_PlayerDataGetIntByNameArray{0, 0x140403B80};
+	WEAK symbol<int(int controllerIndex, unsigned int name, StatsGroup statsGroup)> LiveStorage_PlayerDataGetIntByName{0x1403B8460, 0x140403C40};
+	WEAK symbol<std::uint8_t*(int controllerIndex)>LiveStorage_GetPersistentDataBuffer{0x1403B6F80, 0x140400170};
+	WEAK symbol<void(int controllerIndex)> LiveStorage_StatsWriteNeeded{0x1403BA400, 0x1404090E0};
 
-	WEAK symbol<BOOL(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)>MainWndProc{0x14043E6A0, 0x140504A00};
-	WEAK symbol<void()>IN_MouseMove{0x140438840, 0x1404FC7B0};
-	WEAK symbol<void()>IN_RecenterMouse{0x1404389E0, 0x1404FC950};
-	WEAK symbol<int(int x, int y, int dx, int dy)>CL_MouseEvent{0x14023B8E0, 0x1402C12A0};
+	WEAK symbol<BOOL(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)> MainWndProc{0x14043E6A0, 0x140504A00};
+	WEAK symbol<void()> IN_MouseMove{0x140438840, 0x1404FC7B0};
+	WEAK symbol<void()> IN_RecenterMouse{0x1404389E0, 0x1404FC950};
+	WEAK symbol<int(int x, int y, int dx, int dy)> CL_MouseEvent{0x14023B8E0, 0x1402C12A0};
 
 	WEAK symbol<StructuredDataDef*(const char* filename, unsigned int maxSize)>StructuredDataDef_GetAsset{0, 0x1404E6560};
 	WEAK symbol<StringTable*(const char* fileName, const StringTable** tablePtr)>StringTable_GetAsset{0, 0x1404E6170};
@@ -164,7 +157,7 @@ namespace game
 	WEAK symbol<void()> GScr_LoadConsts{0x140367AA0, 0x1403E0420};
 	WEAK symbol<unsigned int(unsigned int parentId, unsigned int name)> FindVariable{0x1403D84F0, 0x1404334A0};
 	WEAK symbol<unsigned int(int entnum, unsigned int classnum)> FindEntityId{0, 0x1404333A0};
-	WEAK symbol<scr_string_t(unsigned int parentId, unsigned int id)> GetVariableName{0x1403D8E90, 0x140433E60};
+	WEAK symbol<unsigned int(unsigned int parentId, unsigned int id)> GetVariableName{0x1403D8E90, 0x140433E60};
 	WEAK symbol<void (VariableValue* result, unsigned int classnum, int entnum, int offset)> GetEntityFieldValue{0x1403DC810, 0x140437860};
 	WEAK symbol<const float*(const float* v)> Scr_AllocVector{0x1403D9AF0, 0x140434A10};
 	WEAK symbol<const char*(unsigned int index)> Scr_GetString{0, 0x140439160};
@@ -175,7 +168,7 @@ namespace game
 	WEAK symbol<void()> Scr_ClearOutParams{0x1403DD500, 0x140438600};
 	WEAK symbol<scr_entref_t(unsigned int entId)> Scr_GetEntityIdRef{0x1403DBDC0, 0x140436E10};
 	WEAK symbol<int(unsigned int classnum, int entnum, int offset)> Scr_SetObjectField{0x140350E70, 0x1403D3FE0};
-	WEAK symbol<void(unsigned int id, scr_string_t stringValue, unsigned int paramcount)> Scr_NotifyId{0x1403DE730, 0x140439700};
+	WEAK symbol<void(unsigned int id, unsigned int stringValue, unsigned int paramcount)> Scr_NotifyId{0x1403DE730, 0x140439700};
 	WEAK symbol<unsigned int(int entnum, unsigned int classnum)> Scr_GetEntityId{0x0, 0x140436D60};
 	WEAK symbol<bool(VariableValue* value)> Scr_CastString{0x0, 0x140434AC0};
 
@@ -191,10 +184,10 @@ namespace game
 
 	WEAK symbol<const char*(const char*)> SEH_StringEd_GetString{0, 0x1404A5F60};
 
-	WEAK symbol<const char*(scr_string_t stringValue)> SL_ConvertToString{0x1403D6870, 0x1404317F0};
-	WEAK symbol<scr_string_t(const char* str, unsigned int user)> SL_GetString{0x1403D6CD0, 0x140431C70};
-	WEAK symbol<scr_string_t(int)> SL_GetStringForInt{0x1403D6D50, 0x140431CF0};
-	WEAK symbol<scr_string_t(const char* str)> SL_FindString{0x1403D6AF0, 0x140431A90};
+	WEAK symbol<const char*(unsigned int stringValue)> SL_ConvertToString{0x1403D6870, 0x1404317F0};
+	WEAK symbol<unsigned int(const char* str, unsigned int user)> SL_GetString{0x1403D6CD0, 0x140431C70};
+	WEAK symbol<unsigned int(int)> SL_GetStringForInt{0x1403D6D50, 0x140431CF0};
+	WEAK symbol<unsigned int(const char* str)> SL_FindString{0x1403D6AF0, 0x140431A90};
 	WEAK symbol<unsigned int(char const* str)> SL_GetCanonicalString{0x1403D36F0, 0x14042E4F0};
 
 	WEAK symbol<void(int arg, char* buffer, int bufferLength)> SV_Cmd_ArgvBuffer{0x1403B4560, 0x1403F80D0};
@@ -202,40 +195,40 @@ namespace game
 	WEAK symbol<void()> SV_Cmd_EndTokenizedString{0, 0x1403F8110};
 	WEAK symbol<void()> SV_MatchEnd{0x0, 0x14047A090};
 
-	WEAK symbol<void (netadr_s* from)> SV_DirectConnect{0, 0x140471390};
-	WEAK symbol<void (int, int, const char*)> SV_GameSendServerCommand{0x140490F40, 0x1404758C0};
-	WEAK symbol<bool ()> SV_Loaded{0x140491820, 0x1404770C0};
-	WEAK symbol<void (int localClientNum, const char* map, bool mapIsPreloaded)> SV_StartMap{0, 0x140470170};
-	WEAK symbol<void (int localClientNum, const char* map, bool mapIsPreloaded, bool migrate)> SV_StartMapForParty{0, 0x1404702F0};
+	WEAK symbol<void(netadr_s* from)> SV_DirectConnect{0, 0x140471390};
+	WEAK symbol<void(int, int, const char*)> SV_GameSendServerCommand{0x140490F40, 0x1404758C0};
+	WEAK symbol<bool()> SV_Loaded{0x140491820, 0x1404770C0};
+	WEAK symbol<void(int localClientNum, const char* map, bool mapIsPreloaded)> SV_StartMap{0, 0x140470170};
+	WEAK symbol<void(int localClientNum, const char* map, bool mapIsPreloaded, bool migrate)> SV_StartMapForParty{0, 0x1404702F0};
 
 	WEAK symbol<mp::gentity_s*(const char*, unsigned int, unsigned int, unsigned int)> SV_AddBot{0, 0x140470920};
-	WEAK symbol<bool (int clientNum)> SV_BotIsBot{0, 0x140461340};
-	WEAK symbol<const char* ()> SV_BotGetRandomName{0, 0x140460B80};
+	WEAK symbol<bool(int clientNum)> SV_BotIsBot{0, 0x140461340};
+	WEAK symbol<const char*()> SV_BotGetRandomName{0, 0x140460B80};
 	WEAK symbol<void(mp::gentity_s*)> SV_SpawnTestClient{0, 0x1404740A0};
 
-	WEAK symbol<void (mp::client_t*, const char*, int)> SV_ExecuteClientCommand{0, 0x140472430};
-	WEAK symbol<void ()> SV_FastRestart{0x14048B890, 0x14046F440};
+	WEAK symbol<void(mp::client_t*, const char*, int)> SV_ExecuteClientCommand{0, 0x140472430};
+	WEAK symbol<void()> SV_FastRestart{0x14048B890, 0x14046F440};
 	WEAK symbol<playerState_s*(int num)> SV_GetPlayerstateForClientNum{0x140490F80, 0x140475A10};
 	WEAK symbol<const char*(int clientNum)> SV_GetGuid{0, 0x140475990};
-	WEAK symbol<void (int clientNum, const char* reason)> SV_KickClientNum{0, 0x14046F730};
-	WEAK symbol<void (int index, const char* string)> SV_SetConfigstring{0, 0x140477450};
+	WEAK symbol<void(int clientNum, const char* reason)> SV_KickClientNum{0, 0x14046F730};
+	WEAK symbol<void(int index, const char* string)> SV_SetConfigstring{0, 0x140477450};
 
-	WEAK symbol<void (const char* error, ...)> Sys_Error{0x14043AC20, 0x1404FF510};
-	WEAK symbol<bool ()> Sys_IsDatabaseReady2{0x1403C2D40, 0x140423920};
-	WEAK symbol<int ()> Sys_Milliseconds{0x14043D2A0, 0x140501CA0};
+	WEAK symbol<void(const char* error, ...)> Sys_Error{0x14043AC20, 0x1404FF510};
+	WEAK symbol<bool()> Sys_IsDatabaseReady2{0x1403C2D40, 0x140423920};
+	WEAK symbol<int()> Sys_Milliseconds{0x14043D2A0, 0x140501CA0};
 	WEAK symbol<void()> Sys_ShowConsole{0x14043E650, 0x140503130};
-	WEAK symbol<bool (int, void const*, const netadr_s*)> Sys_SendPacket{0x14043D000, 0x140501A00};
+	WEAK symbol<bool(int, void const*, const netadr_s*)> Sys_SendPacket{0x14043D000, 0x140501A00};
 	WEAK symbol<void*(int valueIndex)> Sys_GetValue{0x1403C2C30, 0x1404237D0};
 	WEAK symbol<bool()> Sys_IsMainThread{0x1478FC470, 0x140423950};
 
-	WEAK symbol<void ()> SwitchToCoreMode{0, 0x1401FA4A0};
-	WEAK symbol<void ()> SwitchToAliensMode{0, 0x1401FA4D0};
-	WEAK symbol<void ()> SwitchToSquadVsSquadMode{0, 0x1401FA500};
+	WEAK symbol<void()> SwitchToCoreMode{0, 0x1401FA4A0};
+	WEAK symbol<void()> SwitchToAliensMode{0, 0x1401FA4D0};
+	WEAK symbol<void()> SwitchToSquadVsSquadMode{0, 0x1401FA500};
 
 	WEAK symbol<const char*(const char*)> UI_LocalizeMapname{0, 0x1404B96D0};
 	WEAK symbol<const char*(const char*)> UI_LocalizeGametype{0, 0x1404B90F0};
 
-	WEAK symbol<DWOnlineStatus (int)> dwGetLogOnStatus{0, 0x140589490};
+	WEAK symbol<DWOnlineStatus(int)> dwGetLogOnStatus{0, 0x140589490};
 
 	WEAK symbol<void(pmove_t* move, trace_t*, const float*, const float*,
 		const Bounds*, int, int)> PM_playerTrace{0x14046C910, 0x140225C20};

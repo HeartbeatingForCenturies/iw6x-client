@@ -38,7 +38,7 @@ namespace scripting::lua
 					continue;
 				}
 
-				const auto string_value = (game::scr_string_t)((unsigned __int8)var.name_lo + (var.k.keys.name_hi << 8));
+				const auto string_value = (unsigned int)((unsigned __int8)var.name_lo + (var.k.keys.name_hi << 8));
 				const auto* str = game::SL_ConvertToString(string_value);
 
 				std::string key = string_value < 0x40000 && str
@@ -70,14 +70,13 @@ namespace scripting::lua
 				return _keys;
 			};
 
-			metatable[sol::meta_function::new_index] = [values](const sol::table t, const sol::this_state s,
-				const sol::lua_value& key_value, const sol::lua_value& value)
+			metatable[sol::meta_function::new_index] = [values](const sol::table t, const sol::this_state s, const sol::lua_value& key_value, const sol::lua_value& value)
 			{
 				const auto key = key_value.is<int>()
 					? std::to_string(key_value.as<int>())
 					: key_value.as<std::string>();
 
-				if (values.find(key) == values.end())
+				if (!values.contains(key))
 				{
 					return;
 				}
@@ -89,14 +88,13 @@ namespace scripting::lua
 				game::scr_VarGlob->childVariableValue[i].u.u = variable.u;
 			};
 
-			metatable[sol::meta_function::index] = [values](const sol::table t, const sol::this_state s,
-				const sol::lua_value& key_value)
+			metatable[sol::meta_function::index] = [values](const sol::table t, const sol::this_state s, const sol::lua_value& key_value)
 			{
 				const auto key = key_value.is<int>()
 					? std::to_string(key_value.as<int>())
 					: key_value.as<std::string>();
 
-				if (values.find(key) == values.end())
+				if (!values.contains(key))
 				{
 					return sol::lua_value{s, sol::lua_nil};
 				}
@@ -104,7 +102,7 @@ namespace scripting::lua
 				return convert(s, values.at(key).value);
 			};
 
-			metatable[sol::meta_function::length] = [values]()
+			metatable[sol::meta_function::length] = [values]
 			{
 				return values.size();
 			};
@@ -129,30 +127,28 @@ namespace scripting::lua
 
 		sol::lua_value convert_function(lua_State* state, const char* pos)
 		{
-			return sol::overload(
-				[pos](const entity& entity, const sol::this_state s, sol::variadic_args va)
+			return sol::overload([pos](const entity& entity, const sol::this_state s, sol::variadic_args va)
+			{
+				std::vector<script_value> arguments{};
+
+				for (auto arg : va)
 				{
-					std::vector<script_value> arguments{};
-
-					for (auto arg : va)
-					{
-						arguments.push_back(convert({s, arg}));
-					}
-
-					return convert(s, exec_ent_thread(entity, pos, arguments));
-				},
-				[pos](const sol::this_state s, sol::variadic_args va)
-				{
-					std::vector<script_value> arguments{};
-
-					for (auto arg : va)
-					{
-						arguments.push_back(convert({s, arg}));
-					}
-
-					return convert(s, exec_ent_thread(*game::levelEntityId, pos, arguments));
+					arguments.push_back(convert({s, arg}));
 				}
-			);
+
+				return convert(s, exec_ent_thread(entity, pos, arguments));
+			},
+			[pos](const sol::this_state s, sol::variadic_args va)
+			{
+				std::vector<script_value> arguments{};
+
+				for (auto arg : va)
+				{
+					arguments.push_back(convert({s, arg}));
+				}
+
+				return convert(s, exec_ent_thread(*game::levelEntityId, pos, arguments));
+			});
 		}
 	}
 

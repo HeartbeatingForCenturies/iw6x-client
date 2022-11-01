@@ -105,19 +105,17 @@ namespace scripting::lua
 
 			for (const auto& constant : get_game_constants())
 			{
-				entity_type[constant] = sol::property(
-					[constant](const entity& entity, const sol::this_state s)
-					{
-						return convert(s, entity.get(constant));
-					},
-					[constant](const entity& entity, const sol::this_state s, const sol::lua_value& value)
-					{
+				entity_type[constant] = sol::property([constant](const entity& entity, const sol::this_state s)
+				{
+					return convert(s, entity.get(constant));
+				},
+				[constant](const entity& entity, const sol::this_state s, const sol::lua_value& value)
+				{
 						entity.set(constant, convert({s, value}));
-					});
+				});
 			}
 
-			entity_type["set"] = [](const entity& entity, const std::string& field,
-			                        const sol::lua_value& value)
+			entity_type["set"] = [](const entity& entity, const std::string& field, const sol::lua_value& value)
 			{
 				entity.set(field, convert(value));
 			};
@@ -127,8 +125,7 @@ namespace scripting::lua
 				return convert(s, entity.get(field));
 			};
 
-			entity_type["notify"] = [](const entity& entity, const sol::this_state s, const std::string& event, 
-									   sol::variadic_args va)
+			entity_type["notify"] = [](const entity& entity, const sol::this_state s, const std::string& event, sol::variadic_args va)
 			{
 				std::vector<script_value> arguments{};
 
@@ -152,8 +149,7 @@ namespace scripting::lua
 				return handler.add_event_listener(std::move(listener));
 			};
 
-			entity_type["onnotifyonce"] = [&handler](const entity& entity, const std::string& event,
-			                                         const event_callback& callback)
+			entity_type["onnotifyonce"] = [&handler](const entity& entity, const std::string& event, const event_callback& callback)
 			{
 				event_listener listener{};
 				listener.callback = callback;
@@ -164,8 +160,7 @@ namespace scripting::lua
 				return handler.add_event_listener(std::move(listener));
 			};
 
-			entity_type["call"] = [](const entity& entity, const sol::this_state s, const std::string& function,
-			                         sol::variadic_args va)
+			entity_type["call"] = [](const entity& entity, const sol::this_state s, const std::string& function, sol::variadic_args va)
 			{
 				std::vector<script_value> arguments{};
 
@@ -177,8 +172,7 @@ namespace scripting::lua
 				return convert(s, entity.call(function, arguments));
 			};
 
-			entity_type[sol::meta_function::new_index] = [](const entity& entity, const std::string& field,
-															const sol::lua_value& value)
+			entity_type[sol::meta_function::new_index] = [](const entity& entity, const std::string& field, const sol::lua_value& value)
 			{
 				entity.set(field, convert(value));
 			};
@@ -298,36 +292,34 @@ namespace scripting::lua
 
 				for (const auto& function : scripting::script_function_table[filename])
 				{
-					functions[function.first] = sol::overload(
-						[filename, function](const entity& entity, const sol::this_state s, sol::variadic_args va)
+					functions[function.first] = sol::overload([filename, function](const entity& entity, const sol::this_state s, sol::variadic_args va)
+					{
+						std::vector<script_value> arguments{};
+
+						for (auto arg : va)
 						{
-							std::vector<script_value> arguments{};
-
-							for (auto arg : va)
-							{
-								arguments.push_back(convert({s, arg}));
-							}
-
-							const auto _0 = gsl::finally(&notifies::enable_vm_execute_hook);
-							notifies::disable_vm_execute_hook();
-
-							return convert(s, call_script_function(entity, filename, function.first, arguments));
-						},
-						[filename, function](const sol::this_state s, sol::variadic_args va)
-						{
-							std::vector<script_value> arguments{};
-
-							for (auto arg : va)
-							{
-								arguments.push_back(convert({s, arg}));
-							}
-
-							const auto _0 = gsl::finally(&notifies::enable_vm_execute_hook);
-							notifies::disable_vm_execute_hook();
-
-							return convert(s, call_script_function(*::game::levelEntityId, filename, function.first, arguments));
+							arguments.push_back(convert({s, arg}));
 						}
-					);
+
+						const auto _0 = gsl::finally(&notifies::enable_vm_execute_hook);
+						notifies::disable_vm_execute_hook();
+
+						return convert(s, call_script_function(entity, filename, function.first, arguments));
+					},
+					[filename, function](const sol::this_state s, sol::variadic_args va)
+					{
+						std::vector<script_value> arguments{};
+
+						for (auto arg : va)
+						{
+							arguments.push_back(convert({s, arg}));
+						}
+
+						const auto _0 = gsl::finally(&notifies::enable_vm_execute_hook);
+						notifies::disable_vm_execute_hook();
+
+						return convert(s, call_script_function(*::game::levelEntityId, filename, function.first, arguments));
+					});
 				}
 
 				return functions;
@@ -367,36 +359,34 @@ namespace scripting::lua
 					notifies::set_lua_hook(pos, function);
 				};
 
-				detour["invoke"] = sol::overload(
-					[filename, function_name](const entity& entity, const sol::this_state s, sol::variadic_args va)
+				detour["invoke"] = sol::overload([filename, function_name](const entity& entity, const sol::this_state s, sol::variadic_args va)
+				{
+					std::vector<script_value> arguments{};
+
+					for (auto arg : va)
 					{
-						std::vector<script_value> arguments{};
-
-						for (auto arg : va)
-						{
-							arguments.push_back(convert({s, arg}));
-						}
-
-						const auto _0 = gsl::finally(&notifies::enable_vm_execute_hook);
-						notifies::disable_vm_execute_hook();
-
-						return convert(s, call_script_function(entity, filename, function_name, arguments));
-					},
-					[filename, function_name](const sol::this_state s, sol::variadic_args va)
-					{
-						std::vector<script_value> arguments{};
-
-						for (auto arg : va)
-						{
-							arguments.push_back(convert({s, arg}));
-						}
-
-						const auto _0 = gsl::finally(&notifies::enable_vm_execute_hook);
-						notifies::disable_vm_execute_hook();
-
-						return convert(s, call_script_function(*::game::levelEntityId, filename, function_name, arguments));
+						arguments.push_back(convert({s, arg}));
 					}
-				);
+
+					const auto _0 = gsl::finally(&notifies::enable_vm_execute_hook);
+					notifies::disable_vm_execute_hook();
+
+					return convert(s, call_script_function(entity, filename, function_name, arguments));
+				},
+				[filename, function_name](const sol::this_state s, sol::variadic_args va)
+				{
+					std::vector<script_value> arguments{};
+
+					for (auto arg : va)
+					{
+						arguments.push_back(convert({s, arg}));
+					}
+
+					const auto _0 = gsl::finally(&notifies::enable_vm_execute_hook);
+					notifies::disable_vm_execute_hook();
+
+					return convert(s, call_script_function(*::game::levelEntityId, filename, function_name, arguments));
+				});
 
 				return detour;
 			};

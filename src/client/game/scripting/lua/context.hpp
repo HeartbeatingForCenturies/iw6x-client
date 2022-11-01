@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../event.hpp"
+#include "game/scripting/event.hpp"
 
 #pragma warning(push)
 #pragma warning(disable: 4702)

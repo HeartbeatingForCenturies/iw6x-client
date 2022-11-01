@@ -399,7 +399,7 @@ namespace server_list
 
 			scheduler::loop(do_frame_work, scheduler::pipeline::main);
 
-			network::on("getServersResponse", [](const game::netadr_s& target, const std::string_view& data)
+			network::on("getServersResponse", [](const game::netadr_s& target, const std::string& data)
 			{
 				{
 					std::lock_guard<std::mutex> _(mutex);
@@ -411,7 +411,7 @@ namespace server_list
 					master_state.requesting = false;
 
 					std::optional<size_t> start{};
-					for (size_t i = 0; i + 6 < data.size(); ++i)
+					for (std::size_t i = 0; i + 6 < data.size(); ++i)
 					{
 						if (data[i + 6] == '\\')
 						{
@@ -435,8 +435,8 @@ namespace server_list
 						game::netadr_s address{};
 						address.type = game::NA_IP;
 						address.localNetID = game::NS_CLIENT1;
-						memcpy(&address.ip[0], data.data() + i + 0, 4);
-						memcpy(&address.port, data.data() + i + 4, 2);
+						std::memcpy(&address.ip[0], data.data() + i + 0, 4);
+						std::memcpy(&address.port, data.data() + i + 4, 2);
 
 						master_state.queued_servers[address] = 0;
 					}

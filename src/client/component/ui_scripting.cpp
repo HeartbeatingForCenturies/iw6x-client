@@ -1,6 +1,5 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
-
 #include "game/game.hpp"
 #include "game/dvars.hpp"
 
@@ -11,12 +10,13 @@
 #include "game_module.hpp"
 
 #include "game/ui_scripting/execution.hpp"
-#include "game/scripting/execution.hpp"
 
 #include "ui_scripting.hpp"
 
 #include <utils/hook.hpp>
 #include <utils/io.hpp>
+
+#include <lua.h>
 
 namespace ui_scripting
 {
@@ -260,6 +260,21 @@ namespace ui_scripting
 
 			return utils::hook::invoke<int>(0x140198B00, state, compiler_options, reader, reader_data, chunk_name);
 		}
+
+		lua_CFunction lua_atpanic_stub(lua_State* l, [[maybe_unused]] lua_CFunction panicf)
+		{
+			return utils::hook::invoke<lua_CFunction>(SELECT_VALUE(0x1401851F0, 0x1401A4730), l, SELECT_VALUE(0x1401789A0, 0x140197BC0));
+		}
+
+		int luaopen_stub([[maybe_unused]] lua_State* l)
+		{
+			return 0;
+		}
+
+		int hks_base_stub([[maybe_unused]] lua_State* l)
+		{
+			return 0;
+		}
 	}
 
 	int main_handler(game::hks::lua_State* state)
@@ -310,9 +325,36 @@ namespace ui_scripting
 	class component final : public component_interface
 	{
 	public:
-
 		void post_unpack() override
 		{
+			// Disable debug breakpoints in the assembly of hksDefaultPanic
+			utils::hook::set<std::uint8_t>(SELECT_VALUE(0x140178C5E, 0x140197E7E), 0x90);
+
+			// Restore hksDefaultPanic for complete error messages
+			utils::hook::call(SELECT_VALUE(0x1401B0028, 0x1401CE6C8), lua_atpanic_stub);
+
+			// Do not allow the HKS vm to open LUA's libraries
+			utils::hook::jump(SELECT_VALUE(0x14015BD10, 0x14017E040), luaopen_stub); // io
+			utils::hook::jump(SELECT_VALUE(0x14015C3D0, 0x14017E700), luaopen_stub); // os
+			utils::hook::jump(SELECT_VALUE(0x14015D400, 0x14017F730), luaopen_stub); // serialize
+			utils::hook::jump(SELECT_VALUE(0x14015D3D0, 0x14017F700), luaopen_stub); // havokscript
+			utils::hook::jump(SELECT_VALUE(0x14015C930, 0x14017EC60), luaopen_stub); // debug
+
+			utils::hook::nop(SELECT_VALUE(0x14015B639, 0x14017D969), 5); // coroutine
+
+			// Disable unsafe functions
+			utils::hook::jump(SELECT_VALUE(0x140158C20, 0x14017AF50), hks_base_stub); // base_loadfile
+			utils::hook::jump(SELECT_VALUE(0x140158CC0, 0x14017AFF0), hks_base_stub); // base_loadstring
+			utils::hook::jump(SELECT_VALUE(0x140158B10, 0x14017AE40), hks_base_stub); // base_dofile
+			utils::hook::jump(SELECT_VALUE(0x14015D7E0, 0x14017FB10), hks_base_stub); // base_load
+
+			utils::hook::jump(SELECT_VALUE(0x1401569D0, 0x140178CF0), hks_base_stub); // package_loadlib
+			utils::hook::jump(SELECT_VALUE(0x140163CD0, 0x140177E00), hks_base_stub); // package_c_loader
+			utils::hook::jump(SELECT_VALUE(0x140163DE0, 0x140177F10), hks_base_stub); // package_all_in_one_loader
+
+			utils::hook::jump(SELECT_VALUE(0x140157DA0, 0x14017A0D0), hks_base_stub); // string_dump
+			utils::hook::jump(SELECT_VALUE(0x1401606A0, 0x1401747D0), hks_base_stub); // os_execute
+
 			if (!game::environment::is_mp())
 			{
 				return;

@@ -95,8 +95,7 @@ namespace scripting
 
 		if (!safe_execution::call(function, entref))
 		{
-			throw std::runtime_error(
-				"Error executing "s + (is_method_call ? "method" : "function") + " '" + name + "'");
+			throw std::runtime_error("Error executing "s + (is_method_call ? "method" : "function") + " '" + name + "'");
 		}
 
 		return get_return_value();
@@ -233,7 +232,7 @@ namespace scripting
 				throw std::runtime_error("Failed to get value for field '" + field + "'");
 			}
 
-			const auto __ = gsl::finally([value]()
+			const auto _0 = gsl::finally([value]
 			{
 				game::RemoveRefToValue(value.type, value.u);
 			});

@@ -1,10 +1,11 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game/game.hpp"
+#include "game/dvars.hpp"
+
 #include "command.hpp"
 #include "console.hpp"
 #include "network.hpp"
-#include "game/game.hpp"
-#include "game/dvars.hpp"
 #include "filesystem.hpp"
 #include "scheduler.hpp"
 

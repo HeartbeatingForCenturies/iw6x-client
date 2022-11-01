@@ -7,10 +7,12 @@
 #include "game/scripting/lua/error.hpp"
 
 #include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 #include "component/console.hpp"
 #include "component/scripting.hpp"
 #include "component/notifies.hpp"
+#include "component/command.hpp"
 
 #include <xsk/gsc/types.hpp>
 #include <xsk/resolver.hpp>
@@ -53,18 +55,11 @@ namespace gsc
 			return result;
 		}
 
-		void add_function(const std::string& name, game::BuiltinFunction function)
-		{
-			++function_id_start;
-			functions[function_id_start] = function;
-			xsk::gsc::iw6::resolver::add_function(name, function_id_start);
-		}
-
 		scripting::script_value get_argument(int index)
 		{
 			if (static_cast<std::uint32_t>(index) >= game::scr_VmPub->outparamcount)
 			{
-				return {};
+				throw gsc_error(std::format("Parameter {} does not exist", index + 1));
 			}
 
 			return {game::scr_VmPub->top[-index]};
@@ -226,6 +221,34 @@ namespace gsc
 
 			console::info("\n");
 		}
+
+		void assert_cmd()
+		{
+			if (!game::Scr_GetInt(0))
+			{
+				scr_error("Assert fail");
+			}
+		}
+
+		void assert_ex_cmd()
+		{
+			if (!game::Scr_GetInt(0))
+			{
+				scr_error(utils::string::va("Assert fail: %s", game::Scr_GetString(1)));
+			}
+		}
+
+		void assert_msg_cmd()
+		{
+			scr_error(utils::string::va("Assert fail: %s", game::Scr_GetString(0)));
+		}
+	}
+
+	void add_function(const std::string& name, game::BuiltinFunction function)
+	{
+		++function_id_start;
+		functions[function_id_start] = function;
+		xsk::gsc::iw6::resolver::add_function(name, function_id_start);
 	}
 
 	void scr_error(const char* error)
@@ -264,6 +287,10 @@ namespace gsc
 
 			utils::hook::call(0x14042E76F, scr_get_function_stub);
 
+			utils::hook::set<game::BuiltinFunction>(0x1409E6E38, assert_ex_cmd);
+			utils::hook::set<game::BuiltinFunction>(0x1409E6E50, assert_msg_cmd);
+			utils::hook::set<game::BuiltinFunction>(0x1409E6E20, assert_cmd);
+
 			add_function("getfunction", []
 			{
 				const auto* filename = game::Scr_GetString(0);
@@ -273,6 +300,7 @@ namespace gsc
 				{
 					const auto func = scripting::function{scripting::script_function_table[filename][function]};
 					add_code_pos(func.get_pos());
+					return;
 				}
 
 				throw gsc_error("Function not found");
@@ -289,6 +317,12 @@ namespace gsc
 				}
 
 				notifies::set_gsc_hook(what.u.codePosValue, with.u.codePosValue);
+			});
+
+			add_function("executecommand", []
+			{
+				const auto cmd = get_argument(0).as<std::string>();
+				command::execute(cmd);
 			});
 		}
 	};

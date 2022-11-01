@@ -6,6 +6,7 @@
 #include "server_list.hpp"
 #include "network.hpp"
 #include "command.hpp"
+#include "console.hpp"
 
 #include <utils/hook.hpp>
 
@@ -262,13 +263,13 @@ namespace dedicated
 			utils::hook::set<uint64_t>(0x1404FA6BD, 0x80000000);
 			utils::hook::set<uint64_t>(0x1404FA76F, 0x80000000);
 
-			scheduler::on_game_initialized([]()
+			scheduler::on_game_initialized([]
 			{
 				initialize();
 
-				printf("==================================\n");
-				printf("Server started!\n");
-				printf("==================================\n");
+				console::info("==================================\n");
+				console::info("Server started!\n");
+				console::info("==================================\n");
 
 				execute_command_queue();
 			}, scheduler::pipeline::main, 1s);

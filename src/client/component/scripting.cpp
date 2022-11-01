@@ -43,8 +43,7 @@ namespace scripting
 		std::vector<std::function<void(int)>> shutdown_callbacks;
 		std::vector<std::function<void()>> init_callbacks;
 
-		void vm_notify_stub(const unsigned int notify_list_owner_id, const game::scr_string_t string_value,
-		                    game::VariableValue* top)
+		void vm_notify_stub(const unsigned int notify_list_owner_id, const unsigned int string_value, game::VariableValue* top)
 		{
 			const auto* string = game::SL_ConvertToString(string_value);
 			if (string)
@@ -225,14 +224,14 @@ namespace scripting
 	public:
 		void post_unpack() override
 		{
-			vm_notify_hook.create(SELECT_VALUE(0x1403E29C0, 0x14043D9B0), vm_notify_stub);
+			vm_notify_hook.create(SELECT_VALUE(0x1403E29C0, 0x14043D9B0), &vm_notify_stub);
 			// SP address is wrong, but should be ok
-			scr_load_level_hook.create(SELECT_VALUE(0x14013D5D0, 0x1403C4E60), scr_load_level_stub);
-			g_shutdown_game_hook.create(SELECT_VALUE(0x140318C10, 0x1403A0DF0), g_shutdown_game_stub);
+			scr_load_level_hook.create(SELECT_VALUE(0x14013D5D0, 0x1403C4E60), &scr_load_level_stub);
+			g_shutdown_game_hook.create(SELECT_VALUE(0x140318C10, 0x1403A0DF0), &g_shutdown_game_stub);
 
-			scr_set_thread_position_hook.create(SELECT_VALUE(0x1403D3560, 0x14042E360), scr_set_thread_position_stub);
-			process_script_hook.create(SELECT_VALUE(0x1403DC870, 0x1404378C0), process_script_stub);
-			sl_get_canonical_string_hook.create(game::SL_GetCanonicalString, sl_get_canonical_string_stub);
+			scr_set_thread_position_hook.create(SELECT_VALUE(0x1403D3560, 0x14042E360), &scr_set_thread_position_stub);
+			process_script_hook.create(SELECT_VALUE(0x1403DC870, 0x1404378C0), &process_script_stub);
+			sl_get_canonical_string_hook.create(game::SL_GetCanonicalString, &sl_get_canonical_string_stub);
 
 			scheduler::loop([]
 			{
@@ -247,7 +246,7 @@ namespace scripting
 				// Allow precaching anytime
 				utils::hook::jump(0x1402084A5, is_pre_main_stub);
 				utils::hook::set<uint16_t>(0x1402084D0, 0xD3EB); // jump to 0x1402084A5
-				g_find_config_string_index.create(0x140161F90, g_find_config_string_index_stub);
+				g_find_config_string_index.create(0x140161F90, &g_find_config_string_index_stub);
 			}
 		}
 	};

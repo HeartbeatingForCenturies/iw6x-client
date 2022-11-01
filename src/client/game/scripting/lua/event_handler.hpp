@@ -9,7 +9,7 @@ namespace scripting::lua
 	class event_listener_handle
 	{
 	public:
-		uint64_t id = 0;
+		std::uint64_t id = 0;
 	};
 
 	class event_listener final : public event_listener_handle
