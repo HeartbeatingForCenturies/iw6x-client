@@ -45,9 +45,9 @@ namespace command
 			params_sv params = {};
 
 			const auto command = utils::string::to_lower(params[0]);
-			if (handlers_sv.find(command) != handlers_sv.end())
+			if (const auto itr = handlers_sv.find(command); itr != handlers_sv.end())
 			{
-				handlers_sv[command](client_num, params);
+				itr->second(client_num, params);
 			}
 
 			client_command_hook.invoke<void>(client_num);
