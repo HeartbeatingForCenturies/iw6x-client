@@ -161,7 +161,7 @@ namespace notifies
 
 			if (params[0] == "say"s || params[0] == "say_team"s)
 			{
-				std::string message(params.get(1));
+				std::string message(game::ConcatArgs(1));
 
 				auto msg_index = 0;
 				if (message[msg_index] == '\x15')
