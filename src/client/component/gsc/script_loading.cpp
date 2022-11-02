@@ -319,6 +319,9 @@ namespace gsc
 	public:
 		void post_unpack() override
 		{
+			// Load our scripts with an uncompressed stack
+			utils::hook::call(SELECT_VALUE(0x1403DC8F0, 0x140437940), db_get_raw_buffer_stub);
+
 			if (game::environment::is_sp())
 			{
 				return;
@@ -353,9 +356,6 @@ namespace gsc
 
 			// GScr_LoadScripts
 			utils::hook::call(0x1403CD009, gscr_load_game_type_script_stub);
-
-			// Load our scripts with an uncompressed stack
-			utils::hook::call(0x140437940, db_get_raw_buffer_stub);
 
 			// Exec script handles
 			utils::hook::call(0x14039F64E, g_load_structs_stub);
