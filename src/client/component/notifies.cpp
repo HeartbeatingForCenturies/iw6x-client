@@ -164,7 +164,7 @@ namespace notifies
 				std::string message(game::ConcatArgs(1));
 
 				auto msg_index = 0;
-				if (message[msg_index] == '\x15')
+				if (message[msg_index] == '\x1F')
 				{
 					msg_index = 1;
 				}
@@ -194,7 +194,7 @@ namespace notifies
 					game_log::g_log_printf("%s;%s;%i;%s;%s\n",
 						params[0],
 						player.call("getguid").as<const char*>(),
-						player.call("getentitynumber").as<int>(),
+						client_num,
 						player.get("name").as<const char*>(),
 						message.data()
 					);
