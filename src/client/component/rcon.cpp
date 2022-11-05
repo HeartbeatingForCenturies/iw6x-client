@@ -170,18 +170,17 @@ namespace rcon
 			}
 			else
 			{
-				network::on("rcon", [](const game::netadr_s& addr, const std::string_view& data)
+				network::on("rcon", [](const game::netadr_s& addr, const std::string& data)
 				{
-					const auto message = std::string{data};
-					const auto pos = message.find_first_of(" ");
+					const auto pos = data.find_first_of(" ");
 					if (pos == std::string::npos)
 					{
 						console::info("Invalid RCon request from %s\n", network::net_adr_to_string(addr));
 						return;
 					}
 
-					const auto password = message.substr(0, pos);
-					const auto command = message.substr(pos + 1);
+					const auto password = data.substr(0, pos);
+					const auto command = data.substr(pos + 1);
 					const auto rcon_password = game::Dvar_FindVar("rcon_password");
 					if (command.empty() || !rcon_password || !rcon_password->current.string || !strlen(
 						rcon_password->current.string))

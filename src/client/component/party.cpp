@@ -482,10 +482,14 @@ namespace party
 				info.set("sv_maxclients", utils::string::va("%i", *game::mp::svs_numclients));
 				info.set("protocol", utils::string::va("%i", PROTOCOL));
 				info.set("shortversion", SHORTVERSION);
-				//info.set("hc", (Dvar::Var("g_hardcore").get<bool>() ? "1" : "0"));
 
 				network::send(target, "infoResponse", info.build(), '\n');
 			});
+
+			if (game::environment::is_dedi())
+			{
+				return;
+			}
 
 			network::on("infoResponse", [](const game::netadr_s& target, const std::string& data)
 			{
@@ -524,7 +528,7 @@ namespace party
 					return;
 				}
 
-				party::sv_motd = info.get("sv_motd");
+				sv_motd = info.get("sv_motd");
 
 				connect_to_party(target, mapname, gametype);
 			});
