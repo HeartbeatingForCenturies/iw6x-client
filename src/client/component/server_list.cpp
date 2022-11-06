@@ -1,5 +1,8 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game/game.hpp"
+#include "game/ui_scripting/execution.hpp"
+
 #include "server_list.hpp"
 #include "console.hpp"
 #include "command.hpp"
@@ -7,8 +10,6 @@
 #include "network.hpp"
 #include "scheduler.hpp"
 #include "party.hpp"
-#include "game/game.hpp"
-#include "game/ui_scripting/execution.hpp"
 
 #include <utils/cryptography.hpp>
 #include <utils/string.hpp>
@@ -153,9 +154,9 @@ namespace server_list
 
 		void sort_serverlist()
 		{
-			std::stable_sort(servers.begin(), servers.end(), [](const server_info& a, const server_info& b)
+			std::ranges::stable_sort(servers, [](const server_info& a, const server_info& b)
 			{
-				if(a.clients == b.clients)
+				if (a.clients == b.clients)
 				{
 					return a.ping < b.ping;
 				}
