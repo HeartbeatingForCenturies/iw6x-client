@@ -153,9 +153,9 @@ namespace server_list
 
 		void sort_serverlist()
 		{
-			std::stable_sort(servers.begin(), servers.end(), [](const server_info& a, const server_info& b)
+			std::ranges::stable_sort(servers, [](const server_info& a, const server_info& b)
 			{
-				if(a.clients == b.clients)
+				if (a.clients == b.clients)
 				{
 					return a.ping < b.ping;
 				}
