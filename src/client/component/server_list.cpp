@@ -1,5 +1,8 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
+#include "game/game.hpp"
+#include "game/ui_scripting/execution.hpp"
+
 #include "server_list.hpp"
 #include "console.hpp"
 #include "command.hpp"
@@ -7,8 +10,6 @@
 #include "network.hpp"
 #include "scheduler.hpp"
 #include "party.hpp"
-#include "game/game.hpp"
-#include "game/ui_scripting/execution.hpp"
 
 #include <utils/cryptography.hpp>
 #include <utils/string.hpp>
