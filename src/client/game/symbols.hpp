@@ -62,6 +62,8 @@ namespace game
 
 	WEAK symbol<dvar_t*(const char* name)> Dvar_FindVar{0x140429E70, 0x1404ECB60};
 	WEAK symbol<void (char* buffer, int index)> Dvar_GetCombinedString{0x1403BFD80, 0x140416B30};
+	WEAK symbol<bool(const char* dvarName)> Dvar_GetBool{0x140429FC0, 0x1404ECCB0};
+	WEAK symbol<int(const char* dvarName)> Dvar_GetInt{0x14042A0A0, 0x1404ECD90};
 	WEAK symbol<const char*(const char* dvarName, const char* defaultValue)> Dvar_GetVariantStringWithDefault{0x14042A240, 0x1404ECF90};
 	WEAK symbol<dvar_t*(const char* dvarName, bool value, unsigned int flags, const char* description)> Dvar_RegisterBool{0x14042AF10, 0x1404EDD60};
 	WEAK symbol<dvar_t*(const char* dvarName, const char** valueList, int defaultIndex, unsigned int flags,

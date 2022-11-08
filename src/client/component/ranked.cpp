@@ -75,12 +75,12 @@ namespace ranked
 			if (game::environment::is_mp())
 			{
 				// This must be registered as 'true' to avoid crash when starting a private match 
-				dvars::override::Dvar_RegisterBool("xblive_privatematch", true, game::DVAR_FLAG_REPLICATED);
+				dvars::override::register_bool("xblive_privatematch", true, game::DVAR_FLAG_REPLICATED);
 			}
 
 			if (game::environment::is_dedi() && !utils::flags::has_flag("unranked"))
 			{
-				dvars::override::Dvar_RegisterBool("xblive_privatematch", false, game::DVAR_FLAG_WRITE);
+				dvars::override::register_bool("xblive_privatematch", false, game::DVAR_FLAG_WRITE);
 
 				// Some dvar used in gsc
 				game::Dvar_RegisterBool("force_ranking", true, game::DVAR_FLAG_WRITE, "Force ranking");

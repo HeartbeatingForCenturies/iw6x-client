@@ -5,6 +5,7 @@
 
 #include "command.hpp"
 #include "console.hpp"
+#include "dvars.hpp"
 #include "network.hpp"
 #include "scheduler.hpp"
 #include "server_list.hpp"
@@ -33,6 +34,8 @@ namespace party
 		utils::hook::detour didyouknow_hook;
 
 		std::string sv_motd;
+
+		int sv_maxclients;
 
 		void switch_gamemode_if_necessary(const std::string& gametype)
 		{
@@ -63,17 +66,6 @@ namespace party
 			command::execute("startentitlements", true);
 		}
 
-		std::string get_dvar_string(const std::string& dvar)
-		{
-			const auto* dvar_value = game::Dvar_FindVar(dvar.data());
-			if (dvar_value)
-			{
-				return {dvar_value->current.string};
-			}
-
-			return {};
-		}
-
 		void start_map(const std::string& mapname)
 		{
 			if (game::Live_SyncOnlineDataFlags(0) != 0)
@@ -85,7 +77,7 @@ namespace party
 			}
 			else
 			{
-				switch_gamemode_if_necessary(get_dvar_string("g_gametype"));
+				switch_gamemode_if_necessary(dvars::get_string("g_gametype"));
 
 				if (!game::environment::is_dedi())
 				{
@@ -149,6 +141,11 @@ namespace party
 			a.mov(ecx, 2);
 			a.jmp(0x1402C617D);
 		});
+	}
+
+	int server_client_count()
+	{
+		return sv_maxclients;
 	}
 
 	int get_client_count()
@@ -471,16 +468,16 @@ namespace party
 				utils::info_string info;
 				info.set("challenge", data);
 				info.set("gamename", "IW6");
-				info.set("hostname", get_dvar_string("sv_hostname"));
-				info.set("gametype", get_dvar_string("g_gametype"));
-				info.set("sv_motd", get_dvar_string("sv_motd"));
+				info.set("hostname", dvars::get_string("sv_hostname"));
+				info.set("gametype", dvars::get_string("g_gametype"));
+				info.set("sv_motd", dvars::get_string("sv_motd"));
 				info.set("xuid", utils::string::va("%llX", steam::SteamUser()->GetSteamID().bits));
-				info.set("mapname", get_dvar_string("mapname"));
-				info.set("isPrivate", get_dvar_string("g_password").empty() ? "0" : "1");
-				info.set("clients", utils::string::va("%i", get_client_count()));
-				info.set("bots", utils::string::va("%i", get_bot_count()));
-				info.set("sv_maxclients", utils::string::va("%i", *game::mp::svs_numclients));
-				info.set("protocol", utils::string::va("%i", PROTOCOL));
+				info.set("mapname", dvars::get_string("mapname"));
+				info.set("isPrivate", dvars::get_string("g_password").empty() ? "0" : "1");
+				info.set("clients", std::to_string(get_client_count()));
+				info.set("bots", std::to_string(get_bot_count()));
+				info.set("sv_maxclients", std::to_string(*game::mp::svs_numclients));
+				info.set("protocol", std::to_string(PROTOCOL));
 				info.set("shortversion", SHORTVERSION);
 
 				network::send(target, "infoResponse", info.build(), '\n');
@@ -529,6 +526,15 @@ namespace party
 				}
 
 				sv_motd = info.get("sv_motd");
+
+				try
+				{
+					sv_maxclients = std::stoi(info.get("sv_maxclients"));
+				}
+				catch ([[maybe_unused]] const std::exception& ex)
+				{
+					sv_maxclients = 1;
+				}
 
 				connect_to_party(target, mapname, gametype);
 			});

@@ -4,6 +4,8 @@ namespace dvars
 {
 	namespace override
 	{
-		void Dvar_RegisterBool(const std::string& name, bool value, unsigned int flags);
+		void register_bool(const std::string& name, bool value, unsigned int flags);
 	}
+
+	std::string get_string(const std::string& dvar);
 }
