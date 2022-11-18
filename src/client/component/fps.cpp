@@ -90,7 +90,7 @@ namespace fps
 
 		void cg_draw_fps()
 		{
-			if (cg_drawFPS->current.integer != 0)
+			if (cg_drawFPS && cg_drawFPS->current.integer != 0)
 			{
 				const auto fps = static_cast<std::int32_t>(static_cast<float>(1000.0f /
 					static_cast<float>(cg_perf.average)) + 9.313225746154785e-10);
