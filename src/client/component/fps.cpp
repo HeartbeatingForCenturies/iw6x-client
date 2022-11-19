@@ -172,7 +172,7 @@ namespace fps
 			// change cg_drawfps flags to saved
 			utils::hook::call(SELECT_VALUE(0x1401F400A, 0x140272B98), &cg_draw_fps_register_stub);
 
-			cg_drawPing = game::Dvar_RegisterInt("cg_drawPing", 0, 0, 1, game::DVAR_FLAG_SAVED, "Choose to draw ping");
+			cg_drawPing = game::Dvar_RegisterInt("cg_drawPing", 0, 0, 1, game::DVAR_FLAG_SAVED, "Draw ping");
 
 			scheduler::loop(cg_draw_fps, scheduler::pipeline::renderer);
 			scheduler::loop(cg_draw_ping, scheduler::pipeline::renderer);
