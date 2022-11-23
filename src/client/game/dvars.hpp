@@ -28,7 +28,6 @@ namespace dvars
 	extern game::dvar_t* bg_surfacePenetration;
 
 	extern game::dvar_t* pm_bouncing;
-	extern game::dvar_t* pm_bouncingAllAngles;
 
 	extern game::dvar_t* player_sustainAmmo;
 

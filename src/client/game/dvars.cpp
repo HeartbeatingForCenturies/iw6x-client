@@ -29,7 +29,6 @@ namespace dvars
 	game::dvar_t* bg_surfacePenetration = nullptr;
 
 	game::dvar_t* pm_bouncing = nullptr;
-	game::dvar_t* pm_bouncingAllAngles = nullptr;
 
 	game::dvar_t* player_sustainAmmo = nullptr;
 
