@@ -32,7 +32,7 @@ namespace dvars
 
 	game::dvar_t* player_sustainAmmo = nullptr;
 
-	game::dvar_t* jump_slowDownEnable = nullptr;
+	game::dvar_t* jump_slowdownEnable = nullptr;
 	game::dvar_t* jump_enableFallDamage = nullptr;
 	game::dvar_t* jump_height = nullptr;
 	game::dvar_t* jump_ladderPushVel = nullptr;

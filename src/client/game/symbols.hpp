@@ -237,6 +237,8 @@ namespace game
 	WEAK symbol<void(const pmove_t* move, trace_t* trace, const float*,
 		const float*, const Bounds*, int, int)> PM_trace{0, 0x140225DB0};
 
+	WEAK symbol<void(void* ps)> Jump_ClearState{0x0, 0x140213120};
+
 	WEAK symbol<void*(jmp_buf* Buf, int Value)> longjmp{0x14062E030, 0x140738060};
 	WEAK symbol<int (jmp_buf* Buf)> _setjmp{0x14062F030, 0x140739060};
 

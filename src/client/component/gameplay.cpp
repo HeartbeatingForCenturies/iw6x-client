@@ -9,6 +9,11 @@ namespace gameplay
 {
 	namespace
 	{
+		template <typename T, typename R>
+		constexpr auto VectorScale(T v, R s, T out) { out[0] = v[0] * s; out[1] = v[1] * s; out[2] = v[2] * s; }
+
+		constexpr auto JUMP_LAND_SLOWDOWN_TIME = 1800;
+
 		utils::hook::detour pm_weapon_use_ammo_hook;
 
 		int stuck_in_client_stub(void* self)
@@ -118,33 +123,38 @@ namespace gameplay
 			}
 		}
 
-		void jump_apply_slowdown(game::mp::playerState_s* ps)
+		void jump_apply_slowdown_stub(game::mp::playerState_s* ps)
 		{
-			if (dvars::jump_slowDownEnable->current.enabled)
+			auto scale = 1.0f;
+
+			if (ps->pm_time <= JUMP_LAND_SLOWDOWN_TIME)
 			{
-				reinterpret_cast<void(*)(void*)>(0x140212ED0)(ps);
+				if (ps->pm_time == 0)
+				{
+					const auto height = ps->jumpOriginZ + 18.0f;
+					if (height <= ps->origin[2])
+					{
+						scale = 0.5f;
+						ps->pm_time = 1200;
+					}
+					else
+					{
+						scale = 0.65f;
+						ps->pm_time = JUMP_LAND_SLOWDOWN_TIME;
+					}
+				}
 			}
 			else
 			{
-				ps->pm_time = 1;
+				game::Jump_ClearState(ps);
+				scale = 0.65f;
+			}
+
+			if (!dvars::jump_slowdownEnable->current.enabled)
+			{
+				VectorScale(ps->velocity, scale, ps->velocity);
 			}
 		}
-
-		const auto jump_apply_slowdown_stub = utils::hook::assemble([](utils::hook::assembler& a)
-		{
-			const auto no_slowdown = a.newLabel();
-			a.jz(no_slowdown);
-
-			a.mov(rcx, rsi);
-
-			a.pushad64();
-			a.call_aligned(&jump_apply_slowdown);
-			a.popad64();
-
-			a.bind(no_slowdown);
-			a.test(dword_ptr(rsi, 0x25), 0x4000);
-			a.jmp(0x140225863);
-		});
 
 		float get_jump_height_stub(void* pmove)
 		{
@@ -231,7 +241,7 @@ namespace gameplay
 			utils::hook::jump(
 				SELECT_VALUE(0x14046EC5C, 0x140228FFF), SELECT_VALUE(pm_bouncing_stub_sp, pm_bouncing_stub_mp), true);
 			dvars::pm_bouncing = game::Dvar_RegisterBool("pm_bouncing", false,
-			                                             game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable bouncing");
+			                                             game::DVAR_FLAG_REPLICATED, "Enable bouncing");
 
 			dvars::player_sustainAmmo = game::Dvar_RegisterBool("player_sustainAmmo", false,
 				game::DVAR_FLAG_REPLICATED, "Firing weapon will not decrease clip ammo.");
@@ -251,42 +261,42 @@ namespace gameplay
 			// Implement gravity dvar
 			utils::hook::nop(0x1403828C8, 13);
 			utils::hook::jump(0x1403828C8, g_gravity_stub, true);
-			dvars::g_gravity = game::Dvar_RegisterInt("g_gravity", 800, 0, 1000, game::DvarFlags::DVAR_FLAG_NONE,
+			dvars::g_gravity = game::Dvar_RegisterInt("g_gravity", 800, 0, 1000, game::DVAR_FLAG_NONE,
 			                                          "Game gravity in inches per second squared");
 
 			// Implement speed dvar
 			utils::hook::nop(0x140383789, 13);
 			utils::hook::jump(0x140383789, g_speed_stub, true);
-			dvars::g_speed = game::Dvar_RegisterInt("g_speed", 190, 0, 999, game::DvarFlags::DVAR_FLAG_NONE, "Maximum player speed");
+			dvars::g_speed = game::Dvar_RegisterInt("g_speed", 190, 0, 999, game::DVAR_FLAG_NONE, "Maximum player speed");
 
-			utils::hook::jump(0x140225852, jump_apply_slowdown_stub, true);
-			dvars::jump_slowDownEnable = game::Dvar_RegisterBool("jump_slowDownEnable", true,
-			                                                     game::DvarFlags::DVAR_FLAG_REPLICATED,
+			utils::hook::call(0x140225857, jump_apply_slowdown_stub);
+			dvars::jump_slowdownEnable = game::Dvar_RegisterBool("jump_slowdownEnable", true,
+			                                                     game::DVAR_FLAG_REPLICATED,
 			                                                     "Slow player movement after jumping");
 
 			utils::hook::call(0x1402219A5, pm_crashland_stub);
 			dvars::jump_enableFallDamage = game::Dvar_RegisterBool("jump_enableFallDamage", true,
-			                                                       game::DvarFlags::DVAR_FLAG_REPLICATED,
+			                                                       game::DVAR_FLAG_REPLICATED,
 			                                                       "Enable fall damage");
 
 			utils::hook::call(0x140213007, get_jump_height_stub);
 			dvars::jump_height = game::Dvar_RegisterFloat("jump_height", 39.f, 0.f, 1024.f,
-			                                              game::DvarFlags::DVAR_FLAG_REPLICATED, "Jump height");
+			                                              game::DVAR_FLAG_REPLICATED, "Jump height");
 
 			utils::hook::jump(0x140213484, jump_push_off_ladder_stub, true);
 			dvars::jump_ladderPushVel = game::Dvar_RegisterFloat("jump_ladderPushVel", 128.f, 0.f, 1024.f,
-			                                                     game::DvarFlags::DVAR_FLAG_REPLICATED,
+			                                                     game::DVAR_FLAG_REPLICATED,
 			                                                     "Ladder push velocity");
 
 			utils::hook::call(0x140221F92, pm_player_trace_stub);
 			utils::hook::call(0x140221FFA, pm_player_trace_stub);
 			utils::hook::call(0x14021F0E3, pm_trace_stub);
 			dvars::g_enableElevators = game::Dvar_RegisterBool("g_enableElevators", false,
-				game::DvarFlags::DVAR_FLAG_REPLICATED, "Enable Elevators");
+				game::DVAR_FLAG_REPLICATED, "Enable Elevators");
 
 			utils::hook::call(0x1403D933E, weapon_rocket_launcher_fire_stub);
 			dvars::g_rocketPushbackScale = game::Dvar_RegisterFloat("g_rocketPushbackScale", 1.0f, 1.0f, std::numeric_limits<float>::max(),
-				game::DvarFlags::DVAR_FLAG_REPLICATED, "The scale applied to the pushback force of a rocket");
+				game::DVAR_FLAG_REPLICATED, "The scale applied to the pushback force of a rocket");
 		}
 	};
 }
