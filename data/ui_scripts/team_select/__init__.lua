@@ -38,7 +38,7 @@ package.loaded["LUI.mp_hud.OptionsMenu"].options_def = function()
 	self:animateToState( "default", 0 )
 	self:makeFocusable()
 
-	if f14_local0 ~= "aliens" and false == CoD.IsFireTeamMode() and f14_local1 == true and f14_local7 == true and not MLG.IsMLGSpectator() then
+	if f14_local0 ~= "aliens" and false == CoD.IsFireTeamMode() and GameX.IsSpectatingNotOnTeam() == false and f14_local1 == true and f14_local7 == true and not MLG.IsMLGSpectator() then
 		LUI.MenuBuilder.BuildAddChild(self, {
 			type = "UIGenericButton",
 			id = "btn_MPPause_0",

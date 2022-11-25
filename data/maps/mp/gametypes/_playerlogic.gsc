@@ -1338,7 +1338,7 @@ callback_playerconnect()
                 thread maps\mp\gametypes\_menus::setteam( "allies" );
                 self setclientomnvar( "ui_options_menu", 2 );
             }
-            else if ( !maps\mp\_utility::matchmakinggame() && maps\mp\_utility::allowteamchoice() )
+            else if ( maps\mp\_utility::allowteamchoice() && isbot( self ) == 0 )
             {
                 maps\mp\gametypes\_menus::menuspectator();
                 self setclientomnvar( "ui_options_menu", 1 );
@@ -1348,7 +1348,7 @@ callback_playerconnect()
                 thread spawnspectator();
                 maps\mp\gametypes\_menus::autoassign();
 
-                if ( maps\mp\_utility::allowclasschoice() || maps\mp\_utility::showfakeloadout() && !isai( self ) )
+                if ( maps\mp\_utility::showfakeloadout() && !isai( self ) )
                     self setclientomnvar( "ui_options_menu", 2 );
 
                 if ( maps\mp\_utility::matchmakinggame() )
