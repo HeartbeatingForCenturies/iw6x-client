@@ -64,7 +64,7 @@ namespace utils
 
 	void* memory::allocate(const size_t length)
 	{
-		return calloc(length, 1);
+		return std::calloc(length, 1);
 	}
 
 	char* memory::duplicate_string(const std::string& string)
@@ -76,10 +76,7 @@ namespace utils
 
 	void memory::free(void* data)
 	{
-		if (data)
-		{
-			::free(data);
-		}
+		std::free(data);
 	}
 
 	void memory::free(const void* data)
