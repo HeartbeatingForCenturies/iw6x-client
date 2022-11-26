@@ -1,13 +1,11 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
 #include "game/game.hpp"
-#include "game/dvars.hpp"
 #include "game/ui_scripting/execution.hpp"
 
 #include "server_list.hpp"
 #include "console.hpp"
 #include "command.hpp"
-#include "dvars.hpp"
 #include "localized_strings.hpp"
 #include "network.hpp"
 #include "scheduler.hpp"
@@ -28,7 +26,6 @@ namespace server_list
 			int max_clients;
 			int bots;
 			int ping;
-			bool is_private;
 			std::string host_name;
 			std::string map_name;
 			std::string game_type;
@@ -129,33 +126,27 @@ namespace server_list
 
 			if (column == 0)
 			{
-				return utils::string::va("%s", servers[i].host_name.data());
+				return utils::string::va("%s\n", servers[i].host_name.data());
 			}
 
 			if (column == 1)
 			{
-				return utils::string::va("%s", servers[i].map_name.data());
+				return utils::string::va("%s\n", servers[i].map_name.data());
 			}
 
 			if (column == 2)
 			{
-				const auto client_count = servers[i].clients - servers[i].bots;
-				return utils::string::va("%d/%d [%d]", client_count, servers[i].max_clients, servers[i].bots);
+				return utils::string::va("%d/%d [%d]", servers[i].clients, servers[index].max_clients, servers[i].bots);
 			}
 
 			if (column == 3)
 			{
-				return utils::string::va("%s", servers[i].game_type.data());
+				return utils::string::va("%s\n", servers[i].game_type.data());
 			}
 
 			if (column == 4)
 			{
-				return utils::string::va("%d", servers[i].ping);
-			}
-
-			if (column == 5)
-			{
-				return utils::string::va("%d", servers[i].is_private);
+				return utils::string::va("%d\n", servers[i].ping);
 			}
 
 			return "";
@@ -165,14 +156,12 @@ namespace server_list
 		{
 			std::ranges::stable_sort(servers, [](const server_info& a, const server_info& b)
 			{
-				const auto a_players = a.clients - a.bots;
-				const auto b_players = b.clients - b.bots;
-				if (a_players == b_players)
+				if (a.clients == b.clients)
 				{
 					return a.ping < b.ping;
 				}
 
-				return a_players > b_players;
+				return a.clients > b.clients;
 			});
 		}
 
@@ -233,9 +222,9 @@ namespace server_list
 			if (server_list_index + 16 < servers.size())
 			{
 				++server_list_index;
-				trigger_refresh();
 			}
-			
+
+			trigger_refresh();
 			return true;
 		}
 
@@ -249,9 +238,9 @@ namespace server_list
 			if (server_list_index > 0)
 			{
 				--server_list_index;
-				trigger_refresh();
 			}
 
+			trigger_refresh();
 			return true;
 		}
 
@@ -330,31 +319,6 @@ namespace server_list
 			master_state.queued_servers.erase(entry);
 		}
 
-		if (dvars::get_string("ui_customModeName") == "mp"s)
-		{
-			if (info.get("gametype") == "aliens"s)
-			{
-				return;
-			}
-		}
-		else if (dvars::get_string("ui_customModeName") == "aliens"s)
-		{
-			if (info.get("gametype") != "aliens"s)
-			{
-				return;
-			}
-		}
-
-		if (dvars::get_string("ui_mapvote_entrya_gametype") != "any"s && dvars::get_string("ui_mapvote_entrya_gametype") != info.get("gametype"))
-		{
-			return;
-		}
-
-		if (dvars::get_string("ui_mapvote_entrya_mapname") != "any"s && dvars::get_string("ui_mapvote_entrya_mapname") != info.get("mapname"))
-		{
-			return;
-		}
-
 		server_info server{};
 		server.address = address;
 		server.host_name = info.get("hostname");
@@ -364,7 +328,7 @@ namespace server_list
 		server.max_clients = atoi(info.get("sv_maxclients").data());
 		server.bots = atoi(info.get("bots").data());
 		server.ping = now - start_time;
-		server.is_private = info.get("isPrivate") == "1"s;
+
 		server.in_game = 1;
 
 		if (server.host_name.size() > 50)
