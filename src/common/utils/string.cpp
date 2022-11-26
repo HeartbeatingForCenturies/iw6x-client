@@ -42,7 +42,7 @@ namespace utils::string
 			return static_cast<char>(std::tolower(input));
 		});
 
-		return text;
+		return result;
 	}
 
 	std::string to_upper(const std::string& text)
