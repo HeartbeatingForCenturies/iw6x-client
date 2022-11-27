@@ -8,6 +8,7 @@
 #include "game_console.hpp"
 #include "fastfiles.hpp"
 
+#include <utils/io.hpp>
 #include <utils/hook.hpp>
 #include <utils/string.hpp>
 #include <utils/memory.hpp>
@@ -108,7 +109,7 @@ namespace command
 		// parse the commandline if it's not parsed
 		parse_command_line();
 
-		auto& com_num_console_lines = *reinterpret_cast<int*>(0x1445CFF98);
+		auto com_num_console_lines = *reinterpret_cast<int*>(0x1445CFF98);
 		auto* com_console_lines = reinterpret_cast<char**>(0x1445CFFA0);
 
 		for (int i = 0; i < com_num_console_lines; i++)
@@ -266,39 +267,74 @@ namespace command
 		{
 			add("quit", game::Com_Quit);
 			add("quit_hard", utils::nt::raise_hard_exception);
-			add("crash", []()
+			add("crash", []
 			{
-					*reinterpret_cast<int*>(1) = 0;
+				*reinterpret_cast<int*>(1) = 0x12345678;
 			});
 
-			add("dvarDump", []()
+			add("dvarDump", [](const params& argument)
 			{
+				std::string filename;
+				if (argument.size() == 2)
+				{
+					filename = "iw6x/";
+					filename.append(argument[1]);
+					if (!filename.ends_with(".txt"))
+					{
+						filename.append(".txt");
+					}
+				}
+
 				console::info("================================ DVAR DUMP ========================================\n");
 				for (auto i = 0; i < *game::dvarCount; i++)
 				{
-					const auto dvar = game::sortedDvars[i];
+					auto* dvar = game::sortedDvars[i];
 					if (dvar)
 					{
-						console::info("%s \"%s\"\n", dvar->name,
-							game::Dvar_ValueToString(dvar, dvar->current));
+						if (!filename.empty())
+						{
+							const auto line = std::format("{} \"{}\"\r\n", dvar->name, game::Dvar_ValueToString(dvar, dvar->current));
+							utils::io::write_file(filename, line, i != 0);
+						}
+
+						console::info("%s \"%s\"\n", dvar->name, game::Dvar_ValueToString(dvar, dvar->current));
 					}
 				}
+
 				console::info("\n%i dvars\n", *game::dvarCount);
 				console::info("================================ END DVAR DUMP ====================================\n");
 			});
 
-			add("commandDump", []()
+			add("commandDump", [](const params& argument)
 			{
+				std::string filename;
+				if (argument.size() == 2)
+				{
+					filename = "iw6x/";
+					filename.append(argument[1]);
+					if (!filename.ends_with(".txt"))
+					{
+						filename.append(".txt");
+					}
+				}
+
 				console::info("================================ COMMAND DUMP =====================================\n");
-				game::cmd_function_s* cmd = (*game::cmd_functions);
-				int i = 0;
+				game::cmd_function_s* cmd = *game::cmd_functions;
+				auto i = 0;
 				while (cmd)
 				{
 					if (cmd->name)
 					{
+						if (!filename.empty())
+						{
+							const auto line = std::format("{}\r\n", cmd->name);
+							utils::io::write_file(filename, line, i != 0);
+						}
+
 						console::info("%s\n", cmd->name);
 						i++;
 					}
+
 					cmd = cmd->next;
 				}
 				console::info("\n%i commands\n", i);
@@ -413,7 +449,7 @@ namespace command
 		
 		void add_sp_commands()
 		{
-			add("god", [&]()
+			add("god", []
 			{
 				if (!game::SV_Loaded())
 				{
@@ -427,7 +463,7 @@ namespace command
 					                                          : "^1off"));
 			});
 
-			add("notarget", [&]()
+			add("notarget", []
 			{
 				if (!game::SV_Loaded())
 				{
@@ -441,7 +477,7 @@ namespace command
 					                                          : "^1off"));
 			});
 			
-			add("noclip", [&]()
+			add("noclip", []
 			{
 				if (!game::SV_Loaded())
 				{
@@ -455,7 +491,7 @@ namespace command
 					                                          : "^1off"));
 			});
 
-			add("ufo", [&]()
+			add("ufo", []
 			{
 				if (!game::SV_Loaded())
 				{
@@ -530,7 +566,7 @@ namespace command
 					                                                 : "^1off"));
 			});
 
-			add_sv("notarget", [&](const int client_num, const params_sv&)
+			add_sv("notarget", [](const int client_num, const params_sv&)
 			{
 				if (!dvars::sv_cheats->current.enabled)
 				{
@@ -546,7 +582,7 @@ namespace command
 				                    		                         : "^1off"));
 			});
 
-			add_sv("noclip", [&](const int client_num, const params_sv&)
+			add_sv("noclip", [](const int client_num, const params_sv&)
 			{
 				if (!dvars::sv_cheats->current.enabled)
 				{
@@ -562,7 +598,7 @@ namespace command
 					                                                 : "^1off"));
 			});
 
-			add_sv("ufo", [&](const int client_num, const params_sv&)
+			add_sv("ufo", [](const int client_num, const params_sv&)
 			{
 				if (!dvars::sv_cheats->current.enabled)
 				{
@@ -578,7 +614,7 @@ namespace command
 					                                                 : "^1off"));
 			});
 
-			add_sv("setviewpos", [&](const int client_num, const params_sv& params)
+			add_sv("setviewpos", [](const int client_num, const params_sv& params)
 			{
 				if (!dvars::sv_cheats->current.enabled)
 				{
@@ -598,7 +634,7 @@ namespace command
 				game::mp::g_entities[client_num].client->ps.origin[2] = std::strtof(params.get(3), nullptr);
 			});
 
-			add_sv("setviewang", [&](const int client_num, const params_sv& params)
+			add_sv("setviewang", [](const int client_num, const params_sv& params)
 			{
 				if (!dvars::sv_cheats->current.enabled)
 				{
