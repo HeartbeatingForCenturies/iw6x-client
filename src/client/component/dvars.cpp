@@ -36,7 +36,7 @@ namespace dvars
 	{
 		static std::unordered_map<std::string, dvar_bool> register_bool_overrides;
 
-		void Dvar_RegisterBool(const std::string& name, const bool value, const unsigned int flags)
+		void register_bool(const std::string& name, const bool value, const unsigned int flags)
 		{
 			dvar_bool values;
 			values.value = value;
@@ -45,7 +45,18 @@ namespace dvars
 		}
 	}
 
-	const game::dvar_t* dvar_register_bool(const char* name, bool value, unsigned int flags, const char* description)
+	std::string get_string(const std::string& dvar)
+	{
+		const auto* dvar_value = game::Dvar_FindVar(dvar.data());
+		if (dvar_value)
+		{
+			return {dvar_value->current.string};
+		}
+
+		return {};
+	}
+
+	const game::dvar_t* dvar_register_bool_stub(const char* name, bool value, unsigned int flags, const char* description)
 	{
 		const auto* var = find_dvar(override::register_bool_overrides, name);
 		if (var)
@@ -62,7 +73,7 @@ namespace dvars
 	public:
 		void post_unpack() override
 		{
-			dvar_register_bool_hook.create(game::Dvar_RegisterBool, &dvar_register_bool);
+			dvar_register_bool_hook.create(game::Dvar_RegisterBool, &dvar_register_bool_stub);
 		}
 
 		void pre_destroy() override

@@ -1,7 +1,9 @@
 #include <std_include.hpp>
 #include "loader/component_loader.hpp"
-#include "scheduler.hpp"
 #include "game/game.hpp"
+
+#include "scheduler.hpp"
+#include "party.hpp"
 
 #include <utils/string.hpp>
 
@@ -38,15 +40,23 @@ namespace discord
 
 				discord_presence.details = utils::string::va("%s on %s", gametype, map);
 
-				auto* const host_name = reinterpret_cast<char*>(0x14187EBC4);
-				utils::string::strip(host_name, host_name, std::strlen(host_name) + 1);
-
-				discord_presence.state = host_name;
-
 				discord_presence.partySize = game::mp::cgArray->snap != nullptr
-					                             ? game::mp::cgArray->snap->numClients
-					                             : 1;
-				discord_presence.partyMax = game::Dvar_FindVar("sv_maxclients")->current.integer;
+					? game::mp::cgArray->snap->numClients
+					: 1;
+
+				if (game::Dvar_GetBool("xblive_privatematch"))
+				{
+					discord_presence.state = "Private Match";
+					discord_presence.partyMax = game::Dvar_GetInt("sv_maxclients");
+				}
+				else
+				{
+					auto* host_name = reinterpret_cast<char*>(0x14187EBC4);
+					utils::string::strip(host_name, host_name, std::strlen(host_name) + 1);
+
+					discord_presence.state = host_name;
+					discord_presence.partyMax = party::server_client_count();
+				}
 
 				if (!discord_presence.startTimestamp)
 				{

@@ -118,7 +118,7 @@ namespace gsc
 				return nullptr;
 			}
 
-			const auto script_file_ptr = static_cast<game::ScriptFile*>(game::PMem_AllocFromSource_NoDebug(sizeof(game::ScriptFile), 4, 1, game::PMEM_SOURCE_SCRIPT));
+			const auto script_file_ptr = static_cast<game::ScriptFile*>(game::Hunk_AllocateTempMemoryHighInternal(sizeof(game::ScriptFile)));
 			script_file_ptr->name = file_name;
 
 			const auto stack = assembler->output_stack();
@@ -127,16 +127,15 @@ namespace gsc
 			const auto script = assembler->output_script();
 			script_file_ptr->bytecodeLen = static_cast<int>(script.size());
 
-			const auto script_size = script.size();
-			// Use PMem for both stack and byte code
-			const auto buffer_size = script_size + stack.size() + 2;
+			const auto stack_size = static_cast<std::uint32_t>(stack.size() + 1);
+			const auto byte_code_size = static_cast<std::uint32_t>(script.size() + 1);
 
-			const auto buffer = static_cast<std::uint8_t*>(game::PMem_AllocFromSource_NoDebug(static_cast<std::uint32_t>(buffer_size), 4, 1, game::PMEM_SOURCE_SCRIPT));
-			std::memcpy(buffer, script.data(), script_size);
-			std::memcpy(&buffer[script_size], stack.data(), stack.size());
+			script_file_ptr->buffer = static_cast<char*>(game::Hunk_AllocateTempMemoryHighInternal(stack_size));
+			std::memcpy(const_cast<char*>(script_file_ptr->buffer), stack.data(), stack.size());
 
-			script_file_ptr->bytecode = &buffer[0];
-			script_file_ptr->buffer = reinterpret_cast<char*>(&buffer[script.size()]);
+			script_file_ptr->bytecode = static_cast<std::uint8_t*>(game::PMem_AllocFromSource_NoDebug(byte_code_size, 4, 1, game::PMEM_SOURCE_SCRIPT));
+			std::memcpy(script_file_ptr->bytecode, script.data(), script.size());
+
 			script_file_ptr->compressedLen = 0;
 
 			loaded_scripts[real_name] = script_file_ptr;
@@ -319,6 +318,9 @@ namespace gsc
 	public:
 		void post_unpack() override
 		{
+			// Load our scripts with an uncompressed stack
+			utils::hook::call(SELECT_VALUE(0x1403DC8F0, 0x140437940), db_get_raw_buffer_stub);
+
 			if (game::environment::is_sp())
 			{
 				return;
@@ -353,9 +355,6 @@ namespace gsc
 
 			// GScr_LoadScripts
 			utils::hook::call(0x1403CD009, gscr_load_game_type_script_stub);
-
-			// Load our scripts with an uncompressed stack
-			utils::hook::call(0x140437940, db_get_raw_buffer_stub);
 
 			// Exec script handles
 			utils::hook::call(0x14039F64E, g_load_structs_stub);

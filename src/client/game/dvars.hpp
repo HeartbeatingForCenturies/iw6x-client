@@ -28,12 +28,11 @@ namespace dvars
 	extern game::dvar_t* bg_surfacePenetration;
 
 	extern game::dvar_t* pm_bouncing;
-	extern game::dvar_t* pm_bouncingAllAngles;
 
 	extern game::dvar_t* player_sustainAmmo;
 
 	extern game::dvar_t* r_aspectRatioCustom;
-	extern game::dvar_t* jump_slowDownEnable;
+	extern game::dvar_t* jump_slowdownEnable;
 	extern game::dvar_t* jump_enableFallDamage;
 	extern game::dvar_t* jump_height;
 	extern game::dvar_t* jump_ladderPushVel;

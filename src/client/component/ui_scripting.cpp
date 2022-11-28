@@ -344,7 +344,6 @@ namespace ui_scripting
 
 			// Disable unsafe functions
 			utils::hook::jump(SELECT_VALUE(0x140158C20, 0x14017AF50), hks_base_stub); // base_loadfile
-			utils::hook::jump(SELECT_VALUE(0x140158CC0, 0x14017AFF0), hks_base_stub); // base_loadstring
 			utils::hook::jump(SELECT_VALUE(0x140158B10, 0x14017AE40), hks_base_stub); // base_dofile
 			utils::hook::jump(SELECT_VALUE(0x14015D7E0, 0x14017FB10), hks_base_stub); // base_load
 

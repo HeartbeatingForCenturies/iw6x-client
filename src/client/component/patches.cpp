@@ -5,6 +5,7 @@
 
 #include "command.hpp"
 #include "console.hpp"
+#include "dvars.hpp"
 #include "network.hpp"
 #include "filesystem.hpp"
 #include "scheduler.hpp"
@@ -388,6 +389,9 @@ namespace patches
 			// Checks that reliableAcknowledge isn't negative
 			// It is possible to make the server hang if left unchecked
 			utils::hook::call(0x14047A29A, sv_execute_client_message_stub);
+
+			// Remove cheat protection from r_umbraExclusive
+			dvars::override::register_bool("r_umbraExclusive", false, game::DVAR_FLAG_NONE);
 		}
 
 		static void patch_sp()
