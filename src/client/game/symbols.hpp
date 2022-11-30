@@ -77,9 +77,9 @@ namespace game
 	WEAK symbol<dvar_t*(const char* dvarName, float x, float y, float z, float w, float min, float max,
 	                    unsigned int flags, const char* description)> Dvar_RegisterVec4{0x14042BC10, 0x1404EEA50};
 	WEAK symbol<void(dvar_t* dvar, DvarSetSource source)> Dvar_Reset{0x14042C150, 0x1404EF020};
-	WEAK symbol<void(dvar_t* dvar, bool value)> Dvar_SetBool{0x14042C370, 0x1404EF1A0};
+	WEAK symbol<void(const dvar_t* dvar, bool value)> Dvar_SetBool{0x14042C370, 0x1404EF1A0};
 	WEAK symbol<void(const char* dvar, const char* buffer)> Dvar_SetCommand{0x14042C8E0, 0x1404EF790};
-	WEAK symbol<void(dvar_t* dvar, const char* string)> Dvar_SetString{0x14042D6E0, 0x1404F08E0};
+	WEAK symbol<void(const dvar_t* dvar, const char* string)> Dvar_SetString{0x14042D6E0, 0x1404F08E0};
 	WEAK symbol<void(const char*, const char*, DvarSetSource)> Dvar_SetFromStringByNameFromSource{0x14042D000, 0x1404F00B0};
 	WEAK symbol<void()> Dvar_Sort{0x14042DEF0, 0x1404F1210};
 	WEAK symbol<const char*(dvar_t* dvar, dvar_value value)> Dvar_ValueToString{0x14042E710, 0x1404F1A30};
