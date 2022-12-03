@@ -93,7 +93,7 @@ namespace map_rotation
 				console::error("%s: %s contains invalid data!\n", ex.what(), sv_map_rotation->name);
 			}
 #ifdef _DEBUG
-			console::info("dedicated_rotation size after parsing is '%s'", dedicated_rotation.get_entries_size());
+			console::info("dedicated_rotation size after parsing is '%llu'", dedicated_rotation.get_entries_size());
 #endif
 		}
 

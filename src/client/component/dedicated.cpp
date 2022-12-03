@@ -10,6 +10,8 @@
 
 #include <utils/hook.hpp>
 
+#include <version.hpp>
+
 namespace dedicated
 {
 	namespace
@@ -207,6 +209,9 @@ namespace dedicated
 
 			// Make GScr_IsUsingMatchRulesData return 0 so the game doesn't override the cfg
 			utils::hook::jump(0x1403C9660, gscr_is_using_match_rules_data_stub);
+
+			// patch "Server is different version"
+			utils::hook::inject(0x140471479 + 3, VERSION);
 
 			// Hook R_SyncGpu
 			utils::hook::jump(0x1405E8530, sync_gpu_stub);
