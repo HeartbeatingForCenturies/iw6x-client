@@ -317,7 +317,7 @@ package.loaded["LUI.mp_menus.MPXboxLiveMenu"].XboxLiveOptionsFeeder = function( 
 				disabled = false,
 				properties = {
 					button_text = Engine.Localize( "@LUA_MENU_BARRACKS_CAPS" ),
-					button_action_func = LUI.mp_menus.MPXboxLiveMenu.BarracksAction,
+					button_action_func = BarracksAction,
 					desc_text = Clan.IsEnabled() and Engine.Localize( "@LUA_MENU_DESC_BARRACKS" ) or Engine.Localize( "@LUA_MENU_DESC_BARRACKS_PRIVATE" )
 				}
 			}
@@ -483,6 +483,10 @@ function FindMatchAfterThrottleEvent( f4_arg0, f4_arg1 )
 			end
 		end
 	end
+end
+
+function BarracksAction( f9_arg0, f9_arg1 )
+	LUI.FlowManager.RequestAddMenu( f9_arg0, "menu_stats", true, f9_arg1.controller ) -- custom stats menu
 end
 
 -- Remove social button
