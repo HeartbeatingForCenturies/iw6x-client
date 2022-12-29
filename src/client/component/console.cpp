@@ -4,8 +4,7 @@
 
 #include "console.hpp"
 #include "game_console.hpp"
-
-#include "component/command.hpp"
+#include "command.hpp"
 
 #include "rcon.hpp"
 

@@ -12,7 +12,7 @@
 #include <utils/hook.hpp>
 #include <utils/concurrency.hpp>
 
-#include "version.hpp"
+#include <version.hpp>
 
 #define console_font game::R_RegisterFont("fonts/consolefont")
 #define material_white game::Material_RegisterHandle("white")
