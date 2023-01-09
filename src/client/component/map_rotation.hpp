@@ -2,9 +2,9 @@
 
 namespace map_rotation
 {
-	struct parse_rotation_error : public std::exception
+	struct map_rotation_parse_error : public std::exception
 	{
-		const char* what() const noexcept override { return "Parse Rotation Error"; }
+		[[nodiscard]] const char* what() const noexcept override { return "Map Rotation Parse Error"; }
 	};
 
 	class rotation_data
