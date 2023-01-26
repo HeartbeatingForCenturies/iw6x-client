@@ -230,7 +230,7 @@ namespace demonware
 
 		namespace io
 		{
-			int __stdcall send_to(const SOCKET s, const char* buf, const int len, const int flags, const sockaddr* to,
+			int WINAPI send_to(const SOCKET s, const char* buf, const int len, const int flags, const sockaddr* to,
 			                      const int tolen)
 			{
 				if (tolen == sizeof(sockaddr_in))
@@ -243,7 +243,7 @@ namespace demonware
 				return sendto(s, buf, len, flags, to, tolen);
 			}
 
-			int __stdcall recv_from(const SOCKET s, char* buf, const int len, const int flags, sockaddr* from,
+			int WINAPI recv_from(const SOCKET s, char* buf, const int len, const int flags, sockaddr* from,
 			                        int* fromlen)
 			{
 				auto res = recv_datagam_packet(s, buf, len, from, fromlen);
@@ -254,7 +254,7 @@ namespace demonware
 				return res;
 			}
 
-			int __stdcall send(const SOCKET s, const char* buf, const int len, const int flags)
+			int WINAPI send(const SOCKET s, const char* buf, const int len, const int flags)
 			{
 				auto server = find_server_by_socket(s);
 				if (server) return server->send(buf, len);
@@ -262,7 +262,7 @@ namespace demonware
 				return ::send(s, buf, len, flags);
 			}
 
-			int __stdcall recv(const SOCKET s, char* buf, const int len, const int flags)
+			int WINAPI recv(const SOCKET s, char* buf, const int len, const int flags)
 			{
 				auto server = find_server_by_socket(s);
 				if (server)
@@ -288,7 +288,7 @@ namespace demonware
 				return ::recv(s, buf, len, flags);
 			}
 
-			int __stdcall connect(const SOCKET s, const sockaddr* addr, const int len)
+			int WINAPI connect(const SOCKET s, const sockaddr* addr, const int len)
 			{
 				if (len == sizeof(sockaddr_in))
 				{
@@ -299,14 +299,14 @@ namespace demonware
 				return ::connect(s, addr, len);
 			}
 
-			int __stdcall close_socket(const SOCKET s)
+			int WINAPI close_socket(const SOCKET s)
 			{
 				remove_blocking_socket(s);
 				unlink_socket(s);
 				return closesocket(s);
 			}
 
-			int __stdcall ioctl_socket(const SOCKET s, const long cmd, u_long* argp)
+			int WINAPI ioctl_socket(const SOCKET s, const long cmd, u_long* argp)
 			{
 				if (static_cast<unsigned long>(cmd) == (FIONBIO))
 				{
@@ -316,7 +316,7 @@ namespace demonware
 				return ioctlsocket(s, cmd, argp);
 			}
 
-			hostent* __stdcall get_host_by_name(char* name)
+			hostent* WINAPI get_host_by_name(char* name)
 			{
 				unsigned long addr = 0;
 				const auto server = find_server_by_name(name);
@@ -360,29 +360,25 @@ namespace demonware
 				return result;
 			}
 		}
-	}
 
-	void send_datagram_packet(const SOCKET s, const std::string& data, const sockaddr* to, const int tolen)
-	{
-		std::lock_guard<std::recursive_mutex> _(server_mutex);
-		datagram_packets[s].push({std::string(LPSTR(to), size_t(tolen)), data});
-	}
+		template <typename... Args>
+		std::shared_ptr<service_server> register_server(Args ... args)
+		{
+			std::lock_guard _(server_mutex);
+			auto server = std::make_shared<service_server>(args...);
+			servers[server->get_address()] = server;
+			return server;
+		}
 
-	uint8_t* get_key(const bool encrypt)
-	{
-		return encrypt ? encryption_key_ : decryption_key_;
-	}
+		std::shared_ptr<stun_server> register_stun_server(const std::string& name)
+		{
+			std::lock_guard _(server_mutex);
+			auto server = std::make_shared<stun_server>(name);
+			stun_servers[server->get_address()] = server;
+			return server;
+		}
 
-	void set_key(const bool encrypt, uint8_t* key)
-	{
-		static_assert(sizeof encryption_key_ == sizeof decryption_key_);
-		std::memcpy(encrypt ? encryption_key_ : decryption_key_, key, sizeof encryption_key_);
-	}
-
-	class component final : public component_interface
-	{
-	public:
-		component()
+		void startup_dw()
 		{
 			register_stun_server("ghosts-stun.us.demonware.net");
 			register_stun_server("ghosts-stun.eu.demonware.net");
@@ -406,9 +402,32 @@ namespace demonware
 			lsg_server->register_service<bdAnticheat>();
 			lsg_server->register_service<bdRelayService>();
 		}
+	}
 
+	void send_datagram_packet(const SOCKET s, const std::string& data, const sockaddr* to, const int tolen)
+	{
+		std::lock_guard<std::recursive_mutex> _(server_mutex);
+		datagram_packets[s].push({std::string(LPSTR(to), size_t(tolen)), data});
+	}
+
+	uint8_t* get_key(const bool encrypt)
+	{
+		return encrypt ? encryption_key_ : decryption_key_;
+	}
+
+	void set_key(const bool encrypt, uint8_t* key)
+	{
+		static_assert(sizeof encryption_key_ == sizeof decryption_key_);
+		std::memcpy(encrypt ? encryption_key_ : decryption_key_, key, sizeof encryption_key_);
+	}
+
+	class component final : public component_interface
+	{
+	public:
 		void post_load() override
 		{
+			startup_dw();
+
 			message_thread = utils::thread::create_named_thread("Demonware", server_thread);
 
 			io::register_hook("send", io::send);
@@ -428,7 +447,7 @@ namespace demonware
 
 		void pre_destroy() override
 		{
-			std::lock_guard<std::recursive_mutex> _(server_mutex);
+			std::lock_guard _(server_mutex);
 
 			terminate = true;
 			if (message_thread.joinable())
@@ -441,23 +460,6 @@ namespace demonware
 			socket_links.clear();
 			blocking_sockets.clear();
 			datagram_packets.clear();
-		}
-
-		template <typename... Args>
-		static std::shared_ptr<service_server> register_server(Args ... args)
-		{
-			std::lock_guard<std::recursive_mutex> _(server_mutex);
-			auto server = std::make_shared<service_server>(args...);
-			servers[server->get_address()] = server;
-			return server;
-		}
-
-		static std::shared_ptr<stun_server> register_stun_server(const std::string& name)
-		{
-			std::lock_guard<std::recursive_mutex> _(server_mutex);
-			auto server = std::make_shared<stun_server>(name);
-			stun_servers[server->get_address()] = server;
-			return server;
 		}
 	};
 }

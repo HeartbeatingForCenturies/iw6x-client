@@ -48,18 +48,7 @@ namespace filesystem
 		{
 			console::info("[FS] Startup\n");
 
-			initialized = true;
 			custom_path_registered = false;
-
-			register_path(get_binary_directory() + "\\data");
-			register_path("iw6x");
-
-			// game's search paths
-			register_path("devraw");
-			register_path("devraw_shared");
-			register_path("raw_shared");
-			register_path("raw");
-			register_path("main");
 
 			game::FS_Startup(gamename);
 		}
@@ -84,6 +73,28 @@ namespace filesystem
 			}
 
 			return true;
+		}
+
+		void startup()
+		{
+			register_path("iw6x");
+			register_path(get_binary_directory() + "\\data");
+
+			// game's search paths
+			register_path("devraw");
+			register_path("devraw_shared");
+			register_path("raw_shared");
+			register_path("raw");
+			register_path("main");
+		}
+
+		void check_for_startup()
+		{
+			if (!initialized)
+			{
+				initialized = true;
+				startup();
+			}
 		}
 	}
 
@@ -118,6 +129,8 @@ namespace filesystem
 
 	std::string read_file(const std::string& path)
 	{
+		check_for_startup();
+
 		for (const auto& search_path : get_search_paths_internal())
 		{
 			const auto path_ = search_path / path;
@@ -132,6 +145,8 @@ namespace filesystem
 
 	bool read_file(const std::string& path, std::string* data, std::string* real_path)
 	{
+		check_for_startup();
+
 		for (const auto& search_path : get_search_paths_internal())
 		{
 			const auto path_ = search_path / path;
@@ -151,6 +166,8 @@ namespace filesystem
 
 	bool find_file(const std::string& path, std::string* real_path)
 	{
+		check_for_startup();
+
 		for (const auto& search_path : get_search_paths_internal())
 		{
 			const auto path_ = search_path / path;
@@ -166,6 +183,8 @@ namespace filesystem
 
 	bool exists(const std::string& path)
 	{
+		check_for_startup();
+
 		for (const auto& search_path : get_search_paths_internal())
 		{
 			const auto path_ = search_path / path;
@@ -180,11 +199,6 @@ namespace filesystem
 
 	void register_path(const std::filesystem::path& path)
 	{
-		if (!initialized)
-		{
-			return;
-		}
-
 		const auto paths = get_paths(path);
 		for (const auto& path_ : paths)
 		{
@@ -198,11 +212,6 @@ namespace filesystem
 
 	void unregister_path(const std::filesystem::path& path)
 	{
-		if (!initialized)
-		{
-			return;
-		}
-
 		const auto paths = get_paths(path);
 		for (const auto& path_ : paths)
 		{
