@@ -23,11 +23,11 @@ namespace demonware
 		void set_user_file(i_server* server, byte_buffer* buffer) const;
 		void get_user_file(i_server* server, byte_buffer* buffer) const;
 
-		void map_publisher_resource(const std::string& expression, INT id);
+		void map_publisher_resource(const std::string& expression, const std::string& path, int id);
 		void map_publisher_resource_variant(const std::string& expression, resource_variant resource);
-		bool load_publisher_resource(const std::string& name, std::string& buffer);
+		bool load_publisher_resource(const std::string& name, std::string& buffer) const;
 
 		static std::string get_user_file_path(const std::string& name);
-		static std::string generate_heatmap();
+		static std::string generate_heat_map();
 	};
 }
