@@ -93,7 +93,7 @@ namespace demonware
 		{
 			for (auto x = 0; x < 256; ++x)
 			{
-				auto data = std::clamp(rand(), 0, 255);
+				auto data = static_cast<uint8_t>(std::clamp<int>(rand(), std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max()));
 				if (data % 15 == 0)
 				{
 					data = 0xF | ((data & 0x7) << 4) | 0x10;
