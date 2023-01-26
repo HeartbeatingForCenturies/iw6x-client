@@ -6,7 +6,7 @@
 
 #include <utils/hook.hpp>
 
-#include "hidusage.h"
+#include <hidusage.h>
 
 namespace raw_mouse
 {
