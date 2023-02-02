@@ -402,9 +402,9 @@ namespace party
 
 			scheduler::once([]
 			{
-				game::Dvar_RegisterString("sv_sayName", "console", game::DvarFlags::DVAR_FLAG_NONE,
+				game::Dvar_RegisterString("sv_sayName", "console", game::DVAR_FLAG_NONE,
 				                          "The name to pose as for 'say' commands");
-				game::Dvar_RegisterString("didyouknow", "", game::DvarFlags::DVAR_FLAG_NONE, "");
+				game::Dvar_RegisterString("didyouknow", "", game::DVAR_FLAG_NONE, "");
 			}, scheduler::pipeline::main);
 
 			command::add("tell", [](const command::params& params)
@@ -511,17 +511,24 @@ namespace party
 					return;
 				}
 
-				const auto gametype = info.get("gametype");
-				if (gametype.empty())
+				const auto game_type = info.get("gametype");
+				if (game_type.empty())
 				{
 					console::info("Invalid gametype.\n");
 					return;
 				}
 
-				const auto gamename = info.get("gamename");
-				if (gamename != "IW6"s)
+				const auto game_name = info.get("gamename");
+				if (game_name != "IW6"s)
 				{
 					console::info("Invalid gamename.\n");
+					return;
+				}
+
+				const auto is_private = info.get("isPrivate");
+				if (is_private == "1"s && dvars::get_string("password").empty())
+				{
+					console::info("Password is not set.\n");
 					return;
 				}
 
@@ -536,7 +543,7 @@ namespace party
 					sv_maxclients = 1;
 				}
 
-				connect_to_party(target, mapname, gametype);
+				connect_to_party(target, mapname, game_type);
 			});
 		}
 	};
