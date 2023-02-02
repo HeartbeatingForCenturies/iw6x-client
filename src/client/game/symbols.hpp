@@ -306,7 +306,7 @@ namespace game
 
 		WEAK symbol<gentity_s> g_entities{0, 0x14427A0E0};
 
-		WEAK symbol<int> svs_numclients{0, 0x14647B28C};
+		WEAK symbol<int> svs_clientCount{0, 0x14647B28C};
 		WEAK symbol<client_t> svs_clients{0, 0x14647B290};
 
 		WEAK symbol<std::uint32_t> sv_serverId_value{0, 0x144DF9478};

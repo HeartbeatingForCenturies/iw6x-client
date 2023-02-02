@@ -19,7 +19,7 @@ namespace bots
 	{
 		bool can_add()
 		{
-			return party::get_client_count() < *game::mp::svs_numclients;
+			return party::get_client_count() < *game::mp::svs_clientCount;
 		}
 
 		void bot_team_join(const int entity_num)
@@ -133,7 +133,7 @@ namespace bots
 					num_bots = atoi(params.get(1));
 				}
 
-				num_bots = std::min(num_bots, *game::mp::svs_numclients);
+				num_bots = std::min(num_bots, *game::mp::svs_clientCount);
 
 				for (auto i = 0; i < num_bots; i++)
 				{
