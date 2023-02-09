@@ -7,8 +7,10 @@ namespace party
 	void connect(const game::netadr_s& target);
 	void map_restart();
 
-	int server_client_count();
+	[[nodiscard]] int server_client_count();
 
-	int get_client_count();
-	int get_bot_count();
+	[[nodiscard]] int get_client_count();
+	[[nodiscard]] int get_bot_count();
+
+	[[nodiscard]] game::netadr_s& get_target();
 }

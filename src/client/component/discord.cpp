@@ -2,9 +2,12 @@
 #include "loader/component_loader.hpp"
 #include "game/game.hpp"
 
-#include "scheduler.hpp"
+#include "console.hpp"
+#include "network.hpp"
 #include "party.hpp"
+#include "scheduler.hpp"
 
+#include <utils/cryptography.hpp>
 #include <utils/string.hpp>
 
 #include <discord_rpc.h>
@@ -14,6 +17,11 @@ namespace discord
 	namespace
 	{
 		DiscordRichPresence discord_presence;
+
+		void join_game(const char* join_secret)
+		{
+			game::Cbuf_AddText(0, utils::string::va("connect %s\n", join_secret));
+		}
 
 		void update_discord()
 		{
@@ -56,6 +64,13 @@ namespace discord
 
 					discord_presence.state = host_name;
 					discord_presence.partyMax = party::server_client_count();
+
+					std::hash<game::netadr_s> hash_fn;
+					static const auto nonce = utils::cryptography::random::get_integer();
+
+					const auto& address = party::get_target();
+					discord_presence.partyId = utils::string::va("%zu", hash_fn(address) ^ nonce);
+					discord_presence.joinSecret = network::net_adr_to_string(address);
 				}
 
 				if (!discord_presence.startTimestamp)
@@ -86,7 +101,7 @@ namespace discord
 			handlers.ready = ready;
 			handlers.errored = errored;
 			handlers.disconnected = errored;
-			handlers.joinGame = nullptr;
+			handlers.joinGame = join_game;
 			handlers.spectateGame = nullptr;
 			handlers.joinRequest = nullptr;
 
@@ -99,7 +114,7 @@ namespace discord
 
 		void pre_destroy() override
 		{
-			if (!initialized_ || game::environment::is_dedi() || game::environment::is_linker())
+			if (!initialized_)
 			{
 				return;
 			}
@@ -121,7 +136,7 @@ namespace discord
 
 		static void errored(const int error_code, const char* message)
 		{
-			printf("Discord: (%i) %s", error_code, message);
+			console::error("Discord: (%i) %s", error_code, message);
 		}
 	};
 }
