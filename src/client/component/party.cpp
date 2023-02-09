@@ -177,6 +177,11 @@ namespace party
 		return count;
 	}
 
+	game::netadr_s& get_target()
+	{
+		return connect_state.host;
+	}
+
 	void reset_connect_state()
 	{
 		connect_state = {};
