@@ -23,6 +23,14 @@ namespace discord
 			game::Cbuf_AddText(0, utils::string::va("connect %s\n", join_secret));
 		}
 
+		void join_request(const DiscordUser* request)
+		{
+#ifdef _DEBUG
+			console::info("Discord: Join request from %s (%s)\n", request->username, request->userId);
+#endif
+			Discord_Respond(request->userId, DISCORD_REPLY_IGNORE);
+		}
+
 		void update_discord()
 		{
 			Discord_RunCallbacks();
@@ -103,7 +111,7 @@ namespace discord
 			handlers.disconnected = errored;
 			handlers.joinGame = join_game;
 			handlers.spectateGame = nullptr;
-			handlers.joinRequest = nullptr;
+			handlers.joinRequest = join_request;
 
 			Discord_Initialize("762374436183343114", &handlers, 1, nullptr);
 
