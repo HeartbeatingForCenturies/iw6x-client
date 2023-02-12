@@ -9,8 +9,7 @@
 #include "component/notifies.hpp"
 #include "component/scripting.hpp"
 
-#include <xsk/gsc/types.hpp>
-#include <xsk/resolver.hpp>
+#include <gsc_interface.hpp>
 
 #include <utils/string.hpp>
 
@@ -87,7 +86,7 @@ namespace scripting::lua
 
 			auto entity_type = state.new_usertype<entity>("entity");
 
-			for (const auto& func : xsk::gsc::iw6::resolver::get_methods())
+			for (auto const& func : gsc::cxt->meth_map())
 			{
 				const auto name = std::string(func.first);
 				entity_type[name] = [name](const entity& entity, const sol::this_state s, sol::variadic_args va)
@@ -213,7 +212,7 @@ namespace scripting::lua
 			auto game_type = state.new_usertype<game>("game_");
 			state["game"] = game();
 
-			for (const auto& func : xsk::gsc::iw6::resolver::get_functions())
+			for (auto const& func : gsc::cxt->func_map())
 			{
 				const auto name = std::string(func.first);
 				game_type[name] = [name](const game&, const sol::this_state s, sol::variadic_args va)

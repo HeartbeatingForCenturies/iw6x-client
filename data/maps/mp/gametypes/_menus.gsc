@@ -1,5 +1,5 @@
 // IW6 GSC SOURCE
-// Decompiled by https://github.com/xensik/gsc-tool
+// Dumped by https://github.com/xensik/gsc-tool
 
 init()
 {
@@ -91,15 +91,16 @@ onplayerconnect()
     for (;;)
     {
         level waittill( "connected", var_0 );
-        var_0 thread _id_8CE6();
-        var_0 thread _id_8CF0();
-        var_0 thread _id_8CEA();
-        var_0 thread _id_1EBB();
+        var_0 thread watchforclasschange();
+        var_0 thread watchforteamchange();
+        var_0 thread watchforleavegame();
+        var_0 thread connectedmenus();
     }
 }
 
-_id_1EBB()
+connectedmenus()
 {
+
 }
 
 getclasschoice( var_0 )
@@ -123,7 +124,7 @@ getclasschoice( var_0 )
     return var_0;
 }
 
-_id_8CE6()
+watchforclasschange()
 {
     self endon( "disconnect" );
     level endon( "game_ended" );
@@ -187,11 +188,11 @@ _id_8CE6()
             continue;
         }
 
-        _id_51CF( "callback" );
+        menuclass( "callback" );
     }
 }
 
-_id_8CEA()
+watchforleavegame()
 {
     self endon( "disconnect" );
     level endon( "game_ended" );
@@ -213,7 +214,7 @@ _id_8CEA()
     }
 }
 
-_id_8CF0()
+watchforteamchange()
 {
     self endon( "disconnect" );
     level endon( "game_ended" );
@@ -297,7 +298,7 @@ _id_8CF0()
         }
 
         if ( var_1 == "spectator" )
-            thread _id_70D1();
+            thread setspectator();
     }
 }
 
@@ -318,7 +319,7 @@ autoassign()
     else if ( !isdefined( self.team ) )
     {
         if ( self ismlgspectator() )
-            thread _id_70D1();
+            thread setspectator();
         else if ( level.teamcount["axis"] < level.teamcount["allies"] )
             thread setteam( "axis" );
         else if ( level.teamcount["allies"] < level.teamcount["axis"] )
@@ -332,7 +333,7 @@ autoassign()
     {
         if ( self ismlgspectator() )
         {
-            thread _id_70D1();
+            thread setspectator();
             return;
         }
 
@@ -402,7 +403,7 @@ setteam( var_0 )
     self notify( "okToSpawn" );
 }
 
-_id_70D1()
+setspectator()
 {
     if ( isdefined( self.pers["team"] ) && self.pers["team"] == "spectator" )
         return;
@@ -430,7 +431,6 @@ waitforclassselect()
 
     for (;;)
     {
-        // Fix for infect dedicated servers
         if ( level.gametype == "infect" )
         {
             bypassclasschoice();
@@ -470,7 +470,7 @@ waitforclassselect()
         else
         {
             self.waitingtoselectclass = 0;
-            _id_51CF( "callback" );
+            menuclass( "callback" );
         }
 
         break;
@@ -560,7 +560,7 @@ menuspectator()
     thread maps\mp\gametypes\_playerlogic::spawnspectator();
 }
 
-_id_51CF( var_0 )
+menuclass( var_0 )
 {
     if ( var_0 == "demolitions_mp,0" && self getrankedplayerdata( "featureNew", "demolitions" ) )
         self setrankedplayerdata( "featureNew", "demolitions", 0 );
@@ -637,29 +637,29 @@ update_wargame_after_migration()
     }
 }
 
-addtoteam( team, firstConnect, changeTeamsWithoutRespawning )
+addtoteam( var_0, var_1, var_2 )
 {
     if ( isdefined( self.team ) )
     {
         maps\mp\gametypes\_playerlogic::removefromteamcount();
 
-        if ( isdefined( changeTeamsWithoutRespawning ) && changeTeamsWithoutRespawning )
+        if ( isdefined( var_2 ) && var_2 )
             maps\mp\gametypes\_playerlogic::decrementalivecount( self.team );
     }
 
-    self.pers["team"] = team;
-    self.team = team;
+    self.pers["team"] = var_0;
+    self.team = var_0;
 
     if ( getdvar( "squad_vs_squad" ) == "1" )
     {
         if ( !isai( self ) )
         {
-            if ( team == "allies" )
+            if ( var_0 == "allies" )
             {
                 if ( !isdefined( level.squad_vs_squad_allies_client ) )
                     level.squad_vs_squad_allies_client = self;
             }
-            else if ( team == "axis" )
+            else if ( var_0 == "axis" )
             {
                 if ( !isdefined( level.squad_vs_squad_axis_client ) )
                     level.squad_vs_squad_axis_client = self;
@@ -685,39 +685,30 @@ addtoteam( team, firstConnect, changeTeamsWithoutRespawning )
         }
     }
 
-    // session team is readonly in ranked matches if "teambased" is set on the playlist
+   // session team is readonly in ranked matches if "teambased" is set on the playlist
     if ( level.teambased )
-    {
-        self.sessionteam = team;
-    }
+        self.sessionteam = var_0;
+    else if ( var_0 == "spectator" )
+        self.sessionteam = "spectator";
     else
-    {
-        if ( team == "spectator" )
-        {
-            self.sessionteam = "spectator";
-        }
-        else
-        {
-            self.sessionteam = "none";
-        }
-    }
+        self.sessionteam = "none";
 
     if ( game["state"] != "postgame" )
     {
         maps\mp\gametypes\_playerlogic::addtoteamcount();
 
-        if ( isdefined( changeTeamsWithoutRespawning ) && changeTeamsWithoutRespawning )
+        if ( isdefined( var_2 ) && var_2 )
             maps\mp\gametypes\_playerlogic::incrementalivecount( self.team );
     }
 
     maps\mp\_utility::updateobjectivetext();
 
-    if ( isdefined( firstConnect ) && firstConnect )
+    if ( isdefined( var_1 ) && var_1 )
         waittillframeend;
 
     maps\mp\_utility::updatemainmenu();
 
-    if ( team == "spectator" )
+    if ( var_0 == "spectator" )
     {
         self notify( "joined_spectators" );
         level notify( "joined_team", self );

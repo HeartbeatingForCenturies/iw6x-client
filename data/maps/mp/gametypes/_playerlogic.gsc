@@ -1,5 +1,5 @@
 // IW6 GSC SOURCE
-// Decompiled by https://github.com/xensik/gsc-tool
+// Dumped by https://github.com/xensik/gsc-tool
 
 timeuntilwavespawn( var_0 )
 {
@@ -147,7 +147,7 @@ spawnclient()
         }
 
         if ( self.sessionstate != "spectator" )
-            var_0 += ( 0.0, 0.0, 60.0 );
+            var_0 += ( 0, 0, 60 );
 
         thread spawnspectator( var_0, var_1 );
         return;
@@ -179,7 +179,7 @@ waitandspawnclient()
         if ( var_2 > 0 )
         {
             maps\mp\_utility::setlowermessage( "friendly_fire", &"MP_FRIENDLY_FIRE_WILL_NOT", var_2, 1, 1 );
-            thread respawn_asspectator( self.origin + ( 0.0, 0.0, 60.0 ), self.angles );
+            thread respawn_asspectator( self.origin + ( 0, 0, 60 ), self.angles );
             var_0 = 1;
             wait(var_2);
             maps\mp\_utility::clearlowermessage( "friendly_fire" );
@@ -212,7 +212,7 @@ waitandspawnclient()
         maps\mp\_utility::setlowermessage( "spawn_info", game["strings"]["waiting_to_spawn"], var_3, 1, 1 );
 
         if ( !var_0 )
-            thread respawn_asspectator( self.origin + ( 0.0, 0.0, 60.0 ), self.angles );
+            thread respawn_asspectator( self.origin + ( 0, 0, 60 ), self.angles );
 
         var_0 = 1;
         maps\mp\_utility::waitfortimeornotify( var_3, "force_spawn" );
@@ -224,7 +224,7 @@ waitandspawnclient()
         maps\mp\_utility::setlowermessage( "spawn_info", game["strings"]["press_to_spawn"], undefined, undefined, undefined, undefined, undefined, undefined, 1 );
 
         if ( !var_0 )
-            thread respawn_asspectator( self.origin + ( 0.0, 0.0, 60.0 ), self.angles );
+            thread respawn_asspectator( self.origin + ( 0, 0, 60 ), self.angles );
 
         var_0 = 1;
         waitrespawnbutton();
@@ -338,7 +338,7 @@ predictabouttospawnplayerovertime( var_0 )
         wait(var_0 - 1.0);
 
     predictabouttospawnplayer();
-    self predictstreampos( self.predictedspawnpoint.origin + ( 0.0, 0.0, 60.0 ), self.predictedspawnpoint.angles );
+    self predictstreampos( self.predictedspawnpoint.origin + ( 0, 0, 60 ), self.predictedspawnpoint.angles );
     self.predictedspawnpointtime = gettime();
 
     for ( var_1 = 0; var_1 < 30; var_1++ )
@@ -349,7 +349,7 @@ predictabouttospawnplayerovertime( var_0 )
 
         if ( self.predictedspawnpoint != var_2 )
         {
-            self predictstreampos( self.predictedspawnpoint.origin + ( 0.0, 0.0, 60.0 ), self.predictedspawnpoint.angles );
+            self predictstreampos( self.predictedspawnpoint.origin + ( 0, 0, 60 ), self.predictedspawnpoint.angles );
             self.predictedspawnpointtime = gettime();
         }
     }
@@ -425,11 +425,11 @@ tivalidationcheck()
         return 0;
     }
 
-    if ( !bullettracepassed( self.setspawnpoint.origin + ( 0.0, 0.0, 60.0 ), self.setspawnpoint.origin, 0, self.setspawnpoint ) )
+    if ( !bullettracepassed( self.setspawnpoint.origin + ( 0, 0, 60 ), self.setspawnpoint.origin, 0, self.setspawnpoint ) )
         return 0;
 
-    var_4 = self.setspawnpoint.origin + ( 0.0, 0.0, 1.0 );
-    var_5 = playerphysicstrace( var_4, self.setspawnpoint.origin + ( 0.0, 0.0, -16.0 ) );
+    var_4 = self.setspawnpoint.origin + ( 0, 0, 1 );
+    var_5 = playerphysicstrace( var_4, self.setspawnpoint.origin + ( 0, 0, -16 ) );
 
     if ( var_4[2] == var_5[2] )
         return 0;
@@ -476,24 +476,22 @@ spawnplayer( var_0 )
         self.waitingtospawnamortize = 0;
     }
 
+    //  // Returning false we use default character model and prevent a 5 second respawn delay. (Github issue #109)
     if ( !self hasloadedcustomizationplayerview( self ) )
-    {
-        // Returning false we use default character model and prevent a 5 second respawn delay. (Github issue #109)
-        self.waitingtospawnamortize = false;
-    }
+        self.waitingtospawnamortize = 0;
 
     if ( isdefined( self.forcespawnorigin ) )
     {
-        var_3 = self.forcespawnorigin;
+        var_2 = self.forcespawnorigin;
         self.forcespawnorigin = undefined;
 
         if ( isdefined( self.forcespawnangles ) )
         {
-            var_4 = self.forcespawnangles;
+            var_3 = self.forcespawnangles;
             self.forcespawnangles = undefined;
         }
         else
-            var_4 = ( 0, randomfloatrange( 0, 360 ), 0 );
+            var_3 = ( 0, randomfloatrange( 0, 360 ), 0 );
     }
     else if ( isdefined( self.setspawnpoint ) && ( isdefined( self.setspawnpoint.notti ) || tivalidationcheck() ) )
     {
@@ -506,10 +504,10 @@ spawnplayer( var_0 )
 
             if ( level.multiteambased )
             {
-                foreach ( var_6 in level.teamnamelist )
+                foreach ( var_5 in level.teamnamelist )
                 {
-                    if ( var_6 != self.team )
-                        self playsoundtoteam( "tactical_spawn", var_6 );
+                    if ( var_5 != self.team )
+                        self playsoundtoteam( "tactical_spawn", var_5 );
                 }
             }
             else if ( level.teambased )
@@ -518,14 +516,14 @@ spawnplayer( var_0 )
                 self playsound( "tactical_spawn" );
         }
 
-        foreach ( var_9 in level.ugvs )
+        foreach ( var_8 in level.ugvs )
         {
-            if ( distancesquared( var_9.origin, var_1.playerspawnpos ) < 1024 )
-                var_9 notify( "damage", 5000, var_9.owner, ( 0.0, 0.0, 0.0 ), ( 0.0, 0.0, 0.0 ), "MOD_EXPLOSIVE", "", "", "", undefined, "killstreak_emp_mp" );
+            if ( distancesquared( var_8.origin, var_1.playerspawnpos ) < 1024 )
+                var_8 notify( "damage", 5000, var_8.owner, ( 0, 0, 0 ), ( 0, 0, 0 ), "MOD_EXPLOSIVE", "", "", "", undefined, "killstreak_emp_mp" );
         }
 
-        var_3 = self.setspawnpoint.playerspawnpos;
-        var_4 = self.setspawnpoint.angles;
+        var_2 = self.setspawnpoint.playerspawnpos;
+        var_3 = self.setspawnpoint.angles;
 
         if ( isdefined( self.setspawnpoint.enemytrigger ) )
             self.setspawnpoint.enemytrigger delete();
@@ -535,20 +533,20 @@ spawnplayer( var_0 )
     }
     else if ( isdefined( self.isspawningonbattlebuddy ) && isdefined( self.battlebuddy ) )
     {
+        var_2 = undefined;
         var_3 = undefined;
-        var_4 = undefined;
-        var_11 = maps\mp\gametypes\_battlebuddy::checkbuddyspawn();
+        var_10 = maps\mp\gametypes\_battlebuddy::checkbuddyspawn();
 
-        if ( var_11.status == 0 )
+        if ( var_10.status == 0 )
         {
-            var_3 = var_11.origin;
-            var_4 = var_11.angles;
+            var_2 = var_10.origin;
+            var_3 = var_10.angles;
         }
         else
         {
             var_1 = self [[ level.getspawnpoint ]]();
-            var_3 = var_1.origin;
-            var_4 = var_1.angles;
+            var_2 = var_1.origin;
+            var_3 = var_1.angles;
         }
 
         maps\mp\gametypes\_battlebuddy::cleanupbuddyspawn();
@@ -561,8 +559,8 @@ spawnplayer( var_0 )
         while ( !isdefined( level.allieschopper ) )
             wait 0.1;
 
-        var_3 = level.allieschopper.origin;
-        var_4 = level.allieschopper.angles;
+        var_2 = level.allieschopper.origin;
+        var_3 = level.allieschopper.angles;
         self.firstspawn = 0;
     }
     else if ( isdefined( self.helispawning ) && ( !isdefined( self.firstspawn ) || isdefined( self.firstspawn ) && self.firstspawn ) && level.prematchperiod > 0 && self.team == "axis" )
@@ -570,19 +568,19 @@ spawnplayer( var_0 )
         while ( !isdefined( level.axischopper ) )
             wait 0.1;
 
-        var_3 = level.axischopper.origin;
-        var_4 = level.axischopper.angles;
+        var_2 = level.axischopper.origin;
+        var_3 = level.axischopper.angles;
         self.firstspawn = 0;
     }
     else
     {
         var_1 = self [[ level.getspawnpoint ]]();
-        var_3 = var_1.origin;
-        var_4 = var_1.angles;
+        var_2 = var_1.origin;
+        var_3 = var_1.angles;
     }
 
     setspawnvariables();
-    var_12 = self.hasspawned;
+    var_11 = self.hasspawned;
     self.fauxdead = undefined;
 
     if ( !var_0 )
@@ -625,28 +623,28 @@ spawnplayer( var_0 )
 
         if ( !maps\mp\_utility::is_aliens() )
         {
-            var_13 = self.pers["lives"];
+            var_12 = self.pers["lives"];
 
-            if ( var_13 == maps\mp\_utility::getgametypenumlives() )
+            if ( var_12 == maps\mp\_utility::getgametypenumlives() )
                 addtolivescount();
 
-            if ( var_13 )
+            if ( var_12 )
                 self.pers["lives"]--;
         }
 
         addtoalivecount();
 
-        if ( !var_12 || maps\mp\_utility::gamehasstarted() || maps\mp\_utility::gamehasstarted() && level.ingraceperiod && self.hasdonecombat )
+        if ( !var_11 || maps\mp\_utility::gamehasstarted() || maps\mp\_utility::gamehasstarted() && level.ingraceperiod && self.hasdonecombat )
             removefromlivescount();
 
         if ( !self.wasaliveatmatchstart )
         {
-            var_14 = 20;
+            var_13 = 20;
 
-            if ( maps\mp\_utility::gettimelimit() > 0 && var_14 < maps\mp\_utility::gettimelimit() * 60 / 4 )
-                var_14 = maps\mp\_utility::gettimelimit() * 60 / 4;
+            if ( maps\mp\_utility::gettimelimit() > 0 && var_13 < maps\mp\_utility::gettimelimit() * 60 / 4 )
+                var_13 = maps\mp\_utility::gettimelimit() * 60 / 4;
 
-            if ( level.ingraceperiod || maps\mp\_utility::gettimepassed() < var_14 * 1000 )
+            if ( level.ingraceperiod || maps\mp\_utility::gettimepassed() < var_13 * 1000 )
                 self.wasaliveatmatchstart = 1;
         }
     }
@@ -661,14 +659,14 @@ spawnplayer( var_0 )
     if ( isdefined( var_1 ) )
     {
         maps\mp\gametypes\_spawnlogic::finalizespawnpointchoice( var_1 );
-        var_3 = getspawnorigin( var_1 );
-        var_4 = var_1.angles;
+        var_2 = getspawnorigin( var_1 );
+        var_3 = var_1.angles;
     }
     else if ( !isdefined( self.faux_spawn_infected ) )
         self.lastspawntime = gettime();
 
-    self.spawnpos = var_3;
-    self spawn( var_3, var_4 );
+    self.spawnpos = var_2;
+    self spawn( var_2, var_3 );
 
     if ( var_0 && isdefined( self.faux_spawn_stance ) )
     {
@@ -722,12 +720,12 @@ spawnplayer( var_0 )
     else
         maps\mp\_utility::freezecontrolswrapper( 0 );
 
-    if ( !maps\mp\_utility::gameflag( "prematch_done" ) || !var_12 && game["state"] == "playing" )
+    if ( !maps\mp\_utility::gameflag( "prematch_done" ) || !var_11 && game["state"] == "playing" )
     {
         if ( !maps\mp\_utility::is_aliens() )
         {
             if ( game["status"] == "overtime" )
-                thread maps\mp\gametypes\_hud_message::oldnotifymessage( game["strings"]["overtime"], game["strings"]["overtime_hint"], undefined, ( 1.0, 0.0, 0.0 ), "mp_last_stand" );
+                thread maps\mp\gametypes\_hud_message::oldnotifymessage( game["strings"]["overtime"], game["strings"]["overtime_hint"], undefined, ( 1, 0, 0 ), "mp_last_stand" );
         }
 
         thread showspawnnotifies();

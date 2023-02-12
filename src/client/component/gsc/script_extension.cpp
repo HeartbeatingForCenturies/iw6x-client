@@ -14,11 +14,10 @@
 #include "component/notifies.hpp"
 #include "component/command.hpp"
 
-#include <xsk/gsc/types.hpp>
-#include <xsk/resolver.hpp>
-
 #include "script_extension.hpp"
 #include "script_error.hpp"
+
+#include <gsc_interface.hpp>
 
 namespace gsc
 {
@@ -108,11 +107,11 @@ namespace gsc
 
 			if (function_id > 0x1000)
 			{
-				console::warn("in call to builtin method \"%s\"%s", xsk::gsc::iw6::resolver::method_name(function_id).data(), error.data());
+				console::warn("in call to builtin method \"%s\"%s", gsc::cxt->meth_name(function_id).data(), error.data());
 			}
 			else
 			{
-				console::warn("in call to builtin function \"%s\"%s", xsk::gsc::iw6::resolver::function_name(function_id).data(), error.data());
+				console::warn("in call to builtin function \"%s\"%s", gsc::cxt->func_name(function_id).data(), error.data());
 			}
 		}
 
@@ -120,7 +119,8 @@ namespace gsc
 		{
 			try
 			{
-				return {xsk::gsc::iw6::resolver::opcode_name(opcode)};
+				const auto index = gsc::cxt->opcode_enum(opcode);
+				return {gsc::cxt->opcode_name(index)};
 			}
 			catch (...)
 			{
@@ -248,7 +248,7 @@ namespace gsc
 	{
 		++function_id_start;
 		functions[function_id_start] = function;
-		xsk::gsc::iw6::resolver::add_function(name, function_id_start);
+		gsc::cxt->func_add(name, function_id_start);
 	}
 
 	void scr_error(const char* error)
