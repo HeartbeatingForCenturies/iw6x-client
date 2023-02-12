@@ -186,7 +186,7 @@ namespace notifies
 				scheduler::once([params, message, msg_index, client_num]
 				{
 					const scripting::entity level{*game::levelEntityId};
-					const auto player = scripting::call("getEntByNum", {client_num}).as<scripting::entity>();
+					const auto player = scripting::call("getentbynum", {client_num}).as<scripting::entity>();
 					// Remove \x1F before sending the notify only if present
 					const auto notify_msg = msg_index ? message.substr(1) : message;
 
