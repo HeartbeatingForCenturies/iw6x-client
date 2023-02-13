@@ -1,5 +1,5 @@
 // IW6 GSC SOURCE
-// Decompiled by https://github.com/xensik/gsc-tool
+// Dumped by https://github.com/xensik/gsc-tool
 
 isswitchingteams()
 {
@@ -74,8 +74,6 @@ handleworlddeath( var_0, var_1, var_2, var_3 )
         handlesuicidedeath( var_2, var_3 );
         return;
     }
-
-    assert( var_0.team == "axis" || var_0.team == "allies" );
 
     if ( level.teambased && var_0.team != self.team || !level.teambased )
     {
@@ -690,7 +688,6 @@ playerkilled_internal( var_0, var_1, var_2, var_3, var_4, var_5, var_6, var_7, v
 
     obituary( var_2, var_1, var_5, var_4 );
     var_23 = 0;
-	
     var_24 = var_2 maps\mp\_matchdata::logplayerlife();
     var_2 logprintplayerdeath( var_24, var_1, var_3, var_4, var_5, var_12, var_7 );
     var_2 maps\mp\_matchdata::logplayerdeath( var_24, var_1, var_3, var_4, var_5, var_12, var_7 );
@@ -709,7 +706,7 @@ playerkilled_internal( var_0, var_1, var_2, var_3, var_4, var_5, var_6, var_7, v
             else
                 var_1 maps\mp\_utility::incplayerstat( "knifekills", 1 );
 
-            addattacker( var_2, var_1, var_0, var_5, var_3, ( 0.0, 0.0, 0.0 ), var_6, var_7, var_8, var_4 );
+            addattacker( var_2, var_1, var_0, var_5, var_3, ( 0, 0, 0 ), var_6, var_7, var_8, var_4 );
         }
     }
 
@@ -732,7 +729,7 @@ playerkilled_internal( var_0, var_1, var_2, var_3, var_4, var_5, var_6, var_7, v
     else
     {
         if ( var_4 == "MOD_GRENADE" && var_0 == var_1 )
-            addattacker( var_2, var_1, var_0, var_5, var_3, ( 0.0, 0.0, 0.0 ), var_6, var_7, var_8, var_4 );
+            addattacker( var_2, var_1, var_0, var_5, var_3, ( 0, 0, 0 ), var_6, var_7, var_8, var_4 );
 
         var_23 = 1;
 
@@ -2004,7 +2001,7 @@ callback_playerdamage_internal( var_0, var_1, var_2, var_3, var_4, var_5, var_6,
         if ( isplayer( var_0 ) && var_5 == "MOD_MELEE" )
             var_0 thread maps\mp\gametypes\_shellshock::bloodmeleeeffect();
     }
-	
+
     if ( var_2.sessionstate != "dead" )
     {
         var_23 = var_2 getentitynumber();
@@ -2156,7 +2153,7 @@ finishplayerdamagewrapper( var_0, var_1, var_2, var_3, var_4, var_5, var_6, var_
     if ( maps\mp\_utility::isusingremote() && var_2 >= self.health && !( var_3 & level.idflags_stun ) && allowfauxdeath() || maps\mp\_utility::isrocketcorpse() )
     {
         if ( !isdefined( var_7 ) )
-            var_7 = ( 0.0, 0.0, 0.0 );
+            var_7 = ( 0, 0, 0 );
 
         if ( !isdefined( var_1 ) && !isdefined( var_0 ) )
         {
@@ -2261,7 +2258,7 @@ callback_playerlaststand( var_0, var_1, var_2, var_3, var_4, var_5, var_6, var_7
             var_11.iconname = "specialty_finalstand";
         }
 
-        var_11.glowcolor = ( 1.0, 0.0, 0.0 );
+        var_11.glowcolor = ( 1, 0, 0 );
         var_11.sound = "mp_last_stand";
         var_11.duration = 2.0;
         self.health = 1;
@@ -2458,14 +2455,14 @@ laststandtimer( var_0, var_1 )
         }
 
         wait(var_0 / 3);
-        var_3.color = ( 1.0, 0.64, 0.0 );
+        var_3.color = ( 1, 0.64, 0 );
 
         while ( var_2.inuse )
             wait 0.05;
 
         maps\mp\_utility::playdeathsound();
         wait(var_0 / 3);
-        var_3.color = ( 1.0, 0.0, 0.0 );
+        var_3.color = ( 1, 0, 0 );
 
         while ( var_2.inuse )
             wait 0.05;
@@ -2969,32 +2966,31 @@ isflankkill( var_0, var_1 )
         return 0;
 }
 
-logprintplayerdeath( lifeid, attacker, idamage, smeansofdeath, sweapon, sprimaryweapon, shitloc )
+logprintplayerdeath( var_0, var_1, var_2, var_3, var_4, var_5, var_6 )
 {
-	// create a lot of redundant data for the log print
-	lpselfnum = self getentitynumber();
-	lpselfname = self.name;
-	lpselfteam = self.team;
-	lpselfguid = self.guid;
+    var_7 = self getentitynumber();
+    var_8 = self.name;
+    var_9 = self.team;
+    var_10 = self.guid;
 
-	if ( isplayer( attacker ) )
-	{
-		lpattackguid = attacker.guid;
-		lpattackname = attacker.name;
-		lpattackerteam = attacker.team;
-		lpattacknum = attacker getentitynumber();
-		attackerstring = attacker getxuid() + "(" + lpattackname + ")";
-	}
-	else
-	{
-		lpattackguid = "";
-		lpattackname = "";
-		lpattackerteam = "world";
-		lpattacknum = -1;
-		attackerstring = "none";
-	}
+    if ( isplayer( var_1 ) )
+    {
+        var_11 = var_1.guid;
+        var_12 = var_1.name;
+        var_13 = var_1.team;
+        var_14 = var_1 getentitynumber();
+        var_15 = var_1 getxuid() + "(" + var_12 + ")";
+    }
+    else
+    {
+        var_11 = "";
+        var_12 = "";
+        var_13 = "world";
+        var_14 = -1;
+        var_15 = "none";
+    }
 
-	logprint( "k;" + lpselfguid + ";" + lpselfnum + ";" + lpselfteam + ";" + lpselfname + ";" + lpattackguid + ";" + lpattacknum + ";" + lpattackerteam + ";" + lpattackname + ";" + sweapon + ";" + idamage + ";" + smeansofdeath + ";" + shitloc + "\n" );
+    logprint( "k;" + var_10 + ";" + var_7 + ";" + var_9 + ";" + var_8 + ";" + var_11 + ";" + var_14 + ";" + var_13 + ";" + var_12 + ";" + var_4 + ";" + var_2 + ";" + var_3 + ";" + var_6 + "\n" );
 }
 
 destroyonreviveentdeath( var_0 )

@@ -10,6 +10,7 @@
 #include <utils/string.hpp>
 
 #include "component/motd.hpp"
+#include "component/filesystem.hpp"
 
 namespace demonware
 {
@@ -26,18 +27,21 @@ namespace demonware
 		this->register_service(12, &bdStorage::get_user_file);
 
 		this->map_publisher_resource_variant("motd-.*\\.txt", motd::get_text);
-		this->map_publisher_resource("newsfeed-.*\\.txt", DW_NEWSFEED);
-		this->map_publisher_resource("mm\\.cfg", DW_MM_CONFIG);
-		this->map_publisher_resource("playlists(_.+)?\\.aggr", DW_PLAYLISTS);
-		this->map_publisher_resource("social_[Tt][Uu][0-9]+\\.cfg", DW_SOCIAL_CONFIG);
-		this->map_publisher_resource("entitlement_config_[Tt][Uu][0-9]+\\.info", DW_ENTITLEMENT_CONFIG);
+		this->map_publisher_resource("newsfeed-.*\\.txt", "dw/newsfeed.txt", DW_NEWSFEED);
+		this->map_publisher_resource("mm\\.cfg", "dw/mm.cfg", DW_MM_CONFIG);
+		this->map_publisher_resource("playlists(_.+)?\\.aggr", "dw/playlists_tu14.aggr", DW_PLAYLISTS);
+		this->map_publisher_resource("social_[Tt][Uu][0-9]+\\.cfg", "dw/social_tu14.cfg", DW_SOCIAL_CONFIG);
+		this->map_publisher_resource("entitlement_config_[Tt][Uu][0-9]+\\.info", "dw/entitlement_config_tu14.info", DW_ENTITLEMENT_CONFIG);
 
-		publisher_resources_.emplace_back(std::regex{"heatmap\\.raw"}, generate_heatmap());
+		publisher_resources_.emplace_back(std::regex{"heatmap\\.raw"}, generate_heat_map());
 	}
 
-	void bdStorage::map_publisher_resource(const std::string& expression, const INT id)
+	void bdStorage::map_publisher_resource(const std::string& expression, const std::string& path, const int id)
 	{
-		auto data = utils::nt::load_resource(id);
+		auto data = filesystem::exists(path)
+			? filesystem::read_file(path)
+			: utils::nt::load_resource(id);
+
 		this->map_publisher_resource_variant(expression, std::move(data));
 	}
 
@@ -51,7 +55,7 @@ namespace demonware
 		this->publisher_resources_.emplace_back(std::regex{expression}, std::move(resource));
 	}
 
-	bool bdStorage::load_publisher_resource(const std::string& name, std::string& buffer)
+	bool bdStorage::load_publisher_resource(const std::string& name, std::string& buffer) const
 	{
 		for (const auto& resource : this->publisher_resources_)
 		{
@@ -81,7 +85,7 @@ namespace demonware
 		return "players2/user/" + name;
 	}
 
-	std::string bdStorage::generate_heatmap()
+	std::string bdStorage::generate_heat_map()
 	{
 		uint8_t map[256][256];
 
@@ -89,7 +93,7 @@ namespace demonware
 		{
 			for (auto x = 0; x < 256; ++x)
 			{
-				auto data = uint8_t(rand());
+				auto data = std::rand() % std::numeric_limits<std::uint8_t>::max();
 				if (data % 15 == 0)
 				{
 					data = 0xF | ((data & 0x7) << 4) | 0x10;
@@ -99,11 +103,11 @@ namespace demonware
 					data = 0;
 				}
 
-				map[y][x] = data;
+				map[y][x] = static_cast<std::uint8_t>(data);
 			}
 		}
 
-		return utils::compression::zlib::compress(std::string(LPSTR(map), sizeof map));
+		return utils::compression::zlib::compress(std::string(LPSTR(map), sizeof(map)));
 	}
 
 	void bdStorage::set_legacy_user_file(i_server* server, byte_buffer* buffer) const

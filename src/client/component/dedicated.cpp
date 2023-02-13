@@ -10,6 +10,8 @@
 
 #include <utils/hook.hpp>
 
+#include <version.hpp>
+
 namespace dedicated
 {
 	namespace
@@ -76,10 +78,39 @@ namespace dedicated
 			}
 		}
 
-		std::vector<std::string>& get_command_queue()
+		std::vector<std::string>& get_startup_command_queue()
 		{
-			static std::vector<std::string> command_queue;
-			return command_queue;
+			static std::vector<std::string> startup_command_queue;
+			return startup_command_queue;
+		}
+
+		void execute_startup_command(int /*client*/, int /*controllerIndex*/, const char* command)
+		{
+			if (game::Live_SyncOnlineDataFlags(0) == 0)
+			{
+				game::Cbuf_ExecuteBufferInternal(0, 0, command, game::Cmd_ExecuteSingleCommand);
+			}
+			else
+			{
+				get_startup_command_queue().emplace_back(command);
+			}
+		}
+
+		void execute_startup_command_queue()
+		{
+			const auto queue = get_startup_command_queue();
+			get_startup_command_queue().clear();
+
+			for (const auto& command : queue)
+			{
+				game::Cbuf_ExecuteBufferInternal(0, 0, command.data(), game::Cmd_ExecuteSingleCommand);
+			}
+		}
+
+		std::vector<std::string>& get_console_command_queue()
+		{
+			static std::vector<std::string> console_command_queue;
+			return console_command_queue;
 		}
 
 		void execute_console_command([[maybe_unused]] const int local_client_num, const char* command)
@@ -90,14 +121,14 @@ namespace dedicated
 			}
 			else
 			{
-				get_command_queue().emplace_back(command);
+				get_console_command_queue().emplace_back(command);
 			}
 		}
 
-		void execute_command_queue()
+		void execute_console_command_queue()
 		{
-			const auto queue = get_command_queue();
-			get_command_queue().clear();
+			const auto queue = get_console_command_queue();
+			get_console_command_queue().clear();
 
 			for (const auto& command : queue)
 			{
@@ -179,12 +210,18 @@ namespace dedicated
 			// Make GScr_IsUsingMatchRulesData return 0 so the game doesn't override the cfg
 			utils::hook::jump(0x1403C9660, gscr_is_using_match_rules_data_stub);
 
+			// patch "Server is different version"
+			utils::hook::inject(0x140471479 + 3, VERSION);
+
 			// Hook R_SyncGpu
 			utils::hook::jump(0x1405E8530, sync_gpu_stub);
 
 			//utils::hook::set<uint8_t>(0x1402C89A0, 0xC3); // R_Init caller
 			utils::hook::jump(0x1402C89A0, init_dedicated_server);
 			utils::hook::call(0x140413AD8, register_maxfps_stub);
+
+			// delay startup commands until the initialization is done
+			utils::hook::call(0x140412183, execute_startup_command);
 
 			// delay console commands until the initialization is done
 			utils::hook::call(0x140412FD3, execute_console_command);
@@ -271,7 +308,9 @@ namespace dedicated
 				console::info("Server started!\n");
 				console::info("==================================\n");
 
-				execute_command_queue();
+				execute_startup_command_queue();
+				execute_console_command_queue();
+
 			}, scheduler::pipeline::main, 1s);
 
 			// Send heartbeat to dpmaster

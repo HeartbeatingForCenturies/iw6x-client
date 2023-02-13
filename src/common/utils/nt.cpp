@@ -158,12 +158,17 @@ namespace utils::nt
 
 	void** library::get_iat_entry(const std::string& module_name, const std::string& proc_name) const
 	{
+		return this->get_iat_entry(module_name, proc_name.data());
+	}
+
+	void** library::get_iat_entry(const std::string& module_name, const char* proc_name) const
+	{
 		if (!this->is_valid()) return nullptr;
 
 		const library other_module(module_name);
 		if (!other_module.is_valid()) return nullptr;
 
-		const auto target_function = other_module.get_proc<void*>(proc_name);
+		auto* const target_function = other_module.get_proc<void*>(proc_name);
 		if (!target_function) return nullptr;
 
 		auto* header = this->get_optional_header();
@@ -183,14 +188,20 @@ namespace utils::nt
 
 				while (original_thunk_data->u1.AddressOfData)
 				{
-					const size_t ordinal_number = original_thunk_data->u1.AddressOfData & 0xFFFFFFF;
-
-					if (ordinal_number > 0xFFFF) continue;
-
-					if (GetProcAddress(other_module.module_, reinterpret_cast<char*>(ordinal_number)) ==
-						target_function)
+					if (thunk_data->u1.Function == reinterpret_cast<uint64_t>(target_function))
 					{
 						return reinterpret_cast<void**>(&thunk_data->u1.Function);
+					}
+
+					const size_t ordinal_number = original_thunk_data->u1.AddressOfData & 0xFFFFFFF;
+
+					if (ordinal_number <= 0xFFFF)
+					{
+						auto* proc = GetProcAddress(other_module.module_, reinterpret_cast<char*>(ordinal_number));
+						if (reinterpret_cast<void*>(proc) == target_function)
+						{
+							return reinterpret_cast<void**>(&thunk_data->u1.Function);
+						}
 					}
 
 					++original_thunk_data;

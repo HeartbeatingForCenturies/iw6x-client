@@ -1,9 +1,12 @@
 if (game:issingleplayer() or not Engine.InFrontend()) then
-    return
+	return
 end
 
 local Lobby = luiglobals.Lobby
 local SystemLinkJoinMenu = LUI.mp_menus.SystemLinkJoinMenu
+
+local controller = nil
+local server = nil
 
 COLUMN_0 = 0
 COLUMN_1 = 460
@@ -200,19 +203,42 @@ end
 
 function ServerListBackground()
 	if Engine.IsAliensMode() then
-		return { image = "frontend_aliens_art", fill_color = {
-			r = 1,
-			g = 1,
-			b = 1
-		}, fill_alpha = 1 }
+		return {
+			image = "frontend_aliens_art",
+			fill_color = {
+				r = 1,
+				g = 1,
+				b = 1
+			},
+			fill_alpha = 1
+		}
 	end
 
 	if Engine.IsCoreMode() then
-		return { image = "white", fill_color = {
-			r = 0.07,
-			g = 0.1,
-			b = 0.11
-		}, fill_alpha = 1 }
+		return {
+			image = "white",
+			fill_color = {
+				r = 0.07,
+				g = 0.1,
+				b = 0.11
+			},
+			fill_alpha = 1
+		}
+	end
+end
+
+function JoinGame(f2_arg0, f2_arg1)
+	server = f2_arg1
+	controller = server.controller
+	if not f2_local1 then
+		controller = Engine.GetFirstActiveController()
+	end
+
+	local is_private = Lobby.GetServerData(controller, server.idx, 5)
+	if is_private == "1" then
+		LUI.FlowManager.RequestPopupMenu(server, "server_password_field", false, controller, false)
+	else
+		Lobby.JoinServer(controller, server.idx)
 	end
 end
 
@@ -252,7 +278,7 @@ SystemLinkJoinMenu.menu_systemlink_join = function()
 		},
 		handlers = {
 			menu_create = SystemLinkJoinMenu.OnCreate,
-			select_game = SystemLinkJoinMenu.JoinGame
+			select_game = JoinGame
 		},
 		children = {
 			{
@@ -392,3 +418,219 @@ LUI.MenuBuilder.m_definitions["menu_systemlink_join"] = function()
 
 	return menu
 end
+
+ServerPaswordListFeeder = function()
+	return {
+		{
+			type = "UIVerticalList",
+			id = "password_field_items",
+			states = {
+				default = {
+					topAnchor = true,
+					leftAnchor = true,
+					bottomAnchor = false,
+					rightAnchor = true,
+				}
+			},
+			children = {
+				{
+					type = "UIGenericButton",
+					id = "password_button_id",
+					properties = {
+						variant = GenericButtonSettings.Variants.Plain,
+						button_text = Engine.Localize("PATCH_MENU_CHANGE_PASSWORD_CAPS"),
+						button_display_func = function()
+							local f31_local0 = Engine.GetDvarString("password")
+							if f31_local0 then
+								f31_local0 = Engine.GetDvarString("password") ~= ""
+							end
+							local f31_local1
+							if f31_local0 then
+								f31_local1 = Engine.Localize("PATCH_MENU_PASSWORD_SET")
+								if not f31_local1 then
+
+								else
+									return f31_local1
+								end
+							end
+							f31_local1 = Engine.Localize("MENU_NONE")
+						end,
+						button_action_func = function(f32_arg0, f32_arg1)
+							Engine.ExecNow("setfromdvar ui_password password")
+							Engine.OpenScreenKeyboard(f32_arg1.controller, Engine.Localize("MENU_PASSWORD"), Engine.GetDvarString("ui_password") or "", Lobby.PasswordLength, false, false, CoD.KeyboardInputTypes.Password)
+						end
+					},
+					handlers = {
+						text_input_complete = function(f33_arg0, f33_arg1)
+							if f33_arg1.text then
+								Engine.SetDvarString("password", f33_arg1.text)
+								f33_arg0:processEvent({
+									name = "content_refresh"
+								})
+							end
+						end
+					}
+				},
+				{
+					type = "UIGenericButton",
+					id = "connect_button_id",
+					properties = {
+						variant = GenericButtonSettings.Variants.Plain,
+						button_text = Engine.Localize("MENU_JOIN_GAME"), button_action_func = function()
+							Lobby.JoinServer(controller, server.idx)
+						end
+					}
+
+				}
+			}
+		}
+	}
+end
+
+password_field = function(f50_arg0, f50_arg1)
+	return {
+		type = "UIElement",
+		id = "server_popup_container_id",
+		states = {
+			default = {
+				topAnchor = true,
+				bottomAnchor = true,
+				leftAnchor = true,
+				rightAnchor = true,
+				top = 0,
+				bottom = 0,
+				left = 0,
+				right = 0
+			}
+		},
+		children = {
+			{
+				type = "UIImage",
+				id = "darken_bg",
+				states = {
+					default = CoD.ColorizeState(Swatches.Overlay.Color, {
+						topAnchor = true,
+						bottomAnchor = true,
+						leftAnchor = true,
+						rightAnchor = true,
+						left = 0,
+						right = 0,
+						top = 0,
+						bottom = 0,
+						material = RegisterMaterial("white"),
+						alpha = Swatches.Overlay.AlphaMore
+					})
+				}
+			},
+			{
+				type = "UIElement",
+				id = "mp_server_filters_popup_id",
+				states = {
+					default = {
+						topAnchor = false,
+						bottomAnchor = false,
+						leftAnchor = false,
+						rightAnchor = false,
+						top = -1 * Leaderboards.Layout.FilterHeight * 0.6,
+						width = Leaderboards.Layout.FilterWidth,
+						height = 145
+					}
+				},
+				children = {
+					{
+						type = "generic_drop_shadow",
+						properties = {
+							offset_shadow = 0
+						}
+					},
+					{
+						type = "generic_menu_titlebar",
+						id = "server_filters_popup_title_bar_id",
+						properties = {
+							title_bar_text = Engine.Localize("@LUA_MENU_LOBBY_JOINING"),
+							fill_alpha = 1
+						}
+					},
+					{
+						type = "generic_menu_background",
+						id = "server_filters_popup_background",
+						properties = {
+							fill_alpha = 1
+						}
+					},
+					{
+						type = "UIElement",
+						id = "mp_server_password_popup_page_id",
+						states = {
+							default = {
+								topAnchor = true,
+								bottomAnchor = true,
+								leftAnchor = true,
+								rightAnchor = true,
+								top = AAR.Layout.TitleBarHeight + 1,
+								bottom = -1,
+								left = 1,
+								right = -1,
+							}
+						},
+						children = {
+							{
+								type = "generic_border",
+								properties = {
+									thickness = 2,
+									border_red = Colors.generic_menu_frame_color.r,
+									border_green = Colors.generic_menu_frame_color.g,
+									border_blue = Colors.generic_menu_frame_color.b
+								},
+								states = {
+									default = {
+										topAnchor = true,
+										bottomAnchor = true,
+										leftAnchor = true,
+										rightAnchor = true,
+										top = 0,
+										bottom = 0,
+										left = 0,
+										right = 0,
+										alpha = 0.6
+									}
+								}
+							},
+							{
+								type = "UIVerticalList",
+								id = "server_filters_popup_vlist",
+								states = {
+									default = {
+										topAnchor = false,
+										bottomAnchor = true,
+										leftAnchor = true,
+										rightAnchor = true,
+										top = -90,
+										bottom = 0,
+										left = 0,
+										right = 0,
+										spacing = 5
+									}
+								},
+								childrenFeeder = ServerPaswordListFeeder
+							}
+						}
+					},
+					{
+						type = "UIBindButton",
+						id = "filters_popup_back_button",
+						handlers = {
+							button_secondary = MBh.DoMultiple({
+								MBh.LeaveMenu(),
+								FiltersPopupClose,
+								ForceRefreshServers
+							})
+						}
+					}
+				}
+			}
+		}
+	}
+end
+
+LUI.MenuBuilder.registerDef("server_password_field", password_field)

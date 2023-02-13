@@ -264,6 +264,25 @@ namespace patches
 
 			reinterpret_cast<void(*)(game::mp::client_t*, game::msg_t*)>(0x140472500)(client, msg);
 		}
+
+		void update_last_seen_players_stub(utils::hook::assembler& a)
+		{
+			const auto safe_continue = a.newLabel();
+
+			// (game's code)
+			a.mov(rax, ptr(rbx)); // g_entities pointer
+
+			// Avoid crash if pointer is nullptr
+			a.test(rax, rax);
+			a.jz(safe_continue);
+
+			// Jump back in (game's code)
+			a.mov(dword_ptr(rax, 0x34F8), 0);
+
+			// Continue to next iter in this loop
+			a.bind(safe_continue);
+			a.jmp(0x1403A1A10);
+		}
 	}
 
 	class component final : public component_interface
@@ -392,6 +411,12 @@ namespace patches
 
 			// Remove cheat protection from r_umbraExclusive
 			dvars::override::register_bool("r_umbraExclusive", false, game::DVAR_FLAG_NONE);
+
+			// Patch crash caused by the server trying to kick players for 'invalid password'
+			utils::hook::jump(0x1403A1A03, utils::hook::assemble(update_last_seen_players_stub), true);
+			utils::hook::nop(0x1403A1A0F, 1);
+			// ^^
+			utils::hook::nop(0x1403A072F, 5); // LiveStorage_RecordMovementInMatchdata
 		}
 
 		static void patch_sp()

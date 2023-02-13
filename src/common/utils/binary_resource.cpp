@@ -8,7 +8,7 @@ namespace utils
 	{
 		std::string get_temp_folder()
 		{
-			char path[MAX_PATH] = {0};
+			char path[MAX_PATH]{};
 			if (!GetTempPathA(sizeof(path), path))
 			{
 				throw std::runtime_error("Unable to get temp path");
@@ -17,7 +17,7 @@ namespace utils
 			return path;
 		}
 
-		std::string write_existing_temp_file(const std::string& file, const std::string& data)
+		std::string write_existing_temp_file(const std::string& file, const std::string& data, const bool fatal_if_overwrite_fails)
 		{
 			const auto temp = get_temp_folder();
 			const auto file_path = temp + file;
@@ -33,7 +33,7 @@ namespace utils
 				return file_path;
 			}
 
-			if (current_data == data || io::write_file(file_path, data))
+			if (current_data == data || io::write_file(file_path, data) || !fatal_if_overwrite_fails)
 			{
 				return file_path;
 			}
@@ -44,8 +44,8 @@ namespace utils
 		}
 	}
 
-	binary_resource::binary_resource(const int id, const std::string& file)
-		: filename_(file)
+	binary_resource::binary_resource(const int id, std::string file)
+		: filename_(std::move(file))
 	{
 		this->resource_ = nt::load_resource(id);
 
@@ -55,11 +55,11 @@ namespace utils
 		}
 	}
 
-	std::string binary_resource::get_extracted_file()
+	std::string binary_resource::get_extracted_file(const bool fatal_if_overwrite_fails)
 	{
 		if (this->path_.empty())
 		{
-			this->path_ = write_existing_temp_file(this->filename_, this->resource_);
+			this->path_ = write_existing_temp_file(this->filename_, this->resource_, fatal_if_overwrite_fails);
 		}
 
 		return this->path_;

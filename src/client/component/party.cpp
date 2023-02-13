@@ -151,7 +151,7 @@ namespace party
 	int get_client_count()
 	{
 		auto count = 0;
-		for (auto i = 0; i < *game::mp::svs_numclients; ++i)
+		for (auto i = 0; i < *game::mp::svs_clientCount; ++i)
 		{
 			if (game::mp::svs_clients[i].header.state >= game::CS_CONNECTED)
 			{
@@ -165,7 +165,7 @@ namespace party
 	int get_bot_count()
 	{
 		auto count = 0;
-		for (auto i = 0; i < *game::mp::svs_numclients; ++i)
+		for (auto i = 0; i < *game::mp::svs_clientCount; ++i)
 		{
 			if (game::mp::svs_clients[i].header.state >= game::CS_CONNECTED &&
 				game::mp::svs_clients[i].testClient != game::TC_NONE)
@@ -177,6 +177,11 @@ namespace party
 		return count;
 	}
 
+	game::netadr_s& get_target()
+	{
+		return connect_state.host;
+	}
+
 	void reset_connect_state()
 	{
 		connect_state = {};
@@ -184,7 +189,7 @@ namespace party
 
 	int get_client_num_from_name(const std::string& name)
 	{
-		for (auto i = 0; !name.empty() && i < *game::mp::svs_numclients; ++i)
+		for (auto i = 0; !name.empty() && i < *game::mp::svs_clientCount; ++i)
 		{
 			if (game::mp::g_entities[i].client)
 			{
@@ -341,7 +346,7 @@ namespace party
 				}
 
 				const auto client_num = atoi(params.get(1));
-				if (client_num < 0 || client_num >= *game::mp::svs_numclients)
+				if (client_num < 0 || client_num >= *game::mp::svs_clientCount)
 				{
 					return;
 				}
@@ -378,7 +383,7 @@ namespace party
 				const std::string name = params.get(1);
 				if (name == "all"s)
 				{
-					for (auto i = 0; i < *game::mp::svs_numclients; ++i)
+					for (auto i = 0; i < *game::mp::svs_clientCount; ++i)
 					{
 						scheduler::once([i, reason]
 						{
@@ -389,7 +394,7 @@ namespace party
 				}
 
 				const auto client_num = get_client_num_from_name(name);
-				if (client_num < 0 || client_num >= *game::mp::svs_numclients)
+				if (client_num < 0 || client_num >= *game::mp::svs_clientCount)
 				{
 					return;
 				}
@@ -402,9 +407,9 @@ namespace party
 
 			scheduler::once([]
 			{
-				game::Dvar_RegisterString("sv_sayName", "console", game::DvarFlags::DVAR_FLAG_NONE,
+				game::Dvar_RegisterString("sv_sayName", "console", game::DVAR_FLAG_NONE,
 				                          "The name to pose as for 'say' commands");
-				game::Dvar_RegisterString("didyouknow", "", game::DvarFlags::DVAR_FLAG_NONE, "");
+				game::Dvar_RegisterString("didyouknow", "", game::DVAR_FLAG_NONE, "");
 			}, scheduler::pipeline::main);
 
 			command::add("tell", [](const command::params& params)
@@ -476,7 +481,7 @@ namespace party
 				info.set("isPrivate", dvars::get_string("g_password").empty() ? "0" : "1");
 				info.set("clients", std::to_string(get_client_count()));
 				info.set("bots", std::to_string(get_bot_count()));
-				info.set("sv_maxclients", std::to_string(*game::mp::svs_numclients));
+				info.set("sv_maxclients", std::to_string(*game::mp::svs_clientCount));
 				info.set("protocol", std::to_string(PROTOCOL));
 				info.set("shortversion", SHORTVERSION);
 
@@ -511,17 +516,24 @@ namespace party
 					return;
 				}
 
-				const auto gametype = info.get("gametype");
-				if (gametype.empty())
+				const auto game_type = info.get("gametype");
+				if (game_type.empty())
 				{
 					console::info("Invalid gametype.\n");
 					return;
 				}
 
-				const auto gamename = info.get("gamename");
-				if (gamename != "IW6"s)
+				const auto game_name = info.get("gamename");
+				if (game_name != "IW6"s)
 				{
 					console::info("Invalid gamename.\n");
+					return;
+				}
+
+				const auto is_private = info.get("isPrivate");
+				if (is_private == "1"s && dvars::get_string("password").empty())
+				{
+					console::info("Password is not set.\n");
 					return;
 				}
 
@@ -536,7 +548,7 @@ namespace party
 					sv_maxclients = 1;
 				}
 
-				connect_to_party(target, mapname, gametype);
+				connect_to_party(target, mapname, game_type);
 			});
 		}
 	};
