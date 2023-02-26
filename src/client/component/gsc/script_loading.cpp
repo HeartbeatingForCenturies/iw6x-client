@@ -156,7 +156,7 @@ namespace gsc
 
 			console::info("Decompiling scriptfile '%s'\n", real_name.data());
 
-			const auto len = script_file->compressedLen ? script_file->compressedLen : script_file->len;
+			const auto len = script_file->compressedLen;
 			const std::string stack{script_file->buffer, static_cast<std::uint32_t>(len)};
 
 			const auto decompressed_stack = utils::compression::zlib::decompress(stack);
