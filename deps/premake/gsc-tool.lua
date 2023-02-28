@@ -9,12 +9,7 @@ end
 
 function gsc_tool.includes()
 	includedirs {
-		path.join(gsc_tool.source, "iw6"),
-		path.join(gsc_tool.source, "utils"),
-		path.join(gsc_tool.source, "gsc"),
 		gsc_tool.source,
-
-		path.join(dependencies.basePath, "extra/gsc-tool"),
 	}
 end
 
@@ -34,7 +29,6 @@ function gsc_tool.project()
 		}
 
 		zlib.includes()
-		fmt.includes()
 
 	project "xsk-gsc-iw6"
 		kind "StaticLib"
@@ -45,6 +39,8 @@ function gsc_tool.project()
 		filter {}
 
 		files {
+			path.join(gsc_tool.source, "stdinc.hpp"),
+
 			path.join(gsc_tool.source, "iw6/iw6_pc.hpp"),
 			path.join(gsc_tool.source, "iw6/iw6_pc.cpp"),
 			path.join(gsc_tool.source, "iw6/iw6_pc_code.cpp"),
@@ -56,17 +52,11 @@ function gsc_tool.project()
 			path.join(gsc_tool.source, "gsc/misc/*.cpp"),
 			path.join(gsc_tool.source, "gsc/*.hpp"),
 			path.join(gsc_tool.source, "gsc/*.cpp"),
-
-			path.join(dependencies.basePath, "extra/gsc-tool/gsc_interface.cpp"),
 		}
 
 		includedirs {
-			path.join(gsc_tool.source, "iw6"),
 			gsc_tool.source,
-			path.join(dependencies.basePath, "extra/gsc-tool"),
 		}
-
-		fmt.includes()
 end
 
 table.insert(dependencies, gsc_tool)

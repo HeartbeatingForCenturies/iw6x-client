@@ -4,8 +4,7 @@
 #include <utils/string.hpp>
 
 #include "component/gsc/script_extension.hpp"
-
-#include <gsc_interface.hpp>
+#include "component/gsc/script_loading.hpp"
 
 namespace scripting
 {
@@ -14,8 +13,8 @@ namespace scripting
 		int find_function_index(const std::string& name, [[maybe_unused]] const bool prefer_global)
 		{
 			const auto target = utils::string::to_lower(name);
-			auto const& first = gsc::cxt->func_map();
-			auto const& second = gsc::cxt->meth_map();
+			auto const& first = gsc::gsc_ctx->func_map();
+			auto const& second = gsc::gsc_ctx->meth_map();
 
 			if (const auto itr = first.find(name); itr != first.end())
 			{
@@ -43,17 +42,17 @@ namespace scripting
 
 	std::string find_token(std::uint32_t id)
 	{
-		return gsc::cxt->token_name(id);
+		return gsc::gsc_ctx->token_name(id);
 	}
 
 	std::string find_token_single(std::uint32_t id)
 	{
-		return gsc::cxt->token_name(id);
+		return gsc::gsc_ctx->token_name(id);
 	}
 
 	unsigned int find_token_id(const std::string& name)
 	{
-		const auto id = gsc::cxt->token_id(name);
+		const auto id = gsc::gsc_ctx->token_id(name);
 		if (id)
 		{
 			return id;
