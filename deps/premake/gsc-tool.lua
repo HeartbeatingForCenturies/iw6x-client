@@ -1,5 +1,5 @@
 gsc_tool = {
-	source = path.join(dependencies.basePath, "gsc-tool/src"),
+	source = path.join(dependencies.basePath, "gsc-tool"),
 }
 
 function gsc_tool.import()
@@ -9,7 +9,7 @@ end
 
 function gsc_tool.includes()
 	includedirs {
-		gsc_tool.source,
+		path.join(gsc_tool.source, "include"),
 	}
 end
 
@@ -19,13 +19,12 @@ function gsc_tool.project()
 		language "C++"
 
 		files {
-			path.join(gsc_tool.source, "utils/**.hpp"),
-			path.join(gsc_tool.source, "utils/**.cpp"),
+			path.join(gsc_tool.source, "include/xsk/utils/*.hpp"),
+			path.join(gsc_tool.source, "src/utils/*.cpp"),
 		}
 
 		includedirs {
-			path.join(gsc_tool.source, "utils"),
-			gsc_tool.source,
+			path.join(gsc_tool.source, "include"),
 		}
 
 		zlib.includes()
@@ -39,23 +38,24 @@ function gsc_tool.project()
 		filter {}
 
 		files {
-			path.join(gsc_tool.source, "stdinc.hpp"),
+			path.join(gsc_tool.source, "include/xsk/stdinc.hpp"),
 
-			path.join(gsc_tool.source, "iw6/iw6_pc.hpp"),
-			path.join(gsc_tool.source, "iw6/iw6_pc.cpp"),
-			path.join(gsc_tool.source, "iw6/iw6_pc_code.cpp"),
-			path.join(gsc_tool.source, "iw6/iw6_pc_func.cpp"),
-			path.join(gsc_tool.source, "iw6/iw6_pc_meth.cpp"),
-			path.join(gsc_tool.source, "iw6/iw6_pc_token.cpp"),
+			path.join(gsc_tool.source, "include/xsk/gsc/engine/iw6_pc.hpp"),
+			path.join(gsc_tool.source, "src/gsc/engine/iw6_pc.cpp"),
 
-			path.join(gsc_tool.source, "gsc/misc/*.hpp"),
-			path.join(gsc_tool.source, "gsc/misc/*.cpp"),
-			path.join(gsc_tool.source, "gsc/*.hpp"),
-			path.join(gsc_tool.source, "gsc/*.cpp"),
+			path.join(gsc_tool.source, "src/gsc/engine/iw6_pc_code.cpp"),
+			path.join(gsc_tool.source, "src/gsc/engine/iw6_pc_func.cpp"),
+			path.join(gsc_tool.source, "src/gsc/engine/iw6_pc_meth.cpp"),
+			path.join(gsc_tool.source, "src/gsc/engine/iw6_pc_token.cpp"),
+
+			path.join(gsc_tool.source, "src/gsc/*.cpp"),
+
+			path.join(gsc_tool.source, "src/gsc/common/*.cpp"),
+			path.join(gsc_tool.source, "include/xsk/gsc/common/*.hpp"),
 		}
 
 		includedirs {
-			gsc_tool.source,
+			path.join(gsc_tool.source, "include"),
 		}
 end
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <iw6/iw6_pc.hpp>
+#include <xsk/gsc/engine/iw6_pc.hpp>
 
 namespace gsc
 {
