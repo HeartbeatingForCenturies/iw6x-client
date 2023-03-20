@@ -2,13 +2,16 @@
 #include "loader/component_loader.hpp"
 #include "game/game.hpp"
 
-#include "scheduler.hpp"
-#include "server_list.hpp"
-#include "network.hpp"
 #include "command.hpp"
 #include "console.hpp"
+#include "dvars.hpp"
+#include "network.hpp"
+#include "party.hpp"
+#include "scheduler.hpp"
+#include "server_list.hpp"
 
 #include <utils/hook.hpp>
+#include <utils/string.hpp>
 
 #include <version.hpp>
 
@@ -56,6 +59,50 @@ namespace dedicated
 
 			// R_LoadGraphicsAssets
 			reinterpret_cast<void(*)()>(0x1405E6F80)();
+		}
+
+		void start_map(const std::string& map_name)
+		{
+			if (game::Live_SyncOnlineDataFlags(0) != 0)
+			{
+				scheduler::on_game_initialized([map_name]
+				{
+					command::execute(std::format("map {}", map_name), false);
+				}, scheduler::pipeline::main, 1s);
+
+				return;
+			}
+
+			party::switch_gamemode_if_necessary(dvars::get_string("g_gametype"));
+
+			if (!game::environment::is_dedi())
+			{
+				party::perform_game_initialization();
+			}
+
+			const auto* current_mapname = game::Dvar_FindVar("mapname");
+			if (current_mapname && utils::string::to_lower(current_mapname->current.string) == utils::string::to_lower(map_name) && game::SV_Loaded())
+			{
+				console::info("Restarting map: %s\n", map_name.data());
+				command::execute("map_restart", false);
+				return;
+			}
+
+			console::info("Starting map: %s\n", map_name.data());
+			game::SV_StartMapForParty(0, map_name.data(), false, false);
+		}
+
+		void map_restart()
+		{
+			if (!game::SV_Loaded())
+			{
+				return;
+			}
+
+			*reinterpret_cast<int*>(0x144DB8C84) = 1; // sv_map_restart
+			*reinterpret_cast<int*>(0x144DB8C88) = 1; // sv_loadScripts
+			*reinterpret_cast<int*>(0x144DB8C8C) = 0; // sv_migrate
+			reinterpret_cast<void(*)()>(0x14046F3B0)(); // SV_CheckLoadGame
 		}
 
 		game::dvar_t* register_maxfps_stub(const char* name, int, int, int, unsigned int flags,
@@ -176,6 +223,31 @@ namespace dedicated
 			}, scheduler::pipeline::main, 3s); // scheduler::main -> scheduler::pipeline::main ???
 
 			game::Com_Error(game::ERR_DROP, "%s", buffer);
+		}
+
+		void add_commands()
+		{
+			command::add("map", [](const command::params& params)
+			{
+				if (params.size() != 2)
+				{
+					return;
+				}
+
+				start_map(utils::string::to_lower(params[1]));
+			});
+
+			command::add("map_restart", map_restart);
+
+			command::add("fast_restart", []
+			{
+				if (game::SV_Loaded())
+				{
+					game::SV_FastRestart();
+				}
+			});
+
+			command::add("heartbeat", send_heartbeat);
 		}
 	}
 
@@ -316,7 +388,8 @@ namespace dedicated
 			// Send heartbeat to dpmaster
 			scheduler::once(send_heartbeat, scheduler::pipeline::server);
 			scheduler::loop(send_heartbeat, scheduler::pipeline::server, 10min);
-			command::add("heartbeat", send_heartbeat);
+
+			add_commands();
 		}
 	};
 }

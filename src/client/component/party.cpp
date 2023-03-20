@@ -37,66 +37,6 @@ namespace party
 
 		int sv_maxclients;
 
-		void switch_gamemode_if_necessary(const std::string& gametype)
-		{
-			const auto target_mode = gametype == "aliens" ? game::CODPLAYMODE_ALIENS : game::CODPLAYMODE_CORE;
-			const auto current_mode = game::Com_GetCurrentCoDPlayMode();
-
-			if (current_mode != target_mode)
-			{
-				switch (target_mode)
-				{
-				case game::CODPLAYMODE_CORE:
-					game::SwitchToCoreMode();
-					break;
-				case game::CODPLAYMODE_ALIENS:
-					game::SwitchToAliensMode();
-					break;
-				}
-			}
-		}
-
-		void perform_game_initialization()
-		{
-			// This fixes several crashes and impure client stuff
-			command::execute("onlinegame 1", true);
-			command::execute("exec default_xboxlive.cfg", true);
-			command::execute("xstartprivateparty", true);
-			command::execute("xblive_privatematch 0", true);
-			command::execute("startentitlements", true);
-		}
-
-		void start_map(const std::string& mapname)
-		{
-			if (game::Live_SyncOnlineDataFlags(0) != 0)
-			{
-				scheduler::on_game_initialized([mapname]
-				{
-					command::execute("map " + mapname, false);
-				}, scheduler::pipeline::main, 1s);
-			}
-			else
-			{
-				switch_gamemode_if_necessary(dvars::get_string("g_gametype"));
-
-				if (!game::environment::is_dedi())
-				{
-					perform_game_initialization();
-				}
-
-				auto* current_mapname = game::Dvar_FindVar("mapname");
-				if (current_mapname && utils::string::to_lower(current_mapname->current.string) == utils::string::to_lower(mapname) && game::SV_Loaded())
-				{
-					console::info("Restarting map: %s\n", mapname.data());
-					command::execute("map_restart", false);
-					return;
-				}
-
-				console::info("Starting map: %s\n", mapname.data());
-				game::SV_StartMapForParty(0, mapname.data(), false, false);
-			}
-		}
-
 		void connect_to_party(const game::netadr_s& target, const std::string& mapname, const std::string& gametype)
 		{
 			if (game::environment::is_sp())
@@ -141,6 +81,35 @@ namespace party
 			a.mov(ecx, 2);
 			a.jmp(0x1402C617D);
 		});
+	}
+
+	void switch_gamemode_if_necessary(const std::string& gametype)
+	{
+		const auto target_mode = gametype == "aliens" ? game::CODPLAYMODE_ALIENS : game::CODPLAYMODE_CORE;
+		const auto current_mode = game::Com_GetCurrentCoDPlayMode();
+
+		if (current_mode != target_mode)
+		{
+			switch (target_mode)
+			{
+			case game::CODPLAYMODE_CORE:
+				game::SwitchToCoreMode();
+				break;
+			case game::CODPLAYMODE_ALIENS:
+				game::SwitchToAliensMode();
+				break;
+			}
+		}
+	}
+
+	void perform_game_initialization()
+	{
+		// This fixes several crashes and impure client stuff
+		command::execute("onlinegame 1", true);
+		command::execute("exec default_xboxlive.cfg", true);
+		command::execute("xstartprivateparty", true);
+		command::execute("xblive_privatematch 0", true);
+		command::execute("startentitlements", true);
 	}
 
 	int server_client_count()
@@ -222,18 +191,6 @@ namespace party
 		network::send(target, "getInfo", connect_state.challenge);
 	}
 
-	void map_restart()
-	{
-		if (!game::SV_Loaded())
-		{
-			return;
-		}
-		*reinterpret_cast<int*>(0x144DB8C84) = 1; // sv_map_restart
-		*reinterpret_cast<int*>(0x144DB8C88) = 1; // sv_loadScripts
-		*reinterpret_cast<int*>(0x144DB8C8C) = 0; // sv_migrate
-		reinterpret_cast<void(*)()>(0x14046F3B0)(); // SV_CheckLoadGame
-	}
-
 	void didyouknow_stub(game::dvar_t* dvar, const char* string)
 	{
 		if (dvar->name == "didyouknow"s && !party::sv_motd.empty())
@@ -269,27 +226,7 @@ namespace party
 
 			didyouknow_hook.create(game::Dvar_SetString, didyouknow_stub);
 
-			command::add("map", [](const command::params& argument)
-			{
-				if (argument.size() != 2)
-				{
-					return;
-				}
-
-				start_map(argument[1]);
-			});
-
-			command::add("map_restart", map_restart);
-
-			command::add("fast_restart", []
-			{
-				if (game::SV_Loaded())
-				{
-					game::SV_FastRestart();
-				}
-			});
-
-			command::add("reconnect", [](const command::params& argument)
+			command::add("reconnect", []([[maybe_unused]] const command::params& params)
 			{
 				if (!connect_state.hostDefined)
 				{
@@ -308,15 +245,15 @@ namespace party
 				}
 			});
 
-			command::add("connect", [](const command::params& argument)
+			command::add("connect", [](const command::params& params)
 			{
-				if (argument.size() != 2)
+				if (params.size() != 2)
 				{
 					return;
 				}
 
 				game::netadr_s target{};
-				if (game::NET_StringToAdr(argument[1], &target))
+				if (game::NET_StringToAdr(params[1], &target))
 				{
 					connect(target);
 				}
