@@ -163,11 +163,11 @@ void limit_parallel_dll_loading()
 
 void apply_environment()
 {
-	wchar_t* buffer{};
+	char* buffer{};
 	std::size_t size{};
-	if (_wdupenv_s(&buffer, &size, L"XLABS_GHOSTS_INSTALL") != 0 || buffer == nullptr)
+	if (_dupenv_s(&buffer, &size, "XLABS_GHOSTS_INSTALL") != 0 || buffer == nullptr)
 	{
-		throw std::runtime_error("Please use the X Labs launcher to run the game!");
+		return;
 	}
 
 	const auto _ = gsl::finally([&]
@@ -175,8 +175,8 @@ void apply_environment()
 		std::free(buffer);
 	});
 
-	SetCurrentDirectoryW(buffer);
-	SetDllDirectoryW(buffer);
+	SetCurrentDirectoryA(buffer);
+	SetDllDirectoryA(buffer);
 }
 
 int main()
