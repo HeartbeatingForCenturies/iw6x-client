@@ -2,6 +2,9 @@
 
 namespace party
 {
+	void switch_gamemode_if_necessary(const std::string& gametype);
+	void perform_game_initialization();
+
 	void reset_connect_state();
 
 	void connect(const game::netadr_s& target);

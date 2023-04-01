@@ -48,6 +48,3 @@
 	path = deps/gsc-tool
 	url = https://github.com/xensik/gsc-tool.git
 	branch = dev
-[submodule "deps/fmt"]
-	path = deps/fmt
-	url = https://github.com/fmtlib/fmt.git

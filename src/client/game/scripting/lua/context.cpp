@@ -5,11 +5,11 @@
 
 #include "game/scripting/execution.hpp"
 
+#include "component/gsc/script_loading.hpp"
+
 #include "component/command.hpp"
 #include "component/notifies.hpp"
 #include "component/scripting.hpp"
-
-#include <gsc_interface.hpp>
 
 #include <utils/string.hpp>
 
@@ -86,7 +86,7 @@ namespace scripting::lua
 
 			auto entity_type = state.new_usertype<entity>("entity");
 
-			for (auto const& func : gsc::cxt->meth_map())
+			for (auto const& func : gsc::gsc_ctx->meth_map())
 			{
 				const auto name = std::string(func.first);
 				entity_type[name] = [name](const entity& entity, const sol::this_state s, sol::variadic_args va)
@@ -212,7 +212,7 @@ namespace scripting::lua
 			auto game_type = state.new_usertype<game>("game_");
 			state["game"] = game();
 
-			for (auto const& func : gsc::cxt->func_map())
+			for (auto const& func : gsc::gsc_ctx->func_map())
 			{
 				const auto name = std::string(func.first);
 				game_type[name] = [name](const game&, const sol::this_state s, sol::variadic_args va)

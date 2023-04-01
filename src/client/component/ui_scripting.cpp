@@ -168,7 +168,7 @@ namespace ui_scripting
 				"end\n"
 				"g.__newindex = nil\n";
 
-			lua["loadstring"](code)[0]();
+			(void)lua["loadstring"](code)[0]();
 		}
 
 		void start()
