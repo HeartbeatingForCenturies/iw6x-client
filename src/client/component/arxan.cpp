@@ -71,11 +71,6 @@ namespace arxan
 				return EXCEPTION_CONTINUE_EXECUTION;
 			}
 
-			if (info->ExceptionRecord->ExceptionCode == STATUS_SINGLE_STEP)
-			{
-				return EXCEPTION_CONTINUE_EXECUTION;
-			}
-
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
@@ -165,7 +160,7 @@ namespace arxan
 			nt_query_information_process_hook.create(ntdll.get_proc<void*>("NtQueryInformationProcess"),
 			                                         nt_query_information_process_stub);
 
-			AddVectoredExceptionHandler(0, exception_filter);
+			AddVectoredExceptionHandler(1, exception_filter);
 		}
 
 		void post_unpack() override
