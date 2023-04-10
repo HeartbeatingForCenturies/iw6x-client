@@ -52,7 +52,7 @@ namespace utils
 	std::string info_string::build() const
 	{
 		std::string info_string;
-		for (const auto& [key, val] : key_value_pairs_)
+		for (const auto& [key, val] : this->key_value_pairs_)
 		{
 			info_string.append("\\");
 			info_string.append(key);
