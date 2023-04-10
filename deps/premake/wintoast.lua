@@ -9,7 +9,7 @@ end
 
 function wintoast.includes()
 	includedirs {
-		path.join(wintoast.source, "src"),
+		path.join(wintoast.source, "include"),
 	}
 end
 
@@ -21,8 +21,8 @@ function wintoast.project()
 		rapidjson.import();
 
 		files {
-			path.join(wintoast.source, "src/*.h"),
-			path.join(wintoast.source, "src/*.cpp"),
+			path.join(wintoast.source, "include/wintoastlib.h"),
+			path.join(wintoast.source, "src/wintoastlib.cpp"),
 		}
 
 		warnings "Off"
