@@ -6,7 +6,6 @@
 #include "command.hpp"
 #include "console.hpp"
 #include "dvars.hpp"
-#include "network.hpp"
 #include "filesystem.hpp"
 #include "scheduler.hpp"
 
@@ -251,20 +250,6 @@ namespace patches
 			cmd_lui_notify_server_hook.invoke<void>(ent);
 		}
 
-		void sv_execute_client_message_stub(game::mp::client_t* client, game::msg_t* msg)
-		{
-			if (client->reliableAcknowledge < 0)
-			{
-				client->reliableAcknowledge = client->reliableSequence;
-				console::info("Negative reliableAcknowledge from %s - cl->reliableSequence is %i, reliableAcknowledge is %i\n",
-					client->name, client->reliableSequence, client->reliableAcknowledge);
-				network::send(client->header.netchan.remoteAddress, "error", "EXE_LOSTRELIABLECOMMANDS", '\n');
-				return;
-			}
-
-			reinterpret_cast<void(*)(game::mp::client_t*, game::msg_t*)>(0x140472500)(client, msg);
-		}
-
 		void update_last_seen_players_stub(utils::hook::assembler& a)
 		{
 			const auto safe_continue = a.newLabel();
@@ -404,10 +389,6 @@ namespace patches
 
 			// Prevent clients from ending the game as non host by sending 'end_game' lui notification
 			cmd_lui_notify_server_hook.create(0x1403926A0, cmd_lui_notify_server_stub);
-
-			// Checks that reliableAcknowledge isn't negative
-			// It is possible to make the server hang if left unchecked
-			utils::hook::call(0x14047A29A, sv_execute_client_message_stub);
 
 			// Remove cheat protection from r_umbraExclusive
 			dvars::override::register_bool("r_umbraExclusive", false, game::DVAR_FLAG_NONE);
