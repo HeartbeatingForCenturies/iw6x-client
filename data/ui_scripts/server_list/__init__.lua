@@ -419,7 +419,7 @@ LUI.MenuBuilder.m_definitions["menu_systemlink_join"] = function()
 	return menu
 end
 
-ServerPaswordListFeeder = function()
+ServerPasswordListFeeder = function()
 	return {
 		{
 			type = "UIVerticalList",
@@ -612,7 +612,7 @@ password_field = function(f50_arg0, f50_arg1)
 										spacing = 5
 									}
 								},
-								childrenFeeder = ServerPaswordListFeeder
+								childrenFeeder = ServerPasswordListFeeder
 							}
 						}
 					},
